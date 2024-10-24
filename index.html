@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Literary Escape</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="icon" type="image/x-icon" href="./media/icon.png">
+    <script src="https://kit.fontawesome.com/f8c6d79c7d.js" crossorigin="anonymous"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+</head>
+<body>
+
+    <audio id="bgMusic" loop>
+        <source src="./media/Frédéric Chopin_ Nocturne in E-Flat Major, Op. 9, No. 2.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <button id="audioControl" class="audio-control">
+        <i class="fas fa-volume-up"></i>
+    </button>
+
+    <!-- Navbar -->
+    <header class="navbar">
+        <h1>LITERARY ESCAPE</h1>
+        <input type="search" placeholder="Search">
+        <div>
+            <a href="#" class="active">Home</a>
+            <a href="#">Shop</a>
+            <a href="#">Authors</a>
+            <a href="#">Discover</a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h2>WHERE <span>QUALITY</span> MEETS <span class="low-price">LOW PRICE</span></h2>
+            <button>Explore ↓</button>
+        </div>
+        <div class="book-covers">
+            <img src="./media/Unrivaled.png" alt="Book 1 Cover">
+            <img src="./media/LOCKED1.png" alt="Book 2 Cover">
+            <img src="./media/Reckoning.png" alt="Book 3 Cover">
+        </div>
+    </section>
+
+    <!-- Dedicated Section -->
+    <section class="dedicated-section">
+        <h2>DEDICATED FOR BOOKAHOLICS</h2>
+        <h5>By Fellow Enthusiasts</h5>
+        <p>Started 2024</p>
+        <a href="#" id="videoBtn" class="video-btn">Watch Video ►</a>
+        <div id="videoContainer" style="display: none;">
+            <div id="player"></div>
+            <button id="exitFullscreen" style="display: none;">Exit Fullscreen</button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <i class="fa-brands fa-facebook"></i>
+        <i class="fa-brands fa-instagram"></i>
+    </footer>
+
+    <script>
+        const audio = document.getElementById('bgMusic');
+        const audioControl = document.getElementById('audioControl');
+        const audioIcon = audioControl.querySelector('i');
+        const videoBtn = document.getElementById('videoBtn');
+        const videoContainer = document.getElementById('videoContainer');
+        const exitFullscreenBtn = document.getElementById('exitFullscreen');
+        let player;
+
+        audio.volume = 0.2; // Set initial volume to 20%
+
+        window.addEventListener('load', () => {
+            audio.play();
+        });
+
+        audioControl.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                audioIcon.className = 'fas fa-volume-up';
+            } else {
+                audio.pause();
+                audioIcon.className = 'fas fa-volume-mute';
+            }
+        });
+    </script>
+</body>
+</html>
