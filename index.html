@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
     <script src="https://kit.fontawesome.com/f8c6d79c7d.js" crossorigin="anonymous"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
 </head>
+
 <body>
 
     <audio id="bgMusic" loop>
@@ -16,7 +18,7 @@
         Your browser does not support the audio element.
     </audio>
 
-    <button id="audioControl" class="audio-control">
+    <button id="audioControl" class="audio-control" title="Audio Control">
         <i class="fas fa-volume-up"></i>
     </button>
 
@@ -50,9 +52,10 @@
         <h5>By Fellow Enthusiasts</h5>
         <p>Started 2024</p>
         <a href="#" id="videoBtn" class="video-btn">Watch Video ►</a>
-        <div id="videoContainer" style="display: none;">
-            <div id="player"></div>
-            <button id="exitFullscreen" style="display: none;">Exit Fullscreen</button>
+        <div id="videoContainer">
+            <iframe width="1920" height="1080" src="https://www.youtube.com/embed/h_pvijqmolQ" frameborder="0" allowfullscreen>
+            </iframe>
+            <button id="exitFullscreen">Exit Fullscreen</button>
         </div>
     </section>
 
@@ -67,6 +70,8 @@
         const audioControl = document.getElementById('audioControl');
         const audioIcon = audioControl.querySelector('i');
         const videoBtn = document.getElementById('videoBtn');
+        const videoContainer = document.getElementById('videoContainer');
+        const exitFullscreen = document.getElementById('exitFullscreen');
 
         audio.volume = 0.2; // Set initial volume to 20%
 
@@ -83,6 +88,19 @@
                 audioIcon.className = 'fas fa-volume-mute';
             }
         });
+
+        videoBtn.addEventListener('click', () => {
+            videoContainer.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            audio.pause();
+        });
+
+        exitFullscreen.addEventListener('click', () => {
+            videoContainer.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            audio.play();
+        });
     </script>
 </body>
+
 </html>
