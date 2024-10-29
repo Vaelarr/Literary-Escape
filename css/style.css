@@ -325,3 +325,54 @@ footer i:hover {
         padding: 1.2rem 3rem;
     }
 }
+
+/* Media queries for responsive design */
+@media screen and (max-width: 768px) {
+    .hero {
+        flex-direction: column;
+        padding: 20px;
+        text-align: center;
+        justify-content: center;
+    }
+
+    .hero-content {
+        margin-right: 0;
+        margin-bottom: 30px;
+    }
+
+    .hero-content h2 {
+        font-size: 24px; /* Smaller font size for mobile */
+        line-height: 1.4;
+    }
+
+    .hero-content button {
+        width: 80%; /* Wider button for better touch target */
+        max-width: 300px;
+        padding: 15px;
+        margin: 20px auto;
+    }
+
+    .book-covers {
+        margin-right: 0;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .book-covers img {
+        width: 120px; /* Smaller images for mobile */
+        height: auto;
+    }
+}
+
+/* For very small screens */
+@media screen and (max-width: 480px) {
+    .hero-content h2 {
+        font-size: 20px;
+    }
+
+    .book-covers img {
+        width: 100px;
+    }
+}
