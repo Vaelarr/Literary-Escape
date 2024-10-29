@@ -247,7 +247,7 @@ footer i:hover {
     }
 }
 
-/* Audio Control Button */
+
 .audio-control {
     position: fixed;
     bottom: 20px;
@@ -273,7 +273,7 @@ footer i:hover {
     transform: scale(1.1);
 }
 
-/* Add these styles for the video popup */
+
 #videoContainer {
     display: none;
     position: fixed;
@@ -299,13 +299,14 @@ footer i:hover {
     top: 20px;
     right: 20px;
     padding: 10px 20px;
-    background-color: #fff;
+    color: white;
+    background-color: #4B7051;
     border: none;
     cursor: pointer;
     z-index: 1001;
-    border-radius: 5px;
+    border-radius: 50%;
 }
 
 #exitFullscreen:hover {
-    background-color: #ddd;
+    background-color: #3a5a40;
 }
