@@ -175,7 +175,7 @@ body {
     transform: scale(1.15);
 }
 
-.dedicated-section iframe {
+.dedicated-section video {
     display: block;
     max-width: 100%;
     margin: 20px auto 0;
