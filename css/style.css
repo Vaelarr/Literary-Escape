@@ -51,13 +51,13 @@ body {
 
 .hero-content {
     text-align: left;
-    max-width: 50%;
+    max-width: 30%;
 }
 
 .hero h2 {
-    font-size: 2.6rem;
+    font-size: 150px;
     font-weight: 700;
-    margin: 0 0 1.5rem 0;
+    margin: 0 0 2.5rem 0;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
 }
 
@@ -292,13 +292,16 @@ footer i:hover {
     transform: translate(-50%, -50%);
     width: 80%;
     height: 80%;
+    max-width: 1920px;
+    max-height: 1080px;
 }
 
 #exitFullscreen {
     position: absolute;
     top: 20px;
     right: 20px;
-    padding: 15px 15px;
+    padding: 15px 20px;
+    font-size: 20px;
     color: white;
     background-color: #4B7051;
     border: none;
