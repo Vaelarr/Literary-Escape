@@ -92,15 +92,21 @@
             }
         });
 
+        let scrollPosition = 0;
+
         videoBtn.addEventListener('click', () => {
+            scrollPosition = window.pageYOffset;
             videoContainer.style.display = 'block';
-            document.body.style.overflow = 'hidden';
+            document.body.classList.add('video-open');
+            document.body.style.top = `-${scrollPosition}px`;
             audio.pause();
         });
 
         exitFullscreen.addEventListener('click', () => {
             videoContainer.style.display = 'none';
-            document.body.style.overflow = 'auto';
+            document.body.classList.remove('video-open');
+            document.body.style.top = '';
+            window.scrollTo(0, scrollPosition);
             audio.play();
         });
     </script>
