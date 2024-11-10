@@ -8,7 +8,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #4B7051;
+    background-color: #6A9C89;
     padding: 1rem;
 }
 
@@ -63,15 +63,15 @@ body {
 }
 
 .hero h2 span {
-    color: #F6895C;
+    color: #16423C;
 }
 
 .hero h2 span.low-price {
-    color: #4B7051;
+    color: #6A9C89;
 }
 
 .hero button {
-    background-color: #F6895C;
+    background-color: #16423C;
     color: white;
     border: none;
     padding: .5rem 0rem;
@@ -85,7 +85,7 @@ body {
 }
 
 .hero button:hover {
-    background-color: #e57a4f;
+    background-color: #0f2d29;
     transform: translateY(-2px);
     box-shadow: 0 6px 8px rgba(0,0,0,0.15);
 }
@@ -128,8 +128,18 @@ body {
     box-shadow: 1px 1px 10px rgba(0,0,0,0.2);
 }
 
+/* Featured Section */
+#featured-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 1080px;
+    background-color: #16423C;
+}
+
 /* Dedicated Section */
-.dedicated-section {
+#dedicated-section {
     background: linear-gradient(rgba(10, 10, 10, 0.5), rgba(0, 0, 0, 0.5)), url(../media/background.jpg);
     background-size: cover;
     color: white;
@@ -140,7 +150,7 @@ body {
     align-items: center;
 }
 
-.dedicated-section h2 {
+#dedicated-section h2 {
     font-size: 3rem;
     font-weight: 500;
     font-style: italic;
@@ -148,21 +158,21 @@ body {
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-.dedicated-section h5 {
+#dedicated-section h5 {
     font-size: 1.6rem;
     font-weight: 400;
     padding: 0px;
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
 }
 
-.dedicated-section p {
+#dedicated-section p {
     font-size: 1rem;
     padding-top: 0px;
     padding-bottom: 20px;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
-.dedicated-section .video-btn {
+#dedicated-section .video-btn {
     display: inline-block;
     margin-top: .2rem;
     padding: 0.7rem 2rem;
@@ -173,11 +183,11 @@ body {
     transition: all 0.3s ease;
 }
 
-.dedicated-section .video-btn:hover {
+#dedicated-section .video-btn:hover {
     transform: scale(1.15);
 }
 
-.dedicated-section video {
+#dedicated-section video {
     display: block;
     max-width: 100%;
     margin: 20px auto 0;
@@ -192,7 +202,7 @@ body {
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background-color: #4B7051;
+    background-color: #6A9C89;
     color: white;
     border: none;
     font-size: 20px;
@@ -206,7 +216,7 @@ body {
 }
 
 .audio-control:hover {
-    background-color: #3a5a40;
+    background-color: rgb(44, 69, 49);
     transform: scale(1.1);
 }
 
@@ -241,7 +251,7 @@ body {
     padding: 15px 20px;
     font-size: 20px;
     color: white;
-    background-color: #4B7051;
+    background-color: #6A9C89;
     border: none;
     cursor: pointer;
     z-index: 1001;
@@ -250,7 +260,7 @@ body {
 }
 
 #exitFullscreen:hover {
-    background-color: #3a5a40;
+    background-color: rgb(44, 69, 49);
     transform: scale(1.1);
 }
 
@@ -273,11 +283,11 @@ footer {
 footer i {
     font-size: 24px;
     margin: 0 15px;
-    color: #F6895C;
+    color: #16423C;
 }
 
 footer i:hover {
-    color: #995639;
+    color: #0f2d29;
     transition: color 0.3s ease;
 }
 
