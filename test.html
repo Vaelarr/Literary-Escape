@@ -1,0 +1,312 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="product-description-overlay" id="product-description-overlay">
+        <div class="product-description-container">
+            <span class="close-btn" id="close-description">&times;</span>
+            <div class="product-description-content">
+                <img id="product-description-img" src="" alt="Product Image">
+                <div class="product-description">
+                    <div>
+                        <h2 id="product-description-name">Product Name</h2>
+                    </div>
+                    <div class="product-rating">
+                        <div class="star-rating">
+                            <span class="average-rating">4.5</span>
+                            <span class="star">★★★★</span>
+                        </div>
+                        <div class="review-count">
+                            <span>100 reviews</span>
+                        </div>
+                        <div class="sold-count">
+                            <span>200 sold</span>
+                        </div>
+                    </div>
+                    <div class="price-label-container">
+                        <label class="price-label" for="price">Price:</label>
+                        <h3 id="product-description-price">₱320.00</h3>
+                    </div>
+                    <div class="size-label">
+                        <label for="size">Size:</label>
+                        <div class="size-options">
+                            <span class="size-option">Small</span>
+                            <span class="size-option">Medium</span>
+                            <span class="size-option">Large</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="product-breakdown">
+                    <div class="teka">placeholder</div>
+                    <div class="teka">placeholder</div>
+                    <div class="teka">placeholder</div>
+                    <div class="teka">placeholder</div>
+
+                    <div>
+                        <button class="add-to-cart-overlay" disabled>Add to Cart</button>
+                        <button class="checkout-overlay">Checkout</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!----Basket---->
+    <section id="container-basket">
+        <div id="cart-section" class="section">
+            <div class="cart-basket" id="cart-basket">
+                <h2 align="center">Cart</h2>
+                <div class="product-label">
+                    <ul>
+                        <li>
+                            <h5>Product Name</h5>
+                        </li>
+                        <li>
+                            <h5>Size</h5>
+                        </li>
+                        <li>
+                            <h5>Price</h5>
+                        </li>
+                        <li>
+                            <h5>Quantity</h5>
+                        </li>
+                    </ul>
+                </div>
+                <div id="cart-items">
+                    <!--items here--->
+                </div>
+                <div id="cart-total">
+                    <h3>Total: ₱0.00</h3>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        //Cart
+        document.addEventListener('DOMContentLoaded', () => {
+            const basketButton = document.getElementById('basket');
+            const cartSection = document.getElementById('cart-section');
+
+            cartSection.style.display = 'none';
+
+            basketButton.addEventListener('click', () => {
+                toggleCart();
+            });
+
+            const addToCartButtons = document.querySelectorAll('.add-to-cart');
+            addToCartButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    addToCart(button);
+                });
+            });
+
+            const sectionLinks = document.querySelectorAll('.nav-link');
+            sectionLinks.forEach(link => {
+                link.addEventListener('click', () => {
+
+                    cartSection.style.display = 'none';
+                });
+            });
+        });
+
+        function toggleCart() {
+            const cartSection = document.getElementById('cart-section');
+
+            if (cartSection.style.display === 'block') {
+                cartSection.style.display = 'none';
+            } else {
+                cartSection.style.display = 'block';
+            }
+        }
+
+        function changeQuantity(action, productName) {
+            const quantityText = document.getElementById(`quantity-${productName}`);
+            let currentQuantity = parseInt(quantityText.textContent);
+
+            if (action === 'increase') {
+                currentQuantity++;
+            } else if (action === 'decrease' && currentQuantity > 1) {
+                currentQuantity--;
+            }
+
+            quantityText.textContent = currentQuantity;
+
+            updateCartTotal();
+        }
+
+        function removeFromCart(button) {
+            const cartItem = button.closest('.cart-item');
+            if (cartItem) {
+                cartItem.remove();
+                updateCartTotal();
+                updateCartCounter();
+            }
+        }
+
+        function updateCartTotal() {
+            const cartItems = document.querySelectorAll('.cart-item');
+            let total = 0;
+
+            cartItems.forEach(item => {
+                const price = parseFloat(item.querySelector('.cart-item-price').textContent.replace('₱', ''));
+                const quantity = parseInt(item.querySelector('.quantity-text').textContent);
+                total += price * quantity;
+            });
+
+            const cartTotalElement = document.getElementById('cart-total');
+            cartTotalElement.textContent = `Total: ₱${total.toFixed(2)}`;
+        }
+
+        // Counter
+        let cartItemCount = 0;
+        function updateCartCounter() {
+            const cartCounter = document.getElementById('cart-counter');
+            const itemCount = document.querySelectorAll('.cart-item').length;
+            cartCounter.textContent = itemCount;
+        }
+
+        // Product Description
+        document.addEventListener('DOMContentLoaded', () => {
+            const sizeOptions = document.querySelectorAll('.size-option');
+            const addToCartButton = document.querySelector('.add-to-cart-overlay');
+            const closeButton = document.getElementById('close-description');
+            const overlay = document.getElementById('product-description-overlay');
+            const cartItems = document.getElementById('cart-items');
+            const miniCartItems = document.getElementById('mini-cart-items');
+            let sizeSelected = false;
+            let selectedSize = '';
+
+            const productElements = document.querySelectorAll('.product-list');
+            productElements.forEach(product => {
+                product.addEventListener('click', () => {
+                    const image = product.querySelector('img').src;
+                    const name = product.querySelector('.description').textContent;
+                    const price = product.querySelector('.price').textContent;
+
+                    document.getElementById('product-description-img').src = image;
+                    document.getElementById('product-description-name').textContent = name;
+                    document.getElementById('product-description-price').textContent = price;
+
+                    overlay.style.display = 'flex';
+                });
+            });
+
+            closeButton.addEventListener('click', () => {
+                overlay.style.display = 'none';
+            });
+
+            sizeOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    sizeOptions.forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+
+                    sizeSelected = true;
+                    selectedSize = option.textContent;
+
+                    addToCartButton.disabled = false;
+                });
+            });
+
+            addToCartButton.disabled = true;
+
+            addToCartButton.addEventListener('click', () => {
+                if (sizeSelected) {
+                    addToCartOverlay();
+                    displayMessage("Successfully added to cart");
+                    resetOverlay();
+                } else {
+                    displayMessage("Please select a size before adding to the cart");
+                }
+            });
+
+            function addToCartOverlay() {
+                const productImage = document.getElementById('product-description-img').src;
+                const productName = document.getElementById('product-description-name').textContent;
+                const productPrice = document.getElementById('product-description-price').textContent;
+
+                const cartItem = document.createElement('div');
+                cartItem.classList.add('cart-item');
+                cartItem.innerHTML = `
+            <div class="cart-item-image">
+                <img src="${productImage}" alt="${productName}" class="cart-item-image">
+            </div>
+            <div class="cart-item-name">
+                <h3>${productName}</h3>
+            </div>
+            <div class="cart-item-size">
+                <p>${selectedSize}</p>
+            </div>
+            <div class="cart-item-price">
+                <p>₱${parseFloat(productPrice.replace('₱', '')).toFixed(2)}</p>
+            </div>
+            <div class="cart-item-quantity">
+                <button class="quantity-btn decrease-btn" onclick="changeQuantity('decrease', '${productName}')">-</button>
+                <span id="quantity-${productName}" class="quantity-text">1</span>
+                <button class="quantity-btn increase-btn" onclick="changeQuantity('increase', '${productName}')">+</button>
+            </div>
+            <div class="cart-item-actions">
+                <button class="remove-btn" onclick="removeFromCart(this)">Remove</button>
+                <button class="checkout-btn">Checkout</button>
+            </div>
+        `;
+                document.getElementById('cart-items').appendChild(cartItem);
+                updateCartCounter();
+                updateCartTotal();
+
+                const miniCartItem = document.createElement('div');
+                miniCartItem.classList.add('mini-cart-item');
+                miniCartItem.innerHTML = `
+            <div class="mini-cart-item-image">
+                <img src="${productImage}" alt="${productName}" class="mini-cart-item-image">
+            </div>
+            <div class="mini-cart-item-name">
+                <h5>${productName}</h5>
+            </div>
+            <div class="mini-cart-item-price">
+                <h5>₱${parseFloat(productPrice.replace('₱', '')).toFixed(2)}</h5>
+            </div>
+        `;
+                miniCartItems.appendChild(miniCartItem);
+            }
+
+            function updateCartTotal() {
+                const cartItems = document.querySelectorAll('.cart-item');
+                let total = 0;
+                cartItems.forEach(item => {
+                    const priceElement = item.querySelector('.cart-item-price');
+                    const price = parseFloat(priceElement.textContent.replace('₱', ''));
+                    total += price;
+                });
+                document.getElementById('cart-total').textContent = `Total: ₱${total.toFixed(2)}`;
+            }
+
+            function displayMessage(message) {
+                const messageElement = document.getElementById('cart-notification');
+                messageElement.textContent = message;
+                messageElement.style.display = 'block';
+
+                setTimeout(() => {
+                    messageElement.style.display = 'none';
+                }, 2000);
+            }
+
+            function resetOverlay() {
+                sizeOptions.forEach(opt => opt.classList.remove('selected'));
+                selectedSize = '';
+                sizeSelected = false;
+                addToCartButton.disabled = true;
+                overlay.style.display = 'none';
+            }
+        });
+
+    </script>
+</body>
+
+</html>

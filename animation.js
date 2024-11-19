@@ -25,6 +25,118 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
+function toggleFavorite(heartButton, productData) {
+    let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+    const heartIcon = heartButton.querySelector('i');
+
+    // Check if item is already in favorites
+    const isFavorite = favorites.some(item => item.id === productData.id);
+
+    if (isFavorite) {
+        // Remove from favorites
+        favorites = favorites.filter(item => item.id !== productData.id);
+        heartIcon.style.color = '#000000';
+    } else {
+        // Add to favorites
+        favorites.push(productData);
+        heartIcon.style.color = '#ff0000';
+    }
+
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+}
+
+document.querySelectorAll('.product-box').forEach(productBox => {
+    const heartButton = productBox.querySelector('.icons a:first-child');
+    const productData = {
+        id: Date.now() + Math.random(), // Unique identifier
+        name: productBox.querySelector('.product-name h4').textContent,
+        price: parseFloat(productBox.querySelector('.product-price span').textContent),
+        image: productBox.querySelector('img').src
+    };
+
+    // Set initial heart color
+    const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+    if (favorites.some(item => item.name === productData.name)) {
+        heartButton.querySelector('i').style.color = '#ff0000';
+    }
+
+    heartButton.addEventListener('click', function (e) {
+        e.preventDefault();
+        toggleFavorite(this, productData);
+    });
+});
+
+function updateFavoritesCount() {
+    const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+    const count = favorites.length;
+    const favoritesLink = document.querySelector('a[href="favorites.html"]');
+    let badge = favoritesLink.querySelector('.favorites-count');
+
+    if (count > 0) {
+        if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'favorites-count';
+            badge.style.cssText = `
+                position: absolute;
+                top: -10px;
+                right: -10px;
+                background-color: #16423C;
+                color: white;
+                border-radius: 50%;
+                padding: 2px 6px;
+                font-size: 12px;
+                min-width: 18px;
+                height: 18px;
+                text-align: center;
+                line-height: 14px;
+                z-index: 5;
+            `;
+            favoritesLink.appendChild(badge);
+        }
+        badge.textContent = count;
+    } else if (badge) {
+        badge.remove();
+    }
+}
+
+// Update toggleFavorite function
+function toggleFavorite(heartButton, productData) {
+    let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+    const heartIcon = heartButton.querySelector('i');
+    const isFavorite = favorites.some(item => item.id === productData.id);
+
+    if (isFavorite) {
+        favorites = favorites.filter(item => item.id !== productData.id);
+        heartIcon.style.color = '#000000';
+    } else {
+        favorites.push(productData);
+        heartIcon.style.color = '#ff0000';
+    }
+
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    updateFavoritesCount();
+}
+
+// Update HTML for favorites link in navbar
+document.querySelector('.nav-icons a:first-child').href = 'favorites.html';
+
+// Initialize favorites count on page load
+document.addEventListener('DOMContentLoaded', function () {
+    updateFavoritesCount();
+    updateCartCount();
+});
+
+function updateTotals() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+    const shipping = cart.length > 0 ? 50 : 0;
+    const total = subtotal + shipping;
+
+    document.getElementById('subtotal').textContent = `₱${subtotal.toFixed(2)}`;
+    document.getElementById('total').textContent = `₱${total.toFixed(2)}`;
+    updateCheckoutButton();
+}
+
 function loadCart() {
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
     const cartContainer = document.getElementById('cartItems');
@@ -32,7 +144,7 @@ function loadCart() {
 
     if (cart.length === 0) {
         cartContainer.innerHTML = '<p class="text-center">Your cart is empty</p>';
-        updateTotals(); // Add this to ensure totals are updated when cart becomes empty
+        updateTotals();
         return;
     }
 
@@ -68,12 +180,45 @@ function loadCart() {
     updateTotals();
 }
 
+function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const count = cart.reduce((total, item) => total + item.quantity, 0);
+    const cartLink = document.querySelector('a[href="cart.html"]');
+    let badge = document.querySelector('.cart-count');
+
+    if (count > 0) {
+        if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'cart-count';
+            cartLink.appendChild(badge);
+        }
+        badge.textContent = count;
+    } else if (badge) {
+        badge.remove();
+    }
+}
+
+function updateCheckoutButton() {
+    const subtotal = parseFloat(document.getElementById('subtotal').textContent.replace('₱', ''));
+    const checkoutButton = document.querySelector('.btn-success');
+
+    if (subtotal === 0) {
+        checkoutButton.innerHTML = '<i class="fas fa-shopping-cart me-2"></i>Proceed to Shop';
+        checkoutButton.onclick = () => window.location.href = 'index.html';
+    } else {
+        checkoutButton.innerHTML = '<i class="fas fa-shopping-cart me-2"></i>Proceed to Checkout';
+        checkoutButton.onclick = null;
+    }
+}
+
 function updateQuantity(index, change) {
     const cart = JSON.parse(localStorage.getItem('cart')) || [];
     if (cart[index].quantity + change > 0) {
         cart[index].quantity += change;
         localStorage.setItem('cart', JSON.stringify(cart));
         loadCart();
+        updateTotals();
+        updateCartCount();
     }
 }
 
@@ -82,18 +227,8 @@ function removeItem(index) {
     cart.splice(index, 1);
     localStorage.setItem('cart', JSON.stringify(cart));
     loadCart();
-    updateTotals();  // Add this
-    updateCartCount(); // Add this to update badge
-}
-
-function updateTotals() {
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-    const shipping = cart.length > 0 ? 50 : 0;
-    const total = subtotal + shipping;
-
-    document.getElementById('subtotal').textContent = `₱${subtotal.toFixed(2)}`;
-    document.getElementById('total').textContent = `₱${total.toFixed(2)}`;
+    updateTotals();
+    updateCartCount();
 }
 
 document.addEventListener('DOMContentLoaded', loadCart);
@@ -111,24 +246,6 @@ function addToCart(productData) {
 
     localStorage.setItem('cart', JSON.stringify(cart));
     updateCartCount();
-}
-
-function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const count = cart.reduce((total, item) => total + item.quantity, 0);
-    const cartLink = document.querySelector('a[href="cart.html"]');
-    let badge = document.querySelector('.cart-count');
-
-    if (count > 0) {
-        if (!badge) {
-            badge = document.createElement('span');
-            badge.className = 'cart-count';
-            cartLink.appendChild(badge);
-        }
-        badge.textContent = count;
-    } else if (badge) {
-        badge.remove();
-    }
 }
 
 // Add click event listeners to all "Add to Cart" buttons
