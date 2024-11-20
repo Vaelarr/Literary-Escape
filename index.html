@@ -22,13 +22,13 @@
   </audio>
 
   <button id="audioControl" class="audio-control" title="Audio Control">
-    <i class="fas fa-volume-up"></i>
+    <i class="fas fa-volume-mute"></i>
   </button>
 
-  <nav class="navbar navbar-expand-lg navbar-light bg-custom fixed-top">
+  <nav class="navbar navbar-expand-lg navbar-light bg-custom fixed-top" id="navbar">
     <div class="container-fluid">
       <!-- Brand Logo -->
-      <a class="navbar-brand d-flex align-items-center" href="#">
+      <a class="navbar-brand d-flex align-items-center" href="index.html">
         <img src="media/icon.png" alt="Logo" width="50" height="50" class="me-2">
         <span>LITERARY ESCAPE</span>
       </a>
@@ -49,9 +49,8 @@
             <a class="nav-link dropdown-toggle" href="#" id="shopDropdown" role="button" data-bs-toggle="dropdown"
               aria-expanded="false" style="color: #ffffff;">Shop</a>
             <ul class="dropdown-menu" aria-labelledby="shopDropdown">
-              <li><a class="dropdown-item" href="#">New Arrivals</a></li>
-              <li><a class="dropdown-item" href="#">Preloved Books</a></li>
-              <li><a class="dropdown-item" href="#">Best Sellers</a></li>
+              <li><a class="dropdown-item" href="fiction.html">Fiction</a></li>
+              <li><a class="dropdown-item" href="non-fiction.html">Non-Fiction</a></li>
             </ul>
           </li>
           <li class="nav-item">
@@ -101,7 +100,7 @@
     <div class="container">
       <div class="row text-start my-5">
         <div class="d-flex align-items-center gap-3">
-          <h4 class="mb-0">Newly Added</h4>
+          <h4 class="mb-0">Discover</h4>
           <div class="section-line flex-grow-1"></div>
         </div>
       </div>
@@ -114,7 +113,7 @@
                 <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
                 </a>
               </div>
-              <img src="media/LOCKED1.png" alt="Earings" class="img-fluid products" />
+              <img src="media/Discover/framed.jpg" alt="Earings" class="img-fluid products" />
               <div class="cart-btn">
                 <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i class="fa-solid fa-cart-shopping"></i>
                   Add to Cart</button>
@@ -122,7 +121,7 @@
             </div>
             <div class="product-info mb-5">
               <div class="product-name">
-                <h4>The Society</h4>
+                <h4>Framed</h4>
               </div>
               <div class="product-price">
                 ₱<span>420</span>
@@ -139,7 +138,7 @@
                 <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
                 </a>
               </div>
-              <img src="media/heist.png" alt="Earings" class="img-fluid products" />
+              <img src="media/Discover/hexed.jpg" alt="Earings" class="img-fluid products" />
               <div class="cart-btn">
                 <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i class="fa-solid fa-cart-shopping"></i>
                   Add to Cart</button>
@@ -147,7 +146,7 @@
             </div>
             <div class="product-info mb-5">
               <div class="product-name">
-                <h4>In Your Eyes</h4>
+                <h4>Hexed</h4>
               </div>
               <div class="product-price">
                 ₱<span>300</span>
@@ -164,7 +163,7 @@
                 <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
                 </a>
               </div>
-              <img src="media/Reckoning.png" alt="Earings" class="img-fluid products" />
+              <img src="media/Discover/hillbily elegy.jpg" alt="Earings" class="img-fluid products" />
               <div class="cart-btn">
                 <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i class="fa-solid fa-cart-shopping"></i>
                   Add to Cart</button>
@@ -172,7 +171,7 @@
             </div>
             <div class="product-info mb-5">
               <div class="product-name">
-                <h4>Reckoning</h4>
+                <h4>Hillbily</h4>
               </div>
               <div class="product-price">
                 ₱<span>900</span>
@@ -189,7 +188,7 @@
                 <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
                 </a>
               </div>
-              <img src="media/Unrivaled.png" alt="Earings" class="img-fluid" />
+              <img src="media/Discover/in too deep.jpg" alt="Earings" class="img-fluid" />
               <div class="cart-btn">
                 <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i class="fa-solid fa-cart-shopping"></i>
                   Add to Cart</button>
@@ -197,7 +196,7 @@
             </div>
             <div class="product-info mb-5">
               <div class="product-name">
-                <h4>Unrivaled</h4>
+                <h4>In Too Deep</h4>
               </div>
               <div class="product-price">
                 ₱<span>630</span>
@@ -213,7 +212,7 @@
                 <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
                 </a>
               </div>
-              <img src="media/LOCKED1.png" alt="Earings" class="img-fluid products" />
+              <img src="media/Discover/lost and lassoed.jpg" alt="Earings" class="img-fluid products" />
               <div class="cart-btn">
                 <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i class="fa-solid fa-cart-shopping"></i>
                   Add to Cart</button>
@@ -221,7 +220,7 @@
             </div>
             <div class="product-info mb-5">
               <div class="product-name">
-                <h4>The Society</h4>
+                <h4>Lost and L</h4>
               </div>
               <div class="product-price">
                 ₱<span>420</span>
@@ -447,6 +446,7 @@
   </footer>
 
   <script>
+    const navbarContainer = document.getElementById('navbar');
     const audio = document.getElementById('bgMusic');
     const audioControl = document.getElementById('audioControl');
     const audioIcon = audioControl.querySelector('i');
@@ -470,7 +470,7 @@
     audio.volume = 0.2; // Set initial volume to 20%
 
     window.addEventListener('load', () => {
-      audio.play();
+      audio.pause();
     });
 
     audioControl.addEventListener('click', () => {
@@ -487,6 +487,7 @@
 
     videoBtn.addEventListener('click', () => {
       scrollPosition = window.pageYOffset;
+      navbarContainer.style.display = 'none';
       videoContainer.style.display = 'block';
       document.body.classList.add('video-open');
       document.body.style.top = `-${scrollPosition}px`;
@@ -494,11 +495,11 @@
     });
 
     exitFullscreen.addEventListener('click', () => {
+      navbarContainer.style.display = 'block';
       videoContainer.style.display = 'none';
       document.body.classList.remove('video-open');
       document.body.style.top = '';
       window.scrollTo(0, scrollPosition);
-      audio.play();
     });
   </script>
   <script src="script.js"></script>

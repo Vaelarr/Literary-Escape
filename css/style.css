@@ -60,7 +60,6 @@ input[type="search"]::-ms-clear {
     text-decoration: none;
 }
 
-
 .bg-custom {
     background-color: #7ca28e;
 }
@@ -177,9 +176,9 @@ input[type="search"]::-ms-clear {
     background-color: #16423C;
     color: white;
     border: none;
-    padding: 2px 0px;
-    margin-top: 1.5rem;
-    font-size: 1.2rem;
+    padding: 0px;
+    margin-top: 0rem;
+    font-size: 20px;
     font-weight: bold;
     border-radius: 20px;
     cursor: pointer;
@@ -255,6 +254,7 @@ input[type="search"]::-ms-clear {
 .product-box {
     margin: auto;
     display: block;
+    transition: display 0.3s ease-out;
 }
 
 .product-info {
@@ -488,8 +488,8 @@ input[type="search"]::-ms-clear {
     position: absolute;
     top: 20px;
     right: 20px;
-    padding: 15px 20px;
-    font-size: 20px;
+    padding: 5px 12px;
+    font-size: 17px;
     color: white;
     background-color: #6A9C89;
     border: none;
@@ -618,7 +618,6 @@ footer i:hover {
 
     .book-covers img {
         width: 120px;
-        /* Smaller images for mobile */
         height: auto;
     }
 }
