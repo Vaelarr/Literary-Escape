@@ -139,6 +139,7 @@ input[type="search"]::-ms-clear {
 
 /*Navbar Styles End*/
 
+/*Index.html Page Styles Start*/
 
 /* Hero Section Styles Start*/
 .hero {
@@ -389,6 +390,22 @@ input[type="search"]::-ms-clear {
     color: white;
 }
 
+#popup {
+    width: 250px;
+    font-size: 20px;
+    padding: 10px;
+    background: #fff;
+    border-radius: 6px;
+    border: 1px solid black;
+    position: absolute;
+    text-align: center;
+    bottom: 20px;
+    right: 20px;
+    color: #333;
+    visibility: hidden;
+    z-index: 1001;
+}
+
 /* Showcase Section Styles End*/
 
 
@@ -547,107 +564,7 @@ footer i:hover {
     transition: color 0.3s ease;
 }
 
-
-@media (max-width: 768px) {
-    .hero {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .hero h2 {
-        font-size: 4.5rem;
-    }
-
-    .hero-content {
-        max-width: 100%;
-        margin-bottom: 2rem;
-    }
-
-    .book-covers {
-        width: 100%;
-        height: 350px;
-    }
-
-    .book-covers img {
-        width: 350px;
-    }
-
-    .book-covers img:nth-child(1) {
-        right: 60%;
-    }
-
-    .book-covers img:nth-child(2) {
-        right: 40%;
-    }
-
-    .book-covers img:nth-child(3) {
-        right: 20%;
-    }
-}
-
-@media (min-width: 769px) {
-    .hero h2 {
-        font-size: 3.5rem;
-    }
-
-    .hero button {
-        font-size: 1.1rem;
-        padding: 14px 18px;
-    }
-}
-
-/* Media queries for responsive design */
-@media screen and (max-width: 768px) {
-    .hero {
-        flex-direction: column;
-        padding: 20px;
-        text-align: center;
-        justify-content: center;
-    }
-
-    .hero-content {
-        margin-right: 0;
-        margin-bottom: 30px;
-    }
-
-    .hero-content h2 {
-        font-size: 24px;
-        /* Smaller font size for mobile */
-        line-height: 1.4;
-    }
-
-    .hero-content button {
-        width: 80%;
-        /* Wider button for better touch target */
-        max-width: 300px;
-        padding: 15px;
-        margin: 20px auto;
-    }
-
-    .book-covers {
-        margin-right: 0;
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
-        gap: 20px;
-    }
-
-    .book-covers img {
-        width: 120px;
-        height: auto;
-    }
-}
-
-/* For very small screens */
-@media screen and (max-width: 480px) {
-    .hero-content h2 {
-        font-size: 20px;
-    }
-
-    .book-covers img {
-        width: 100px;
-    }
-}
+/*Index.html Page Styles Start*/
 
 
 /* Cart.html Page Styles Start*/
@@ -730,7 +647,8 @@ footer i:hover {
 }
 
 #form-account button {
-    background: #16423C;;
+    background: #16423C;
+    ;
     color: #fff;
     border: none;
     padding: 10px 15px;
@@ -767,3 +685,107 @@ footer i:hover {
 }
 
 /* Account.html Page Styles End*/
+
+
+/* Media queries for responsive design */
+
+
+@media (max-width: 768px) {
+    .hero {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .hero h2 {
+        font-size: 4.5rem;
+    }
+
+    .hero-content {
+        max-width: 100%;
+        margin-bottom: 2rem;
+    }
+
+    .book-covers {
+        width: 100%;
+        height: 350px;
+    }
+
+    .book-covers img {
+        width: 350px;
+    }
+
+    .book-covers img:nth-child(1) {
+        right: 60%;
+    }
+
+    .book-covers img:nth-child(2) {
+        right: 40%;
+    }
+
+    .book-covers img:nth-child(3) {
+        right: 20%;
+    }
+}
+
+@media (min-width: 769px) {
+    .hero h2 {
+        font-size: 3.5rem;
+    }
+
+    .hero button {
+        font-size: 1.1rem;
+        padding: 14px 18px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .hero {
+        flex-direction: column;
+        padding: 20px;
+        text-align: center;
+        justify-content: center;
+    }
+
+    .hero-content {
+        margin-right: 0;
+        margin-bottom: 30px;
+    }
+
+    .hero-content h2 {
+        font-size: 24px;
+        /* Smaller font size for mobile */
+        line-height: 1.4;
+    }
+
+    .hero-content button {
+        width: 80%;
+        /* Wider button for better touch target */
+        max-width: 300px;
+        padding: 15px;
+        margin: 20px auto;
+    }
+
+    .book-covers {
+        margin-right: 0;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .book-covers img {
+        width: 120px;
+        height: auto;
+    }
+}
+
+/* For very small screens */
+@media screen and (max-width: 480px) {
+    .hero-content h2 {
+        font-size: 20px;
+    }
+
+    .book-covers img {
+        width: 100px;
+    }
+}
