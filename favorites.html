@@ -43,7 +43,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto">
                     <li class="nav-item">
-                        <a class="nav-link fw-bold" aria-current="page" href="index.html"
+                        <a class="nav-link" aria-current="page" href="index.html"
                             style="color: #ffffff;">Home</a>
                     </li>
                     <li class="nav-item dropdown">
@@ -85,54 +85,6 @@
             <!-- Favorites will be loaded here dynamically -->
         </div>
     </div>
-    <script>
-        function loadFavorites() {
-            const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-            const container = document.getElementById('favoritesContainer');
-
-            if (favorites.length === 0) {
-                container.innerHTML = '<p class="text-center">No favorites added yet</p>';
-                return;
-            }
-
-            container.innerHTML = favorites.map((item, index) => `
-                <div class="col-md-3 mb-4">
-                    <div class="card">
-                        <img src="${item.image}" class="card-img-top" alt="${item.name}">
-                        <div class="card-body">
-                            <h5 class="card-title">${item.name}</h5>
-                            <p class="card-text">₱${item.price.toFixed(2)}</p>
-                            <div class="d-flex justify-content-between">
-                                <button class="btn btn-danger btn-sm" onclick="removeFromFavorites(${index})">
-                                    <i class="fas fa-trash"></i> Remove
-                                </button>
-                                <button class="btn btn-success btn-sm" onclick="addToCartFromFavorites(${index})">
-                                    <i class="fas fa-cart-plus"></i> Add to Cart
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function removeFromFavorites(index) {
-            const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-            favorites.splice(index, 1);
-            localStorage.setItem('favorites', JSON.stringify(favorites));
-            loadFavorites();
-            updateFavoritesCount()
-        }
-
-        function addToCartFromFavorites(index) {
-            const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-            const item = favorites[index];
-            addToCart(item);
-            updateCartCount();
-        }
-
-        document.addEventListener('DOMContentLoaded', loadFavorites);
-    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             updateNavAuth();

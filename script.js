@@ -25,25 +25,54 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-function toggleFavorite(heartButton, productData) {
-    let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-    const heartIcon = heartButton.querySelector('i');
+function loadFavorites() {
+    const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+    const container = document.getElementById('favoritesContainer');
 
-    // Check if item is already in favorites
-    const isFavorite = favorites.some(item => item.id === productData.id);
-
-    if (isFavorite) {
-        // Remove from favorites
-        favorites = favorites.filter(item => item.id !== productData.id);
-        heartIcon.style.color = '#000000';
-    } else {
-        // Add to favorites
-        favorites.push(productData);
-        heartIcon.style.color = '#ff0000';
+    if (favorites.length === 0) {
+        container.innerHTML = '<p class="text-center">No favorites added yet</p>';
+        return;
     }
 
-    localStorage.setItem('favorites', JSON.stringify(favorites));
+    container.innerHTML = favorites.map((item, index) => `
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <img src="${item.image}" class="card-img-top" alt="${item.name}">
+                <div class="card-body">
+                    <h5 class="card-title">${item.name}</h5>
+                    <p class="card-text">₱${item.price.toFixed(2)}</p>
+                    <div class="d-flex justify-content-between">
+                        <button class="btn btn-danger btn-sm" onclick="removeFromFavorites(${index})">
+                            <i class="fas fa-trash"></i> Remove
+                        </button>
+                        <button class="btn btn-success btn-sm" onclick="addToCartFromFavorites(${index})">
+                            <i class="fas fa-cart-plus"></i> Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
 }
+
+function removeFromFavorites(index) {
+    const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+    favorites.splice(index, 1);
+    localStorage.setItem('favorites', JSON.stringify(favorites));
+    loadFavorites();
+    updateFavoritesCount()
+    showNotification('Item removed from favorites');
+}
+
+function addToCartFromFavorites(index) {
+    const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+    const item = favorites[index];
+    addToCart(item);
+    updateCartCount();
+    showNotification('Item added to cart');
+}
+
+document.addEventListener('DOMContentLoaded', loadFavorites);
 
 document.querySelectorAll('.product-box').forEach(productBox => {
     const heartButton = productBox.querySelector('.icons a:first-child');
@@ -99,8 +128,15 @@ function updateFavoritesCount() {
     }
 }
 
-// Update toggleFavorite function
+
 function toggleFavorite(heartButton, productData) {
+    // Check if user is logged in
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (!currentUser) {
+        window.location.href = 'account.html';
+        return;
+    }
+
     let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
     const heartIcon = heartButton.querySelector('i');
     const isFavorite = favorites.some(item => item.id === productData.id);
@@ -108,9 +144,11 @@ function toggleFavorite(heartButton, productData) {
     if (isFavorite) {
         favorites = favorites.filter(item => item.id !== productData.id);
         heartIcon.style.color = '#000000';
+        showNotification('Item removed from favorites');
     } else {
         favorites.push(productData);
         heartIcon.style.color = '#ff0000';
+        showNotification('Item added to favorites');
     }
 
     localStorage.setItem('favorites', JSON.stringify(favorites));
@@ -229,19 +267,29 @@ function removeItem(index) {
     loadCart();
     updateTotals();
     updateCartCount();
+    showNotification('Item removed from cart');
 }
 
 document.addEventListener('DOMContentLoaded', loadCart);
 
 // Cart functionality
 function addToCart(productData) {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    if (!currentUser) {
+        window.location.href = 'account.html';
+        showNotification('Please login to add items to cart', 'error');
+        return;
+    }
+
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
     const existingProduct = cart.find(item => item.id === productData.id);
 
     if (existingProduct) {
         existingProduct.quantity += 1;
+        showNotification('Item quantity updated in cart');
     } else {
         cart.push({ ...productData, quantity: 1 });
+        showNotification('Item added to cart');
     }
 
     localStorage.setItem('cart', JSON.stringify(cart));
@@ -307,3 +355,40 @@ document.addEventListener('DOMContentLoaded', function () {
     updateCartCount();
     updateFavoritesCount();
 });
+
+function showNotification(message, type = 'success') {
+    try {
+        // Remove existing notification
+        const existingNotification = document.querySelector('.notification-popup');
+        if (existingNotification) {
+            existingNotification.remove();
+        }
+
+        // Create notification
+        const notification = document.createElement('div');
+        notification.className = `notification-popup ${type}`;
+        notification.innerHTML = `
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+            <span>${message}</span>
+        `;
+
+        // Add to DOM
+        document.body.appendChild(notification);
+
+        // Force reflow to trigger animation
+        notification.offsetHeight;
+
+        // Show notification
+        requestAnimationFrame(() => {
+            notification.classList.add('show');
+        });
+
+        // Remove notification
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    } catch (error) {
+        console.error('Error showing notification:', error);
+    }
+}
