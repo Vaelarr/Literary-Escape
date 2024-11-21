@@ -443,11 +443,45 @@
     <i class="fa-brands fa-facebook"></i>
     <i class="fa-brands fa-instagram"></i>
   </footer>
+  <script>
+    const videoBtn = document.getElementById('videoBtn');
+    const videoContainer = document.getElementById('videoContainer');
+    const navbar = document.getElementById('navbar');
+    const exitFullscreen = document.getElementById('exitFullscreen');
+    var featuredSection = document.getElementById("featured-section");
 
-  <script>
-    
-  </script>
-  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const exploreLink = document.querySelector('.explore-link');
+
+      exploreLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        const showcaseSection = document.getElementById('showcase-section');
+        if (showcaseSection) {
+          showcaseSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    let scrollPosition = 0;
+
+    videoBtn.addEventListener('click', () => {
+      scrollPosition = window.pageYOffset;
+      navbar.style.zIndex = 0;
+      videoContainer.style.display = 'block';
+      document.body.classList.add('video-open');
+      document.body.style.top = `-${scrollPosition}px`;
+      audio.pause();
+    });
+
+    exitFullscreen.addEventListener('click', () => {
+      videoContainer.style.display = 'none';
+      document.body.classList.remove('video-open');
+      document.body.style.top = '';
+      window.scrollTo(0, scrollPosition);
+      navbar.style.zIndex = 1000;
+      audio.pause();
+    });
+
     document.addEventListener('DOMContentLoaded', function () {
       updateNavAuth();
       if (typeof updateCartCount === 'function') updateCartCount();

@@ -1,3 +1,23 @@
+
+const audio = document.getElementById('bgMusic');
+const audioControl = document.getElementById('audioControl');
+const audioIcon = audioControl.querySelector('i');
+audio.volume = 0.2; // Set initial volume to 20%
+
+window.addEventListener('load', () => {
+  audio.pause();
+});
+
+audioControl.addEventListener('click', () => {
+  if (audio.paused) {
+    audio.play();
+    audioIcon.className = 'fas fa-volume-up';
+  } else {
+    audio.pause();
+    audioIcon.className = 'fas fa-volume-mute';
+  }
+});
+
 var cards = document.querySelectorAll('.product-box');
 
 [...cards].forEach((card) => {
