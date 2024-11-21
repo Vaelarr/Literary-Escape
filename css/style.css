@@ -153,15 +153,16 @@ input[type="search"]::-ms-clear {
 
 .hero-content {
     text-align: left;
-    max-width: 30%;
-    margin-right: 5%;
+    margin-right: 0px;
 }
 
 .hero h2 {
-    font-size: 200px;
     font-weight: 700;
+    font-size: 1.5rem;
     margin: 0 0 2.5rem 0;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    max-width: 450px;
+    min-width: 450px;
 }
 
 .hero h2 span {
@@ -197,6 +198,10 @@ input[type="search"]::-ms-clear {
     width: 40%;
     height: 300px;
     margin-right: 5%;
+    margin-top: 5%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .book-covers img {
@@ -229,6 +234,7 @@ input[type="search"]::-ms-clear {
     transform: translate(10%, -50%) scale(0.8);
     box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.2);
 }
+
 /* Hero Section Styles End*/
 
 
@@ -382,6 +388,7 @@ input[type="search"]::-ms-clear {
     background-color: #0e2b27;
     color: white;
 }
+
 /* Showcase Section Styles End*/
 
 
@@ -670,7 +677,7 @@ footer i:hover {
     border-radius: 4px;
 }
 
-#checkout-btn-cart{
+#checkout-btn-cart {
     background-color: #16423C;
     color: white;
 }
