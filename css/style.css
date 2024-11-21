@@ -252,6 +252,7 @@ input[type="search"]::-ms-clear {
 
 
 /* Showcase Section Styles Start*/
+
 .section-line {
     height: 3px;
     background-color: black;
@@ -394,6 +395,7 @@ input[type="search"]::-ms-clear {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     height: 100vh;
 }
 
