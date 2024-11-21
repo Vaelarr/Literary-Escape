@@ -5,17 +5,17 @@ const audioIcon = audioControl.querySelector('i');
 audio.volume = 0.2; // Set initial volume to 20%
 
 window.addEventListener('load', () => {
-  audio.pause();
+    audio.pause();
 });
 
 audioControl.addEventListener('click', () => {
-  if (audio.paused) {
-    audio.play();
-    audioIcon.className = 'fas fa-volume-up';
-  } else {
-    audio.pause();
-    audioIcon.className = 'fas fa-volume-mute';
-  }
+    if (audio.paused) {
+        audio.play();
+        audioIcon.className = 'fas fa-volume-up';
+    } else {
+        audio.pause();
+        audioIcon.className = 'fas fa-volume-mute';
+    }
 });
 
 var cards = document.querySelectorAll('.product-box');
@@ -297,7 +297,6 @@ function addToCart(productData) {
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     if (!currentUser) {
         window.location.href = 'account.html';
-        showNotification('Please login to add items to cart', 'error');
         return;
     }
 
@@ -362,11 +361,11 @@ function logout(e) {
     localStorage.removeItem('favorites');
     localStorage.removeItem('cart');
 
-    updateNavAuth();
     updateCartCount();
     updateFavoritesCount();
-
+    updateNavAuth();
     window.location.href = 'account.html';
+
 }
 
 // Add to DOMContentLoaded
@@ -412,3 +411,68 @@ function showNotification(message, type = 'success') {
         console.error('Error showing notification:', error);
     }
 }
+
+function showProductPopup(event) {
+    event.preventDefault();
+    const productBox = event.target.closest('.product-box');
+    const popup = document.getElementById('productPopup');
+    const popupImage = popup.querySelector('.popup-image');
+    const popupTitle = popup.querySelector('.popup-title');
+    const popupDescription = popup.querySelector('.popup-description');
+    const popupPrice = popup.querySelector('.popup-price');
+    const popupAuthor = popup.querySelector('.popup-author');
+    const navBar = document.querySelector('.navbar');
+
+    // Get product data
+    popupImage.src = productBox.querySelector('img').src;
+    popupImage.alt = productBox.querySelector('img').alt;
+    popupTitle.textContent = productBox.querySelector('.product-name h4').textContent;
+    popupDescription.textContent = productBox.querySelector('.product-description p').textContent;
+    popupPrice.textContent = '₱' + productBox.querySelector('.product-price span').textContent;
+    popupAuthor.textContent = productBox.querySelector('.product-author p').textContent;
+
+    // Show popup
+    navBar.style.zIndex = 999;
+    popup.style.display = 'block';
+
+    // Add event listeners
+    const closeBtn = popup.querySelector('.close-popup');
+    const addToCartBtn = popup.querySelector('.add-to-cart-btn');
+    const favoriteBtn = popup.querySelector('.favorite-btn');
+
+    closeBtn.onclick = () => popup.style.display = 'none';
+
+    addToCartBtn.onclick = () => {
+        const productData = {
+            id: Date.now(),
+            name: popupTitle.textContent,
+            author: popupAuthor.textContent,
+            price: parseFloat(popupPrice.textContent.replace('₱', '')),
+            image: popupImage.src
+        };
+        addToCart(productData);
+    };
+
+    favoriteBtn.onclick = () => {
+        const productData = {
+            id: Date.now(),
+            name: popupTitle.textContent,
+            author: popupAuthor.textContent,
+            price: parseFloat(popupPrice.textContent.replace('₱', '')),
+            image: popupImage.src
+        };
+        toggleFavorite(favoriteBtn, productData);
+    };
+
+    // Close on outside click
+    window.onclick = (event) => {
+        if (event.target === popup) {
+            popup.style.display = 'none';
+        }
+    };
+}
+
+// Update product image click handlers
+document.querySelectorAll('.products').forEach(img => {
+    img.onclick = showProductPopup;
+});

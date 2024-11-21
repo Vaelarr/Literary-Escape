@@ -259,6 +259,52 @@ input[type="search"]::-ms-clear {
 
 
 /* Showcase Section Styles Start*/
+.product-popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.popup-content {
+    position: relative;
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    width: 80%;
+    max-width: 800px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.close-popup {
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+.popup-image {
+    max-height: 400px;
+    object-fit: cover;
+}
+
+.popup-actions {
+    margin-top: 20px;
+}
+
+.popup-price {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #16423C;
+}
+
+.btn-
 
 .section-line {
     height: 3px;
@@ -307,37 +353,6 @@ input[type="search"]::-ms-clear {
     align-items: center;
     border-radius: 50%;
     background: white;
-}
-
-.product-inner-box .onsale .badge {
-    background: #6A9C89;
-    font-size: 12px;
-    padding: 5px 14px;
-    top: 0px;
-    left: 0px;
-    position: absolute;
-}
-
-.product-inner-box .onsale .badge:before {
-    border-width: 10px 0px 0px 10px;
-    border-color: transparent transparent transparent #6A9C89;
-    content: "";
-    position: absolute;
-    right: -8px;
-    width: 0;
-    bottom: 0;
-    border-style: solid;
-}
-
-.product-inner-box .onsale .badge:after {
-    border-width: 10px 8px 0 10px;
-    border-color: #6A9C89 transparent transparent;
-    content: '';
-    position: absolute;
-    right: -8px;
-    width: 0;
-    top: 0;
-    border-style: solid;
 }
 
 .product-inner-box img {

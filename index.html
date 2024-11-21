@@ -96,6 +96,35 @@
 
   <!-- Showcase Section -->
   <section id="showcase-section" style="padding-top: 30px;">
+
+    <div id="productPopup" class="product-popup">
+      <div class="popup-content">
+        <span class="close-popup">&times;</span>
+        <div class="popup-body">
+          <div class="row">
+            <div class="col-md-5">
+              <img src="" alt="" class="popup-image img-fluid">
+            </div>
+            <div class="col-md-7">
+              <h3 class="popup-title"></h3>
+              <p class="popup-author"></p>
+              <p class="popup-description"></p>
+              <p class="popup-price"></p>
+              <div class="popup-actions">
+                <button class="btn btn-primary add-to-cart-btn"
+                  style="background-color: #16423C; border-color: #0e2c28;">
+                  <i class="fa-solid fa-cart-shopping me-2"></i>Add to Cart
+                </button>
+                <button class="btn btn-outline-danger favorite-btn ms-2">
+                  <i class="fas fa-heart me-2"></i>Add to Favorites
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="container">
       <div class="row text-start my-5">
         <div class="d-flex align-items-center gap-3">
@@ -122,6 +151,16 @@
               <div class="product-name">
                 <h4>Framed</h4>
               </div>
+              <div class="product-author d-none">
+                <p>James Ponti</p>
+              </div>
+              <div class="product-description d-none">
+                <p>Get to know the only kid on the FBI Director’s speed dial and several international criminals’ most
+                  wanted
+                  lists all because of his Theory of All Small Things in this hilarious start to a brand-new middle
+                  grade
+                  mystery series.</p>
+              </div>
               <div class="product-price">
                 ₱<span>420</span>
               </div>
@@ -147,6 +186,14 @@
               <div class="product-name">
                 <h4>Hexed</h4>
               </div>
+              <div class="product-author d-none">
+                <p>Kevin Hearne</p>
+              </div>
+              <div class="product-description d-none">
+                <p>Atticus O’Sullivan, last of the Druids, doesn’t care much for witches. Still, he’s about to make nice
+                  with the local coven by signing a mutually beneficial nonaggression treaty when suddenly the witch
+                  population in modern-day Tempe, Arizona, quadruples overnight.</p>
+              </div>
               <div class="product-price">
                 ₱<span>300</span>
               </div>
@@ -162,7 +209,8 @@
                 <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
                 </a>
               </div>
-              <img src="media/Discover/hillbily elegy.jpg" alt="Earings" class="img-fluid products" />
+              <img src="media/Discover/hillbily elegy.jpg" alt="Earings" class="img-fluid products"
+                onclick="showProductPopup(event)" />
               <div class="cart-btn">
                 <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i class="fa-solid fa-cart-shopping"></i>
                   Add to Cart</button>
@@ -171,6 +219,17 @@
             <div class="product-info mb-5">
               <div class="product-name">
                 <h4>Hillbily</h4>
+              </div>
+              <div class="product-author d-none">
+                <p>J.D. Vance</p>
+              </div>
+              <div class="product-description d-none">
+                <p>Hillbilly Elegy recounts J.D. Vance's powerful origin story...
+
+                  From a former marine and Yale Law School graduate now serving as a U.S. Senator from Ohio and the
+                  Republican Vice Presidential candidate for the 2024 election, an incisive account of growing up in a
+                  poor Rust Belt town that offers a broader, probing look at the struggles of America's white working
+                  class..</p>
               </div>
               <div class="product-price">
                 ₱<span>900</span>
