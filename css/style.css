@@ -148,7 +148,7 @@ input[type="search"]::-ms-clear {
     padding-right: 10%;
     background-color: #fff;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    height: 700px;
+    height: 100vh;
 }
 
 .hero-content {
@@ -236,7 +236,7 @@ input[type="search"]::-ms-clear {
 #featured-section {
     text-align: center;
     width: 100%;
-    height: 1080px;
+    height: 100vh;
     background-color: #16423C;
 }
 
@@ -394,6 +394,7 @@ input[type="search"]::-ms-clear {
     display: flex;
     flex-direction: column;
     align-items: center;
+    height: 100vh;
 }
 
 #dedicated-section h2 {
