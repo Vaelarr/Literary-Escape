@@ -43,8 +43,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto">
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="index.html"
-                            style="color: #ffffff;">Home</a>
+                        <a class="nav-link" aria-current="page" href="index.html" style="color: #ffffff;">Home</a>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle fw-bold" href="#" id="shopDropdown" role="button"
@@ -80,6 +79,15 @@
         </div>
     </nav>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            updateNavAuth();
+            if (typeof updateCartCount === 'function') updateCartCount();
+            if (typeof updateFavoritesCount === 'function') updateFavoritesCount();
+        });
+    </script>
+    <script src="script.js"></script>
+    <script src="js/auth.js"></script>
 </body>
 
 </html>

@@ -133,7 +133,15 @@
 
         document.addEventListener('DOMContentLoaded', loadFavorites);
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            updateNavAuth();
+            if (typeof updateCartCount === 'function') updateCartCount();
+            if (typeof updateFavoritesCount === 'function') updateFavoritesCount();
+        });
+    </script>
     <script src="script.js"></script>
+    <script src="js/auth.js"></script>
 </body>
 
 </html>

@@ -1,3 +1,59 @@
+const navbarContainer = document.getElementById('navbar');
+const audio = document.getElementById('bgMusic');
+const audioControl = document.getElementById('audioControl');
+const audioIcon = audioControl.querySelector('i');
+const videoBtn = document.getElementById('videoBtn');
+const videoContainer = document.getElementById('videoContainer');
+const exitFullscreen = document.getElementById('exitFullscreen');
+var featuredSection = document.getElementById("featured-section");
+
+document.addEventListener('DOMContentLoaded', function () {
+    const exploreLink = document.querySelector('.explore-link');
+
+    exploreLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        const showcaseSection = document.getElementById('showcase-section');
+        if (showcaseSection) {
+            showcaseSection.scrollIntoView({ behavior: 'smooth' });
+        }
+    });
+});
+
+audio.volume = 0.2; // Set initial volume to 20%
+
+window.addEventListener('load', () => {
+    audio.pause();
+});
+
+audioControl.addEventListener('click', () => {
+    if (audio.paused) {
+        audio.play();
+        audioIcon.className = 'fas fa-volume-up';
+    } else {
+        audio.pause();
+        audioIcon.className = 'fas fa-volume-mute';
+    }
+});
+
+let scrollPosition = 0;
+
+videoBtn.addEventListener('click', () => {
+    scrollPosition = window.pageYOffset;
+    navbarContainer.style.display = 'none';
+    videoContainer.style.display = 'block';
+    document.body.classList.add('video-open');
+    document.body.style.top = `-${scrollPosition}px`;
+    audio.pause();
+});
+
+exitFullscreen.addEventListener('click', () => {
+    navbarContainer.style.display = 'block';
+    videoContainer.style.display = 'none';
+    document.body.classList.remove('video-open');
+    document.body.style.top = '';
+    window.scrollTo(0, scrollPosition);
+});
+
 var cards = document.querySelectorAll('.product-box');
 
 [...cards].forEach((card) => {
@@ -264,3 +320,46 @@ document.querySelectorAll('.cart-btn button').forEach(button => {
 
 // Initialize cart count on page load
 document.addEventListener('DOMContentLoaded', updateCartCount);
+
+
+function updateNavAuth() {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const userIcon = document.querySelector('a[href="account.html"]');
+
+    if (currentUser && userIcon) {
+        // Transform user icon into logout button
+        userIcon.href = '#';
+        userIcon.title = 'Logout';
+        userIcon.innerHTML = '<i class="fas fa-sign-out-alt" style="color: #ffffff;"></i>';
+        userIcon.addEventListener('click', logout);
+    } else if (userIcon) {
+        // Reset to user icon
+        userIcon.href = 'account.html';
+        userIcon.title = 'Account';
+        userIcon.innerHTML = '<i class="fas fa-user" style="color: #ffffff;"></i>';
+        // Remove logout listener if exists
+        userIcon.removeEventListener('click', logout);
+    }
+}
+
+function logout(e) {
+    e.preventDefault();
+
+    // Clear all user-specific data
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('favorites');
+    localStorage.removeItem('cart');
+
+    updateNavAuth();
+    updateCartCount();
+    updateFavoritesCount();
+
+    window.location.href = 'account.html';
+}
+
+// Add to DOMContentLoaded
+document.addEventListener('DOMContentLoaded', function () {
+    updateNavAuth();
+    updateCartCount();
+    updateFavoritesCount();
+});

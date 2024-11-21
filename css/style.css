@@ -683,3 +683,87 @@ footer i:hover {
 }
 
 /* Cart.html Page Styles End*/
+
+
+
+/* Account.html Page Styles Start*/
+.card {
+    width: 100%;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+    background-color: #16423C;
+    border-color: #16423C;
+}
+
+.btn-primary:hover {
+    background-color: #0f2d29;
+    border-color: #0f2d29;
+}
+
+#form-account h1 {
+    margin-bottom: 20px;
+    color: #3c763d;
+    text-align: center;
+}
+
+.input-control {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+#form-account label {
+    display: block;
+    margin-bottom: 5px;
+    color: #3c763d;
+}
+
+#form-account input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+#form-account button {
+    background: #16423C;;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+}
+
+#form-account button:hover {
+    background: #0e2825;
+}
+
+#form-account a {
+    color: #3c763d;
+    text-decoration: none;
+}
+
+#form-account .toggle {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.icon-link {
+    transition: display 0.3s ease-out;
+}
+
+#logoutBtn {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#logoutBtn:hover {
+    opacity: 0.8;
+}
+
+/* Account.html Page Styles End*/

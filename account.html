@@ -11,7 +11,9 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <script src="https://kit.fontawesome.com/f8c6d79c7d.js" crossorigin="anonymous"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
 
+    </style>
 </head>
 
 <body>
@@ -43,8 +45,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto">
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="index.html"
-                            style="color: #ffffff;">Home</a>
+                        <a class="nav-link" aria-current="page" href="index.html" style="color: #ffffff;">Home</a>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="shopDropdown" role="button"
@@ -80,6 +81,159 @@
         </div>
     </nav>
 
+    <!-- Add to account.html -->
+    <div class="container" id="form-account">
+        <div class="row justify-content-center align-items-center min-vh-100">
+            <div class="col-md-6 col-lg-4">
+                <!-- Login Form -->
+                <div class="card mb-4" id="loginForm">
+                    <div class="card-body">
+                        <h3 class="card-title text-center mb-4">Login</h3>
+                        <form id="login-form">
+                            <div class="mb-3">
+                                <input type="email" class="form-control" id="loginEmail" placeholder="Email" required>
+                            </div>
+                            <div class="mb-3">
+                                <input type="password" class="form-control" id="loginPassword" placeholder="Password"
+                                    required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Login</button>
+                        </form>
+                        <p class="text-center mt-3">
+                            Don't have an account? <a href="#" id="showSignup">Sign up</a>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Signup Form -->
+                <div class="card d-none" id="signupForm">
+                    <div class="card-body">
+                        <h3 class="card-title text-center mb-4">Sign Up</h3>
+                        <form id="signup-form">
+                            <div class="mb-3">
+                                <input type="text" class="form-control" id="signupName" placeholder="Full Name"
+                                    required>
+                            </div>
+                            <div class="mb-3">
+                                <input type="email" class="form-control" id="signupEmail" placeholder="Email" required>
+                            </div>
+                            <div class="mb-3">
+                                <input type="password" class="form-control" id="signupPassword" placeholder="Password"
+                                    required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+                        </form>
+                        <p class="text-center mt-3">
+                            Already have an account? <a href="#" id="showLogin">Login</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+            const showSignupLink = document.getElementById('showSignup');
+            const showLoginLink = document.getElementById('showLogin');
+
+            // Toggle between login and signup forms
+            showSignupLink?.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.getElementById('loginForm').classList.add('d-none');
+                document.getElementById('signupForm').classList.remove('d-none');
+            });
+
+            showLoginLink?.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.getElementById('signupForm').classList.add('d-none');
+                document.getElementById('loginForm').classList.remove('d-none');
+            });
+
+            // Handle Signup
+            signupForm?.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const name = document.getElementById('signupName').value;
+                const email = document.getElementById('signupEmail').value;
+                const password = document.getElementById('signupPassword').value;
+
+                const users = JSON.parse(localStorage.getItem('users')) || [];
+
+                if (users.find(user => user.email === email)) {
+                    alert('Email already registered');
+                    return;
+                }
+
+                users.push({ name, email, password });
+                localStorage.setItem('users', JSON.stringify(users));
+                localStorage.setItem('currentUser', JSON.stringify({ name, email }));
+
+                window.location.href = 'index.html';
+            });
+
+            // Handle Login
+            loginForm?.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+
+                const users = JSON.parse(localStorage.getItem('users')) || [];
+                const user = users.find(u => u.email === email && u.password === password);
+
+                if (user) {
+                    localStorage.setItem('currentUser', JSON.stringify({ name: user.name, email: user.email }));
+                    window.location.href = 'index.html';
+                } else {
+                    alert('Invalid credentials');
+                }
+            });
+
+            // Check authentication state
+            function checkAuth() {
+                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                if (!currentUser) {
+                    if (window.location.pathname.includes('favorites.html') ||
+                        window.location.pathname.includes('cart.html')) {
+                        window.location.href = 'account.html';
+                    }
+                }
+            }
+
+            // Update favorites/cart functions
+            const originalAddToCart = window.addToCart;
+            window.addToCart = function (productData) {
+                if (!localStorage.getItem('currentUser')) {
+                    window.location.href = 'account.html';
+                    return;
+                }
+                originalAddToCart(productData);
+            }
+
+            const originalToggleFavorite = window.toggleFavorite;
+            window.toggleFavorite = function (heartButton, productData) {
+                if (!localStorage.getItem('currentUser')) {
+                    window.location.href = 'account.html';
+                    return;
+                }
+                originalToggleFavorite(heartButton, productData);
+            }
+
+            // Run auth check
+            checkAuth();
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            updateNavAuth();
+            if (typeof updateCartCount === 'function') updateCartCount();
+            if (typeof updateFavoritesCount === 'function') updateFavoritesCount();
+        });
+    </script>
+    <script src="script.js"></script>
+    <script src="js/auth.js"></script>
 </body>
 
 </html>
