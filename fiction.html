@@ -66,6 +66,14 @@
                     </div>
                 </form>
 
+                <div id="search-popup" class="search-popup">
+                    <div class="search-results">
+                        <div id="results-content">
+                            <!-- Results will be populated here -->
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Icons -->
                 <div class="d-flex align-items-center nav-icons">
                     <a href="favorites.html" class="icon-link me-3"><i class="fa-solid fa-heart"
@@ -78,6 +86,499 @@
             </div>
         </div>
     </nav>
+
+    <!-- Fiction Section -->
+    <section id="showcase-section" style="padding-top: 60px;">
+
+        <div id="productPopup" class="product-popup">
+            <div class="popup-content">
+                <span class="close-popup" onclick="closeBtn()">&times;</span>
+                <div class="popup-body">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <img src="" alt="" class="popup-image img-fluid">
+                        </div>
+                        <div class="col-md-7">
+                            <h3 class="popup-title"></h3>
+                            <p class="popup-author"></p>
+                            <p class="popup-description"></p>
+                            <p class="popup-price"></p>
+                            <div class="popup-actions">
+                                <button class="btn btn-primary add-to-cart-btn"
+                                    style="background-color: #16423C; border-color: #0e2c28;">
+                                    <i class="fa-solid fa-cart-shopping me-2"></i>Add to Cart
+                                </button>
+                                <button class="btn btn-outline-danger favorite-btn ms-2">
+                                    <i class="fas fa-heart me-2"></i>Add to Favorites
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row text-start my-5">
+                <div class="text-center">
+                    <h3 class="mb-0 fw-600" style="color: #16423C">Fiction</h3>
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="col-md-3">
+                    <div class="product-box">
+                        <div class="product-inner-box position-relative">
+                            <div class="icons position-absolute">
+                                <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
+                                </a>
+                            </div>
+                            <img src="media/Discover/framed.jpg" alt="Framed" class="img-fluid products" />
+                            <div class="cart-btn">
+                                <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i
+                                        class="fa-solid fa-cart-shopping"></i>
+                                    Add to Cart</button>
+                            </div>
+                        </div>
+                        <div class="product-info mb-5">
+                            <div class="product-name">
+                                <h4>Framed</h4>
+                            </div>
+                            <div class="product-author d-none">
+                                <p>James Ponti</p>
+                            </div>
+                            <div class="product-description d-none">
+                                <p>Get to know the only kid on the FBI Director’s speed dial and several international
+                                    criminals’ most
+                                    wanted
+                                    lists all because of his Theory of All Small Things in this hilarious start to a
+                                    brand-new middle
+                                    grade
+                                    mystery series.</p>
+                            </div>
+                            <div class="product-price">
+                                ₱<span>420</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-md-3">
+                    <div class="product-box">
+                        <div class="product-inner-box position-relative">
+                            <div class="icons position-absolute">
+                                <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
+                                </a>
+                            </div>
+                            <img src="media/Discover/hexed.jpg" alt="Hexed" class="img-fluid products" />
+                            <div class="cart-btn">
+                                <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i
+                                        class="fa-solid fa-cart-shopping"></i>
+                                    Add to Cart</button>
+                            </div>
+                        </div>
+                        <div class="product-info mb-5">
+                            <div class="product-name">
+                                <h4>Hexed</h4>
+                            </div>
+                            <div class="product-author d-none">
+                                <p>Kevin Hearne</p>
+                            </div>
+                            <div class="product-description d-none">
+                                <p>Atticus O’Sullivan, last of the Druids, doesn’t care much for witches. Still, he’s
+                                    about to make nice
+                                    with the local coven by signing a mutually beneficial nonaggression treaty when
+                                    suddenly the witch
+                                    population in modern-day Tempe, Arizona, quadruples overnight.</p>
+                            </div>
+                            <div class="product-price">
+                                ₱<span>300</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-md-3">
+                    <div class="product-box">
+                        <div class="product-inner-box position-relative">
+                            <div class="icons position-absolute">
+                                <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
+                                </a>
+                            </div>
+                            <img src="media/Discover/hillbily elegy.jpg" alt="Hillbily" class="img-fluid products"
+                                onclick="showProductPopup(event)" />
+                            <div class="cart-btn">
+                                <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i
+                                        class="fa-solid fa-cart-shopping"></i>
+                                    Add to Cart</button>
+                            </div>
+                        </div>
+                        <div class="product-info mb-5">
+                            <div class="product-name">
+                                <h4>Hillbily</h4>
+                            </div>
+                            <div class="product-author d-none">
+                                <p>J.D. Vance</p>
+                            </div>
+                            <div class="product-description d-none">
+                                <p>Hillbilly Elegy recounts J.D. Vance's powerful origin story...
+
+                                    From a former marine and Yale Law School graduate now serving as a U.S. Senator from
+                                    Ohio and the
+                                    Republican Vice Presidential candidate for the 2024 election, an incisive account of
+                                    growing up in a
+                                    poor Rust Belt town that offers a broader, probing look at the struggles of
+                                    America's white working
+                                    class..</p>
+                            </div>
+                            <div class="product-price">
+                                ₱<span>900</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-md-3">
+                    <div class="product-box">
+                        <div class="product-inner-box position-relative">
+                            <div class="icons position-absolute">
+                                <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
+                                </a>
+                            </div>
+                            <img src="media/Discover/in too deep.jpg" alt="In Too Deep" class="img-fluid"
+                                onclick="showProductPopup(event)" />
+                            <div class="cart-btn">
+                                <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i
+                                        class="fa-solid fa-cart-shopping"></i>
+                                    Add to Cart</button>
+                            </div>
+                        </div>
+                        <div class="product-info mb-5">
+                            <div class="product-name">
+                                <h4>In Too Deep</h4>
+                            </div>
+                            <div class="product-author d-none">
+                                <p>Lee and Child</p>
+                            </div>
+                            <div class="product-description d-none">
+                                <p>Reacher wakes up, alone, in the dark, handcuffed to a bed in a makeshift hospital
+                                    room. His few
+                                    possessions are gone. He has no memory of getting there. The last thing he can
+                                    recall is the car he
+                                    had hitched a ride in getting run off the road. The driver was killed. The people
+                                    who staged the
+                                    attack assume Reacher was the driver's accomplice and patch up his wounds as they
+                                    plan to make him
+                                    talk. A plan that will backfire spectacularly...</p>
+                            </div>
+                            <div class="product-price">
+                                ₱<span>630</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="product-box">
+                        <div class="product-inner-box position-relative">
+                            <div class="icons position-absolute">
+                                <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
+                                </a>
+                            </div>
+                            <img src="media/Discover/lost and lassoed.jpg" alt="Lost and Lassoed"
+                                class="img-fluid products" onclick="showProductPopup(event)" />
+                            <div class="cart-btn">
+                                <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i
+                                        class="fa-solid fa-cart-shopping"></i>
+                                    Add to Cart</button>
+                            </div>
+                        </div>
+                        <div class="product-info mb-5">
+                            <div class="product-name">
+                                <h4>Lost and Lassoed</h4>
+                            </div>
+                            <div class="product-author d-none">
+                                <p>Lyla Sage</p>
+                            </div>
+                            <div class="product-description d-none">
+                                <p>She thrives in chaos. He prefers routine. The only thing they have in common? How
+                                    much they hate each
+                                    other. From the author of Done and Dusted and Swift and Saddled, the highly
+                                    anticipated next book in
+                                    the Rebel Blue Ranch series, a small town romance featuring enemies to lovers and
+                                    forced proximity.
+                                </p>
+                            </div>
+                            <div class="product-price">
+                                ₱<span>420</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-md-3">
+                    <div class="product-box">
+                        <div class="product-inner-box position-relative">
+                            <div class="icons position-absolute">
+                                <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
+                                </a>
+                            </div>
+                            <img src="media/Discover/melania.jpg" alt="Melania" class="img-fluid products"
+                                onclick="showProductPopup(event)" />
+                            <div class="cart-btn">
+                                <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i
+                                        class="fa-solid fa-cart-shopping"></i>
+                                    Add to Cart</button>
+                            </div>
+                        </div>
+                        <div class="product-info mb-5">
+                            <div class="product-name">
+                                <h4>Melania</h4>
+                            </div>
+                            <div class="product-author d-none">
+                                <p>Melania Trump</p>
+                            </div>
+                            <div class="product-description d-none">
+                                <p>In her memoir, Melania reflects on her Slovenian childhood, the pivotal moments that
+                                    led her to the
+                                    world of high fashion in Europe and New York, and the serendipitous meeting with
+                                    Donald Trump, a
+                                    chance encounter that forever changed the course of her life. Melania opens up about
+                                    their courtship,
+                                    life in the spotlight, and experiencing the joy of motherhood. She shares
+                                    behind-the-scenes stories
+                                    from her time in the White House, shedding light on her advocacy work and the causes
+                                    close to her
+                                    heart.</p>
+                            </div>
+                            <div class="product-price">
+                                ₱<span>300</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-md-3">
+                    <div class="product-box">
+                        <div class="product-inner-box position-relative">
+                            <div class="icons position-absolute">
+                                <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
+                                </a>
+                            </div>
+                            <img src="media/Discover/on tyranny.jpg" alt="On Tyranny" class="img-fluid products"
+                                onclick="showProductPopup(event)" />
+                            <div class="cart-btn">
+                                <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i
+                                        class="fa-solid fa-cart-shopping"></i>
+                                    Add to Cart</button>
+                            </div>
+                        </div>
+                        <div class="product-info mb-5">
+                            <div class="product-name">
+                                <h4>On Tyranny</h4>
+                            </div>
+                            <div class="product-author d-none">
+                                <p>Timothy Snyder</p>
+                            </div>
+                            <div class="product-description d-none">
+                                <p>On Tyranny is a call to arms and a guide to resistance, with invaluable ideas for how
+                                    we can preserve
+                                    our freedoms in the uncertain years to come.</p>
+                            </div>
+                            <div class="product-price">
+                                ₱<span>900</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="col-md-3">
+                    <div class="product-box">
+                        <div class="product-inner-box position-relative">
+                            <div class="icons position-absolute">
+                                <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
+                                </a>
+                            </div>
+                            <img src="media/Discover/the grey wolf.jpg" alt="The Grey Wolf" class="img-fluid"
+                                onclick="showProductPopup(event)" />
+                            <div class="cart-btn">
+                                <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i
+                                        class="fa-solid fa-cart-shopping"></i>
+                                    Add to Cart</button>
+                            </div>
+                        </div>
+                        <div class="product-info mb-5">
+                            <div class="product-name">
+                                <h4>Unrivaled</h4>
+                            </div>
+                            <div class="product-author d-none">
+                                <p>John Kerry</p>
+                            </div>
+                            <div class="product-description d-none">
+                                <p>John Kerry tells the story of his remarkable American life—from son of a diplomat to
+                                    decorated
+                                    Vietnam veteran, five-term United States senator, 2004 Democratic presidential
+                                    nominee, and Secretary
+                                    of State for four years—a revealing memoir by a witness to some of the most
+                                    important events of our
+                                    recent history.</p>
+                            </div>
+                            <div class="product-price">
+                                ₱<span>630</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="product-box">
+                                <div class="product-inner-box position-relative">
+                                    <div class="icons position-absolute">
+                                        <a href="#" class="text-decoration-none text-dark"><i
+                                                class="fas fa-heart"></i></a>
+                                        </a>
+                                    </div>
+                                    <img src="media/Discover/the waiting.jpg" alt="The Waiting"
+                                        class="img-fluid products" onclick="showProductPopup(event)" />
+                                    <div class="cart-btn">
+                                        <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i
+                                                class="fa-solid fa-cart-shopping"></i>
+                                            Add to Cart</button>
+                                    </div>
+                                </div>
+                                <div class="product-info mb-5">
+                                    <div class="product-name">
+                                        <h4>The Waiting</h4>
+                                    </div>
+                                    <div class="product-author d-none">
+                                        <p>Michael Connelly</p>
+                                    </div>
+                                    <div class="product-description d-none">
+                                        <p>In The Waiting by Michael Connelly, Detective Renée Ballard investigates a
+                                            familial DNA link
+                                            tying a young man to the Pillowcase Rapist, a serial predator from decades
+                                            ago, while navigating a
+                                            web of secrets and legal challenges. After her badge and gun are stolen,
+                                            threatening her career,
+                                            she seeks help from retired detective Harry Bosch. Meanwhile, Bosch’s
+                                            daughter Maddie joins
+                                            Ballard’s team with her own hidden motives, uncovering connections to a
+                                            legendary cold case. The
+                                            story blends personal stakes, procedural drama, and Connelly’s signature
+                                            twists.</p>
+                                    </div>
+                                    <div class="product-price">
+                                        ₱<span>420</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="product-box">
+                                <div class="product-inner-box position-relative">
+                                    <div class="icons position-absolute">
+                                        <a href="#" class="text-decoration-none text-dark"><i
+                                                class="fas fa-heart"></i></a>
+                                        </a>
+                                    </div>
+                                    <img src="media/Discover/war.jpg" alt="War" class="img-fluid products"
+                                        openclick="showProductPopup(event)" />
+                                    <div class="cart-btn">
+                                        <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i
+                                                class="fa-solid fa-cart-shopping"></i>
+                                            Add to Cart</button>
+                                    </div>
+                                </div>
+                                <div class="product-info mb-5">
+                                    <div class="product-name">
+                                        <h4>War</h4>
+                                    </div>
+                                    <div class="product-author d-none">
+                                        <p>Bob Woodward</p>
+                                    </div>
+                                    <div class="product-description d-none">
+                                        <p>War is an intimate and sweeping account of one of the most tumultuous periods
+                                            in presidential
+                                            politics and American history. We see President Joe Biden and his top
+                                            advisers in tense conversations with Russian president Vladimir Putin,
+                                            Israeli prime minister Benjamin Netanyahu, and Ukrainian president Volodymyr
+                                            Zelensky. We also see Donald Trump, conducting a shadow presidency and
+                                            seeking to regain political power.</p>
+                                    </div>
+                                    <div class="product-price">
+                                        ₱<span>300</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="product-box">
+                                <div class="product-inner-box position-relative">
+                                    <div class="icons position-absolute">
+                                        <a href="#" class="text-decoration-none text-dark"><i
+                                                class="fas fa-heart"></i></a>
+                                        </a>
+                                    </div>
+                                    <img src="media/Reckoning.png" alt="Earings" class="img-fluid products" />
+                                    <div class="cart-btn">
+                                        <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i
+                                                class="fa-solid fa-cart-shopping"></i>
+                                            Add to Cart</button>
+                                    </div>
+                                </div>
+                                <div class="product-info mb-5">
+                                    <div class="product-name">
+                                        <h4>Reckoning</h4>
+                                    </div>
+                                    <div class="product-price">
+                                        ₱<span>900</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="product-box">
+                                <div class="product-inner-box position-relative">
+                                    <div class="icons position-absolute">
+                                        <a href="#" class="text-decoration-none text-dark"><i
+                                                class="fas fa-heart"></i></a>
+                                        </a>
+                                    </div>
+                                    <img src="media/Unrivaled.png" alt="Earings" class="img-fluid" />
+                                    <div class="cart-btn">
+                                        <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i
+                                                class="fa-solid fa-cart-shopping"></i>
+                                            Add to Cart</button>
+                                    </div>
+                                </div>
+                                <div class="product-info mb-5">
+                                    <div class="product-name">
+                                        <h4>Unrivaled</h4>
+                                    </div>
+                                    <div class="product-price">
+                                        ₱<span>630</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+    </section>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {

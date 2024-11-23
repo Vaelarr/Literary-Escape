@@ -66,6 +66,14 @@
           </div>
         </form>
 
+        <div id="search-popup" class="search-popup">
+          <div class="search-results">
+            <div id="results-content">
+              <!-- Results will be populated here -->
+            </div>
+          </div>
+        </div>
+
         <!-- Icons -->
         <div class="d-flex align-items-center nav-icons">
           <a href="favorites.html" class="icon-link me-3"><i class="fa-solid fa-heart" style="color: #ffffff;"></i></a>
@@ -90,8 +98,82 @@
   </section>
 
   <!-- Featured Section -->
-  <section id="featured-section" style="display: block;">
-    <h3 style="color: white">Shop by Genre</h3>
+  <section id="featured-section" style="display: block; padding-bottom: 60px;">
+    <h3 style="color: white; padding-bottom: 10px;">Shop by Genre</h3>
+    <div class="container mt-0">
+      <div id="genreCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+          <!-- First slide -->
+          <div class="carousel-item active">
+            <div class="row">
+              <div class="col-12 col-md-4">
+                <div class="genre-card">
+                  <img src="media/genres/science-fiction.jpg" class="img-fluid" alt="Fiction">
+                  <div class="genre-overlay">
+                    <h4>Science Fiction</h4>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="genre-card">
+                  <img src="media/genres/science-fiction.jpg" class="img-fluid" alt="Mystery">
+                  <div class="genre-overlay">
+                    <h4>Mystery</h4>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="genre-card">
+                  <img src="media/genres/science-fiction.jpg" class="img-fluid" alt="Romance">
+                  <div class="genre-overlay">
+                    <h4>Magic Realism</h4>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Second slide -->
+          <div class="carousel-item">
+            <div class="row">
+              <div class="col-12 col-md-4">
+                <div class="genre-card">
+                  <img src="media/genres/science-fiction.jpg" class="img-fluid" alt="Science Fiction">
+                  <div class="genre-overlay">
+                    <h4>Crime</h4>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="genre-card">
+                  <img src="media/genres/science-fiction.jpg" class="img-fluid" alt="Fantasy">
+                  <div class="genre-overlay">
+                    <h4>Fantasy</h4>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="genre-card">
+                  <img src="media/genres/science-fiction.jpg" class="img-fluid" alt="Horror">
+                  <div class="genre-overlay">
+                    <h4>Politics</h4>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#genreCarousel" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#genreCarousel" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
+    </div>
   </section>
 
   <!-- Showcase Section -->
@@ -99,7 +181,7 @@
 
     <div id="productPopup" class="product-popup">
       <div class="popup-content">
-        <span class="close-popup">&times;</span>
+        <span class="close-popup" onclick="closeBtn()">&times;</span>
         <div class="popup-body">
           <div class="row">
             <div class="col-md-5">
@@ -108,7 +190,7 @@
             <div class="col-md-7">
               <h3 class="popup-title"></h3>
               <p class="popup-author"></p>
-              <p class="popup-description"></p>
+              <p class="popup-description overflow-auto"></p>
               <p class="popup-price"></p>
               <div class="popup-actions">
                 <button class="btn btn-primary add-to-cart-btn"
@@ -141,7 +223,7 @@
                 <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
                 </a>
               </div>
-              <img src="media/Discover/framed.jpg" alt="Earings" class="img-fluid products" />
+              <img src="media/Discover/framed.jpg" alt="Framed" class="img-fluid products" />
               <div class="cart-btn">
                 <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i class="fa-solid fa-cart-shopping"></i>
                   Add to Cart</button>
@@ -155,11 +237,10 @@
                 <p>James Ponti</p>
               </div>
               <div class="product-description d-none">
-                <p>Get to know the only kid on the FBI Director’s speed dial and several international criminals’ most
-                  wanted
-                  lists all because of his Theory of All Small Things in this hilarious start to a brand-new middle
-                  grade
-                  mystery series.</p>
+                <p style="height: 200px;">Get to know the only kid on the FBI Director’s speed dial and several
+                  international criminals’ most
+                  wanted lists all because of his Theory of All Small Things in this hilarious start to a brand-new
+                  middle grade mystery series.</p>
               </div>
               <div class="product-price">
                 ₱<span>420</span>
@@ -176,7 +257,7 @@
                 <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
                 </a>
               </div>
-              <img src="media/Discover/hexed.jpg" alt="Earings" class="img-fluid products" />
+              <img src="media/Discover/hexed.jpg" alt="Hexed" class="img-fluid products" />
               <div class="cart-btn">
                 <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i class="fa-solid fa-cart-shopping"></i>
                   Add to Cart</button>
@@ -209,7 +290,7 @@
                 <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
                 </a>
               </div>
-              <img src="media/Discover/hillbily elegy.jpg" alt="Earings" class="img-fluid products"
+              <img src="media/Discover/hillbily elegy.jpg" alt="Hillbily" class="img-fluid products"
                 onclick="showProductPopup(event)" />
               <div class="cart-btn">
                 <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i class="fa-solid fa-cart-shopping"></i>
@@ -246,7 +327,8 @@
                 <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
                 </a>
               </div>
-              <img src="media/Discover/in too deep.jpg" alt="Earings" class="img-fluid" />
+              <img src="media/Discover/in too deep.jpg" alt="In Too Deep" class="img-fluid"
+                onclick="showProductPopup(event)" />
               <div class="cart-btn">
                 <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i class="fa-solid fa-cart-shopping"></i>
                   Add to Cart</button>
@@ -255,6 +337,16 @@
             <div class="product-info mb-5">
               <div class="product-name">
                 <h4>In Too Deep</h4>
+              </div>
+              <div class="product-author d-none">
+                <p>Lee and Child</p>
+              </div>
+              <div class="product-description d-none">
+                <p>Reacher wakes up, alone, in the dark, handcuffed to a bed in a makeshift hospital room. His few
+                  possessions are gone. He has no memory of getting there. The last thing he can recall is the car he
+                  had hitched a ride in getting run off the road. The driver was killed. The people who staged the
+                  attack assume Reacher was the driver's accomplice and patch up his wounds as they plan to make him
+                  talk. A plan that will backfire spectacularly...</p>
               </div>
               <div class="product-price">
                 ₱<span>630</span>
@@ -270,7 +362,8 @@
                 <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
                 </a>
               </div>
-              <img src="media/Discover/lost and lassoed.jpg" alt="Earings" class="img-fluid products" />
+              <img src="media/Discover/lost and lassoed.jpg" alt="Lost and Lassoed" class="img-fluid products"
+                onclick="showProductPopup(event)" />
               <div class="cart-btn">
                 <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i class="fa-solid fa-cart-shopping"></i>
                   Add to Cart</button>
@@ -278,7 +371,16 @@
             </div>
             <div class="product-info mb-5">
               <div class="product-name">
-                <h4>Lost and L</h4>
+                <h4>Lost and Lassoed</h4>
+              </div>
+              <div class="product-author d-none">
+                <p>Lyla Sage</p>
+              </div>
+              <div class="product-description d-none">
+                <p>She thrives in chaos. He prefers routine. The only thing they have in common? How much they hate each
+                  other. From the author of Done and Dusted and Swift and Saddled, the highly anticipated next book in
+                  the Rebel Blue Ranch series, a small town romance featuring enemies to lovers and forced proximity.
+                </p>
               </div>
               <div class="product-price">
                 ₱<span>420</span>
@@ -295,7 +397,8 @@
                 <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
                 </a>
               </div>
-              <img src="media/heist.png" alt="Earings" class="img-fluid products" />
+              <img src="media/Discover/melania.jpg" alt="Melania" class="img-fluid products"
+                onclick="showProductPopup(event)" />
               <div class="cart-btn">
                 <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i class="fa-solid fa-cart-shopping"></i>
                   Add to Cart</button>
@@ -303,7 +406,18 @@
             </div>
             <div class="product-info mb-5">
               <div class="product-name">
-                <h4>In Your Eyes</h4>
+                <h4>Melania</h4>
+              </div>
+              <div class="product-author d-none">
+                <p>Melania Trump</p>
+              </div>
+              <div class="product-description d-none">
+                <p>In her memoir, Melania reflects on her Slovenian childhood, the pivotal moments that led her to the
+                  world of high fashion in Europe and New York, and the serendipitous meeting with Donald Trump, a
+                  chance encounter that forever changed the course of her life. Melania opens up about their courtship,
+                  life in the spotlight, and experiencing the joy of motherhood. She shares behind-the-scenes stories
+                  from her time in the White House, shedding light on her advocacy work and the causes close to her
+                  heart.</p>
               </div>
               <div class="product-price">
                 ₱<span>300</span>
@@ -320,7 +434,8 @@
                 <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
                 </a>
               </div>
-              <img src="media/Reckoning.png" alt="Earings" class="img-fluid products" />
+              <img src="media/Discover/on tyranny.jpg" alt="On Tyranny" class="img-fluid products"
+                onclick="showProductPopup(event)" />
               <div class="cart-btn">
                 <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i class="fa-solid fa-cart-shopping"></i>
                   Add to Cart</button>
@@ -328,7 +443,14 @@
             </div>
             <div class="product-info mb-5">
               <div class="product-name">
-                <h4>Reckoning</h4>
+                <h4>On Tyranny</h4>
+              </div>
+              <div class="product-author d-none">
+                <p>Timothy Snyder</p>
+              </div>
+              <div class="product-description d-none">
+                <p>On Tyranny is a call to arms and a guide to resistance, with invaluable ideas for how we can preserve
+                  our freedoms in the uncertain years to come.</p>
               </div>
               <div class="product-price">
                 ₱<span>900</span>
@@ -345,7 +467,8 @@
                 <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
                 </a>
               </div>
-              <img src="media/Unrivaled.png" alt="Earings" class="img-fluid" />
+              <img src="media/Discover/the grey wolf.jpg" alt="The Grey Wolf" class="img-fluid"
+                onclick="showProductPopup(event)" />
               <div class="cart-btn">
                 <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i class="fa-solid fa-cart-shopping"></i>
                   Add to Cart</button>
@@ -354,6 +477,15 @@
             <div class="product-info mb-5">
               <div class="product-name">
                 <h4>Unrivaled</h4>
+              </div>
+              <div class="product-author d-none">
+                <p>John Kerry</p>
+              </div>
+              <div class="product-description d-none">
+                <p>John Kerry tells the story of his remarkable American life—from son of a diplomat to decorated
+                  Vietnam veteran, five-term United States senator, 2004 Democratic presidential nominee, and Secretary
+                  of State for four years—a revealing memoir by a witness to some of the most important events of our
+                  recent history.</p>
               </div>
               <div class="product-price">
                 ₱<span>630</span>
@@ -371,7 +503,8 @@
                     <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
                     </a>
                   </div>
-                  <img src="media/LOCKED1.png" alt="Earings" class="img-fluid products" />
+                  <img src="media/Discover/the waiting.jpg" alt="The Waiting" class="img-fluid products"
+                    onclick="showProductPopup(event)" />
                   <div class="cart-btn">
                     <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i
                         class="fa-solid fa-cart-shopping"></i>
@@ -380,7 +513,18 @@
                 </div>
                 <div class="product-info mb-5">
                   <div class="product-name">
-                    <h4>The Society</h4>
+                    <h4>The Waiting</h4>
+                  </div>
+                  <div class="product-author d-none">
+                    <p>Michael Connelly</p>
+                  </div>
+                  <div class="product-description d-none">
+                    <p>In The Waiting by Michael Connelly, Detective Renée Ballard investigates a familial DNA link
+                      tying a young man to the Pillowcase Rapist, a serial predator from decades ago, while navigating a
+                      web of secrets and legal challenges. After her badge and gun are stolen, threatening her career,
+                      she seeks help from retired detective Harry Bosch. Meanwhile, Bosch’s daughter Maddie joins
+                      Ballard’s team with her own hidden motives, uncovering connections to a legendary cold case. The
+                      story blends personal stakes, procedural drama, and Connelly’s signature twists.</p>
                   </div>
                   <div class="product-price">
                     ₱<span>420</span>
@@ -397,7 +541,8 @@
                     <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
                     </a>
                   </div>
-                  <img src="media/heist.png" alt="Earings" class="img-fluid products" />
+                  <img src="media/Discover/war.jpg" alt="War" class="img-fluid products"
+                    openclick="showProductPopup(event)" />
                   <div class="cart-btn">
                     <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i
                         class="fa-solid fa-cart-shopping"></i>
@@ -406,7 +551,17 @@
                 </div>
                 <div class="product-info mb-5">
                   <div class="product-name">
-                    <h4>In Your Eyes</h4>
+                    <h4>War</h4>
+                  </div>
+                  <div class="product-author d-none">
+                    <p>Bob Woodward</p>
+                  </div>
+                  <div class="product-description d-none">
+                    <p>War is an intimate and sweeping account of one of the most tumultuous periods in presidential
+                      politics and American history. We see President Joe Biden and his top advisers in tense
+                      conversations with Russian president Vladimir Putin, Israeli prime minister Benjamin Netanyahu,
+                      and Ukrainian president Volodymyr Zelensky. We also see Donald Trump, conducting a shadow
+                      presidency and seeking to regain political power.</p>
                   </div>
                   <div class="product-price">
                     ₱<span>300</span>
@@ -485,13 +640,14 @@
     <h2>DEDICATED FOR BOOKAHOLICS</h2>
     <h5>By Fellow Enthusiasts</h5>
     <p>Started 2024</p>
-    <a href="#" id="videoBtn" class="video-btn">Watch Video ►</a>
+    <button id="videoBtn" class="video-btn" onclick="showVideoContainer()">Watch Video</button>
+
     <div id="videoContainer">
       <video width="1920" height="1080" preload="auto" controls>
         <source src="./media/video presentation.mp4" type="video/mp4">
         Your browser does not support the video tag.
       </video>
-      <button id="exitFullscreen" title="Exit Fullscreen">
+      <button id="exitFullscreen" title="Exit Fullscreen" onclick="closeVideoContainer()">
         <i class="fa-solid fa-xmark" style="color: #ffffff;"></i>
       </button>
     </div>
@@ -505,6 +661,7 @@
   <script>
     const videoBtn = document.getElementById('videoBtn');
     const videoContainer = document.getElementById('videoContainer');
+    const video = document.querySelector('video');
     const navbar = document.getElementById('navbar');
     const exitFullscreen = document.getElementById('exitFullscreen');
     var featuredSection = document.getElementById("featured-section");
@@ -521,25 +678,23 @@
       });
     });
 
-    let scrollPosition = 0;
-
-    videoBtn.addEventListener('click', () => {
-      scrollPosition = window.pageYOffset;
-      navbar.style.zIndex = 0;
+    function showVideoContainer() {
       videoContainer.style.display = 'block';
       document.body.classList.add('video-open');
-      document.body.style.top = `-${scrollPosition}px`;
+      document.body.style.overflow = 'hidden';
+      navbar.style.zIndex = 0;
       audio.pause();
-    });
+      video.play();
+    }
 
-    exitFullscreen.addEventListener('click', () => {
+    function closeVideoContainer() {
+      video.pause();
+      video.currentTime = 0;
       videoContainer.style.display = 'none';
       document.body.classList.remove('video-open');
-      document.body.style.top = '';
-      window.scrollTo(0, scrollPosition);
-      navbar.style.zIndex = 1000;
-      audio.pause();
-    });
+      document.body.style.overflow = 'auto';
+      navbar.style.zIndex = 9999;
+    }
 
     document.addEventListener('DOMContentLoaded', function () {
       updateNavAuth();

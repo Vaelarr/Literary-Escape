@@ -153,7 +153,7 @@ function toggleFavorite(heartButton, productData) {
     // Check if user is logged in
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     if (!currentUser) {
-        window.location.href = 'account.html';
+        showNotification('Please login to add items to favorites', 'error');
         return;
     }
 
@@ -262,9 +262,10 @@ function updateCheckoutButton() {
 
     if (subtotal === 0) {
         checkoutButton.innerHTML = '<i class="fas fa-shopping-cart me-2"></i>Proceed to Shop';
-        checkoutButton.onclick = () => window.location.href = 'index.html';
+        checkoutButton.onclick = () => window.location.href = 'shop.html';
     } else {
         checkoutButton.innerHTML = '<i class="fas fa-shopping-cart me-2"></i>Proceed to Checkout';
+        checkoutButton.onclick = () => window.location.href = 'checkout.html';
         checkoutButton.onclick = null;
     }
 }
@@ -296,7 +297,7 @@ document.addEventListener('DOMContentLoaded', loadCart);
 function addToCart(productData) {
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     if (!currentUser) {
-        window.location.href = 'account.html';
+        showNotification('Please login to add items to cart', 'error');
         return;
     }
 
@@ -356,7 +357,20 @@ function updateNavAuth() {
 function logout(e) {
     e.preventDefault();
 
-    // Clear all user-specific data
+    // Get current user data
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+
+    if (currentUser) {
+        // Save user-specific data under user ID
+        const userId = currentUser.id;
+        const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+        localStorage.setItem(`favorites_${userId}`, JSON.stringify(favorites));
+        localStorage.setItem(`cart_${userId}`, JSON.stringify(cart));
+    }
+
+    // Clear current user data
     localStorage.removeItem('currentUser');
     localStorage.removeItem('favorites');
     localStorage.removeItem('cart');
@@ -365,7 +379,6 @@ function logout(e) {
     updateFavoritesCount();
     updateNavAuth();
     window.location.href = 'account.html';
-
 }
 
 // Add to DOMContentLoaded
@@ -434,13 +447,17 @@ function showProductPopup(event) {
     // Show popup
     navBar.style.zIndex = 999;
     popup.style.display = 'block';
+    document.body.style.overflow = 'hidden';
 
     // Add event listeners
     const closeBtn = popup.querySelector('.close-popup');
     const addToCartBtn = popup.querySelector('.add-to-cart-btn');
     const favoriteBtn = popup.querySelector('.favorite-btn');
 
-    closeBtn.onclick = () => popup.style.display = 'none';
+    closeBtn.onclick = () => {
+        popup.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    };
 
     addToCartBtn.onclick = () => {
         const productData = {
@@ -476,3 +493,73 @@ function showProductPopup(event) {
 document.querySelectorAll('.products').forEach(img => {
     img.onclick = showProductPopup;
 });
+
+// Get all products and build books array
+function getBooks() {
+    const products = document.querySelectorAll('.product-box');
+    const books = [];
+
+    products.forEach(product => {
+        const title = product.querySelector('.product-name')?.textContent.trim();
+        const author = product.querySelector('.product-author')?.textContent.trim();
+        const bookCover = product.querySelector('img.products')?.src;
+        if (title && author) {
+            books.push({ title, author, bookCover });
+        }
+    });
+    return books;
+}
+
+// Modified search handler
+document.querySelector('form.d-flex').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const searchTerm = document.querySelector('input[type="search"]').value.toLowerCase();
+    const popup = document.getElementById('search-popup');
+    const resultsContent = document.getElementById('results-content');
+
+    const books = getBooks();
+    const results = books.filter(book =>
+        book.title.toLowerCase().includes(searchTerm) ||
+        book.author.toLowerCase().includes(searchTerm)
+    );
+
+    resultsContent.innerHTML = '';
+
+    if (results.length > 0) {
+        results.forEach(book => {
+            resultsContent.innerHTML += `
+            <div class="book-result" onclick="handleSearchResultClick(this, '${book.title}', '${book.author}')" style="cursor: pointer; gap:10px;">
+                <img src="${book.bookCover}" alt="${book.title} cover" 
+                    onerror="this.src='../images/placeholder.jpg'">
+                <div class="book-info" data-title="${book.title}" data-author="${book.author}">
+                    <h5>${book.title}</h5>
+                    <p>by ${book.author}</p>
+                </div>
+            </div>
+        `;
+        });
+    } else {
+        resultsContent.innerHTML = `
+        <div class="not-found">
+            <p>No books found matching your search. Try another search.</p>
+        </div>
+    `;
+    }
+
+    popup.style.display = 'block';
+    
+});
+
+
+
+document.addEventListener('click', function (e) {
+    const popup = document.getElementById('search-popup');
+    const searchForm = document.querySelector('form.d-flex');
+    if (!popup.contains(e.target) && !searchForm.contains(e.target)) {
+        popup.style.display = 'none';
+        searchTerm = document.querySelector('input[type="search"]').value = '';
+    }
+});
+
+
+

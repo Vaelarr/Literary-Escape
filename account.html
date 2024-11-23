@@ -68,6 +68,14 @@
                     </div>
                 </form>
 
+                <div id="search-popup" class="search-popup">
+                    <div class="search-results">
+                        <div id="results-content">
+                            <!-- Results will be populated here -->
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Icons -->
                 <div class="d-flex align-items-center nav-icons">
                     <a href="favorites.html" class="icon-link me-3"><i class="fa-solid fa-heart"
@@ -163,7 +171,7 @@
                 const users = JSON.parse(localStorage.getItem('users')) || [];
 
                 if (users.find(user => user.email === email)) {
-                    showNotification('Email already registered','error');
+                    showNotification('Email already registered', 'error');
                     return;
                 }
 
