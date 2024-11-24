@@ -54,7 +54,7 @@
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" style="color: #ffffff;">About Us</a>
+                        <a class="nav-link" href="about-us.html" style="color: #ffffff;">About Us</a>
                     </li>
                 </ul>
 
@@ -86,12 +86,24 @@
             </div>
         </div>
     </nav>
-    <div class="container mt-5">
-        <h2 style="margin-top: 100px;">My Favorites</h2>
-        <div class="row mt-4" id="favoritesContainer">
-            <!-- Favorites will be loaded here dynamically -->
+
+    <section style="height: 100vh;">
+        <div class="container mt-5">
+            <h2 style="margin-top: 100px;">My Favorites</h2>
+            <div class="row mt-4" id="favoritesContainer">
+                <!-- Favorites will be loaded here dynamically -->
+            </div>
         </div>
-    </div>
+    </section>
+
+
+    <!-- Footer -->
+    <footer>
+        <a href="https://www.facebook.com/" class="text-decoration-none" style="color: white;"><i
+                class="fa-brands fa-facebook"></i></a>
+        <a href="https://www.instagram.com/" class="text-decoration-none" style="color: white;"><i
+                class="fa-brands fa-instagram"></i></a>
+    </footer>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             updateNavAuth();
@@ -99,7 +111,9 @@
             if (typeof updateFavoritesCount === 'function') updateFavoritesCount();
         });
     </script>
-    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="list.js"></script>
+    <script src="backend.js"></script>
 </body>
 
 </html>

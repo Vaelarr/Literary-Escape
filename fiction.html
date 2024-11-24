@@ -54,7 +54,7 @@
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" style="color: #ffffff;">About Us</a>
+                        <a class="nav-link" href="about-us.html" style="color: #ffffff;">About Us</a>
                     </li>
                 </ul>
 
@@ -65,6 +65,7 @@
                         <button class="btn mx-0" title="search-btn" type="submit"><i class="bi bi-search"></i></button>
                     </div>
                 </form>
+
 
                 <div id="search-popup" class="search-popup">
                     <div class="search-results">
@@ -87,507 +88,309 @@
         </div>
     </nav>
 
-    <!-- Fiction Section -->
+    <!-- Fiction Genre Section -->
     <section id="showcase-section" style="padding-top: 60px;">
-
-        <div id="productPopup" class="product-popup">
-            <div class="popup-content">
-                <span class="close-popup" onclick="closeBtn()">&times;</span>
-                <div class="popup-body">
-                    <div class="row">
-                        <div class="col-md-5">
-                            <img src="" alt="" class="popup-image img-fluid">
-                        </div>
-                        <div class="col-md-7">
-                            <h3 class="popup-title"></h3>
-                            <p class="popup-author"></p>
-                            <p class="popup-description"></p>
-                            <p class="popup-price"></p>
-                            <div class="popup-actions">
-                                <button class="btn btn-primary add-to-cart-btn"
-                                    style="background-color: #16423C; border-color: #0e2c28;">
-                                    <i class="fa-solid fa-cart-shopping me-2"></i>Add to Cart
-                                </button>
-                                <button class="btn btn-outline-danger favorite-btn ms-2">
-                                    <i class="fas fa-heart me-2"></i>Add to Favorites
-                                </button>
+        <div class="container">
+            <div class="row text-start" style="margin-top: 40px; margin-bottom: 20px;">
+                <div class="text-center">
+                    <h3 class="mb-0 fw-600" style="color: #16423C">Select your Fiction Genre</h3>
+                </div>
+            </div>
+            <div id="genreCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <!-- First slide -->
+                    <div class="carousel-item active">
+                        <div class="row">
+                            <div class="col-12 col-md-3">
+                                <div class="genre-card">
+                                    <a class="text-decoration-none" href="#crimeSection">
+                                        <img src="media/Genres/Crime.JPG" class="img-fluid" alt="Fiction">
+                                        <div class="genre-overlay">
+                                            <h4>Crime</h4>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <div class="genre-card">
+                                    <a class="text-decoration-none" href="#magicRealismSection">
+                                        <img src="media/Genres/Magic Realism.JPG" class="img-fluid" alt="Mystery">
+                                        <div class="genre-overlay">
+                                            <h4>Magic Realism</h4>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <div class="genre-card">
+                                    <a class="text-decoration-none" href="#mysterySection">
+                                        <img src="media/Genres/mystery.JPG" class="img-fluid" alt="Romance">
+                                        <div class="genre-overlay">
+                                            <h4>Mystery</h4>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <div class="genre-card">
+                                    <a class="text-decoration-none" href="#scienceFictionSection">
+                                        <img src="media/Genres/science fiction 3.JPG" class="img-fluid"
+                                            alt="Science Fiction">
+                                        <div class="genre-overlay">
+                                            <h4>Science Fiction</h4>
+                                        </div>
+                                    </a>
+                                </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+    </section>
+
+    <section id="magicRealismSection" style="padding-top: 70px;">
+        <div class="container">
+            <div class="row text-start" style="margin-top: 40px; margin-bottom: 20px;">
+                <div class="d-flex align-items-center gap-3">
+                    <h3 class="mb-0 fw-600" style="color: #16423C">Fiction / Magic Realism Books</h3>
+                    <div class="section-line flex-grow-1"></div>
+                </div>
+            </div>
+            <div id="magicRealismBooks" class="products-container row">
+                <!-- Products will be populated here dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <section id="mysterySection" style="padding-top: 30px;">
+        <div class="container">
+            <div class="row text-start" style="margin-top: 40px; margin-bottom: 20px;">
+                <div class="d-flex align-items-center gap-3">
+                    <h3 class="mb-0 fw-600" style="color: #16423C">Fiction / Mystery Books</h3>
+                    <div class="section-line flex-grow-1"></div>
+                </div>
+            </div>
+            <div id="mysteryBooks" class="products-container row">
+                <!-- Products will be populated here dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <section id="scienceFictionSection" style="padding-top: 30px;">
+        <div class="container">
+            <div class="row text-start" style="margin-top: 40px; margin-bottom: 20px;">
+                <div class="d-flex align-items-center gap-3">
+                    <h3 class="mb-0 fw-600" style="color: #16423C">Fiction / Science Fiction Books</h3>
+                    <div class="section-line flex-grow-1"></div>
+                </div>
+            </div>
+            <div id="scienceFictionBooks" class="products-container row">
+                <!-- Products will be populated here dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <section id="crimeSection" style="padding-top: 30px;">
+        <div class="container">
+            <div class="row text-start" style="margin-top: 40px; margin-bottom: 20px;">
+                <div class="d-flex align-items-center gap-3">
+                    <h3 class="mb-0 fw-600" style="color: #16423C">Fiction / Crime Fiction Books</h3>
+                    <div class="section-line flex-grow-1"></div>
+                </div>
+            </div>
+            <div id="crimeFictionBooks" class="products-container row">
+                <!-- Products will be populated here dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <a href="https://www.facebook.com/" class="text-decoration-none" style="color: white;"><i
+                class="fa-brands fa-facebook"></i></a>
+        <a href="https://www.instagram.com/" class="text-decoration-none" style="color: white;"><i
+                class="fa-brands fa-instagram"></i></a>
+    </footer>
+
+    <script src="list.js"></script>
+    <script src="backend.js"></script>
+    <script src="populate.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (document.querySelector('.products-container')) {
+                displayMagicRealismBooks();
+                displayMysteryBooks();
+                displayScienceFictionBooks();
+                displayCrimeFictionBooks();
+            }
+        });
+
+        function displayMagicRealismBooks() {
+            const container = document.querySelector('#magicRealismBooks');
+            if (!container) {
+                console.error('Products container not found');
+                return;
+            }
+
+            if (!books || !Array.isArray(books)) {
+                console.error('Books data is invalid:', books);
+                return;
+            }
+
+            const magicRealismBooks = books.filter(book =>
+                book.genre && book.genre.toLowerCase() === "magic realism"
+            );
+            console.log('Mystery books found:', magicRealismBooks);
+
+            container.innerHTML = magicRealismBooks.map(book => `
+        <div class="col-md-3 mb-4">
+            <div class="product-box" data-product-id="${book.id}">
+                <div class="product-inner-box position-relative">
+                    <a href="product.html?id=${book.id}" class="product-link">
+                        <img src="${book.cover || placeholderImage}" alt="${book.title || 'Book Cover'}" class="img-fluid products" />
+                    </a>
+                </div>
+                <div class="product-info">
+                    <div class="product-name">
+                        <a href="product.html?id=${book.id}" class="text-decoration-none text-dark">
+                            <h4>${book.title}</h4>
+                        </a>
+                    </div>
+                    <div class="product-price">
+                        ₱<span>${book.price ? book.price.toFixed(2) : '0.00'}</span>
                     </div>
                 </div>
             </div>
         </div>
+    `).join('');
 
-        <div class="container">
-            <div class="row text-start my-5">
-                <div class="text-center">
-                    <h3 class="mb-0 fw-600" style="color: #16423C">Fiction</h3>
+        }
+
+        function displayMysteryBooks() {
+            const container = document.querySelector('#mysteryBooks');
+            if (!container) {
+                console.error('Products container not found');
+                return;
+            }
+
+            if (!books || !Array.isArray(books)) {
+                console.error('Books data is invalid:', books);
+                return;
+            }
+
+            const mysteryBooks = books.filter(book =>
+                book.genre && book.genre.toLowerCase() === "mystery"
+            );
+            console.log('Mystery books found:', mysteryBooks);
+
+            container.innerHTML = mysteryBooks.map(book => `
+        <div class="col-md-3 mb-4">
+            <div class="product-box" data-product-id="${book.id}">
+                <div class="product-inner-box position-relative">
+                    <a href="product.html?id=${book.id}" class="product-link">
+                        <img src="${book.cover || placeholderImage}" alt="${book.title || 'Book Cover'}" class="img-fluid products" />
+                    </a>
+                </div>
+                <div class="product-info">
+                    <div class="product-name">
+                        <a href="product.html?id=${book.id}" class="text-decoration-none text-dark">
+                            <h4>${book.title}</h4>
+                        </a>
+                    </div>
+                    <div class="product-price">
+                        ₱<span>${book.price ? book.price.toFixed(2) : '0.00'}</span>
+                    </div>
                 </div>
             </div>
-            <div class="row">
+        </div>
+    `).join('');
 
-                <div class="col-md-3">
-                    <div class="product-box">
-                        <div class="product-inner-box position-relative">
-                            <div class="icons position-absolute">
-                                <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
-                                </a>
-                            </div>
-                            <img src="media/Discover/framed.jpg" alt="Framed" class="img-fluid products" />
-                            <div class="cart-btn">
-                                <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i
-                                        class="fa-solid fa-cart-shopping"></i>
-                                    Add to Cart</button>
-                            </div>
-                        </div>
-                        <div class="product-info mb-5">
-                            <div class="product-name">
-                                <h4>Framed</h4>
-                            </div>
-                            <div class="product-author d-none">
-                                <p>James Ponti</p>
-                            </div>
-                            <div class="product-description d-none">
-                                <p>Get to know the only kid on the FBI Director’s speed dial and several international
-                                    criminals’ most
-                                    wanted
-                                    lists all because of his Theory of All Small Things in this hilarious start to a
-                                    brand-new middle
-                                    grade
-                                    mystery series.</p>
-                            </div>
-                            <div class="product-price">
-                                ₱<span>420</span>
-                            </div>
-                        </div>
-                    </div>
+        }
 
+        function displayScienceFictionBooks() {
+            const container = document.querySelector('#scienceFictionBooks');
+            if (!container) {
+                console.error('Products container not found');
+                return;
+            }
+
+            if (!books || !Array.isArray(books)) {
+                console.error('Books data is invalid:', books);
+                return;
+            }
+
+            const scienceFictionBooks = books.filter(book =>
+                book.genre && book.genre.toLowerCase() === "sci-fi"
+            );
+            console.log('Mystery books found:', mysteryBooks);
+
+            container.innerHTML = scienceFictionBooks.map(book => `
+        <div class="col-md-3 mb-4">
+            <div class="product-box" data-product-id="${book.id}">
+                <div class="product-inner-box position-relative">
+                    <a href="product.html?id=${book.id}" class="product-link">
+                        <img src="${book.cover || placeholderImage}" alt="${book.title || 'Book Cover'}" class="img-fluid products" />
+                    </a>
                 </div>
-
-                <div class="col-md-3">
-                    <div class="product-box">
-                        <div class="product-inner-box position-relative">
-                            <div class="icons position-absolute">
-                                <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
-                                </a>
-                            </div>
-                            <img src="media/Discover/hexed.jpg" alt="Hexed" class="img-fluid products" />
-                            <div class="cart-btn">
-                                <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i
-                                        class="fa-solid fa-cart-shopping"></i>
-                                    Add to Cart</button>
-                            </div>
-                        </div>
-                        <div class="product-info mb-5">
-                            <div class="product-name">
-                                <h4>Hexed</h4>
-                            </div>
-                            <div class="product-author d-none">
-                                <p>Kevin Hearne</p>
-                            </div>
-                            <div class="product-description d-none">
-                                <p>Atticus O’Sullivan, last of the Druids, doesn’t care much for witches. Still, he’s
-                                    about to make nice
-                                    with the local coven by signing a mutually beneficial nonaggression treaty when
-                                    suddenly the witch
-                                    population in modern-day Tempe, Arizona, quadruples overnight.</p>
-                            </div>
-                            <div class="product-price">
-                                ₱<span>300</span>
-                            </div>
-                        </div>
+                <div class="product-info">
+                    <div class="product-name">
+                        <a href="product.html?id=${book.id}" class="text-decoration-none text-dark">
+                            <h4>${book.title}</h4>
+                        </a>
                     </div>
-
-                </div>
-
-                <div class="col-md-3">
-                    <div class="product-box">
-                        <div class="product-inner-box position-relative">
-                            <div class="icons position-absolute">
-                                <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
-                                </a>
-                            </div>
-                            <img src="media/Discover/hillbily elegy.jpg" alt="Hillbily" class="img-fluid products"
-                                onclick="showProductPopup(event)" />
-                            <div class="cart-btn">
-                                <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i
-                                        class="fa-solid fa-cart-shopping"></i>
-                                    Add to Cart</button>
-                            </div>
-                        </div>
-                        <div class="product-info mb-5">
-                            <div class="product-name">
-                                <h4>Hillbily</h4>
-                            </div>
-                            <div class="product-author d-none">
-                                <p>J.D. Vance</p>
-                            </div>
-                            <div class="product-description d-none">
-                                <p>Hillbilly Elegy recounts J.D. Vance's powerful origin story...
-
-                                    From a former marine and Yale Law School graduate now serving as a U.S. Senator from
-                                    Ohio and the
-                                    Republican Vice Presidential candidate for the 2024 election, an incisive account of
-                                    growing up in a
-                                    poor Rust Belt town that offers a broader, probing look at the struggles of
-                                    America's white working
-                                    class..</p>
-                            </div>
-                            <div class="product-price">
-                                ₱<span>900</span>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="col-md-3">
-                    <div class="product-box">
-                        <div class="product-inner-box position-relative">
-                            <div class="icons position-absolute">
-                                <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
-                                </a>
-                            </div>
-                            <img src="media/Discover/in too deep.jpg" alt="In Too Deep" class="img-fluid"
-                                onclick="showProductPopup(event)" />
-                            <div class="cart-btn">
-                                <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i
-                                        class="fa-solid fa-cart-shopping"></i>
-                                    Add to Cart</button>
-                            </div>
-                        </div>
-                        <div class="product-info mb-5">
-                            <div class="product-name">
-                                <h4>In Too Deep</h4>
-                            </div>
-                            <div class="product-author d-none">
-                                <p>Lee and Child</p>
-                            </div>
-                            <div class="product-description d-none">
-                                <p>Reacher wakes up, alone, in the dark, handcuffed to a bed in a makeshift hospital
-                                    room. His few
-                                    possessions are gone. He has no memory of getting there. The last thing he can
-                                    recall is the car he
-                                    had hitched a ride in getting run off the road. The driver was killed. The people
-                                    who staged the
-                                    attack assume Reacher was the driver's accomplice and patch up his wounds as they
-                                    plan to make him
-                                    talk. A plan that will backfire spectacularly...</p>
-                            </div>
-                            <div class="product-price">
-                                ₱<span>630</span>
-                            </div>
-                        </div>
+                    <div class="product-price">
+                        ₱<span>${book.price ? book.price.toFixed(2) : '0.00'}</span>
                     </div>
                 </div>
+            </div>
+        </div>
+    `).join('');
 
-                <div class="col-md-3">
-                    <div class="product-box">
-                        <div class="product-inner-box position-relative">
-                            <div class="icons position-absolute">
-                                <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
-                                </a>
-                            </div>
-                            <img src="media/Discover/lost and lassoed.jpg" alt="Lost and Lassoed"
-                                class="img-fluid products" onclick="showProductPopup(event)" />
-                            <div class="cart-btn">
-                                <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i
-                                        class="fa-solid fa-cart-shopping"></i>
-                                    Add to Cart</button>
-                            </div>
-                        </div>
-                        <div class="product-info mb-5">
-                            <div class="product-name">
-                                <h4>Lost and Lassoed</h4>
-                            </div>
-                            <div class="product-author d-none">
-                                <p>Lyla Sage</p>
-                            </div>
-                            <div class="product-description d-none">
-                                <p>She thrives in chaos. He prefers routine. The only thing they have in common? How
-                                    much they hate each
-                                    other. From the author of Done and Dusted and Swift and Saddled, the highly
-                                    anticipated next book in
-                                    the Rebel Blue Ranch series, a small town romance featuring enemies to lovers and
-                                    forced proximity.
-                                </p>
-                            </div>
-                            <div class="product-price">
-                                ₱<span>420</span>
-                            </div>
-                        </div>
-                    </div>
+        }
 
+        function displayCrimeFictionBooks() {
+            const container = document.querySelector('#crimeFictionBooks');
+            if (!container) {
+                console.error('Products container not found');
+                return;
+            }
+
+            if (!books || !Array.isArray(books)) {
+                console.error('Books data is invalid:', books);
+                return;
+            }
+
+            const crimeFictionBooks = books.filter(book =>
+                book.genre && book.genre.toLowerCase() === "crime"
+            );
+            console.log('Mystery books found:', crimeFictionBooks);
+
+            container.innerHTML = crimeFictionBooks.map(book => `
+        <div class="col-md-3 mb-4">
+            <div class="product-box" data-product-id="${book.id}">
+                <div class="product-inner-box position-relative">
+                    <a href="product.html?id=${book.id}" class="product-link">
+                        <img src="${book.cover || placeholderImage}" alt="${book.title || 'Book Cover'}" class="img-fluid products" />
+                    </a>
                 </div>
-
-                <div class="col-md-3">
-                    <div class="product-box">
-                        <div class="product-inner-box position-relative">
-                            <div class="icons position-absolute">
-                                <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
-                                </a>
-                            </div>
-                            <img src="media/Discover/melania.jpg" alt="Melania" class="img-fluid products"
-                                onclick="showProductPopup(event)" />
-                            <div class="cart-btn">
-                                <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i
-                                        class="fa-solid fa-cart-shopping"></i>
-                                    Add to Cart</button>
-                            </div>
-                        </div>
-                        <div class="product-info mb-5">
-                            <div class="product-name">
-                                <h4>Melania</h4>
-                            </div>
-                            <div class="product-author d-none">
-                                <p>Melania Trump</p>
-                            </div>
-                            <div class="product-description d-none">
-                                <p>In her memoir, Melania reflects on her Slovenian childhood, the pivotal moments that
-                                    led her to the
-                                    world of high fashion in Europe and New York, and the serendipitous meeting with
-                                    Donald Trump, a
-                                    chance encounter that forever changed the course of her life. Melania opens up about
-                                    their courtship,
-                                    life in the spotlight, and experiencing the joy of motherhood. She shares
-                                    behind-the-scenes stories
-                                    from her time in the White House, shedding light on her advocacy work and the causes
-                                    close to her
-                                    heart.</p>
-                            </div>
-                            <div class="product-price">
-                                ₱<span>300</span>
-                            </div>
-                        </div>
+                <div class="product-info">
+                    <div class="product-name">
+                        <a href="product.html?id=${book.id}" class="text-decoration-none text-dark">
+                            <h4>${book.title}</h4>
+                        </a>
                     </div>
-
-                </div>
-
-                <div class="col-md-3">
-                    <div class="product-box">
-                        <div class="product-inner-box position-relative">
-                            <div class="icons position-absolute">
-                                <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
-                                </a>
-                            </div>
-                            <img src="media/Discover/on tyranny.jpg" alt="On Tyranny" class="img-fluid products"
-                                onclick="showProductPopup(event)" />
-                            <div class="cart-btn">
-                                <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i
-                                        class="fa-solid fa-cart-shopping"></i>
-                                    Add to Cart</button>
-                            </div>
-                        </div>
-                        <div class="product-info mb-5">
-                            <div class="product-name">
-                                <h4>On Tyranny</h4>
-                            </div>
-                            <div class="product-author d-none">
-                                <p>Timothy Snyder</p>
-                            </div>
-                            <div class="product-description d-none">
-                                <p>On Tyranny is a call to arms and a guide to resistance, with invaluable ideas for how
-                                    we can preserve
-                                    our freedoms in the uncertain years to come.</p>
-                            </div>
-                            <div class="product-price">
-                                ₱<span>900</span>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <div class="col-md-3">
-                    <div class="product-box">
-                        <div class="product-inner-box position-relative">
-                            <div class="icons position-absolute">
-                                <a href="#" class="text-decoration-none text-dark"><i class="fas fa-heart"></i></a>
-                                </a>
-                            </div>
-                            <img src="media/Discover/the grey wolf.jpg" alt="The Grey Wolf" class="img-fluid"
-                                onclick="showProductPopup(event)" />
-                            <div class="cart-btn">
-                                <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i
-                                        class="fa-solid fa-cart-shopping"></i>
-                                    Add to Cart</button>
-                            </div>
-                        </div>
-                        <div class="product-info mb-5">
-                            <div class="product-name">
-                                <h4>Unrivaled</h4>
-                            </div>
-                            <div class="product-author d-none">
-                                <p>John Kerry</p>
-                            </div>
-                            <div class="product-description d-none">
-                                <p>John Kerry tells the story of his remarkable American life—from son of a diplomat to
-                                    decorated
-                                    Vietnam veteran, five-term United States senator, 2004 Democratic presidential
-                                    nominee, and Secretary
-                                    of State for four years—a revealing memoir by a witness to some of the most
-                                    important events of our
-                                    recent history.</p>
-                            </div>
-                            <div class="product-price">
-                                ₱<span>630</span>
-                            </div>
-                        </div>
+                    <div class="product-price">
+                        ₱<span>${book.price ? book.price.toFixed(2) : '0.00'}</span>
                     </div>
                 </div>
+            </div>
+        </div>
+    `).join('');
 
-                <div>
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="product-box">
-                                <div class="product-inner-box position-relative">
-                                    <div class="icons position-absolute">
-                                        <a href="#" class="text-decoration-none text-dark"><i
-                                                class="fas fa-heart"></i></a>
-                                        </a>
-                                    </div>
-                                    <img src="media/Discover/the waiting.jpg" alt="The Waiting"
-                                        class="img-fluid products" onclick="showProductPopup(event)" />
-                                    <div class="cart-btn">
-                                        <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i
-                                                class="fa-solid fa-cart-shopping"></i>
-                                            Add to Cart</button>
-                                    </div>
-                                </div>
-                                <div class="product-info mb-5">
-                                    <div class="product-name">
-                                        <h4>The Waiting</h4>
-                                    </div>
-                                    <div class="product-author d-none">
-                                        <p>Michael Connelly</p>
-                                    </div>
-                                    <div class="product-description d-none">
-                                        <p>In The Waiting by Michael Connelly, Detective Renée Ballard investigates a
-                                            familial DNA link
-                                            tying a young man to the Pillowcase Rapist, a serial predator from decades
-                                            ago, while navigating a
-                                            web of secrets and legal challenges. After her badge and gun are stolen,
-                                            threatening her career,
-                                            she seeks help from retired detective Harry Bosch. Meanwhile, Bosch’s
-                                            daughter Maddie joins
-                                            Ballard’s team with her own hidden motives, uncovering connections to a
-                                            legendary cold case. The
-                                            story blends personal stakes, procedural drama, and Connelly’s signature
-                                            twists.</p>
-                                    </div>
-                                    <div class="product-price">
-                                        ₱<span>420</span>
-                                    </div>
-                                </div>
-                            </div>
+        }
 
-                        </div>
-
-                        <div class="col-md-3">
-                            <div class="product-box">
-                                <div class="product-inner-box position-relative">
-                                    <div class="icons position-absolute">
-                                        <a href="#" class="text-decoration-none text-dark"><i
-                                                class="fas fa-heart"></i></a>
-                                        </a>
-                                    </div>
-                                    <img src="media/Discover/war.jpg" alt="War" class="img-fluid products"
-                                        openclick="showProductPopup(event)" />
-                                    <div class="cart-btn">
-                                        <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i
-                                                class="fa-solid fa-cart-shopping"></i>
-                                            Add to Cart</button>
-                                    </div>
-                                </div>
-                                <div class="product-info mb-5">
-                                    <div class="product-name">
-                                        <h4>War</h4>
-                                    </div>
-                                    <div class="product-author d-none">
-                                        <p>Bob Woodward</p>
-                                    </div>
-                                    <div class="product-description d-none">
-                                        <p>War is an intimate and sweeping account of one of the most tumultuous periods
-                                            in presidential
-                                            politics and American history. We see President Joe Biden and his top
-                                            advisers in tense conversations with Russian president Vladimir Putin,
-                                            Israeli prime minister Benjamin Netanyahu, and Ukrainian president Volodymyr
-                                            Zelensky. We also see Donald Trump, conducting a shadow presidency and
-                                            seeking to regain political power.</p>
-                                    </div>
-                                    <div class="product-price">
-                                        ₱<span>300</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <div class="col-md-3">
-                            <div class="product-box">
-                                <div class="product-inner-box position-relative">
-                                    <div class="icons position-absolute">
-                                        <a href="#" class="text-decoration-none text-dark"><i
-                                                class="fas fa-heart"></i></a>
-                                        </a>
-                                    </div>
-                                    <img src="media/Reckoning.png" alt="Earings" class="img-fluid products" />
-                                    <div class="cart-btn">
-                                        <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i
-                                                class="fa-solid fa-cart-shopping"></i>
-                                            Add to Cart</button>
-                                    </div>
-                                </div>
-                                <div class="product-info mb-5">
-                                    <div class="product-name">
-                                        <h4>Reckoning</h4>
-                                    </div>
-                                    <div class="product-price">
-                                        ₱<span>900</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <div class="col-md-3">
-                            <div class="product-box">
-                                <div class="product-inner-box position-relative">
-                                    <div class="icons position-absolute">
-                                        <a href="#" class="text-decoration-none text-dark"><i
-                                                class="fas fa-heart"></i></a>
-                                        </a>
-                                    </div>
-                                    <img src="media/Unrivaled.png" alt="Earings" class="img-fluid" />
-                                    <div class="cart-btn">
-                                        <button class="btn btn-white shadow-sm rounded-pill bgc-white"><i
-                                                class="fa-solid fa-cart-shopping"></i>
-                                            Add to Cart</button>
-                                    </div>
-                                </div>
-                                <div class="product-info mb-5">
-                                    <div class="product-name">
-                                        <h4>Unrivaled</h4>
-                                    </div>
-                                    <div class="product-price">
-                                        ₱<span>630</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-    </section>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            updateNavAuth();
-            if (typeof updateCartCount === 'function') updateCartCount();
-            if (typeof updateFavoritesCount === 'function') updateFavoritesCount();
-        });
     </script>
-    <script src="script.js"></script>
 </body>
 
 </html>

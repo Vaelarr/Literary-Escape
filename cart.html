@@ -55,7 +55,7 @@
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" style="color: #ffffff;">About Us</a>
+                        <a class="nav-link" href="about-us.html" style="color: #ffffff;">About Us</a>
                     </li>
                 </ul>
 
@@ -63,7 +63,7 @@
                 <form class="d-flex mx-3">
                     <div class="search-wrapper w-100">
                         <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search">
-                        <button class="btn mx-0" type="submit"><i class="bi bi-search"></i></button>
+                        <button class="btn mx-0" type="submit" title="search-btn"><i class="bi bi-search"></i></button>
                     </div>
                 </form>
 
@@ -88,39 +88,53 @@
         </div>
     </nav>
 
-    <div class="container mt-5">
-        <h2 style="margin-top: 100px;">Shopping Cart</h2>
-        <div class="row mt-4">
-            <div class="col-lg-8" id="cartItems">
-                <!-- Cart items will be dynamically loaded here -->
-            </div>
-            <div class="col-lg-4">
-                <div class="card">
-                    <div class="card-body">
-                        <h4 class="card-title">Order Summary</h4>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Subtotal:</span>
-                            <span id="subtotal">₱0.00</span>
+    <section style="height: 100vh;">
+        <div class="container mt-5">
+            <h2 style="margin-top: 100px;">Shopping Cart</h2>
+            <div class="row mt-4">
+                <div class="col-lg-8" id="cartItems">
+                    <!-- Cart items will be dynamically loaded here -->
+                </div>
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">Order</h4>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal:</span>
+                                <span id="subtotal">₱0.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Shipping:</span>
+                                <span>₱50.00</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between mb-3">
+                                <strong>Total:</strong>
+                                <strong id="total">₱0.00</strong>
+                            </div>
+                            <button id="checkout-btn-cart" class="btn btn-success w-100"
+                                onclick="updateCheckoutButton()">
+                                <i class="fas fa-shopping-cart me-2"></i>
+                                Proceed to Checkout
+                            </button>
                         </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Shipping:</span>
-                            <span>₱50.00</span>
-                        </div>
-                        <hr>
-                        <div class="d-flex justify-content-between mb-3">
-                            <strong>Total:</strong>
-                            <strong id="total">₱0.00</strong>
-                        </div>
-                        <button id="checkout-btn-cart" class="btn btn-success w-100">
-                            <i class="fas fa-shopping-cart me-2"></i>
-                            Proceed to Checkout
-                        </button>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <a href="https://www.facebook.com/" class="text-decoration-none" style="color: white;"><i
+                class="fa-brands fa-facebook"></i></a>
+        <a href="https://www.instagram.com/" class="text-decoration-none" style="color: white;"><i
+                class="fa-brands fa-instagram"></i></a>
+    </footer>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             updateNavAuth();
@@ -128,7 +142,9 @@
             if (typeof updateFavoritesCount === 'function') updateFavoritesCount();
         });
     </script>
-    <script src="script.js"></script>
+    <script src="list.js"></script>
+    <script src="backend.js"></script>
+    <script src="populate.js"></script>
 </body>
 
 </html>
