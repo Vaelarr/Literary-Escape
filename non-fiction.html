@@ -102,23 +102,27 @@
                         <div class="row">
                             <div class="col-12 col-md-3">
                                 <div class="genre-card">
-                                    <img src="media/Genres/Philosophy.JPG" class="img-fluid" alt="Fiction">
-                                    <div class="genre-overlay">
-                                        <h4>Philosophy</h4>
-                                    </div>
+                                    <a class="text-decoration-none" href="#philosophySection">
+                                        <img src="media/Genres/Philosophy.JPG" class="img-fluid" alt="Fiction">
+                                        <div class="genre-overlay">
+                                            <h4>Philosophy</h4>
+                                        </div>
+                                    </a>
                                 </div>
                             </div>
                             <div class="col-12 col-md-3">
                                 <div class="genre-card">
-                                    <img src="media/Genres/Politics.JPG" class="img-fluid" alt="Mystery">
-                                    <div class="genre-overlay">
-                                        <h4>Politics</h4>
-                                    </div>
+                                    <a class="text-decoration-none" href="#politicsSection">
+                                        <img src="media/Genres/Politics.JPG" class="img-fluid" alt="Mystery">
+                                        <div class="genre-overlay">
+                                            <h4>Politics</h4>
+                                        </div>
+                                    </a>
                                 </div>
                             </div>
                             <div class="col-12 col-md-3">
                                 <div class="genre-card">
-                                    <a class="text-decoration-none" href="#mysterySection">
+                                    <a class="text-decoration-none" href="#selfHelpSection">
                                         <img src="media/Genres/Self help.JPG" class="img-fluid" alt="Romance">
                                         <div class="genre-overlay">
                                             <h4>Self Help</h4>
@@ -141,6 +145,7 @@
                 </div>
             </div>
         </div>
+        </div>
     </section>
 
     <section id="trueCrimeSection" style="padding-top: 60px;">
@@ -156,8 +161,45 @@
             </div>
         </div>
     </section>
-
-
+    <section id="politicsSection" style="padding-top: 70px;">
+        <div class="container">
+            <div class="row text-start" style="margin-top: 40px; margin-bottom: 20px;">
+                <div class="d-flex align-items-center gap-3">
+                    <h3 class="mb-0 fw-600" style="color: #16423C">Fiction / Politics Books</h3>
+                    <div class="section-line flex-grow-1"></div>
+                </div>
+            </div>
+            <div id="politicsBooks" class="products-container row">
+                <!-- Products will be populated here dynamically -->
+            </div>
+        </div>
+    </section>
+    <section id="philosophySection" style="padding-top: 30px;">
+        <div class="container">
+            <div class="row text-start" style="margin-top: 40px; margin-bottom: 20px;">
+                <div class="d-flex align-items-center gap-3">
+                    <h3 class="mb-0 fw-600" style="color: #16423C">Fiction / Philosophy Books</h3>
+                    <div class="section-line flex-grow-1"></div>
+                </div>
+            </div>
+            <div id="philosophyBooks" class="products-container row">
+                <!-- Products will be populated here dynamically -->
+            </div>
+        </div>
+    </section>
+    <section id="selfHelpSection" style="padding-top: 30px;">
+        <div class="container">
+            <div class="row text-start" style="margin-top: 40px; margin-bottom: 20px;">
+                <div class="d-flex align-items-center gap-3">
+                    <h3 class="mb-0 fw-600" style="color: #16423C">Fiction / Self Help Books</h3>
+                    <div class="section-line flex-grow-1"></div>
+                </div>
+            </div>
+            <div id="selfHelpBooks" class="products-container row">
+                <!-- Products will be populated here dynamically -->
+            </div>
+        </div>
+    </section>
     <!-- Footer -->
     <footer>
         <a href="https://www.facebook.com/" class="text-decoration-none" style="color: white;"><i
@@ -218,12 +260,135 @@
     `).join('');
 
         }
+        function displayPoliticsBooks() {
+            const container = document.querySelector('#politicsBooks');
+            if (!container) {
+                console.error('Products container not found');
+                return;
+            }
 
+            if (!books || !Array.isArray(books)) {
+                console.error('Books data is invalid:', books);
+                return;
+            }
+
+            const politicsBooks = books.filter(book =>
+                book.genre && book.genre.toLowerCase() === "politics"
+            );
+            console.log('Politics books found:', politicsBooks);
+
+            container.innerHTML = politicsBooks.map(book => `
+        <div class="col-md-3 mb-4">
+            <div class="product-box" data-product-id="${book.id}">
+                <div class="product-inner-box position-relative">
+                    <a href="product.html?id=${book.id}" class="product-link">
+                        <img src="${book.cover || placeholderImage}" alt="${book.title || 'Book Cover'}" class="img-fluid products" />
+                    </a>
+                </div>
+                <div class="product-info">
+                    <div class="product-name">
+                        <a href="product.html?id=${book.id}" class="text-decoration-none text-dark">
+                            <h4>${book.title}</h4>
+                        </a>
+                    </div>
+                    <div class="product-price">
+                        ₱<span>${book.price ? book.price.toFixed(2) : '0.00'}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+        }
+        function displayPhilosophyBooks() {
+            const container = document.querySelector('#philosophyBooks');
+            if (!container) {
+                console.error('Products container not found');
+                return;
+            }
+
+            if (!books || !Array.isArray(books)) {
+                console.error('Books data is invalid:', books);
+                return;
+            }
+
+            const philosophyBooks = books.filter(book =>
+                book.genre && book.genre.toLowerCase() === "philosophy"
+            );
+            console.log('Philosophy books found:', philosophyBooks);
+
+            container.innerHTML = philosophyBooks.map(book => `
+        <div class="col-md-3 mb-4">
+            <div class="product-box" data-product-id="${book.id}">
+                <div class="product-inner-box position-relative">
+                    <a href="product.html?id=${book.id}" class="product-link">
+                        <img src="${book.cover || placeholderImage}" alt="${book.title || 'Book Cover'}" class="img-fluid products" />
+                    </a>
+                </div>
+                <div class="product-info">
+                    <div class="product-name">
+                        <a href="product.html?id=${book.id}" class="text-decoration-none text-dark">
+                            <h4>${book.title}</h4>
+                        </a>
+                    </div>
+                    <div class="product-price">
+                        ₱<span>${book.price ? book.price.toFixed(2) : '0.00'}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+        }
+
+        function displaySelfHelpBooks() {
+            const container = document.querySelector('#selfHelpBooks');
+            if (!container) {
+                console.error('Products container not found');
+                return;
+            }
+
+            if (!books || !Array.isArray(books)) {
+                console.error('Books data is invalid:', books);
+                return;
+            }
+
+            const selfHelpBooks = books.filter(book =>
+                book.genre && book.genre.toLowerCase() === "self-help"
+            );
+            console.log('Self Help books found:', selfHelpBooks);
+
+            container.innerHTML = selfHelpBooks.map(book => `
+        <div class="col-md-3 mb-4">
+            <div class="product-box" data-product-id="${book.id}">
+                <div class="product-inner-box position-relative">
+                    <a href="product.html?id=${book.id}" class="product-link">
+                        <img src="${book.cover || placeholderImage}" alt="${book.title || 'Book Cover'}" class="img-fluid products" />
+                    </a>
+                </div>
+                <div class="product-info">
+                    <div class="product-name">
+                        <a href="product.html?id=${book.id}" class="text-decoration-none text-dark">
+                            <h4>${book.title}</h4>
+                        </a>
+                    </div>
+                    <div class="product-price">
+                        ₱<span>${book.price ? book.price.toFixed(2) : '0.00'}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+        }
 
         // Initialize when DOM is loaded
         document.addEventListener('DOMContentLoaded', function () {
             if (document.querySelector('.products-container')) {
                 displayTrueCrimeBooks();
+                displayPoliticsBooks();
+                displayPhilosophyBooks();
+                displaySelfHelpBooks();
             }
         });
     </script>
