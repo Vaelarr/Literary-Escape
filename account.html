@@ -187,7 +187,9 @@
                 localStorage.setItem('users', JSON.stringify(users));
                 localStorage.setItem('currentUser', JSON.stringify({ name, email }));
 
-                window.location.href = 'index.html';
+                document.getElementById('signupForm').classList.add('d-none');
+                document.getElementById('loginForm').classList.remove('d-none');
+                showNotification('Account created successfully', 'success');
             });
 
             // Handle Login
