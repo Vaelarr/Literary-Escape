@@ -433,7 +433,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             resultsContent.innerHTML = results.length ? results.map(book => `
                 <div class="book-result">
-                    <a style="text-decoration:none; color: black;" href="product-details.html?id=${book.id}">
+                    <a style="text-decoration:none; color: black;" href="product.html?id=${book.id}">
                         <img src="${book.cover}" alt="${book.title}" class="book-result-image">
                     </a>
                     <div class="search-result-info">

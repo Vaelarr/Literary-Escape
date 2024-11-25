@@ -287,14 +287,17 @@ input[type="search"]::-ms-clear {
     width: 100%;
     height: 100vh;
     background-color: #16423C;
+    padding-top: 0px;
 }
 
 #featured-section h3 {
     font-size: 1.8rem;
     font-weight: 500;
     color: white;
-    padding-top: 60px;
-    padding-bottom: 50px;
+    padding-top: 0px;
+    padding-bottom: 40px;
+    background-color: #16423C;
+    margin-top: 0px;
 }
 
 .genre-card {
