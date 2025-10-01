@@ -3,7 +3,6 @@ body {
     font-family: Arial, sans-serif;
 }
 
-/* Custom scrollbar styling for consistency across all pages */
 ::-webkit-scrollbar {
     width: 8px;
 }
