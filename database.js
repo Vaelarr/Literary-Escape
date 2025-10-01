@@ -80,6 +80,21 @@ function initializeDatabase(callback) {
         )
     `;
 
+        const createAdminsable = `
+        CREATE TABLE IF NOT EXISTS admins (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            first_name TEXT,
+            last_name TEXT,
+            phone TEXT,
+            role TEXT DEFAULT 'admin',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `;
+
     const createUserAddressesTable = `
         CREATE TABLE IF NOT EXISTS user_addresses (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -173,6 +188,12 @@ function initializeDatabase(callback) {
             if (err) console.error('Error creating users table:', err);
             else console.log('Users table created/verified');
         });
+
+        console.log('Creating admins table...');
+        db.run(createAdmsTable, (err) => {
+            if (err) console.error('Error creating admin table:', err);
+            else console.log('Admin table created/verified');
+        });
         
         console.log('Creating user_addresses table...');
         db.run(createUserAddressesTable, (err) => {
@@ -257,15 +278,15 @@ function createAdminAccount(callback) {
     const adminPassword = 'Admin123!';
     
     // Check if admin already exists
-    db.get("SELECT id FROM users WHERE email = ?", [adminEmail], (err, row) => {
+    db.get("SELECT id FROM admins WHERE email = ?", [adminEmail], (err, row) => {
         if (err) {
-            console.error('Error checking for existing admin:', err);
+            console.error('Error checking for existing administrators:', err);
             if (callback) callback(err);
             return;
         }
         
         if (row) {
-            console.log('Admin account already exists');
+            console.log('Administrator account already exists');
             if (callback) callback(null);
             return;
         }
@@ -279,16 +300,16 @@ function createAdminAccount(callback) {
             }
             
             const query = `
-                INSERT INTO users (username, email, password_hash, first_name, last_name, role)
+                INSERT INTO admins (username, email, password_hash, first_name, last_name, role)
                 VALUES (?, ?, ?, ?, ?, ?)
             `;
             
-            db.run(query, ['admin', adminEmail, hash, 'System', 'Administrator', 'admin'], function(err) {
+            db.run(query, ['admin', adminEmail, hash, adminFirstName, adminLastName, 'Administrator'], function(err) {
                 if (err) {
-                    console.error('Error creating admin account:', err);
+                    console.error('Error creating an Administrator account:', err);
                 } else {
-                    console.log('Admin account created successfully');
-                    console.log('Admin credentials:');
+                    console.log('Administrator account created successfully');
+                    console.log('Admininstrator credentials:');
                     console.log('Email:', adminEmail);
                     console.log('Password:', adminPassword);
                 }
