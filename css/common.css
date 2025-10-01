@@ -1,0 +1,119 @@
+/* Common styles for Literary Escape website */
+
+/* Base layout fixes */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+.main-content {
+    min-height: calc(100vh - 160px);
+    padding: 100px 0 40px 0;
+}
+
+/* Navbar improvements */
+.navbar {
+    z-index: 1030;
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    background: rgba(22, 66, 60, 0.95) !important;
+    box-shadow: 0 2px 20px rgba(22, 66, 60, 0.3);
+}
+
+.navbar.fixed-top {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+/* Navbar text styling */
+.navbar .nav-link {
+    color: #ffffff !important;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.navbar .nav-link:hover {
+    color: #cccccc !important;
+    transform: translateY(-1px);
+}
+
+.navbar .dropdown-toggle {
+    color: #ffffff !important;
+}
+
+.navbar .icon-link {
+    color: #ffffff !important;
+    font-size: 1.2rem;
+    margin: 0 10px;
+    transition: all 0.3s ease;
+}
+
+.navbar .icon-link:hover {
+    color: #cccccc !important;
+    transform: translateY(-2px);
+}
+
+.navbar .icon-link i {
+    color: inherit;
+}
+
+/* Audio control button */
+.audio-control {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    background: rgba(22, 66, 60, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.audio-control:hover {
+    background: rgba(22, 66, 60, 1);
+    transform: scale(1.1);
+}
+
+/* Footer styling */
+footer {
+    background: linear-gradient(135deg, #164240 0%, #2d5a5a 100%);
+    padding: 30px 0;
+    text-align: center;
+    margin-top: auto;
+}
+
+footer a {
+    margin: 0 15px;
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+footer a:hover {
+    transform: translateY(-3px);
+    opacity: 0.8;
+}
+
+/* Responsive navbar */
+@media (max-width: 991px) {
+    .navbar-collapse {
+        background: rgba(22, 66, 60, 0.98);
+        border-radius: 10px;
+        margin-top: 10px;
+        padding: 15px;
+    }
+}
+
+@media (min-width: 992px) {
+    .navbar-nav {
+        align-items: center;
+    }
+}

@@ -12,7 +12,92 @@
     <script src="https://kit.fontawesome.com/f8c6d79c7d.js" crossorigin="anonymous"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <style>
-
+        /* Base layout fixes */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        .main-content {
+            min-height: calc(100vh - 160px);
+            padding: 100px 0 40px 0;
+        }
+        
+        /* Navbar improvements */
+        .navbar {
+            z-index: 1030;
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            background: rgba(22, 66, 60, 0.95) !important;
+            box-shadow: 0 2px 20px rgba(22, 66, 60, 0.3);
+        }
+        
+        .navbar.fixed-top {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            right: 0;
+        }
+        
+        /* Navbar text styling */
+        .navbar .nav-link {
+            color: #ffffff !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar .nav-link:hover {
+            color: #74b9ff !important;
+            transform: translateY(-1px);
+        }
+        
+        .navbar .dropdown-toggle {
+            color: #ffffff !important;
+        }
+        
+        .navbar .icon-link {
+            color: #ffffff !important;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .navbar .icon-link:hover {
+            color: #74b9ff !important;
+            transform: scale(1.1);
+        }
+        
+        .navbar .icon-link i {
+            color: #ffffff !important;
+        }
+        
+        /* Audio control positioning */
+        .audio-control {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            z-index: 1040;
+            background: linear-gradient(135deg, #16423C 0%, #1a4f47 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(22, 66, 60, 0.3);
+        }
+        
+        .audio-control:hover {
+            background: linear-gradient(135deg, #1a4f47 0%, #2a5f57 100%);
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(22, 66, 60, 0.4);
+        }
     </style>
 </head>
 
@@ -45,45 +130,40 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto">
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="index.html" style="color: #ffffff;">Home</a>
+                        <a class="nav-link" href="index.html">Home</a>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="shopDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false" style="color: #ffffff;">Shop</a>
+                            data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
                         <ul class="dropdown-menu" aria-labelledby="shopDropdown">
                             <li><a class="dropdown-item" href="fiction.html">Fiction</a></li>
                             <li><a class="dropdown-item" href="non-fiction.html">Non-Fiction</a></li>
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="about-us.html" style="color: #ffffff;">About Us</a>
+                        <a class="nav-link" href="about-us.html">About Us</a>
                     </li>
                 </ul>
 
                 <!-- Search Bar -->
-                <form class="d-flex mx-3">
+                <form class="d-flex mx-3" onsubmit="handleSearch(event)">
                     <div class="search-wrapper w-100">
-                        <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search">
+                        <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search" id="searchInput">
                         <button class="btn mx-0" title="search-btn" type="submit"><i class="bi bi-search"></i></button>
                     </div>
                 </form>
 
-                <div id="search-popup" class="search-popup">
-                    <div class="search-results">
-                        <div id="results-content">
-                            <!-- Results will be populated here -->
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Icons -->
                 <div class="d-flex align-items-center nav-icons">
-                    <a href="favorites.html" class="icon-link me-3"><i class="fa-solid fa-heart"
-                            style="color: #ffffff;"></i></a>
-                    <a href="cart.html" class="icon-link me-3"><i class="fa-solid fa-cart-shopping"
-                            style="color: #ffffff;"></i></a>
-                    <a href="account.html" class="icon-link"><i class="fa-solid fa-user"
-                            style="color: #ffffff;"></i></a>
+                    <a href="favorites.html" class="icon-link" title="Favorites">
+                        <i class="fa-solid fa-heart"></i>
+                        <span id="favorites-count" class="cart-count">0</span>
+                    </a>
+                    <a href="cart.html" class="icon-link" title="Shopping Cart">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span id="cart-count" class="cart-count">0</span>
+                    </a>
+                    <a href="account.html" class="icon-link" title="Account"><i class="fa-solid fa-user"></i></a>
                 </div>
             </div>
         </div>
@@ -119,7 +199,15 @@
                         <h3 class="card-title text-center mb-4">Sign Up</h3>
                         <form id="signup-form">
                             <div class="mb-3">
-                                <input type="text" class="form-control" id="signupName" placeholder="Full Name"
+                                <input type="text" class="form-control" id="signupFirstName" placeholder="First Name"
+                                    required>
+                            </div>
+                            <div class="mb-3">
+                                <input type="text" class="form-control" id="signupMiddleInitial" placeholder="Middle Initial (Optional)"
+                                    maxlength="1">
+                            </div>
+                            <div class="mb-3">
+                                <input type="text" class="form-control" id="signupLastName" placeholder="Last Name"
                                     required>
                             </div>
                             <div class="mb-3">
@@ -128,8 +216,23 @@
                             <div class="mb-3">
                                 <input type="password" class="form-control" id="signupPassword" placeholder="Password"
                                     required>
+                                <div class="password-requirements mt-2">
+                                    <small class="text-muted">Password must contain:</small>
+                                    <div class="requirements-list">
+                                        <small class="requirement" id="length-req">• At least 8 characters</small>
+                                        <small class="requirement" id="uppercase-req">• One uppercase letter</small>
+                                        <small class="requirement" id="lowercase-req">• One lowercase letter</small>
+                                        <small class="requirement" id="number-req">• One number</small>
+                                        <small class="requirement" id="special-req">• One special character (!@#$%^&*)</small>
+                                    </div>
+                                </div>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+                            <div class="mb-3">
+                                <input type="password" class="form-control" id="signupConfirmPassword" placeholder="Confirm Password"
+                                    required>
+                                <div class="password-match-feedback mt-1"></div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100" id="signup-submit-btn" disabled>Sign Up</button>
                         </form>
                         <p class="text-center mt-3">
                             Already have an account? <a href="#" id="showLogin">Login</a>
@@ -150,7 +253,24 @@
     </footer>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', async function () {
+            // Initialize UI components with consistent notification system
+            try {
+                await dbBookDisplay.updateCartCount();
+                
+                // Verify API connectivity on page load
+                if (!api) {
+                    throw new Error('API client not loaded');
+                }
+                
+                // Test database connection
+                console.log('Testing database connection...');
+                
+            } catch (error) {
+                console.error('Initialization error:', error);
+                dbBookDisplay.showMessage('Connection error. Please refresh the page.', 'error');
+            }
+            
             const loginForm = document.getElementById('login-form');
             const signupForm = document.getElementById('signup-form');
             const showSignupLink = document.getElementById('showSignup');
@@ -169,125 +289,368 @@
                 document.getElementById('loginForm').classList.remove('d-none');
             });
 
-            // Handle Signup
-            signupForm?.addEventListener('submit', function (e) {
+            // Handle Signup with enhanced API integration and validation
+            signupForm?.addEventListener('submit', async function (e) {
                 e.preventDefault();
-                const name = document.getElementById('signupName').value;
-                const email = document.getElementById('signupEmail').value;
-                const password = document.getElementById('signupPassword').value;
+                
+                // Disable submit button to prevent double submission
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.textContent;
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Creating Account...';
+                
+                try {
+                    const firstName = document.getElementById('signupFirstName').value.trim();
+                    const middleInitial = document.getElementById('signupMiddleInitial').value.trim();
+                    const lastName = document.getElementById('signupLastName').value.trim();
+                    const email = document.getElementById('signupEmail').value.trim();
+                    const password = document.getElementById('signupPassword').value;
+                    const confirmPassword = document.getElementById('signupConfirmPassword').value;
 
-                const users = JSON.parse(localStorage.getItem('users')) || [];
+                    // Create username from name components
+                    const username = middleInitial 
+                        ? `${firstName} ${middleInitial}. ${lastName}`
+                        : `${firstName} ${lastName}`;
 
-                if (users.find(user => user.email === email)) {
-                    showNotification('Email already registered', 'error');
-                    return;
+                    // Enhanced validation
+                    if (!firstName || !lastName || !email || !password || !confirmPassword) {
+                        dbBookDisplay.showMessage('Please fill in all required fields', 'warning');
+                        return;
+                    }
+
+                    // Email validation
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(email)) {
+                        dbBookDisplay.showMessage('Please enter a valid email address', 'warning');
+                        return;
+                    }
+
+                    // Password validation with detailed requirements
+                    const passwordValidation = validatePassword(password);
+                    if (!passwordValidation.isValid) {
+                        dbBookDisplay.showMessage(`Password requirements not met: ${passwordValidation.errors.join(', ')}`, 'warning');
+                        return;
+                    }
+
+                    // Password confirmation validation
+                    if (password !== confirmPassword) {
+                        dbBookDisplay.showMessage('Passwords do not match', 'warning');
+                        return;
+                    }
+
+                    // Verify API is available before attempting registration
+                    if (!api || typeof api.register !== 'function') {
+                        throw new Error('API client not properly initialized');
+                    }
+
+                    console.log('Attempting registration with data:', {
+                        username,
+                        email,
+                        first_name: firstName,
+                        last_name: lastName
+                    });
+
+                    // Use API for registration with proper error handling
+                    const registrationData = {
+                        username,
+                        email,
+                        password,
+                        first_name: firstName,
+                        last_name: lastName,
+                        address: '',
+                        phone: ''
+                    };
+
+                    const response = await api.register(registrationData);
+                    console.log('Registration successful:', response);
+
+                    // Switch to login form
+                    document.getElementById('signupForm').classList.add('d-none');
+                    document.getElementById('loginForm').classList.remove('d-none');
+                    
+                    // Show success message
+                    dbBookDisplay.showMessage('Account created successfully! Please log in with your new credentials.', 'success');
+                    
+                    // Clear form
+                    signupForm.reset();
+                    resetPasswordRequirements();
+
+                } catch (error) {
+                    console.error('Registration error:', error);
+                    
+                    // Handle specific error types
+                    let errorMessage = 'Registration failed. Please try again.';
+                    
+                    if (error.message) {
+                        if (error.message.includes('already exists') || error.message.includes('duplicate')) {
+                            errorMessage = 'Email already registered. Please use a different email or try logging in.';
+                        } else if (error.message.includes('network') || error.message.includes('fetch')) {
+                            errorMessage = 'Network error. Please check your connection and try again.';
+                        } else if (error.message.includes('validation')) {
+                            errorMessage = 'Invalid data provided. Please check your information.';
+                        }
+                    }
+                    
+                    dbBookDisplay.showMessage(errorMessage, 'error');
+                } finally {
+                    // Re-enable submit button
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
                 }
-
-                users.push({ name, email, password });
-                localStorage.setItem('users', JSON.stringify(users));
-                localStorage.setItem('currentUser', JSON.stringify({ name, email }));
-
-                document.getElementById('signupForm').classList.add('d-none');
-                document.getElementById('loginForm').classList.remove('d-none');
-                showNotification('Account created successfully', 'success');
             });
 
-            // Handle Login
-            loginForm?.addEventListener('submit', function (e) {
-                e.preventDefault();
-                const email = document.getElementById('loginEmail').value;
-                const password = document.getElementById('loginPassword').value;
-
-                const users = JSON.parse(localStorage.getItem('users')) || [];
-                const user = users.find(u => u.email === email && u.password === password);
-
-                if (user) {
-                    localStorage.setItem('currentUser', JSON.stringify({ name: user.name, email: user.email }));
-                    window.location.href = 'index.html';
-                } else {
-                    showNotification('Invalid email or password', 'error');
+            // Password validation function
+            function validatePassword(password) {
+                const errors = [];
+                
+                // Length check (minimum 8 characters)
+                if (password.length < 8) {
+                    errors.push('at least 8 characters');
                 }
+                
+                // Uppercase check
+                if (!/[A-Z]/.test(password)) {
+                    errors.push('one uppercase letter');
+                }
+                
+                // Lowercase check
+                if (!/[a-z]/.test(password)) {
+                    errors.push('one lowercase letter');
+                }
+                
+                // Number check
+                if (!/\d/.test(password)) {
+                    errors.push('one number');
+                }
+                
+                // Special character check
+                if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+                    errors.push('one special character');
+                }
+                
+                return {
+                    isValid: errors.length === 0,
+                    errors: errors
+                };
+            }
+
+            // Real-time password validation
+            const passwordInput = document.getElementById('signupPassword');
+            const confirmPasswordInput = document.getElementById('signupConfirmPassword');
+            const submitBtn = document.getElementById('signup-submit-btn');
+
+            passwordInput?.addEventListener('input', function() {
+                const password = this.value;
+                updatePasswordRequirements(password);
+                checkPasswordMatch();
             });
 
-            // Check authentication state
-            function checkAuth() {
-                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-                if (!currentUser) {
-                    if (window.location.pathname.includes('favorites.html') ||
-                        window.location.pathname.includes('cart.html')) {
-                        window.location.href = 'account.html';
+            confirmPasswordInput?.addEventListener('input', function() {
+                checkPasswordMatch();
+            });
+
+            function updatePasswordRequirements(password) {
+                const requirements = {
+                    'length-req': password.length >= 8,
+                    'uppercase-req': /[A-Z]/.test(password),
+                    'lowercase-req': /[a-z]/.test(password),
+                    'number-req': /\d/.test(password),
+                    'special-req': /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+                };
+
+                for (const [reqId, met] of Object.entries(requirements)) {
+                    const element = document.getElementById(reqId);
+                    if (element) {
+                        if (met) {
+                            element.style.color = '#28a745';
+                            element.innerHTML = element.innerHTML.replace('•', '✓');
+                        } else {
+                            element.style.color = '#dc3545';
+                            element.innerHTML = element.innerHTML.replace('✓', '•');
+                        }
                     }
                 }
+
+                updateSubmitButton();
             }
 
-            // Update favorites/cart functions
-            const originalAddToCart = window.addToCart;
-            window.addToCart = function (productData) {
-                if (!localStorage.getItem('currentUser')) {
-                    window.location.href = 'account.html';
-                    return;
+            function checkPasswordMatch() {
+                const password = passwordInput?.value || '';
+                const confirmPassword = confirmPasswordInput?.value || '';
+                const feedbackDiv = document.querySelector('.password-match-feedback');
+
+                if (confirmPassword.length > 0) {
+                    if (password === confirmPassword) {
+                        feedbackDiv.innerHTML = '<small class="text-success">✓ Passwords match</small>';
+                    } else {
+                        feedbackDiv.innerHTML = '<small class="text-danger">✗ Passwords do not match</small>';
+                    }
+                } else {
+                    feedbackDiv.innerHTML = '';
                 }
-                originalAddToCart(productData);
+
+                updateSubmitButton();
             }
 
-            const originalToggleFavorite = window.toggleFavorite;
-            window.toggleFavorite = function (heartButton, productData) {
-                if (!localStorage.getItem('currentUser')) {
-                    window.location.href = 'account.html';
-                    return;
+            function updateSubmitButton() {
+                const password = passwordInput?.value || '';
+                const confirmPassword = confirmPasswordInput?.value || '';
+                const passwordValid = validatePassword(password).isValid;
+                const passwordsMatch = password === confirmPassword && password.length > 0;
+
+                if (submitBtn) {
+                    submitBtn.disabled = !(passwordValid && passwordsMatch);
                 }
-                originalToggleFavorite(heartButton, productData);
             }
 
-            // Run auth check
-            checkAuth();
+            function resetPasswordRequirements() {
+                const requirements = ['length-req', 'uppercase-req', 'lowercase-req', 'number-req', 'special-req'];
+                requirements.forEach(reqId => {
+                    const element = document.getElementById(reqId);
+                    if (element) {
+                        element.style.color = '#6c757d';
+                        element.innerHTML = element.innerHTML.replace('✓', '•');
+                    }
+                });
+                
+                const feedbackDiv = document.querySelector('.password-match-feedback');
+                if (feedbackDiv) {
+                    feedbackDiv.innerHTML = '';
+                }
+                
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                }
+            }
+            // Handle Login with enhanced API integration
+            loginForm?.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                
+                // Disable submit button
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.textContent;
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Logging In...';
+                
+                try {
+                    const email = document.getElementById('loginEmail').value.trim();
+                    const password = document.getElementById('loginPassword').value;
+
+                    if (!email || !password) {
+                        dbBookDisplay.showMessage('Please fill in all fields', 'warning');
+                        return;
+                    }
+
+                    // Verify API is available
+                    if (!api || typeof api.login !== 'function') {
+                        throw new Error('API client not properly initialized');
+                    }
+
+                    console.log('Attempting login for email:', email);
+
+                    // Use API for login
+                    const response = await api.login(email, password);
+                    console.log('Login successful:', response);
+                    
+                    if (response.token && response.user) {
+                        dbBookDisplay.showMessage(`Welcome back, ${response.user.username}!`, 'success');
+                        
+                        // Update UI to reflect logged-in state
+                        await dbBookDisplay.updateCartCount();
+                        
+                        // Redirect after short delay
+                        setTimeout(() => {
+                            window.location.href = 'account-dashboard.html';
+                        }, 1000);
+                    } else {
+                        throw new Error('Invalid response from server');
+                    }
+
+                } catch (error) {
+                    console.error('Login error:', error);
+                    
+                    let errorMessage = 'Login failed. Please try again.';
+                    
+                    if (error.message) {
+                        if (error.message.includes('Admin accounts must use the admin login portal')) {
+                            errorMessage = 'Admin accounts cannot login here. Please use the admin panel to login.';
+                        } else if (error.message.includes('Invalid credentials') || error.message.includes('unauthorized')) {
+                            errorMessage = 'Invalid email or password. Please check your credentials and try again.';
+                        } else if (error.message.includes('network') || error.message.includes('fetch')) {
+                            errorMessage = 'Network error. Please check your connection and try again.';
+                        }
+                    }
+                    
+                    dbBookDisplay.showMessage(errorMessage, 'error');
+                } finally {
+                    // Re-enable submit button
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                }
+            });
+
+            // Check if user is already logged in
+            try {
+                if (api && api.isLoggedIn && api.isLoggedIn()) {
+                    const user = api.getCurrentUser();
+                    if (user) {
+                        dbBookDisplay.showMessage(`You are already logged in as ${user.username}`, 'info');
+                        setTimeout(() => {
+                            window.location.href = 'account-dashboard.html';
+                        }, 2000);
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking login status:', error);
+            }
+
+            // Call updateNavAuth after initialization
+            updateNavAuth();
         });
 
-        function showNotification(message, type = 'success') {
-            try {
-                // Remove existing notification
-                const existingNotification = document.querySelector('.notification-popup');
-                if (existingNotification) {
-                    existingNotification.remove();
-                }
+        // Remove the custom showNotification function completely
+        // The consistent notification system from dbBookDisplay will be used instead
 
-                // Create notification
-                const notification = document.createElement('div');
-                notification.className = `notification-popup ${type}`;
-                notification.innerHTML = `
-            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
-            <span>${message}</span>
-        `;
-
-                // Add to DOM
-                document.body.appendChild(notification);
-
-                // Force reflow to trigger animation
-                notification.offsetHeight;
-
-                // Show notification
-                requestAnimationFrame(() => {
-                    notification.classList.add('show');
-                });
-
-                // Remove notification
-                setTimeout(() => {
-                    notification.classList.remove('show');
-                    setTimeout(() => notification.remove(), 300);
-                }, 3000);
-            } catch (error) {
-                console.error('Error showing notification:', error);
-            }
+        // Update navigation authentication state
+        function getInitials(name) {
+            return name.split(' ').map(word => word[0]).join('').toUpperCase().substring(0, 2);
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            updateNavAuth();
-            if (typeof updateCartCount === 'function') updateCartCount();
-            if (typeof updateFavoritesCount === 'function') updateFavoritesCount();
-        });
+        function updateNavAuth() {
+            const userIconLink = document.querySelector('.nav-icons .icon-link:last-child');
+            
+            if (api.isLoggedIn()) {
+                const user = api.getCurrentUser();
+                if (user && userIconLink) {
+                    // Replace the icon with user initials
+                    const userInitials = getInitials(user.username);
+                    userIconLink.innerHTML = userInitials;
+                    userIconLink.className = 'navbar-user-avatar';
+                    userIconLink.title = `Logged in as ${user.username}`;
+                    userIconLink.href = 'account-dashboard.html'; // Update href for logged-in users
+                    
+                    // Add click handler for dashboard navigation
+                    userIconLink.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        window.location.href = 'account-dashboard.html';
+                    });
+                }
+            } else {
+                // For non-logged-in users, keep default behavior
+                if (userIconLink) {
+                    userIconLink.href = 'account.html';
+                    userIconLink.innerHTML = '<i class="fa-solid fa-user" style="color: #ffffff;"></i>';
+                    userIconLink.className = 'icon-link';
+                    userIconLink.title = 'Login / Register';
+                }
+            }
+        }
     </script>
-    <script src="list.js"></script>
-    <script src="backend.js"></script>
+
+    <!-- Load scripts in proper order for database connectivity -->
+    <script src="js/api-client.js"></script>
+    <script src="js/navbar-counts.js"></script>
+    <script src="js/database-book-display.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

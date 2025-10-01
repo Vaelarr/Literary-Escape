@@ -12,6 +12,95 @@
     <script src="https://kit.fontawesome.com/f8c6d79c7d.js" crossorigin="anonymous"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
+    <style>
+        /* Base layout fixes */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        .main-content {
+            min-height: calc(100vh - 160px);
+            padding: 100px 0 40px 0;
+        }
+        
+        /* Navbar improvements */
+        .navbar {
+            z-index: 1030;
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            background: rgba(22, 66, 60, 0.95) !important;
+            box-shadow: 0 2px 20px rgba(22, 66, 60, 0.3);
+        }
+        
+        .navbar.fixed-top {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            right: 0;
+        }
+        
+        /* Navbar text styling */
+        .navbar .nav-link {
+            color: #ffffff !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar .nav-link:hover {
+            color: #74b9ff !important;
+            transform: translateY(-1px);
+        }
+        
+        .navbar .dropdown-toggle {
+            color: #ffffff !important;
+        }
+        
+        .navbar .icon-link {
+            color: #ffffff !important;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .navbar .icon-link:hover {
+            color: #74b9ff !important;
+            transform: scale(1.1);
+        }
+        
+        .navbar .icon-link i {
+            color: #ffffff !important;
+        }
+        
+        /* Audio control positioning */
+        .audio-control {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            z-index: 1040;
+            background: linear-gradient(135deg, #16423C 0%, #1a4f47 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(22, 66, 60, 0.3);
+        }
+        
+        .audio-control:hover {
+            background: linear-gradient(135deg, #1a4f47 0%, #2a5f57 100%);
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(22, 66, 60, 0.4);
+        }
+    </style>
+
 </head>
 
 <body>
@@ -43,46 +132,40 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto">
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="index.html" style="color: #ffffff;">Home</a>
+                        <a class="nav-link" href="index.html">Home</a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle fw-bold" href="#" id="shopDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false" style="color: #ffffff;">Shop</a>
+                        <a class="nav-link dropdown-toggle" href="#" id="shopDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
                         <ul class="dropdown-menu" aria-labelledby="shopDropdown">
                             <li><a class="dropdown-item" href="fiction.html">Fiction</a></li>
                             <li><a class="dropdown-item" href="non-fiction.html">Non-Fiction</a></li>
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="about-us.html" style="color: #ffffff;">About Us</a>
+                        <a class="nav-link" href="about-us.html">About Us</a>
                     </li>
                 </ul>
 
                 <!-- Search Bar -->
-                <form class="d-flex mx-3">
+                <form class="d-flex mx-3" onsubmit="handleSearch(event)">
                     <div class="search-wrapper w-100">
-                        <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search">
+                        <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search" id="searchInput">
                         <button class="btn mx-0" title="search-btn" type="submit"><i class="bi bi-search"></i></button>
                     </div>
                 </form>
 
-
-                <div id="search-popup" class="search-popup">
-                    <div class="search-results">
-                        <div id="results-content">
-                            <!-- Results will be populated here -->
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Icons -->
                 <div class="d-flex align-items-center nav-icons">
-                    <a href="favorites.html" class="icon-link me-3"><i class="fa-solid fa-heart"
-                            style="color: #ffffff;"></i></a>
-                    <a href="cart.html" class="icon-link me-3"><i class="fa-solid fa-cart-shopping"
-                            style="color: #ffffff;"></i></a>
-                    <a href="account.html" class="icon-link"><i class="fa-solid fa-user"
-                            style="color: #ffffff;"></i></a>
+                    <a href="favorites.html" class="icon-link" title="Favorites">
+                        <i class="fa-solid fa-heart"></i>
+                        <span id="favorites-count" class="cart-count">0</span>
+                    </a>
+                    <a href="cart.html" class="icon-link" title="Shopping Cart">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span id="cart-count" class="cart-count">0</span>
+                    </a>
+                    <a href="account.html" class="icon-link" title="Account"><i class="fa-solid fa-user"></i></a>
                 </div>
             </div>
         </div>
@@ -212,185 +295,143 @@
                 class="fa-brands fa-instagram"></i></a>
     </footer>
 
-    <script src="list.js"></script>
-    <script src="backend.js"></script>
-    <script src="populate.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            if (document.querySelector('.products-container')) {
-                displayMagicRealismBooks();
-                displayMysteryBooks();
-                displayScienceFictionBooks();
-                displayCrimeFictionBooks();
-            }
+        document.addEventListener('DOMContentLoaded', async function () {
+            // Initialize UI components
+            await dbBookDisplay.updateCartCount();
+            updateNavbarAccountLink();
+            
+            // Load all fiction genres
+            await loadFictionGenres();
         });
 
-        function displayMagicRealismBooks() {
+        function getInitials(name) {
+            return name.split(' ').map(word => word[0]).join('').toUpperCase().substring(0, 2);
+        }
+
+        function updateNavbarAccountLink() {
+            const accountIcon = document.querySelector('.nav-icons .icon-link:last-child');
+            if (accountIcon && api && api.isLoggedIn && api.isLoggedIn()) {
+                accountIcon.href = 'account-dashboard.html';
+                const user = api.getCurrentUser();
+                if (user) {
+                    // Replace the icon with user initials
+                    const userInitials = getInitials(user.username);
+                    accountIcon.innerHTML = userInitials;
+                    accountIcon.className = 'navbar-user-avatar';
+                    accountIcon.title = `Logged in as ${user.username}`;
+                }
+            } else if (accountIcon) {
+                // Ensure link goes to login page when not logged in
+                accountIcon.href = 'account.html';
+                accountIcon.innerHTML = '<i class="fa-solid fa-user" style="color: #ffffff;"></i>';
+                accountIcon.className = 'icon-link';
+                accountIcon.title = 'Login or Sign Up';
+            }
+        }
+
+        async function loadFictionGenres() {
+            // Show loading state
+            const containers = ['#magicRealismBooks', '#mysteryBooks', '#scienceFictionBooks', '#crimeFictionBooks'];
+            containers.forEach(selector => {
+                const container = document.querySelector(selector);
+                if (container) {
+                    container.innerHTML = '<div class="col-12"><p class="text-center">Loading books...</p></div>';
+                }
+            });
+
+            // Load all genres in parallel with consistent error handling
+            await Promise.all([
+                displayMagicRealismBooks(),
+                displayMysteryBooks(),
+                displayScienceFictionBooks(),
+                displayCrimeFictionBooks()
+            ]);
+        }
+
+        async function displayMagicRealismBooks() {
             const container = document.querySelector('#magicRealismBooks');
-            if (!container) {
-                console.error('Products container not found');
-                return;
+            if (!container) return;
+
+            try {
+                const books = await dbBookDisplay.loadBooksByGenre('Magic Realism');
+                if (books.length === 0) {
+                    container.innerHTML = '<div class="col-12"><p class="text-center text-muted">No Magic Realism books available</p></div>';
+                } else {
+                    dbBookDisplay.displayBooks(books, container);
+                }
+            } catch (error) {
+                console.error('Failed to load Magic Realism books:', error);
+                container.innerHTML = '<div class="col-12"><p class="text-center text-danger">Failed to load books. Please try again.</p></div>';
             }
-
-            if (!books || !Array.isArray(books)) {
-                console.error('Books data is invalid:', books);
-                return;
-            }
-
-            const magicRealismBooks = books.filter(book =>
-                book.genre && book.genre.toLowerCase() === "magic realism"
-            );
-            console.log('Mystery books found:', magicRealismBooks);
-
-            container.innerHTML = magicRealismBooks.map(book => `
-        <div class="col-md-3 mb-4">
-            <div class="product-box" data-product-id="${book.id}">
-                <div class="product-inner-box position-relative">
-                    <a href="product.html?id=${book.id}" class="product-link">
-                        <img src="${book.cover || placeholderImage}" alt="${book.title || 'Book Cover'}" class="img-fluid products" />
-                    </a>
-                </div>
-                <div class="product-info">
-                    <div class="product-name">
-                        <a href="product.html?id=${book.id}" class="text-decoration-none text-dark">
-                            <h4>${book.title}</h4>
-                        </a>
-                    </div>
-                    <div class="product-price">
-                        ₱<span>${book.price ? book.price.toFixed(2) : '0.00'}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `).join('');
-
         }
 
-        function displayMysteryBooks() {
+        async function displayMysteryBooks() {
             const container = document.querySelector('#mysteryBooks');
-            if (!container) {
-                console.error('Products container not found');
-                return;
+            if (!container) return;
+
+            try {
+                const books = await dbBookDisplay.loadBooksByGenre('Mystery');
+                if (books.length === 0) {
+                    container.innerHTML = '<div class="col-12"><p class="text-center text-muted">No Mystery books available</p></div>';
+                } else {
+                    dbBookDisplay.displayBooks(books, container);
+                }
+            } catch (error) {
+                console.error('Failed to load Mystery books:', error);
+                container.innerHTML = '<div class="col-12"><p class="text-center text-danger">Failed to load books. Please try again.</p></div>';
             }
-
-            if (!books || !Array.isArray(books)) {
-                console.error('Books data is invalid:', books);
-                return;
-            }
-
-            const mysteryBooks = books.filter(book =>
-                book.genre && book.genre.toLowerCase() === "mystery"
-            );
-            console.log('Mystery books found:', mysteryBooks);
-
-            container.innerHTML = mysteryBooks.map(book => `
-        <div class="col-md-3 mb-4">
-            <div class="product-box" data-product-id="${book.id}">
-                <div class="product-inner-box position-relative">
-                    <a href="product.html?id=${book.id}" class="product-link">
-                        <img src="${book.cover || placeholderImage}" alt="${book.title || 'Book Cover'}" class="img-fluid products" />
-                    </a>
-                </div>
-                <div class="product-info">
-                    <div class="product-name">
-                        <a href="product.html?id=${book.id}" class="text-decoration-none text-dark">
-                            <h4>${book.title}</h4>
-                        </a>
-                    </div>
-                    <div class="product-price">
-                        ₱<span>${book.price ? book.price.toFixed(2) : '0.00'}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `).join('');
-
         }
 
-        function displayScienceFictionBooks() {
+        async function displayScienceFictionBooks() {
             const container = document.querySelector('#scienceFictionBooks');
-            if (!container) {
-                console.error('Products container not found');
-                return;
+            if (!container) return;
+
+            try {
+                const books = await dbBookDisplay.loadBooksByGenre('Sci-Fi');
+                if (books.length === 0) {
+                    container.innerHTML = '<div class="col-12"><p class="text-center text-muted">No Science Fiction books available</p></div>';
+                } else {
+                    dbBookDisplay.displayBooks(books, container);
+                }
+            } catch (error) {
+                console.error('Failed to load Sci-Fi books:', error);
+                container.innerHTML = '<div class="col-12"><p class="text-center text-danger">Failed to load books. Please try again.</p></div>';
             }
-
-            if (!books || !Array.isArray(books)) {
-                console.error('Books data is invalid:', books);
-                return;
-            }
-
-            const scienceFictionBooks = books.filter(book =>
-                book.genre && book.genre.toLowerCase() === "sci-fi"
-            );
-            console.log('Mystery books found:', mysteryBooks);
-
-            container.innerHTML = scienceFictionBooks.map(book => `
-        <div class="col-md-3 mb-4">
-            <div class="product-box" data-product-id="${book.id}">
-                <div class="product-inner-box position-relative">
-                    <a href="product.html?id=${book.id}" class="product-link">
-                        <img src="${book.cover || placeholderImage}" alt="${book.title || 'Book Cover'}" class="img-fluid products" />
-                    </a>
-                </div>
-                <div class="product-info">
-                    <div class="product-name">
-                        <a href="product.html?id=${book.id}" class="text-decoration-none text-dark">
-                            <h4>${book.title}</h4>
-                        </a>
-                    </div>
-                    <div class="product-price">
-                        ₱<span>${book.price ? book.price.toFixed(2) : '0.00'}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `).join('');
-
         }
 
-        function displayCrimeFictionBooks() {
+        async function displayCrimeFictionBooks() {
             const container = document.querySelector('#crimeFictionBooks');
-            if (!container) {
-                console.error('Products container not found');
-                return;
+            if (!container) return;
+
+            try {
+                const books = await dbBookDisplay.loadBooksByGenre('Crime');
+                if (books.length === 0) {
+                    container.innerHTML = '<div class="col-12"><p class="text-center text-muted">No Crime Fiction books available</p></div>';
+                } else {
+                    dbBookDisplay.displayBooks(books, container);
+                }
+            } catch (error) {
+                console.error('Failed to load Crime books:', error);
+                container.innerHTML = '<div class="col-12"><p class="text-center text-danger">Failed to load books. Please try again.</p></div>';
             }
-
-            if (!books || !Array.isArray(books)) {
-                console.error('Books data is invalid:', books);
-                return;
-            }
-
-            const crimeFictionBooks = books.filter(book =>
-                book.genre && book.genre.toLowerCase() === "crime"
-            );
-            console.log('Mystery books found:', crimeFictionBooks);
-
-            container.innerHTML = crimeFictionBooks.map(book => `
-        <div class="col-md-3 mb-4">
-            <div class="product-box" data-product-id="${book.id}">
-                <div class="product-inner-box position-relative">
-                    <a href="product.html?id=${book.id}" class="product-link">
-                        <img src="${book.cover || placeholderImage}" alt="${book.title || 'Book Cover'}" class="img-fluid products" />
-                    </a>
-                </div>
-                <div class="product-info">
-                    <div class="product-name">
-                        <a href="product.html?id=${book.id}" class="text-decoration-none text-dark">
-                            <h4>${book.title}</h4>
-                        </a>
-                    </div>
-                    <div class="product-price">
-                        ₱<span>${book.price ? book.price.toFixed(2) : '0.00'}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `).join('');
-
         }
 
+        // Handle search
+        function handleSearch(event) {
+            event.preventDefault();
+            const query = document.getElementById('searchInput').value.trim();
+            if (query) {
+                window.location.href = `search-results.html?q=${encodeURIComponent(query)}`;
+            }
+        }
     </script>
+
+    <script src="js/api-client.js"></script>
+    <script src="js/navbar-counts.js"></script>
+    <script src="js/database-book-display.js"></script>
+    <!-- Remove conflicting scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

@@ -1,0 +1,1005 @@
+const express = require('express');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const path = require('path');
+const { 
+    bookOperations, 
+    userOperations, 
+    cartOperations, 
+    favoritesOperations, 
+    orderOperations,
+    reviewsOperations,
+    initializeDatabase 
+} = require('./database');
+
+const app = express();
+const PORT = 3000;
+const JWT_SECRET = 'your-secret-key-here'; // In production, use environment variable
+
+// Middleware
+app.use(express.json());
+app.use(express.static(path.join(__dirname)));
+
+// Authentication middleware
+function authenticateToken(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ error: 'Access token required' });
+    }
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) return res.status(403).json({ error: 'Invalid token' });
+        req.user = user;
+        next();
+    });
+}
+
+// Admin authentication middleware
+function authenticateAdmin(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ error: 'Access token required' });
+    }
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) return res.status(403).json({ error: 'Invalid token' });
+        
+        console.log('Admin middleware - Token payload:', user);
+        
+        // Check if this is an admin token (either hardcoded admin or database admin)
+        if (user.role === 'admin' || user.userId === 'admin') {
+            console.log('Admin authentication successful');
+            req.user = user;
+            req.userData = user; // For hardcoded admin, user data is in the token
+            next();
+        } else {
+            // For regular users stored in database, check their role
+            userOperations.getById(user.userId, (err, userData) => {
+                if (err) {
+                    console.log('Error getting user by ID:', err);
+                    return res.status(500).json({ error: 'Failed to verify user role' });
+                }
+                
+                console.log('Admin middleware - Database user found:', userData ? 'Yes' : 'No');
+                console.log('Admin middleware - User role:', userData ? userData.role : 'N/A');
+                
+                if (!userData || (userData.role !== 'Admin' && userData.role !== 'admin')) {
+                    console.log('Admin access denied - role check failed');
+                    return res.status(403).json({ error: 'Admin access required' });
+                }
+                
+                console.log('Database admin authentication successful');
+                req.user = user;
+                req.userData = userData;
+                next();
+            });
+        }
+    });
+}
+
+// Book API endpoints - public read, admin write
+app.get('/api/books', (req, res) => {
+    const { category, genre, search } = req.query;
+    
+    if (search) {
+        bookOperations.search(search, (err, books) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json(books);
+        });
+    } else if (category) {
+        bookOperations.getByCategory(category, (err, books) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json(books);
+        });
+    } else if (genre) {
+        bookOperations.getByGenre(genre, (err, books) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json(books);
+        });
+    } else {
+        bookOperations.getAll((err, books) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json(books);
+        });
+    }
+});
+
+app.get('/api/books/:id', (req, res) => {
+    bookOperations.getById(req.params.id, (err, book) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (!book) return res.status(404).json({ error: 'Book not found' });
+        res.json(book);
+    });
+});
+
+// Admin book management endpoints (require admin authentication)
+app.post('/api/books', authenticateAdmin, (req, res) => {
+    const book = req.body;
+    
+    // Validate required fields
+    if (!book.title || !book.author) {
+        return res.status(400).json({ error: 'Title and author are required' });
+    }
+    
+    // Set defaults for optional fields
+    const bookData = {
+        ...book,
+        price: book.price || 0,
+        stock_quantity: book.stock_quantity || 1,
+        category: book.category || 'Fiction',
+        genre: book.genre || 'General'
+    };
+    
+    console.log('Creating book:', bookData);
+    
+    bookOperations.add(bookData, function(err) {
+        if (err) {
+            console.error('Error creating book:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        console.log('Book created with ID:', this.lastID);
+        res.status(201).json({ id: this.lastID, message: 'Book created' });
+    });
+});
+
+app.put('/api/books/:id', authenticateAdmin, (req, res) => {
+    const bookId = parseInt(req.params.id);
+    const book = req.body;
+    
+    if (isNaN(bookId)) {
+        return res.status(400).json({ error: 'Invalid book ID' });
+    }
+    
+    console.log('Updating book ID:', bookId, 'with data:', book);
+    
+    bookOperations.update(bookId, book, function(err) {
+        if (err) {
+            console.error('Error updating book:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        console.log('Book updated, changes:', this.changes);
+        res.json({ message: 'Book updated', changes: this.changes });
+    });
+});
+
+app.delete('/api/books/:id', authenticateAdmin, (req, res) => {
+    const bookId = parseInt(req.params.id);
+    
+    if (isNaN(bookId)) {
+        return res.status(400).json({ error: 'Invalid book ID' });
+    }
+    
+    console.log('Deleting book ID:', bookId);
+    
+    bookOperations.removeBook(bookId, function(err) {
+        if (err) {
+            console.error('Error deleting book:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        console.log('Book deleted, changes:', this.changes);
+        res.json({ message: 'Book deleted', changes: this.changes });
+    });
+});
+
+// User authentication endpoints
+app.post('/api/register', async (req, res) => {
+    try {
+        const { username, email, password, first_name, last_name, address, phone } = req.body;
+        
+        // Enhanced server-side password validation
+        const passwordValidation = validatePasswordServer(password);
+        if (!passwordValidation.isValid) {
+            return res.status(400).json({ 
+                error: `Password requirements not met: ${passwordValidation.errors.join(', ')}`
+            });
+        }
+        
+        // Check if user already exists
+        userOperations.getByEmail(email, async (err, existingUser) => {
+            if (err) return res.status(500).json({ error: err.message });
+            if (existingUser) return res.status(400).json({ error: 'User already exists' });
+            
+            // Hash password with enhanced security
+            const saltRounds = 12; // Increased from default 10 for better security
+            const password_hash = await bcrypt.hash(password, saltRounds);
+            
+            const newUser = {
+                username, email, password_hash, first_name, last_name, address, phone
+            };
+            
+            userOperations.register(newUser, (err) => {
+                if (err) return res.status(500).json({ error: err.message });
+                res.status(201).json({ message: 'User registered successfully' });
+            });
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+app.post('/api/login', (req, res) => {
+    const { email, password } = req.body;
+    
+    // Hardcoded admin credentials
+    const ADMIN_EMAIL = 'admin@literaryescape.com';
+    const ADMIN_PASSWORD = 'Admin123!';
+    
+    // Prevent hardcoded admin from logging in through regular login
+    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+        return res.status(403).json({ 
+            error: 'Admin accounts must use the admin login portal. Please visit the admin panel to login.' 
+        });
+    }
+    
+    userOperations.getByEmail(email, async (err, user) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (!user) return res.status(400).json({ error: 'Invalid credentials' });
+        
+        // Prevent database admin users from logging in through regular login (if any exist)
+        if (user.role === 'Admin' || user.role === 'admin') {
+            return res.status(403).json({ 
+                error: 'Admin accounts must use the admin login portal. Please visit the admin panel to login.' 
+            });
+        }
+        
+        try {
+            const validPassword = await bcrypt.compare(password, user.password_hash);
+            if (!validPassword) return res.status(400).json({ error: 'Invalid credentials' });
+            
+            const token = jwt.sign(
+                { userId: user.id, email: user.email }, 
+                JWT_SECRET, 
+                { expiresIn: '24h' }
+            );
+            
+            res.json({ 
+                token, 
+                user: { 
+                    id: user.id, 
+                    username: user.username, 
+                    email: user.email,
+                    first_name: user.first_name,
+                    last_name: user.last_name
+                } 
+            });
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    });
+});
+
+// Admin login endpoint - separate from regular user login
+app.post('/api/admin/login', async (req, res) => {
+    const { email, password } = req.body;
+    
+    // Hardcoded admin credentials
+    const ADMIN_EMAIL = 'admin@literaryescape.com';
+    const ADMIN_PASSWORD = 'Admin123!';
+    
+    console.log('Admin login attempt for:', email);
+    
+    // Check if credentials match hardcoded admin credentials
+    if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
+        console.log('Invalid admin credentials provided');
+        return res.status(400).json({ error: 'Invalid credentials' });
+    }
+    
+    console.log('Admin credentials validated successfully');
+    
+    try {
+        const token = jwt.sign(
+            { 
+                userId: 'admin', 
+                email: ADMIN_EMAIL,
+                role: 'admin'
+            }, 
+            JWT_SECRET, 
+            { expiresIn: '24h' }
+        );
+        
+        res.json({ 
+            token, 
+            user: { 
+                id: 'admin', 
+                username: 'admin', 
+                email: ADMIN_EMAIL,
+                first_name: 'System',
+                last_name: 'Administrator',
+                role: 'admin'
+            } 
+        });
+    } catch (error) {
+        console.error('Error generating admin token:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Cart endpoints
+app.get('/api/cart', authenticateToken, (req, res) => {
+    cartOperations.getCartItems(req.user.userId, (err, items) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(items);
+    });
+});
+
+app.post('/api/cart', authenticateToken, (req, res) => {
+    const { bookId, quantity } = req.body;
+    cartOperations.addItem(req.user.userId, bookId, quantity, (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'Item added to cart' });
+    });
+});
+
+app.put('/api/cart/:bookId', authenticateToken, (req, res) => {
+    const { quantity } = req.body;
+    cartOperations.updateQuantity(req.user.userId, req.params.bookId, quantity, (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'Cart updated' });
+    });
+});
+
+app.delete('/api/cart/:bookId', authenticateToken, (req, res) => {
+    cartOperations.removeItem(req.user.userId, req.params.bookId, (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'Item removed from cart' });
+    });
+});
+
+// Cart selection endpoints for checkout
+app.put('/api/cart/:bookId/select', authenticateToken, (req, res) => {
+    const { selected } = req.body;
+    cartOperations.updateSelection(req.user.userId, req.params.bookId, selected, (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'Selection updated' });
+    });
+});
+
+app.post('/api/cart/select-all', authenticateToken, (req, res) => {
+    cartOperations.selectAllForCheckout(req.user.userId, (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'All items selected for checkout' });
+    });
+});
+
+app.post('/api/cart/deselect-all', authenticateToken, (req, res) => {
+    cartOperations.deselectAllForCheckout(req.user.userId, (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'All items deselected' });
+    });
+});
+
+app.get('/api/cart/selected', authenticateToken, (req, res) => {
+    cartOperations.getSelectedItems(req.user.userId, (err, items) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(items);
+    });
+});
+
+app.get('/api/cart/selected/total', authenticateToken, (req, res) => {
+    cartOperations.getSelectedTotal(req.user.userId, (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(result);
+    });
+});
+
+// Favorites endpoints
+app.get('/api/favorites', authenticateToken, (req, res) => {
+    favoritesOperations.getFavorites(req.user.userId, (err, favorites) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(favorites);
+    });
+});
+
+app.post('/api/favorites', authenticateToken, (req, res) => {
+    const { bookId } = req.body;
+    favoritesOperations.addFavorite(req.user.userId, bookId, (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'Added to favorites' });
+    });
+});
+
+app.delete('/api/favorites/:bookId', authenticateToken, (req, res) => {
+    favoritesOperations.removeFavorite(req.user.userId, req.params.bookId, (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'Removed from favorites' });
+    });
+});
+
+// Reviews endpoints
+// Get reviews for a specific book
+app.get('/api/reviews/:bookId', (req, res) => {
+    const bookId = parseInt(req.params.bookId);
+    reviewsOperations.getByBookId(bookId, (err, reviews) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(reviews);
+    });
+});
+
+// Create a new review (requires authentication)
+app.post('/api/reviews', authenticateToken, (req, res) => {
+    const { bookId, rating, reviewText, reviewerName } = req.body;
+    
+    // Validate input
+    if (!bookId || !rating || !reviewText || !reviewerName) {
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
+    
+    if (rating < 1 || rating > 5) {
+        return res.status(400).json({ error: 'Rating must be between 1 and 5' });
+    }
+    
+    // Check if user has already reviewed this book
+    reviewsOperations.hasUserReviewed(req.user.userId, bookId, (err, hasReviewed) => {
+        if (err) return res.status(500).json({ error: err.message });
+        
+        if (hasReviewed) {
+            return res.status(400).json({ error: 'You have already reviewed this book' });
+        }
+        
+        // Create the review
+        reviewsOperations.create(req.user.userId, bookId, rating, reviewText, reviewerName, (err, result) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.status(201).json({ 
+                message: 'Review created successfully', 
+                reviewId: result.id 
+            });
+        });
+    });
+});
+
+// Get user's reviews
+app.get('/api/user/reviews', authenticateToken, (req, res) => {
+    reviewsOperations.getByUserId(req.user.userId, (err, reviews) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(reviews);
+    });
+});
+
+// Update a review
+app.put('/api/reviews/:reviewId', authenticateToken, (req, res) => {
+    const { rating, reviewText } = req.body;
+    const reviewId = parseInt(req.params.reviewId);
+    
+    if (!rating || !reviewText) {
+        return res.status(400).json({ error: 'Rating and review text are required' });
+    }
+    
+    if (rating < 1 || rating > 5) {
+        return res.status(400).json({ error: 'Rating must be between 1 and 5' });
+    }
+    
+    reviewsOperations.update(reviewId, req.user.userId, rating, reviewText, (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        
+        if (result.changes === 0) {
+            return res.status(404).json({ error: 'Review not found or unauthorized' });
+        }
+        
+        res.json({ message: 'Review updated successfully' });
+    });
+});
+
+// Delete a review
+app.delete('/api/reviews/:reviewId', authenticateToken, (req, res) => {
+    const reviewId = parseInt(req.params.reviewId);
+    
+    reviewsOperations.delete(reviewId, req.user.userId, (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        
+        if (result.changes === 0) {
+            return res.status(404).json({ error: 'Review not found or unauthorized' });
+        }
+        
+        res.json({ message: 'Review deleted successfully' });
+    });
+});
+
+// Get average rating for a book
+app.get('/api/reviews/:bookId/average', (req, res) => {
+    const bookId = parseInt(req.params.bookId);
+    reviewsOperations.getAverageRating(bookId, (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(result);
+    });
+});
+
+// Get user's review history with book information
+app.get('/api/user/reviews', authenticateToken, (req, res) => {
+    reviewsOperations.getUserReviewHistory(req.user.userId, (err, reviews) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(reviews);
+    });
+});
+
+// Order endpoints
+app.post('/api/orders', authenticateToken, (req, res) => {
+    const { shippingAddress, paymentMethod, courier, discounts, totals } = req.body;
+    
+    console.log('📦 Order creation request received for user:', req.user.userId);
+    console.log('📄 Order payload:', { shippingAddress, paymentMethod, courier, discounts, totals });
+
+    // Get SELECTED cart items first
+    cartOperations.getSelectedItems(req.user.userId, (err, cartItems) => {
+        if (err) {
+            console.error('❌ Error getting selected cart items:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        
+        console.log('🛒 Selected cart items found:', cartItems.length, 'items');
+        console.log('📋 Cart items details:', cartItems);
+        
+        if (cartItems.length === 0) {
+            console.log('⚠️ No selected cart items found for user:', req.user.userId);
+            return res.status(400).json({ error: 'Cart is empty or no items selected for checkout' });
+        }
+        
+        // Calculate total
+        const itemsSubtotal = cartItems.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+        const totalAmount = totals && typeof totals.total === 'number' ? totals.total : itemsSubtotal;
+        
+        console.log('💰 Order totals - Items subtotal:', itemsSubtotal, 'Final total:', totalAmount);
+        
+        // Create order
+        orderOperations.createOrder(req.user.userId, totalAmount, JSON.stringify({ shippingAddress, paymentMethod, courier, discounts, itemsSubtotal }), function(err) {
+            if (err) {
+                console.error('❌ Error creating order:', err);
+                return res.status(500).json({ error: err.message });
+            }
+            
+            const orderId = this.lastID;
+            console.log('✅ Order created with ID:', orderId);
+            
+            const orderItems = cartItems.map(item => ({
+                book_id: item.book_id,
+                quantity: item.quantity,
+                price: item.price
+            }));
+            
+            console.log('📚 Adding order items:', orderItems);
+            
+            // Add order items
+            orderOperations.addOrderItems(orderId, orderItems, (err) => {
+                if (err) {
+                    console.error('❌ Error adding order items:', err);
+                    return res.status(500).json({ error: err.message });
+                }
+                
+                console.log('✅ Order items added successfully');
+                
+                // Clear cart (remove selected items)
+                cartOperations.clearCart(req.user.userId, (err) => {
+                    if (err) {
+                        console.error('❌ Error clearing cart:', err);
+                        return res.status(500).json({ error: err.message });
+                    }
+                    
+                    console.log('✅ Cart cleared successfully');
+                    res.json({ message: 'Order created successfully', orderId });
+                });
+            });
+        });
+    });
+});
+
+app.get('/api/orders', authenticateToken, (req, res) => {
+    orderOperations.getUserOrders(req.user.userId, (err, orders) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(orders);
+    });
+});
+
+// Admin: get orders for a specific user
+app.get('/api/admin/users/:userId/orders', authenticateAdmin, (req, res) => {
+    const userId = parseInt(req.params.userId);
+    orderOperations.getUserOrders(userId, (err, orders) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(orders);
+    });
+});
+
+// Admin orders endpoints
+app.get('/api/admin/orders', authenticateAdmin, (req, res) => {
+    console.log('Admin requesting all orders');
+    orderOperations.getAllOrders((err, orders) => {
+        if (err) {
+            console.error('Error getting orders:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        console.log('Returning', orders.length, 'orders');
+        res.json(orders);
+    });
+});
+
+app.put('/api/admin/orders/:id', authenticateAdmin, (req, res) => {
+    const orderId = parseInt(req.params.id);
+    const { status, shipping_address } = req.body;
+    
+    if (isNaN(orderId)) {
+        return res.status(400).json({ error: 'Invalid order ID' });
+    }
+    
+    console.log('Admin updating order ID:', orderId, 'with:', { status, shipping_address });
+    
+    orderOperations.updateOrder(orderId, { status, shipping_address }, (err, result) => {
+        if (err) {
+            console.error('Error updating order:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        console.log('Order updated, changes:', result.changes);
+        res.json({ message: 'Order updated', changes: result.changes });
+    });
+});
+
+app.delete('/api/admin/orders/:id', authenticateAdmin, (req, res) => {
+    const orderId = parseInt(req.params.id);
+    
+    if (isNaN(orderId)) {
+        return res.status(400).json({ error: 'Invalid order ID' });
+    }
+    
+    console.log('Admin deleting order ID:', orderId);
+    
+    orderOperations.deleteOrder(orderId, (err) => {
+        if (err) {
+            console.error('Error deleting order:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        console.log('Order deleted successfully');
+        res.json({ message: 'Order deleted' });
+    });
+});
+
+// Get detailed order information for admin (includes customer info and items)
+app.get('/api/admin/orders/:id/details', authenticateAdmin, (req, res) => {
+    const orderId = parseInt(req.params.id);
+    orderOperations.getAdminOrderDetails(orderId, (err, orderDetails) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (!orderDetails) return res.status(404).json({ error: 'Order not found' });
+        res.json(orderDetails);
+    });
+});
+
+// User profile endpoints
+app.get('/api/user/profile', authenticateToken, (req, res) => {
+    // Handle hardcoded admin case
+    if (req.user.userId === 'admin') {
+        return res.json({
+            id: 'admin',
+            username: 'admin',
+            email: 'admin@literaryescape.com',
+            first_name: 'System',
+            last_name: 'Administrator',
+            role: 'admin'
+        });
+    }
+    
+    // Handle regular database users
+    userOperations.getById(req.user.userId, (err, user) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (!user) return res.status(404).json({ error: 'User not found' });
+        
+        // Remove password hash from response
+        const { password_hash, ...userProfile } = user;
+        res.json(userProfile);
+    });
+});
+
+// Admin user management endpoints (require admin authentication)
+app.get('/api/users', authenticateAdmin, (req, res) => {
+    console.log('Admin requesting all users');
+    userOperations.getAll((err, users) => {
+        if (err) {
+            console.error('Error getting users:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        console.log('Returning', users.length, 'users');
+        // Remove password hashes from response
+        const safeUsers = users.map(u => {
+            const { password_hash, ...user } = u;
+            return user;
+        });
+        res.json(safeUsers);
+    });
+});
+
+app.delete('/api/users/:id', authenticateAdmin, (req, res) => {
+    const userId = parseInt(req.params.id);
+    
+    if (isNaN(userId)) {
+        return res.status(400).json({ error: 'Invalid user ID' });
+    }
+    
+    console.log('Admin deleting user ID:', userId);
+    
+    userOperations.deleteUser(userId, (err) => {
+        if (err) {
+            console.error('Error deleting user:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        console.log('User deleted successfully');
+        res.json({ message: 'User deleted' });
+    });
+});
+
+app.put('/api/user/profile', authenticateToken, (req, res) => {
+    const { first_name, last_name, email, phone, address, birthdate, city, zip_code } = req.body;
+    
+    const profileData = {
+        first_name,
+        last_name,
+        email,
+        phone,
+        address,
+        birthdate,
+        city,
+        zip_code
+    };
+
+    userOperations.updateProfile(req.user.userId, profileData, (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'Profile updated successfully' });
+    });
+});
+
+app.post('/api/user/change-password', authenticateToken, async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        
+        // Get current user
+        userOperations.getById(req.user.userId, async (err, user) => {
+            if (err) return res.status(500).json({ error: err.message });
+            if (!user) return res.status(404).json({ error: 'User not found' });
+            
+            // Verify current password
+            const validPassword = await bcrypt.compare(currentPassword, user.password_hash);
+            if (!validPassword) {
+                return res.status(400).json({ error: 'Current password is incorrect' });
+            }
+            
+            // Validate new password
+            const passwordValidation = validatePasswordServer(newPassword);
+            if (!passwordValidation.isValid) {
+                return res.status(400).json({ 
+                    error: `Password requirements not met: ${passwordValidation.errors.join(', ')}`
+                });
+            }
+            
+            // Hash new password
+            const saltRounds = 12;
+            const newPasswordHash = await bcrypt.hash(newPassword, saltRounds);
+            
+            // Update password
+            userOperations.updatePassword(req.user.userId, newPasswordHash, (err) => {
+                if (err) return res.status(500).json({ error: err.message });
+                res.json({ message: 'Password changed successfully' });
+            });
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// User addresses endpoints
+app.get('/api/user/addresses', authenticateToken, (req, res) => {
+    userOperations.getUserAddresses(req.user.userId, (err, addresses) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(addresses);
+    });
+});
+
+app.post('/api/user/addresses', authenticateToken, (req, res) => {
+    const { label, full_address, city, zip_code, is_default } = req.body;
+    
+    const addressData = {
+        user_id: req.user.userId,
+        label,
+        full_address,
+        city,
+        zip_code,
+        is_default: is_default || false
+    };
+
+    userOperations.saveAddress(addressData, (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'Address saved successfully' });
+    });
+});
+
+app.put('/api/user/addresses/:id/default', authenticateToken, (req, res) => {
+    userOperations.setDefaultAddress(req.user.userId, req.params.id, (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'Default address updated' });
+    });
+});
+
+app.delete('/api/user/addresses/:id', authenticateToken, (req, res) => {
+    userOperations.deleteAddress(req.user.userId, req.params.id, (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: 'Address deleted successfully' });
+    });
+});
+
+// Enhanced order details endpoint
+app.get('/api/orders/:id', authenticateToken, (req, res) => {
+    orderOperations.getOrderDetails(req.params.id, (err, orderDetails) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (!orderDetails) return res.status(404).json({ error: 'Order not found' });
+        
+        // Verify order belongs to user
+        if (orderDetails.user_id !== req.user.userId) {
+            return res.status(403).json({ error: 'Access denied' });
+        }
+        
+        res.json(orderDetails);
+    });
+});
+
+// Initialize database and start server
+initializeDatabase((err) => {
+    if (err) {
+        console.error('Failed to initialize database:', err);
+        return;
+    }
+    
+    console.log('Database initialized successfully');
+    
+    // Test database connection by checking if tables exist
+    const testQuery = `SELECT name FROM sqlite_master WHERE type='table' AND name='users'`;
+    const { db } = require('./database');
+    
+    db.get(testQuery, (err, row) => {
+        if (err) {
+            console.error('Database connection test failed:', err);
+            return;
+        }
+        
+        if (row) {
+            console.log('Database tables verified - users table exists');
+        } else {
+            console.log('Creating database tables...');
+        }
+        
+        // Start the server only after database is ready
+        app.listen(PORT, () => {
+            console.log(`API server running on http://localhost:${PORT}`);
+            console.log('Database connection established and ready');
+        });
+    });
+});
+
+// Enhanced server-side password validation function with database logging
+function validatePasswordServer(password) {
+    console.log('Validating password on server side...');
+    
+    const errors = [];
+    
+    // Check if password exists
+    if (!password) {
+        errors.push('password is required');
+        return { isValid: false, errors };
+    }
+    
+    // Length check (minimum 8 characters)
+    if (password.length < 8) {
+        errors.push('minimum 8 characters required');
+    }
+    
+    // Maximum length check (for security)
+    if (password.length > 128) {
+        errors.push('maximum 128 characters allowed');
+    }
+    
+    // Uppercase check
+    if (!/[A-Z]/.test(password)) {
+        errors.push('at least one uppercase letter required');
+    }
+    
+    // Lowercase check
+    if (!/[a-z]/.test(password)) {
+        errors.push('at least one lowercase letter required');
+    }
+    
+    // Number check
+    if (!/\d/.test(password)) {
+        errors.push('at least one number required');
+    }
+    
+    // Special character check
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+        errors.push('at least one special character required (!@#$%^&*()_+-=[]{}|;:,.<>?)');
+    }
+    
+    // Check for common weak passwords
+    const commonPasswords = ['password', '12345678', 'qwerty123', 'admin123', 'password123'];
+    if (commonPasswords.includes(password.toLowerCase())) {
+        errors.push('password is too common');
+    }
+    
+    const result = {
+        isValid: errors.length === 0,
+        errors: errors
+    };
+    
+    console.log('Password validation result:', result);
+    return result;
+}
+
+// Add a test endpoint to verify database connectivity (public)
+app.get('/api/test-db', (req, res) => {
+    const { db } = require('./database');
+    
+    db.get("SELECT COUNT(*) as count FROM sqlite_master WHERE type='table'", (err, row) => {
+        if (err) {
+            console.error('Database test failed:', err);
+            return res.status(500).json({ 
+                error: 'Database connection failed', 
+                details: err.message 
+            });
+        }
+        
+        res.json({ 
+            success: true, 
+            message: 'Database connection successful', 
+            tableCount: row.count 
+        });
+    });
+});
+
+// Voucher validation endpoint
+app.post('/api/vouchers/validate', (req, res) => {
+    const { code } = req.body;
+    
+    if (!code) {
+        return res.status(400).json({ error: 'Voucher code is required' });
+    }
+    
+    // Mock voucher system - in production, this would query a vouchers table
+    const validVouchers = {
+        'SAVE10': { 
+            valid: true, 
+            discountAmount: 10, 
+            description: '₱10 off your order',
+            type: 'fixed',
+            minOrder: 0
+        },
+        'SAVE50': { 
+            valid: true, 
+            discountAmount: 50, 
+            description: '₱50 off your order',
+            type: 'fixed',
+            minOrder: 200
+        },
+        'NEWUSER': { 
+            valid: true, 
+            discountAmount: 25, 
+            description: '₱25 off for new users',
+            type: 'fixed',
+            minOrder: 100
+        },
+        'PERCENT10': { 
+            valid: true, 
+            discountAmount: 10, 
+            description: '10% off your order',
+            type: 'percentage',
+            minOrder: 150
+        },
+        'FREESHIP': { 
+            valid: true, 
+            discountAmount: 0, 
+            description: 'Free shipping',
+            type: 'freeshipping',
+            minOrder: 0
+        }
+    };
+    
+    const voucher = validVouchers[code.toUpperCase()];
+    if (voucher) {
+        res.json(voucher);
+    } else {
+        res.json({ valid: false, message: 'Invalid voucher code' });
+    }
+});

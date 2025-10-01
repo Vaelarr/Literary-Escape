@@ -4,18 +4,498 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Literary Escape</title>
+    <title>My Favorites - Literary Escape</title>
     <link rel="stylesheet" href="./css/style.css">
     <link rel="icon" type="image/x-icon" href="./media/icon.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <script src="https://kit.fontawesome.com/f8c6d79c7d.js" crossorigin="anonymous"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-
+    <style>
+        /* Base layout fixes */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .main-content {
+            min-height: calc(100vh - 160px);
+            padding: 100px 0 40px 0;
+        }
+        
+        /* Navbar improvements */
+        .navbar {
+            z-index: 1030;
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            background: rgba(22, 66, 60, 0.95) !important;
+            box-shadow: 0 2px 20px rgba(22, 66, 60, 0.3);
+        }
+        
+        .navbar.fixed-top {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            right: 0;
+        }
+        
+        /* Navbar text styling */
+        .navbar .nav-link {
+            color: #ffffff !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar .nav-link:hover {
+            color: #74b9ff !important;
+            transform: translateY(-1px);
+        }
+        
+        .navbar .dropdown-toggle {
+            color: #ffffff !important;
+        }
+        
+        .navbar .icon-link {
+            color: #ffffff !important;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .navbar .icon-link:hover {
+            color: #74b9ff !important;
+            transform: scale(1.1);
+        }
+        
+        .navbar .icon-link i {
+            color: #ffffff !important;
+        }
+        
+        /* Audio control positioning */
+        .audio-control {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            z-index: 1040;
+            background: linear-gradient(135deg, #16423C 0%, #1a4f47 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(22, 66, 60, 0.3);
+        }
+        
+        .audio-control:hover {
+            background: linear-gradient(135deg, #1a4f47 0%, #2a5f57 100%);
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(22, 66, 60, 0.4);
+        }
+        
+        .favorites-header {
+            background: linear-gradient(135deg, #16423C 0%, #1a4f47 50%, #0f2f2a 100%);
+            color: white;
+            padding: 3rem 0;
+            margin-top: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .favorites-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" fill-opacity="0.05"/><circle cx="75" cy="75" r="1" fill="white" fill-opacity="0.03"/></pattern></defs><rect width="100" height="20" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .favorites-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .favorites-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 0;
+        }
+        
+        /* Enhanced book cards */
+        .book-card {
+            border: none;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            height: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+            position: relative;
+        }
+        
+        .book-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #16423C 0%, #6c5ce7 50%, #fd79a8 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .book-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(22, 66, 60, 0.15);
+        }
+        
+        .book-card:hover::before {
+            opacity: 1;
+        }
+        
+        .book-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 0;
+            transition: transform 0.4s ease;
+        }
+        
+        .book-card:hover .book-image {
+            transform: scale(1.05);
+        }
+        
+        .book-card .card-body {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            height: calc(100% - 300px);
+            min-height: 280px;
+            background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+        }
+        
+        /* Enhanced price styling */
+        .price-tag {
+            background: linear-gradient(135deg, #16423C 0%, #1a4f47 100%);
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 1rem;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(22, 66, 60, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .price-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(22, 66, 60, 0.4);
+        }
+        
+        /* Enhanced button styles */
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #16423C 0%, #1a4f47 100%);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px rgba(22, 66, 60, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary-custom::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-primary-custom:hover {
+            background: linear-gradient(135deg, #1a4f47 0%, #2a5f57 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(22, 66, 60, 0.4);
+            color: white;
+        }
+        
+        .btn-primary-custom:hover::before {
+            left: 100%;
+        }
+        
+        .btn-danger-custom {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+        
+        .btn-danger-custom:hover {
+            background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
+            color: white;
+        }
+        
+        .btn-outline-secondary {
+            background: transparent;
+            border: 2px solid #6c757d;
+            color: #6c757d;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .btn-outline-secondary:hover {
+            background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+            color: white;
+            border-color: #6c757d;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.3);
+        }
+        
+        /* Enhanced empty states */
+        .empty-favorites {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin: 2rem 0;
+        }
+        
+        .empty-favorites i {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #16423C 0%, #6c5ce7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .empty-favorites h3 {
+            color: #2c3e50;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .empty-favorites p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        .loading-spinner {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin: 2rem 0;
+        }
+        
+        .spinner-border {
+            color: #16423C !important;
+            width: 3rem;
+            height: 3rem;
+        }
+        
+        /* Enhanced typography */
+        .star-rating {
+            color: #f39c12;
+            font-size: 1rem;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .book-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 0.75rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.4;
+            height: 3.36em;
+        }
+        
+        .book-author {
+            color: #7f8c8d;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            font-style: italic;
+            font-weight: 500;
+        }
+        
+        .book-actions {
+            margin-top: auto;
+            padding-top: 1.5rem;
+        }
+        
+        .price-section {
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: center;
+        }
+        
+        /* Message sections */
+        .hidden {
+            display: none !important;
+        }
+        
+        .visible {
+            display: block !important;
+        }
+        
+        #loginRequiredMessage,
+        #loadingMessage,
+        #errorMessage,
+        #emptyFavorites,
+        #favoritesGrid {
+            display: none;
+        }
+        
+        #loginRequiredMessage.visible,
+        #loadingMessage.visible,
+        #errorMessage.visible,
+        #emptyFavorites.visible,
+        #favoritesGrid.visible {
+            display: block;
+        }
+        
+        /* Enhanced Footer */
+        footer {
+            background: linear-gradient(135deg, #16423C 0%, #0f2f2a 100%);
+            color: white;
+            text-align: center;
+            padding: 3rem 0;
+            margin-top: 4rem;
+            box-shadow: 0 -5px 20px rgba(22, 66, 60, 0.2);
+        }
+        
+        footer a {
+            color: white !important;
+            font-size: 1.8rem;
+            margin: 0 1.5rem;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: inline-block;
+            text-decoration: none;
+        }
+        
+        footer a:hover {
+            color: #74b9ff !important;
+            transform: scale(1.3) translateY(-5px);
+            text-shadow: 0 5px 15px rgba(116, 185, 255, 0.4);
+        }
+        
+        /* Container improvements */
+        .container {
+            max-width: 1400px;
+        }
+        
+        /* Grid spacing improvements */
+        .row.g-4 > * {
+            padding: 1rem;
+        }
+        
+        /* Responsive improvements */
+        @media (max-width: 1200px) {
+            .container {
+                max-width: 100%;
+                padding: 0 2rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 80px 0 20px 0;
+            }
+            
+            .favorites-header {
+                padding: 2rem 0;
+            }
+            
+            .favorites-header h1 {
+                font-size: 2rem;
+            }
+            
+            .book-card .card-body {
+                padding: 1.25rem;
+                min-height: 240px;
+            }
+            
+            .book-image {
+                height: 250px;
+            }
+            
+            .btn-primary-custom,
+            .btn-danger-custom,
+            .btn-outline-secondary {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+            
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .audio-control {
+                top: 80px;
+                right: 15px;
+                width: 45px;
+                height: 45px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .book-image {
+                height: 220px;
+            }
+            
+            .book-card .card-body {
+                min-height: 220px;
+                padding: 1rem;
+            }
+            
+            .favorites-header h1 {
+                font-size: 1.75rem;
+            }
+            
+            .row.g-4 > * {
+                padding: 0.75rem;
+            }
+        }
+    </style>
 </head>
 
 <body>
-
     <audio id="bgMusic" loop>
         <source src="./media/Frédéric Chopin_ Nocturne in E-Flat Major, Op. 9, No. 2.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
@@ -43,77 +523,503 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto">
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="index.html" style="color: #ffffff;">Home</a>
+                        <a class="nav-link" href="index.html">Home</a>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="shopDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false" style="color: #ffffff;">Shop</a>
+                            data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
                         <ul class="dropdown-menu" aria-labelledby="shopDropdown">
                             <li><a class="dropdown-item" href="fiction.html">Fiction</a></li>
                             <li><a class="dropdown-item" href="non-fiction.html">Non-Fiction</a></li>
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="about-us.html" style="color: #ffffff;">About Us</a>
+                        <a class="nav-link" href="about-us.html">About Us</a>
                     </li>
                 </ul>
 
                 <!-- Search Bar -->
-                <form class="d-flex mx-3">
+                <form class="d-flex mx-3" onsubmit="handleSearch(event)">
                     <div class="search-wrapper w-100">
-                        <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search">
+                        <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search" id="searchInput">
                         <button class="btn mx-0" title="search-btn" type="submit"><i class="bi bi-search"></i></button>
                     </div>
                 </form>
 
-                <div id="search-popup" class="search-popup">
-                    <div class="search-results">
-                        <div id="results-content">
-                            <!-- Results will be populated here -->
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Icons -->
                 <div class="d-flex align-items-center nav-icons">
-                    <a href="favorites.html" class="icon-link me-3"><i class="fa-solid fa-heart"
-                            style="color: #ffffff;"></i></a>
-                    <a href="cart.html" class="icon-link me-3"><i class="fa-solid fa-cart-shopping"
-                            style="color: #ffffff;"></i></a>
-                    <a href="account.html" class="icon-link"><i class="fa-solid fa-user"
-                            style="color: #ffffff;"></i></a>
+                    <a href="favorites.html" class="icon-link" title="Favorites">
+                        <i class="fa-solid fa-heart"></i>
+                        <span id="favorites-count" class="cart-count">0</span>
+                    </a>
+                    <a href="cart.html" class="icon-link" title="Shopping Cart">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span id="cart-count" class="cart-count">0</span>
+                    </a>
+                    <a href="account.html" class="icon-link" title="Account"><i class="fa-solid fa-user"></i></a>
                 </div>
             </div>
         </div>
     </nav>
 
-    <section style="height: 100vh;">
-        <div class="container mt-5">
-            <h2 style="margin-top: 100px;">My Favorites</h2>
-            <div class="row mt-4" id="favoritesContainer">
-                <!-- Favorites will be loaded here dynamically -->
+    <!-- Favorites Header -->
+    <section class="favorites-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h1 class="mb-2">
+                        <i class="fas fa-heart me-3"></i>My Favorites
+                    </h1>
+                    <p class="mb-0">Your personal collection of beloved books</p>
+                </div>
             </div>
         </div>
     </section>
 
+    <!-- Favorites Content -->
+    <section class="main-content">
+        <div class="container">
+            <!-- Login Required Message -->
+            <div id="loginRequiredMessage" class="hidden">
+                <div class="empty-favorites">
+                    <i class="fas fa-user-lock"></i>
+                    <h3>Login Required</h3>
+                    <p class="mb-4">Please log in to view your favorite books.</p>
+                    <a href="account.html" class="btn btn-primary-custom btn-lg">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                    </a>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingMessage" class="loading-spinner hidden">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3">Loading your favorites...</p>
+            </div>
+
+            <!-- Error Message -->
+            <div id="errorMessage" class="hidden">
+                <div class="empty-favorites">
+                    <i class="fas fa-exclamation-triangle text-warning"></i>
+                    <h3>Something went wrong</h3>
+                    <p class="mb-4">We couldn't load your favorites right now. Please try again.</p>
+                    <button class="btn btn-primary-custom" onclick="loadFavorites()">
+                        <i class="fas fa-redo me-2"></i>Try Again
+                    </button>
+                </div>
+            </div>
+
+            <!-- Empty Favorites -->
+            <div id="emptyFavorites" class="hidden">
+                <div class="empty-favorites">
+                    <i class="fas fa-heart-broken"></i>
+                    <h3>No favorites yet</h3>
+                    <p class="mb-4">Start building your collection by adding books to your favorites!</p>
+                    <a href="fiction.html" class="btn btn-primary-custom btn-lg me-3">
+                        <i class="fas fa-book me-2"></i>Browse Fiction
+                    </a>
+                    <a href="non-fiction.html" class="btn btn-primary-custom btn-lg">
+                        <i class="fas fa-bookmark me-2"></i>Browse Non-Fiction
+                    </a>
+                </div>
+            </div>
+
+            <!-- Favorites Grid -->
+            <div id="favoritesGrid" class="row g-4 hidden">
+                <!-- Favorites will be loaded here -->
+            </div>
+        </div>
+    </section>
 
     <!-- Footer -->
     <footer>
-        <a href="https://www.facebook.com/" class="text-decoration-none" style="color: white;"><i
-                class="fa-brands fa-facebook"></i></a>
-        <a href="https://www.instagram.com/" class="text-decoration-none" style="color: white;"><i
-                class="fa-brands fa-instagram"></i></a>
+        <a href="https://www.facebook.com/" class="text-decoration-none" title="Follow us on Facebook">
+            <i class="fa-brands fa-facebook"></i>
+        </a>
+        <a href="https://www.instagram.com/" class="text-decoration-none" title="Follow us on Instagram">
+            <i class="fa-brands fa-instagram"></i>
+        </a>
     </footer>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            updateNavAuth();
-            if (typeof updateCartCount === 'function') updateCartCount();
-            if (typeof updateFavoritesCount === 'function') updateFavoritesCount();
+        let userFavorites = [];
+        // Note: api is declared globally in api-client.js
+
+        // Audio control initialization (separate from main initialization)
+        function initAudioControls() {
+            const audio = document.getElementById('bgMusic');
+            const audioControl = document.getElementById('audioControl');
+            const audioIcon = audioControl.querySelector('i');
+            audio.volume = 0.2;
+
+            window.addEventListener('load', () => audio.pause());
+
+            audioControl.addEventListener('click', () => {
+                if (audio.paused) {
+                    audio.play();
+                    audioIcon.className = 'fas fa-volume-up';
+                } else {
+                    audio.pause();
+                    audioIcon.className = 'fas fa-volume-mute';
+                }
+            });
+        }
+
+        // Initialize audio controls immediately
+        document.addEventListener('DOMContentLoaded', initAudioControls);
+
+        // Wait for API client to be available
+        function waitForAPI() {
+            return new Promise((resolve) => {
+                if (window.api) {
+                    resolve();
+                } else {
+                    const checkAPI = setInterval(() => {
+                        if (window.api) {
+                            clearInterval(checkAPI);
+                            resolve();
+                        }
+                    }, 100);
+                }
+            });
+        }
+
+        // Initialize favorites page
+        async function initializeFavorites() {
+            console.log('Initializing favorites...');
+            
+            // Check if user is logged in
+            if (!api || !api.isLoggedIn()) {
+                showLoginRequired();
+                return;
+            }
+            
+            // Load favorites
+            await loadFavorites();
+            
+            // Update cart count
+            if (typeof updateCartCount === 'function') {
+                updateCartCount();
+            }
+            
+            // Update favorites count
+            if (typeof updateFavoritesCount === 'function') {
+                updateFavoritesCount();
+            }
+        }
+
+        // Show login required message
+        function showLoginRequired() {
+            hideAllMessages();
+            document.getElementById('loginRequiredMessage').classList.add('visible');
+            document.getElementById('loginRequiredMessage').classList.remove('hidden');
+        }
+
+        // Show loading message
+        function showLoading() {
+            hideAllMessages();
+            document.getElementById('loadingMessage').classList.add('visible');
+            document.getElementById('loadingMessage').classList.remove('hidden');
+        }
+
+        // Show error message
+        function showError() {
+            hideAllMessages();
+            document.getElementById('errorMessage').classList.add('visible');
+            document.getElementById('errorMessage').classList.remove('hidden');
+        }
+
+        // Show empty favorites
+        function showEmpty() {
+            hideAllMessages();
+            document.getElementById('emptyFavorites').classList.add('visible');
+            document.getElementById('emptyFavorites').classList.remove('hidden');
+        }
+
+        // Show favorites grid
+        function showFavorites() {
+            hideAllMessages();
+            document.getElementById('favoritesGrid').classList.add('visible');
+            document.getElementById('favoritesGrid').classList.remove('hidden');
+        }
+
+        // Hide all messages
+        function hideAllMessages() {
+            const elements = ['loginRequiredMessage', 'loadingMessage', 'errorMessage', 'emptyFavorites', 'favoritesGrid'];
+            elements.forEach(id => {
+                const element = document.getElementById(id);
+                element.classList.remove('visible');
+                element.classList.add('hidden');
+            });
+        }
+
+        // Load favorites from API
+        async function loadFavorites() {
+            console.log('Loading favorites...');
+            console.log('API available:', !!window.api);
+            console.log('User logged in:', window.api ? window.api.isLoggedIn() : 'API not available');
+            
+            showLoading();
+            
+            try {
+                if (!window.api) {
+                    throw new Error('API client not available');
+                }
+
+                console.log('Calling api.getFavorites()...');
+                const favorites = await window.api.getFavorites();
+                console.log('Favorites API response:', favorites);
+                console.log('Favorites type:', typeof favorites);
+                console.log('Favorites length:', Array.isArray(favorites) ? favorites.length : 'not array');
+
+                if (!Array.isArray(favorites) || favorites.length === 0) {
+                    console.log('No favorites found, showing empty state');
+                    userFavorites = []; // Clear the array
+                    showEmpty();
+                    updateFavoritesCount(); // Update the navbar count
+                    return;
+                }
+
+                console.log('Displaying', favorites.length, 'favorites');
+                userFavorites = favorites;
+                displayFavorites(favorites);
+                showFavorites();
+                updateFavoritesCount(); // Update the navbar count
+
+            } catch (error) {
+                console.error('Error loading favorites:', error);
+                console.error('Error details:', error.message, error.stack);
+                if (error.message.includes('401') || error.message.includes('token')) {
+                    // Token expired or invalid
+                    console.log('Authentication error, logging out...');
+                    window.api.logout();
+                    showLoginRequired();
+                } else {
+                    showError();
+                }
+            }
+        }
+
+        // Display favorites
+        function displayFavorites(favorites) {
+            const grid = document.getElementById('favoritesGrid');
+            
+            grid.innerHTML = favorites.map(favorite => createBookCard(favorite)).join('');
+        }
+
+        // Create book card HTML
+        function createBookCard(book) {
+            const rating = book.rating || 0;
+            const stars = createStarRating(rating);
+            
+            return `
+                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 mb-4">
+                    <div class="card book-card">
+                        <img src="${book.cover || './media/books/default-book.jpg'}" 
+                             class="book-image" 
+                             alt="${book.title}"
+                             onerror="this.src='./media/books/default-book.jpg'">
+                        <div class="card-body">
+                            <h5 class="book-title">${book.title}</h5>
+                            <p class="book-author">by ${book.author}</p>
+                            <div class="star-rating mb-2">
+                                ${stars}
+                                <span class="text-muted ms-1">(${rating.toFixed(1)})</span>
+                            </div>
+                            <div class="book-actions">
+                                <div class="price-section">
+                                    <span class="price-tag">₱${parseFloat(book.price || 0).toFixed(2)}</span>
+                                </div>
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-primary-custom" onclick="addToCart(${book.book_id || book.id})">
+                                        <i class="fas fa-cart-plus me-2"></i>Add to Cart
+                                    </button>
+                                    <button class="btn btn-danger-custom" onclick="removeFromFavorites(${book.book_id || book.id})">
+                                        <i class="fas fa-heart-broken me-2"></i>Remove from Favorites
+                                    </button>
+                                    <a href="product.html?id=${book.book_id || book.id}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-eye me-2"></i>View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Create star rating HTML
+        function createStarRating(rating) {
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 !== 0;
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            
+            let stars = '';
+            
+            // Full stars
+            for (let i = 0; i < fullStars; i++) {
+                stars += '<i class="fas fa-star"></i>';
+            }
+            
+            // Half star
+            if (hasHalfStar) {
+                stars += '<i class="fas fa-star-half-alt"></i>';
+            }
+            
+            // Empty stars
+            for (let i = 0; i < emptyStars; i++) {
+                stars += '<i class="far fa-star"></i>';
+            }
+            
+            return stars;
+        }
+
+        // Remove from favorites
+        async function removeFromFavorites(bookId) {
+            try {
+                if (!window.api || !window.api.isLoggedIn()) {
+                    showNotification('Please log in to manage favorites.', 'warning');
+                    return;
+                }
+
+                await window.api.removeFromFavorites(bookId);
+
+                // Show success message
+                showNotification('Removed from favorites!', 'success');
+                
+                // Reload favorites
+                await loadFavorites();
+
+            } catch (error) {
+                console.error('Error removing from favorites:', error);
+                showNotification('Failed to remove from favorites. Please try again.', 'error');
+            }
+        }
+
+        // Add to cart
+        async function addToCart(bookId) {
+            try {
+                if (!window.api || !window.api.isLoggedIn()) {
+                    showNotification('Please log in to add items to cart.', 'warning');
+                    return;
+                }
+
+                await window.api.addToCart(bookId, 1);
+
+                showNotification('Added to cart!', 'success');
+                
+                // Update cart count
+                if (typeof updateCartCount === 'function') {
+                    updateCartCount();
+                }
+
+            } catch (error) {
+                console.error('Error adding to cart:', error);
+                showNotification('Failed to add to cart. Please try again.', 'error');
+            }
+        }
+
+        // Show notification
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = 'top: 100px; right: 20px; z-index: 1050; min-width: 300px;';
+            notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 3000);
+        }
+
+        // Handle search
+        function handleSearch(event) {
+            event.preventDefault();
+            const query = document.getElementById('searchInput').value.trim();
+            if (query) {
+                window.location.href = `search-results.html?q=${encodeURIComponent(query)}`;
+            }
+        }
+
+        // Get user initials for avatar
+        function getInitials(name) {
+            return name.split(' ').map(word => word[0]).join('').toUpperCase().substring(0, 2);
+        }
+
+        // Update navbar account link
+        function updateNavbarAccountLink() {
+            const accountIcon = document.querySelector('.nav-icons .icon-link:last-child');
+            if (accountIcon && window.api && window.api.isLoggedIn && window.api.isLoggedIn()) {
+                accountIcon.href = 'account-dashboard.html';
+                const user = window.api.getCurrentUser();
+                if (user) {
+                    // Replace the icon with user initials
+                    const userInitials = getInitials(user.username);
+                    accountIcon.innerHTML = userInitials;
+                    accountIcon.className = 'navbar-user-avatar';
+                    accountIcon.title = `Logged in as ${user.username}`;
+                }
+            } else if (accountIcon) {
+                // Ensure link goes to login page when not logged in
+                accountIcon.href = 'account.html';
+                accountIcon.innerHTML = '<i class="fa-solid fa-user" style="color: #ffffff;"></i>';
+                accountIcon.className = 'icon-link';
+                accountIcon.title = 'Login or Sign Up';
+            }
+        }
+
+        // Make functions globally available
+        window.removeFromFavorites = removeFromFavorites;
+        window.addToCart = addToCart;
+        window.loadFavorites = loadFavorites;
+    </script>
+
+    <script src="js/api-client.js"></script>
+    <script src="js/navbar-counts.js"></script>
+    <script>
+        // Initialize after API client is loaded
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('Favorites page: DOMContentLoaded event fired');
+            
+            if (window.api) {
+                console.log('API client is available immediately');
+                console.log('API client methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(window.api)));
+                
+                try {
+                    console.log('API ready, updating navbar...');
+                    updateNavbarAccountLink();
+                    
+                    console.log('Initializing favorites...');
+                    await initializeFavorites();
+                } catch (error) {
+                    console.error('Error during initialization:', error);
+                }
+            } else {
+                console.error('API client not available on window object');
+                // Wait for api-client.js to finish executing
+                setTimeout(async () => {
+                    if (window.api) {
+                        console.log('API client became available after short delay');
+                        updateNavbarAccountLink();
+                        await initializeFavorites();
+                    } else {
+                        console.error('API client still not available - check for script loading errors');
+                    }
+                }, 100);
+            }
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="list.js"></script>
-    <script src="backend.js"></script>
 </body>
 
 </html>

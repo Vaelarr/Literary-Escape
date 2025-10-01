@@ -12,7 +12,95 @@
     <script src="https://kit.fontawesome.com/f8c6d79c7d.js" crossorigin="anonymous"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
+    <link rel="stylesheet" href="./css/common.css">
+    <style>
+        /* Base layout fixes */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        .main-content {
+            min-height: calc(100vh - 160px);
+            padding: 100px 0 40px 0;
+        }
+        
+        /* Navbar improvements */
+        .navbar {
+            z-index: 1030;
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            background: rgba(22, 66, 60, 0.95) !important;
+            box-shadow: 0 2px 20px rgba(22, 66, 60, 0.3);
+        }
+        
+        .navbar.fixed-top {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            right: 0;
+        }
+        
+        /* Navbar text styling */
+        .navbar .nav-link {
+            color: #ffffff !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar .nav-link:hover {
+            color: #74b9ff !important;
+            transform: translateY(-1px);
+        }
+        
+        .navbar .dropdown-toggle {
+            color: #ffffff !important;
+        }
+        
+        .navbar .icon-link {
+            color: #ffffff !important;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .navbar .icon-link:hover {
+            color: #74b9ff !important;
+            transform: scale(1.1);
+        }
+        
+        .navbar .icon-link i {
+            color: #ffffff !important;
+        }
+        
+        /* Audio control positioning */
+        .audio-control {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            z-index: 1040;
+            background: linear-gradient(135deg, #16423C 0%, #1a4f47 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(22, 66, 60, 0.3);
+        }
+        
+        .audio-control:hover {
+            background: linear-gradient(135deg, #1a4f47 0%, #2a5f57 100%);
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(22, 66, 60, 0.4);
+        }
+    </style>
 </head>
 
 <body>
@@ -44,45 +132,40 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto">
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="index.html" style="color: #ffffff;">Home</a>
+                        <a class="nav-link" href="index.html">Home</a>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="shopDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false" style="color: #ffffff;">Shop</a>
+                            data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
                         <ul class="dropdown-menu" aria-labelledby="shopDropdown">
                             <li><a class="dropdown-item" href="fiction.html">Fiction</a></li>
                             <li><a class="dropdown-item" href="non-fiction.html">Non-Fiction</a></li>
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="about-us.html" style="color: #ffffff;">About Us</a>
+                        <a class="nav-link" href="about-us.html">About Us</a>
                     </li>
                 </ul>
 
                 <!-- Search Bar -->
-                <form class="d-flex mx-3">
+                <form class="d-flex mx-3" onsubmit="handleSearch(event)">
                     <div class="search-wrapper w-100">
-                        <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search">
-                        <button class="btn mx-0" type="submit" title="search-btn"><i class="bi bi-search"></i></button>
+                        <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search" id="searchInput">
+                        <button class="btn mx-0" title="search-btn" type="submit"><i class="bi bi-search"></i></button>
                     </div>
                 </form>
 
-                <div id="search-popup" class="search-popup">
-                    <div class="search-results">
-                        <div id="results-content">
-                            <!-- Results will be populated here -->
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Icons -->
                 <div class="d-flex align-items-center nav-icons">
-                    <a href="favorites.html" class="icon-link me-3"><i class="fa-solid fa-heart"
-                            style="color: #ffffff;"></i></a>
-                    <a href="cart.html" class="icon-link me-3"><i class="fa-solid fa-cart-shopping"
-                            style="color: #ffffff;"></i></a>
-                    <a href="account.html" class="icon-link"><i class="fa-solid fa-user"
-                            style="color: #ffffff;"></i></a>
+                    <a href="favorites.html" class="icon-link" title="Favorites">
+                        <i class="fa-solid fa-heart"></i>
+                        <span id="favorites-count" class="cart-count">0</span>
+                    </a>
+                    <a href="cart.html" class="icon-link" title="Shopping Cart">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span id="cart-count" class="cart-count">0</span>
+                    </a>
+                    <a href="account.html" class="icon-link" title="Account"><i class="fa-solid fa-user"></i></a>
                 </div>
             </div>
         </div>
@@ -92,31 +175,59 @@
         <div class="container mt-5">
             <h2 style="margin-top: 100px;">Shopping Cart</h2>
             <div class="row mt-4">
-                <div class="col-lg-8" id="cartItems">
-                    <!-- Cart items will be dynamically loaded here -->
+                <div class="col-lg-8">
+                    <!-- Selection Controls -->
+                    <div class="d-flex justify-content-between align-items-center mb-3" id="selectionControls" style="display: none !important;">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()">
+                            <label class="form-check-label fw-bold" for="selectAllCheckbox">
+                                Select All Items
+                            </label>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary me-2" onclick="selectAll()">
+                                <i class="fas fa-check-square me-1"></i>Select All
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="selectNone()">
+                                <i class="fas fa-square me-1"></i>Select None
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Cart Items Container -->
+                    <div id="cartItems">
+                        <!-- Cart items will be dynamically loaded here -->
+                    </div>
                 </div>
                 <div class="col-lg-4">
                     <div class="card">
                         <div class="card-body">
-                            <h4 class="card-title">Order</h4>
+                            <h4 class="card-title">Order Summary</h4>
+                            <div class="mb-3">
+                                <small class="text-muted">
+                                    <span id="selectedItemsCount">0</span> of <span id="totalItemsCount">0</span> items selected
+                                </small>
+                            </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Subtotal:</span>
                                 <span id="subtotal">₱0.00</span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Shipping:</span>
-                                <span>₱50.00</span>
+                                <span id="shipping">₱50.00</span>
                             </div>
                             <hr>
                             <div class="d-flex justify-content-between mb-3">
                                 <strong>Total:</strong>
                                 <strong id="total">₱0.00</strong>
                             </div>
-                            <button id="checkout-btn-cart" class="btn btn-success w-100"
-                                onclick="updateCheckoutButton()">
+                            <button id="checkout-btn-cart" class="btn btn-success w-100" disabled>
                                 <i class="fas fa-shopping-cart me-2"></i>
-                                Proceed to Checkout
+                                Checkout Selected Items
                             </button>
+                            <small class="text-muted mt-2 d-block text-center" id="checkoutHint">
+                                Select at least one item to checkout
+                            </small>
                         </div>
                     </div>
                 </div>
@@ -134,17 +245,499 @@
     </footer>
 
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        let cartItems = [];
+
+        document.addEventListener('DOMContentLoaded', async function () {
             updateNavAuth();
+            updateNavbarAccountLink();
+            
+            // Check if user is logged in
+            if (!api.isLoggedIn()) {
+                displayLoginRequired();
+                return;
+            }
+
+            // Load cart items
+            await loadCartItems();
+            
             if (typeof updateCartCount === 'function') updateCartCount();
-            if (typeof updateFavoritesCount === 'function') updateFavoritesCount();
         });
+
+        function getInitials(name) {
+            return name.split(' ').map(word => word[0]).join('').toUpperCase().substring(0, 2);
+        }
+
+        function updateNavbarAccountLink() {
+            const accountIcon = document.querySelector('.nav-icons .icon-link:last-child');
+            if (accountIcon && api && api.isLoggedIn && api.isLoggedIn()) {
+                accountIcon.href = 'account-dashboard.html';
+                const user = api.getCurrentUser();
+                if (user) {
+                    // Replace the icon with user initials
+                    const userInitials = getInitials(user.username);
+                    accountIcon.innerHTML = userInitials;
+                    accountIcon.className = 'navbar-user-avatar';
+                    accountIcon.title = `Logged in as ${user.username}`;
+                }
+            } else if (accountIcon) {
+                // Ensure link goes to login page when not logged in
+                accountIcon.href = 'account.html';
+                accountIcon.innerHTML = '<i class="fa-solid fa-user" style="color: #ffffff;"></i>';
+                accountIcon.className = 'icon-link';
+                accountIcon.title = 'Login or Sign Up';
+            }
+        }
+
+        function displayLoginRequired() {
+            const cartContainer = document.getElementById('cartItems');
+            cartContainer.innerHTML = `
+                <div class="text-center py-5">
+                    <i class="fas fa-user-lock fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">Login Required</h4>
+                    <p class="text-muted mb-4">Please log in to view your shopping cart.</p>
+                    <a href="account.html" class="btn btn-primary" style="background-color: #16423C; border-color: #16423C;">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                    </a>
+                </div>
+            `;
+            
+            // Hide checkout button
+            document.getElementById('checkout-btn-cart').disabled = true;
+            document.getElementById('checkout-btn-cart').textContent = 'Login Required';
+        }
+
+        async function loadCartItems() {
+            const cartContainer = document.getElementById('cartItems');
+            
+            try {
+                // Show loading state
+                cartContainer.innerHTML = `
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Loading your cart...</p>
+                    </div>
+                `;
+
+                cartItems = await api.getCart();
+                displayCartItems();
+                updateCartSummary();
+
+            } catch (error) {
+                console.error('Failed to load cart items:', error);
+                cartContainer.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
+                        <h4 class="text-danger">Failed to Load Cart</h4>
+                        <p class="text-muted mb-4">There was an error loading your cart items.</p>
+                        <button class="btn btn-primary" onclick="loadCartItems()" style="background-color: #16423C; border-color: #16423C;">
+                            <i class="fas fa-redo me-2"></i>Try Again
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        function displayCartItems() {
+            const cartContainer = document.getElementById('cartItems');
+            const selectionControls = document.getElementById('selectionControls');
+            
+            if (!cartItems || cartItems.length === 0) {
+                cartContainer.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">Your Cart is Empty</h4>
+                        <p class="text-muted mb-4">Add some books to your cart to get started!</p>
+                        <a href="index.html" class="btn btn-primary" style="background-color: #16423C; border-color: #16423C;">
+                            <i class="fas fa-shopping-bag me-2"></i>Continue Shopping
+                        </a>
+                    </div>
+                `;
+                selectionControls.style.display = 'none';
+                return;
+            }
+
+            // Show selection controls when there are items
+            selectionControls.style.display = 'flex';
+
+            const cartHTML = cartItems.map((item, index) => `
+                <div class="cart-item card mb-3" data-book-id="${item.book_id}">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-1">
+                                <div class="form-check">
+                                    <input class="form-check-input cart-item-checkbox" 
+                                           type="checkbox" 
+                                           id="item-${item.book_id}" 
+                                           value="${item.book_id}"
+                                           ${item.selected_for_checkout ? 'checked' : ''}
+                                           onchange="handleItemSelection(${item.book_id}, this.checked)">
+                                    <label class="form-check-label" for="item-${item.book_id}"></label>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <img src="${item.cover || 'media/placeholder.jpg'}" 
+                                     alt="${item.title}" 
+                                     class="img-fluid rounded"
+                                     style="max-height: 100px; object-fit: cover;"
+                                     onerror="this.src='media/placeholder.jpg'">
+                            </div>
+                            <div class="col-md-3">
+                                <h5 class="mb-1">${item.title}</h5>
+                                <p class="text-muted mb-0">by ${item.author}</p>
+                            </div>
+                            <div class="col-md-2">
+                                <p class="mb-0"><strong>₱${parseFloat(item.price).toFixed(2)}</strong></p>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="quantity-controls d-flex align-items-center justify-content-center">
+                                    <button class="btn btn-outline-secondary btn-sm" 
+                                            onclick="updateQuantity(${index}, -1)"
+                                            ${item.quantity <= 1 ? 'disabled' : ''}>
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <span class="mx-3 fw-bold">${item.quantity}</span>
+                                    <button class="btn btn-outline-secondary btn-sm" 
+                                            onclick="updateQuantity(${index}, 1)"
+                                            ${item.quantity >= 10 ? 'disabled' : ''}>
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <button class="btn btn-outline-danger btn-sm" 
+                                        onclick="removeFromCart(${item.book_id})"
+                                        title="Remove from cart">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            cartContainer.innerHTML = cartHTML;
+            
+            // Update selection after rendering
+            updateSelection();
+        }
+
+        async function updateQuantity(index, change) {
+            const item = cartItems[index];
+            const newQuantity = item.quantity + change;
+            
+            if (newQuantity < 1 || newQuantity > 10) {
+                return;
+            }
+
+            try {
+                await api.updateCartItem(item.book_id, newQuantity);
+                
+                // Update local data
+                cartItems[index].quantity = newQuantity;
+                
+                // Refresh display
+                displayCartItems();
+                updateCartSummary();
+                
+                // Update cart count in navbar using universal system
+                if (window.navbarCounts) {
+                    await window.navbarCounts.refreshCart();
+                }
+
+            } catch (error) {
+                console.error('Failed to update quantity:', error);
+                if (typeof dbBookDisplay !== 'undefined' && dbBookDisplay.showMessage) {
+                    dbBookDisplay.showMessage('Failed to update quantity', 'error');
+                } else {
+                    alert('Failed to update quantity');
+                }
+            }
+        }
+
+        async function removeFromCart(bookId) {
+            if (!confirm('Are you sure you want to remove this item from your cart?')) {
+                return;
+            }
+
+            try {
+                await api.removeFromCart(bookId);
+                
+                // Remove from local data
+                cartItems = cartItems.filter(item => item.book_id !== bookId);
+                
+                // Refresh display
+                displayCartItems();
+                updateCartSummary();
+                
+                // Update cart count in navbar using universal system
+                if (window.navbarCounts) {
+                    await window.navbarCounts.refreshCart();
+                }
+
+                if (typeof dbBookDisplay !== 'undefined' && dbBookDisplay.showMessage) {
+                    dbBookDisplay.showMessage('Item removed from cart', 'success');
+                }
+
+            } catch (error) {
+                console.error('Failed to remove item:', error);
+                if (typeof dbBookDisplay !== 'undefined' && dbBookDisplay.showMessage) {
+                    dbBookDisplay.showMessage('Failed to remove item', 'error');
+                } else {
+                    alert('Failed to remove item');
+                }
+            }
+        }
+
+        function updateCartSummary() {
+            // Use the selection-based summary instead
+            updateSelectedItemsSummary();
+        }
+
+        function proceedToCheckout() {
+            if (cartItems.length === 0) {
+                if (typeof dbBookDisplay !== 'undefined' && dbBookDisplay.showMessage) {
+                    dbBookDisplay.showMessage('Your cart is empty', 'warning');
+                } else {
+                    alert('Your cart is empty');
+                }
+                return;
+            }
+
+            // Calculate order summary
+            const subtotal = cartItems.reduce((total, item) => total + (item.quantity * parseFloat(item.price)), 0);
+            const shipping = 50;
+            const total = subtotal + shipping;
+
+            // Prepare order summary for checkout page
+            const orderSummary = {
+                items: cartItems.map(item => ({
+                    book_id: item.book_id,
+                    name: item.title,
+                    author: item.author,
+                    quantity: item.quantity,
+                    price: parseFloat(item.price),
+                    image: item.cover || 'media/placeholder.jpg'
+                })),
+                subtotal: subtotal,
+                shipping: shipping,
+                total: total
+            };
+
+            // Redirect to checkout (order summary will be loaded from database)
+            window.location.href = 'checkout.html';
+        }
+
+        // Selection-related functions
+        async function handleItemSelection(bookId, isSelected) {
+            try {
+                // Update selection in database
+                const response = await api.updateCartSelection(bookId, isSelected);
+                console.log('Selection updated:', response);
+                
+                // Update local state and UI
+                const item = cartItems.find(item => item.book_id === bookId);
+                if (item) {
+                    item.selected_for_checkout = isSelected ? 1 : 0;
+                }
+                
+                updateSelection();
+                updateSelectedItemsSummary();
+                
+            } catch (error) {
+                console.error('Error updating selection:', error);
+                // Revert checkbox if API call failed
+                const checkbox = document.getElementById(`item-${bookId}`);
+                if (checkbox) checkbox.checked = !isSelected;
+            }
+        }
+
+        function updateSelection() {
+            const checkboxes = document.querySelectorAll('.cart-item-checkbox');
+            const checkedBoxes = document.querySelectorAll('.cart-item-checkbox:checked');
+            const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+            
+            // Update select all checkbox state
+            if (checkedBoxes.length === 0) {
+                selectAllCheckbox.indeterminate = false;
+                selectAllCheckbox.checked = false;
+            } else if (checkedBoxes.length === checkboxes.length) {
+                selectAllCheckbox.indeterminate = false;
+                selectAllCheckbox.checked = true;
+            } else {
+                selectAllCheckbox.indeterminate = true;
+                selectAllCheckbox.checked = false;
+            }
+            
+            // Update visual feedback for items
+            checkboxes.forEach(checkbox => {
+                const cartItem = checkbox.closest('.cart-item');
+                if (checkbox.checked) {
+                    cartItem.style.opacity = '1';
+                    cartItem.style.border = '2px solid #16423C';
+                } else {
+                    cartItem.style.opacity = '0.6';
+                    cartItem.style.border = '1px solid #dee2e6';
+                }
+            });
+            
+            // Update cart summary for selected items only
+            updateSelectedItemsSummary();
+        }
+
+        function toggleSelectAll() {
+            const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+            const itemCheckboxes = document.querySelectorAll('.cart-item-checkbox');
+            
+            itemCheckboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+            
+            updateSelection();
+        }
+
+        async function selectAll() {
+            try {
+                // Update all items in database
+                await api.selectAllForCheckout();
+                
+                // Update local state
+                cartItems.forEach(item => {
+                    item.selected_for_checkout = 1;
+                });
+                
+                // Update UI
+                const itemCheckboxes = document.querySelectorAll('.cart-item-checkbox');
+                const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+                
+                itemCheckboxes.forEach(checkbox => {
+                    checkbox.checked = true;
+                });
+                selectAllCheckbox.checked = true;
+                selectAllCheckbox.indeterminate = false;
+                
+                updateSelection();
+                updateSelectedItemsSummary();
+                
+            } catch (error) {
+                console.error('Error selecting all items:', error);
+            }
+        }
+
+        async function selectNone() {
+            try {
+                // Update all items in database
+                await api.deselectAllForCheckout();
+                
+                // Update local state
+                cartItems.forEach(item => {
+                    item.selected_for_checkout = 0;
+                });
+                
+                // Update UI
+                const itemCheckboxes = document.querySelectorAll('.cart-item-checkbox');
+                const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+                
+                itemCheckboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = false;
+                
+                updateSelection();
+                updateSelectedItemsSummary();
+                
+            } catch (error) {
+                console.error('Error deselecting all items:', error);
+            }
+        }
+
+        function updateSelectedItemsSummary() {
+            const checkedBoxes = document.querySelectorAll('.cart-item-checkbox:checked');
+            const totalCheckboxes = document.querySelectorAll('.cart-item-checkbox');
+            
+            // Get selected items
+            const selectedItems = [];
+            checkedBoxes.forEach(checkbox => {
+                const bookId = parseInt(checkbox.value);
+                const item = cartItems.find(item => item.book_id === bookId);
+                if (item) {
+                    selectedItems.push(item);
+                }
+            });
+            
+            // Calculate totals for selected items
+            const subtotal = selectedItems.reduce((total, item) => total + (item.quantity * parseFloat(item.price)), 0);
+            const shipping = selectedItems.length > 0 ? 50 : 0;
+            const total = subtotal + shipping;
+            
+            // Update display
+            document.getElementById('subtotal').textContent = `₱${subtotal.toFixed(2)}`;
+            document.getElementById('total').textContent = `₱${total.toFixed(2)}`;
+            document.getElementById('selectedItemsCount').textContent = selectedItems.length;
+            document.getElementById('totalItemsCount').textContent = cartItems.length;
+            
+            // Update checkout button
+            const checkoutBtn = document.getElementById('checkout-btn-cart');
+            const checkoutHint = document.getElementById('checkoutHint');
+            
+            if (selectedItems.length === 0) {
+                checkoutBtn.disabled = true;
+                checkoutBtn.innerHTML = '<i class="fas fa-shopping-cart me-2"></i>Checkout Selected Items';
+                checkoutHint.textContent = 'Select at least one item to checkout';
+            } else {
+                checkoutBtn.disabled = false;
+                checkoutBtn.innerHTML = `<i class="fas fa-shopping-cart me-2"></i>Checkout ${selectedItems.length} Item${selectedItems.length > 1 ? 's' : ''}`;
+                checkoutHint.textContent = `₱${total.toFixed(2)} total for selected items`;
+                checkoutBtn.onclick = () => proceedToCheckoutSelected();
+            }
+        }
+
+        async function proceedToCheckoutSelected() {
+            try {
+                // Get selected items from database
+                const selectedItems = await api.getSelectedCartItems();
+                
+                if (selectedItems.length === 0) {
+                    if (typeof dbBookDisplay !== 'undefined' && dbBookDisplay.showMessage) {
+                        dbBookDisplay.showMessage('Please select at least one item to checkout', 'warning');
+                    } else {
+                        alert('Please select at least one item to checkout');
+                    }
+                    return;
+                }
+
+                // Redirect to checkout page - the checkout page will load selected items from database
+                window.location.href = 'checkout.html';
+                
+            } catch (error) {
+                console.error('Error proceeding to checkout:', error);
+                alert('Failed to proceed to checkout. Please try again.');
+            }
+        }
+
+        // Make updateCheckoutButton available globally for the onclick handler
+        window.updateCheckoutButton = proceedToCheckout;
+
+        function updateNavAuth() {
+            // Add any additional nav auth logic here if needed
+        }
+
+        // Handle search
+        function handleSearch(event) {
+            event.preventDefault();
+            const query = document.getElementById('searchInput').value.trim();
+            if (query) {
+                window.location.href = `search-results.html?q=${encodeURIComponent(query)}`;
+            }
+        }
     </script>
-    <script src="list.js"></script>
-    <script src="backend.js"></script>
-    <script src="populate.js"></script>
+    <script src="js/api-client.js"></script>
+    <script src="js/navbar-counts.js"></script>
+    <script src="js/database-book-display.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

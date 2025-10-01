@@ -12,6 +12,93 @@
     <script src="https://kit.fontawesome.com/f8c6d79c7d.js" crossorigin="anonymous"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <style>
+        /* Base layout fixes */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        .main-content {
+            min-height: calc(100vh - 160px);
+            padding: 100px 0 40px 0;
+        }
+        
+        /* Navbar improvements */
+        .navbar {
+            z-index: 1030;
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            background: rgba(22, 66, 60, 0.95) !important;
+            box-shadow: 0 2px 20px rgba(22, 66, 60, 0.3);
+        }
+        
+        .navbar.fixed-top {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            right: 0;
+        }
+        
+        /* Navbar text styling */
+        .navbar .nav-link {
+            color: #ffffff !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar .nav-link:hover {
+            color: #74b9ff !important;
+            transform: translateY(-1px);
+        }
+        
+        .navbar .dropdown-toggle {
+            color: #ffffff !important;
+        }
+        
+        .navbar .icon-link {
+            color: #ffffff !important;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .navbar .icon-link:hover {
+            color: #74b9ff !important;
+            transform: scale(1.1);
+        }
+        
+        .navbar .icon-link i {
+            color: #ffffff !important;
+        }
+        
+        /* Audio control positioning */
+        .audio-control {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            z-index: 1040;
+            background: linear-gradient(135deg, #16423C 0%, #1a4f47 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(22, 66, 60, 0.3);
+        }
+        
+        .audio-control:hover {
+            background: linear-gradient(135deg, #1a4f47 0%, #2a5f57 100%);
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(22, 66, 60, 0.4);
+        }
+        
         #product-show {
             margin-top: 100px;
             padding: 20px;
@@ -115,6 +202,153 @@
                 margin-bottom: 0.5rem;
             }
         }
+        
+        /* Reviews Section Styles */
+        #reviews-section {
+            background-color: #f8f9fa;
+        }
+        
+        .review-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .review-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .reviewer-name {
+            font-weight: bold;
+            color: #16423C;
+        }
+        
+        .review-date {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .review-stars {
+            color: #ffc107;
+            margin-bottom: 10px;
+        }
+        
+        .review-text {
+            color: #495057;
+            line-height: 1.6;
+        }
+        
+        .review-form-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .login-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+        }
+        
+        .login-overlay h4 {
+            color: #16423C;
+            margin-bottom: 15px;
+        }
+        
+        .login-overlay p {
+            color: #6c757d;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .login-overlay .btn {
+            background: linear-gradient(135deg, #16423C 0%, #1a4f47 100%);
+            border: none;
+            color: white;
+            padding: 10px 30px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .login-overlay .btn:hover {
+            background: linear-gradient(135deg, #1a4f47 0%, #2a5f57 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(22, 66, 60, 0.3);
+        }
+        
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            #reviews-section {
+                padding: 30px 0;
+            }
+            
+            .review-card {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            
+            .review-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            
+            .reviewer-name {
+                font-size: 1rem;
+            }
+            
+            .review-date {
+                font-size: 0.8rem;
+            }
+            
+            #review-form .row {
+                margin: 0;
+            }
+            
+            #review-form .col-md-6 {
+                padding: 0;
+                margin-bottom: 15px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            #reviews-section .container {
+                padding: 0 15px;
+            }
+            
+            .review-card {
+                padding: 12px;
+                border-radius: 6px;
+            }
+            
+            .review-form-container .card-body {
+                padding: 15px;
+            }
+        }
     </style>
 </head>
 
@@ -147,46 +381,40 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto">
                     <li class="nav-item">
-                        <a class="nav-link fw-bold" aria-current="page" href="index.html"
-                            style="color: #ffffff;">Home</a>
+                        <a class="nav-link" href="index.html">Home</a>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="shopDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false" style="color: #ffffff;">Shop</a>
+                            data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
                         <ul class="dropdown-menu" aria-labelledby="shopDropdown">
                             <li><a class="dropdown-item" href="fiction.html">Fiction</a></li>
                             <li><a class="dropdown-item" href="non-fiction.html">Non-Fiction</a></li>
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="about-us.html" style="color: #ffffff;">About Us</a>
+                        <a class="nav-link" href="about-us.html">About Us</a>
                     </li>
                 </ul>
 
                 <!-- Search Bar -->
-                <form class="d-flex mx-3">
+                <form class="d-flex mx-3" onsubmit="handleSearch(event)">
                     <div class="search-wrapper w-100">
-                        <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search">
+                        <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search" id="searchInput">
                         <button class="btn mx-0" title="search-btn" type="submit"><i class="bi bi-search"></i></button>
                     </div>
                 </form>
 
-                <div id="search-popup" class="search-popup">
-                    <div class="search-results">
-                        <div id="results-content">
-                            <!-- Results will be populated here -->
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Icons -->
                 <div class="d-flex align-items-center nav-icons">
-                    <a href="favorites.html" class="icon-link me-3"><i class="fa-solid fa-heart"
-                            style="color: #ffffff;"></i></a>
-                    <a href="cart.html" class="icon-link me-3"><i class="fa-solid fa-cart-shopping"
-                            style="color: #ffffff;"></i></a>
-                    <a href="account.html" class="icon-link"><i class="fa-solid fa-user"
-                            style="color: #ffffff;"></i></a>
+                    <a href="favorites.html" class="icon-link" title="Favorites">
+                        <i class="fa-solid fa-heart"></i>
+                        <span id="favorites-count" class="cart-count">0</span>
+                    </a>
+                    <a href="cart.html" class="icon-link" title="Shopping Cart">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span id="cart-count" class="cart-count">0</span>
+                    </a>
+                    <a href="account.html" class="icon-link" title="Account"><i class="fa-solid fa-user"></i></a>
                 </div>
             </div>
         </div>
@@ -196,16 +424,67 @@
         <div class="content">
             <div class="body">
                 <div class="row">
-                    <div class="col-md-5">
-                        <img src="" alt="" class="image img-fluid">
+                    <div class="col-md-5 d-flex justify-content-center">
+                        <div id="book-3d-container">
+                            <!-- 2D Book model will be inserted here -->
+                        </div>
                     </div>
                     <div class="col-md-7">
                         <h3 class="title"></h3>
                         <p class="author"></p>
                         <p class="description"></p>
-                        <p class="category"></p>
-                        <p class="genre"></p>
-                        <p class="price"></p>
+                        
+                        <!-- Enhanced Book Details -->
+                        <div class="book-details mt-4">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="detail-item"><strong>Category:</strong> <span class="category"></span></p>
+                                    <p class="detail-item"><strong>Genre:</strong> <span class="genre"></span></p>
+                                    <p class="detail-item"><strong>Publisher:</strong> <span class="publisher"></span></p>
+                                    <p class="detail-item"><strong>Publication Date:</strong> <span class="publication-date"></span></p>
+                                    <p class="detail-item"><strong>Pages:</strong> <span class="pages"></span></p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="detail-item"><strong>Language:</strong> <span class="language"></span></p>
+                                    <p class="detail-item"><strong>Format:</strong> <span class="format"></span></p>
+                                    <p class="detail-item"><strong>Weight:</strong> <span class="weight"></span></p>
+                                    <p class="detail-item"><strong>Dimensions:</strong> <span class="dimensions"></span></p>
+                                    <p class="detail-item"><strong>ISBN:</strong> <span class="isbn"></span></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rating Display -->
+                        <div class="rating-section mt-3 mb-3">
+                            <strong>Rating: </strong>
+                            <div class="star-rating d-inline-block">
+                                <span class="rating-stars"></span>
+                                <span class="rating-value ml-2"></span>
+                            </div>
+                        </div>
+
+                        <!-- Stock Status -->
+                        <div class="stock-status mb-3">
+                            <span class="stock-indicator"></span>
+                        </div>
+
+                        <p class="price mb-4"></p>
+                        
+                        <!-- Quantity Control -->
+                        <div class="quantity-section mb-4">
+                            <label for="quantity" class="form-label"><strong>Quantity:</strong></label>
+                            <div class="quantity-controls d-flex align-items-center">
+                                <button type="button" class="btn btn-outline-secondary quantity-btn" id="decrease-qty" title="Decrease Quantity" disabled>
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <input type="number" id="quantity" class="form-control quantity-input" value="1" min="1" max="10">
+                                <button type="button" class="btn btn-outline-secondary quantity-btn" id="increase-qty" title="Increase Quantity">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">Maximum 10 items per order</small>
+                        </div>
+
                         <div class="popup-actions">
                             <button class="btn btn-primary add-to-cart-btn"
                                 style="background-color: #16423C; border-color: #0e2c28;">
@@ -221,6 +500,66 @@
         </div>
     </section>
 
+    <!-- Reviews Section -->
+    <section id="reviews-section" class="py-5 bg-light">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h3 class="text-center mb-4">Customer Reviews</h3>
+                </div>
+            </div>
+            
+            <!-- Reviews Container -->
+            <div class="row" id="reviews-container">
+                <!-- Reviews will be loaded here -->
+            </div>
+            
+            <!-- Add Review Form -->
+            <div class="row mt-5">
+                <div class="col-12">
+                    <div class="card review-form-container">
+                        <div class="card-header">
+                            <h5 class="mb-0">Write a Review</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="review-form">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="reviewer-name" class="form-label">Your Name</label>
+                                        <input type="text" class="form-control" id="reviewer-name" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="review-rating" class="form-label">Rating</label>
+                                        <select class="form-select" id="review-rating" required>
+                                            <option value="">Select Rating</option>
+                                            <option value="5">5 Stars - Excellent</option>
+                                            <option value="4">4 Stars - Very Good</option>
+                                            <option value="3">3 Stars - Good</option>
+                                            <option value="2">2 Stars - Fair</option>
+                                            <option value="1">1 Star - Poor</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="review-text" class="form-label">Your Review</label>
+                                    <textarea class="form-control" id="review-text" rows="4" 
+                                              placeholder="Share your thoughts about this book..." required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Submit Review</button>
+                            </form>
+                            
+                            <!-- Login Overlay (hidden by default) -->
+                            <div class="login-overlay" id="login-overlay" style="display: none;">
+                                <h4>Login Required</h4>
+                                <p>You need to be logged in to write a review.<br>Join our community to share your thoughts!</p>
+                                <a href="account.html" class="btn">Login to Review</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- Footer -->
     <footer>
@@ -231,15 +570,523 @@
     </footer>
     
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            updateNavAuth();
-            if (typeof updateCartCount === 'function') updateCartCount();
-            if (typeof updateFavoritesCount === 'function') updateFavoritesCount();
+        let currentBook = null;
+        let maxStock = 10;
+
+        function getInitials(name) {
+            return name.split(' ').map(word => word[0]).join('').toUpperCase().substring(0, 2);
+        }
+
+        function updateNavbarAccountLink() {
+            const accountIcon = document.querySelector('.nav-icons .icon-link:last-child');
+            if (accountIcon && api && api.isLoggedIn && api.isLoggedIn()) {
+                accountIcon.href = 'account-dashboard.html';
+                const user = api.getCurrentUser();
+                if (user) {
+                    // Replace the icon with user initials
+                    const userInitials = getInitials(user.username);
+                    accountIcon.innerHTML = userInitials;
+                    accountIcon.className = 'navbar-user-avatar';
+                    accountIcon.title = `Logged in as ${user.username}`;
+                }
+            } else if (accountIcon) {
+                // Ensure link goes to login page when not logged in
+                accountIcon.href = 'account.html';
+                accountIcon.innerHTML = '<i class="fa-solid fa-user" style="color: #ffffff;"></i>';
+                accountIcon.className = 'icon-link';
+                accountIcon.title = 'Login or Sign Up';
+            }
+        }
+
+        async function loadBookDetails(bookId) {
+            try {
+                const book = await dbBookDisplay.getBookById(bookId);
+                
+                if (!book) {
+                    document.querySelector('.content').innerHTML = 
+                        '<div class="alert alert-danger">Book not found</div>';
+                    return;
+                }
+
+                currentBook = book;
+                maxStock = book.stock_quantity || 10;
+
+                // Create 2D book model
+                const bookContainer = document.querySelector('#book-3d-container');
+                if (typeof dbBookDisplay !== 'undefined' && dbBookDisplay) {
+                    dbBookDisplay.displaySingleBook2D(book, bookContainer, 'xlarge');
+                } else {
+                    // Fallback for regular image if dbBookDisplay is not available
+                    bookContainer.innerHTML = `<img src="${book.cover || 'media/placeholder.jpg'}" alt="${book.title}" class="img-fluid" style="max-width: 300px;">`;
+                }
+                
+                // Populate all book details
+                document.querySelector('.title').textContent = book.title;
+                document.querySelector('.author').textContent = `by ${book.author}`;
+                document.querySelector('.description').textContent = book.description || 'No description available.';
+                
+                // Basic details
+                document.querySelector('.category').textContent = book.category || 'Unknown';
+                document.querySelector('.genre').textContent = book.genre || 'Unknown';
+                document.querySelector('.publisher').textContent = book.publisher || 'Unknown Publisher';
+                document.querySelector('.publication-date').textContent = formatDate(book.publication_date) || 'Unknown';
+                document.querySelector('.pages').textContent = book.pages ? `${book.pages} pages` : 'Unknown';
+                
+                // Additional details
+                document.querySelector('.language').textContent = book.language || 'English';
+                document.querySelector('.format').textContent = book.format || 'Paperback';
+                document.querySelector('.weight').textContent = book.weight ? `${book.weight} kg` : 'Unknown';
+                document.querySelector('.dimensions').textContent = book.dimensions || 'Unknown';
+                document.querySelector('.isbn').textContent = book.isbn || 'Unknown';
+
+                // Rating
+                displayRating(book.rating || 0);
+
+                // Stock status
+                displayStockStatus(book.stock_quantity || 0);
+
+                // Price
+                document.querySelector('.price').textContent = `₱${book.price ? book.price.toFixed(2) : '0.00'}`;
+
+                // Update quantity control max value
+                const quantityInput = document.getElementById('quantity');
+                quantityInput.max = Math.min(maxStock, 10);
+                
+                // Setup action buttons with consistent notifications
+                const addToCartBtn = document.querySelector('.add-to-cart-btn');
+                const favoriteBtn = document.querySelector('.favorite-btn');
+
+                addToCartBtn.addEventListener('click', async () => {
+                    const quantity = parseInt(document.getElementById('quantity').value);
+                    await addToCartWithQuantity(book.id, quantity);
+                });
+
+                favoriteBtn.addEventListener('click', async () => {
+                    await handleFavoriteToggle(book.id, favoriteBtn);
+                });
+
+                // Check if book is in favorites and update button state
+                await updateFavoriteButtonState(book.id, favoriteBtn);
+
+                // Disable add to cart if out of stock
+                if (book.stock_quantity <= 0) {
+                    addToCartBtn.disabled = true;
+                    addToCartBtn.innerHTML = '<i class="fa-solid fa-cart-shopping me-2"></i>Out of Stock';
+                    quantityInput.disabled = true;
+                    document.querySelectorAll('.quantity-btn').forEach(btn => btn.disabled = true);
+                }
+
+            } catch (error) {
+                console.error('Failed to load book details:', error);
+                document.querySelector('.content').innerHTML = 
+                    '<div class="alert alert-danger">Failed to load book details. Please try again later.</div>';
+            }
+        }
+
+        async function handleFavoriteToggle(bookId, button) {
+            if (!api.isLoggedIn()) {
+                // Redirect to login page immediately
+                window.location.href = 'account.html';
+                return;
+            }
+
+            try {
+                // Disable button during request
+                const originalText = button.innerHTML;
+                button.disabled = true;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+
+                // Check current favorite status
+                const favorites = await api.getFavorites();
+                const isFavorite = favorites.some(fav => (fav.book_id || fav.id) == bookId);
+
+                if (isFavorite) {
+                    // Remove from favorites
+                    await api.removeFromFavorites(bookId);
+                    dbBookDisplay.showMessage('Removed from favorites', 'success');
+                } else {
+                    // Add to favorites
+                    console.log('Adding book to favorites:', bookId);
+                    await api.addToFavorites(parseInt(bookId));
+                    dbBookDisplay.showMessage('Added to favorites!', 'success');
+                }
+
+                // Update button state immediately
+                await updateFavoriteButtonState(bookId, button);
+                
+                // Update favorites count in navbar
+                await updateFavoritesCount();
+
+            } catch (error) {
+                console.error('Failed to update favorites:', error);
+                dbBookDisplay.showMessage('Failed to update favorites. Please try again.', 'error');
+                
+                // Re-enable button on error
+                button.disabled = false;
+                button.innerHTML = originalText;
+            }
+        }
+
+        async function updateFavoriteButtonState(bookId, favoriteBtn) {
+            if (!api.isLoggedIn()) {
+                favoriteBtn.innerHTML = '<i class="fas fa-heart me-2"></i>Add to Favorites';
+                favoriteBtn.classList.add('btn-outline-danger');
+                favoriteBtn.classList.remove('btn-danger', 'active');
+                favoriteBtn.disabled = false;
+                return;
+            }
+
+            try {
+                // Get current favorites from database
+                const favorites = await api.getFavorites();
+                const isFavorite = favorites.some(fav => (fav.book_id || fav.id) == bookId);
+
+                if (isFavorite) {
+                    favoriteBtn.classList.add('active');
+                    favoriteBtn.innerHTML = '<i class="fas fa-heart me-2"></i>Remove from Favorites';
+                    favoriteBtn.classList.remove('btn-outline-danger');
+                    favoriteBtn.classList.add('btn-danger');
+                } else {
+                    favoriteBtn.classList.remove('active');
+                    favoriteBtn.innerHTML = '<i class="fas fa-heart me-2"></i>Add to Favorites';
+                    favoriteBtn.classList.add('btn-outline-danger');
+                    favoriteBtn.classList.remove('btn-danger');
+                }
+                favoriteBtn.disabled = false;
+            } catch (error) {
+                console.error('Failed to check favorite status:', error);
+                favoriteBtn.disabled = false;
+            }
+        }
+
+        function setupQuantityControls() {
+            const quantityInput = document.getElementById('quantity');
+            const decreaseBtn = document.getElementById('decrease-qty');
+            const increaseBtn = document.getElementById('increase-qty');
+
+            // Decrease quantity
+            decreaseBtn.addEventListener('click', () => {
+                const currentValue = parseInt(quantityInput.value);
+                if (currentValue > 1) {
+                    quantityInput.value = currentValue - 1;
+                    updateQuantityButtons();
+                }
+            });
+
+            // Increase quantity
+            increaseBtn.addEventListener('click', () => {
+                const currentValue = parseInt(quantityInput.value);
+                const maxAllowed = Math.min(maxStock, 10);
+                if (currentValue < maxAllowed) {
+                    quantityInput.value = currentValue + 1;
+                    updateQuantityButtons();
+                }
+            });
+
+            // Handle direct input
+            quantityInput.addEventListener('input', () => {
+                let value = parseInt(quantityInput.value);
+                const maxAllowed = Math.min(maxStock, 10);
+                
+                if (isNaN(value) || value < 1) {
+                    quantityInput.value = 1;
+                } else if (value > maxAllowed) {
+                    quantityInput.value = maxAllowed;
+                    dbBookDisplay.showMessage(`Maximum ${maxAllowed} items allowed`, 'warning');
+                }
+                
+                updateQuantityButtons();
+            });
+
+            // Initial state
+            updateQuantityButtons();
+        }
+
+        function updateQuantityButtons() {
+            const quantityInput = document.getElementById('quantity');
+            const decreaseBtn = document.getElementById('decrease-qty');
+            const increaseBtn = document.getElementById('increase-qty');
+            const currentValue = parseInt(quantityInput.value);
+            const maxAllowed = Math.min(maxStock, 10);
+
+            decreaseBtn.disabled = currentValue <= 1;
+            increaseBtn.disabled = currentValue >= maxAllowed || maxStock <= 0;
+        }
+
+        async function addToCartWithQuantity(bookId, quantity) {
+            if (!api.isLoggedIn()) {
+                // Redirect to login page immediately
+                window.location.href = 'account.html';
+                return;
+            }
+
+            if (!currentBook || currentBook.stock_quantity <= 0) {
+                dbBookDisplay.showMessage('This item is currently out of stock', 'error');
+                return;
+            }
+
+            if (quantity > currentBook.stock_quantity) {
+                dbBookDisplay.showMessage(`Only ${currentBook.stock_quantity} items available in stock`, 'warning');
+                return;
+            }
+
+            try {
+                // Disable button during request
+                const addToCartBtn = document.querySelector('.add-to-cart-btn');
+                const originalText = addToCartBtn.innerHTML;
+                addToCartBtn.disabled = true;
+                addToCartBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Adding...';
+
+                await api.addToCart(bookId, quantity);
+                
+                dbBookDisplay.showMessage(`Added ${quantity} ${quantity === 1 ? 'copy' : 'copies'} to cart!`, 'success');
+                await dbBookDisplay.updateCartCount();
+
+                // Re-enable button
+                addToCartBtn.disabled = false;
+                addToCartBtn.innerHTML = originalText;
+
+            } catch (error) {
+                console.error('Failed to add to cart:', error);
+                dbBookDisplay.showMessage('Failed to add to cart. Please try again.', 'error');
+                
+                // Re-enable button on error
+                const addToCartBtn = document.querySelector('.add-to-cart-btn');
+                addToCartBtn.disabled = false;
+                addToCartBtn.innerHTML = '<i class="fa-solid fa-cart-shopping me-2"></i>Add to Cart';
+            }
+        }
+
+        function displayRating(rating) {
+            const starsContainer = document.querySelector('.rating-stars');
+            const ratingValue = document.querySelector('.rating-value');
+            
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+            let starsHTML = '';
+            
+            // Full stars
+            for (let i = 0; i < fullStars; i++) {
+                starsHTML += '<i class="fas fa-star text-warning"></i>';
+            }
+            
+            // Half star
+            if (hasHalfStar) {
+                starsHTML += '<i class="fas fa-star-half-alt text-warning"></i>';
+            }
+            
+            // Empty stars
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            for (let i = 0; i < emptyStars; i++) {
+                starsHTML += '<i class="far fa-star text-warning"></i>';
+            }
+            
+            starsContainer.innerHTML = starsHTML;
+            ratingValue.textContent = `(${rating.toFixed(1)}/5.0)`;
+        }
+
+        function displayStockStatus(stockQuantity) {
+            const stockIndicator = document.querySelector('.stock-indicator');
+            
+            if (stockQuantity > 10) {
+                stockIndicator.innerHTML = '<span class="badge bg-success">In Stock</span>';
+            } else if (stockQuantity > 0) {
+                stockIndicator.innerHTML = `<span class="badge bg-warning text-dark">Only ${stockQuantity} left</span>`;
+            } else {
+                stockIndicator.innerHTML = '<span class="badge bg-danger">Out of Stock</span>';
+            }
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return null;
+            
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            } catch (error) {
+                return dateString; // Return original if parsing fails
+            }
+        }
+
+        // Reviews functionality
+        async function loadReviews(bookId) {
+            try {
+                // Fetch reviews from the API
+                const response = await fetch(`/api/reviews/${bookId}`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch reviews');
+                }
+                
+                const reviews = await response.json();
+                displayReviews(reviews);
+            } catch (error) {
+                console.error('Error loading reviews:', error);
+                document.getElementById('reviews-container').innerHTML = 
+                    '<div class="col-12"><p class="text-center text-muted">Unable to load reviews at this time.</p></div>';
+            }
+        }
+
+        function displayReviews(reviews) {
+            const container = document.getElementById('reviews-container');
+            
+            if (!reviews || reviews.length === 0) {
+                container.innerHTML = '<div class="col-12"><p class="text-center text-muted">No reviews yet. Be the first to review this book!</p></div>';
+                return;
+            }
+
+            const reviewsHTML = reviews.map(review => `
+                <div class="col-lg-6 col-md-12 mb-3">
+                    <div class="review-card">
+                        <div class="review-header">
+                            <span class="reviewer-name">${review.reviewer_name || review.reviewerName}</span>
+                            <span class="review-date">${formatDate(review.created_at || review.date)}</span>
+                        </div>
+                        <div class="review-stars">
+                            ${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}
+                        </div>
+                        <div class="review-text">
+                            ${review.review_text || review.reviewText}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = reviewsHTML;
+        }
+
+        async function initializeReviewForm() {
+            const reviewForm = document.getElementById('review-form');
+            const loginOverlay = document.getElementById('login-overlay');
+            
+            // Check if user is logged in
+            if (!api.isLoggedIn()) {
+                // Show login overlay
+                loginOverlay.style.display = 'flex';
+                return;
+            } else {
+                // Hide login overlay
+                loginOverlay.style.display = 'none';
+                
+                // Pre-fill reviewer name with user's name if available from API
+                try {
+                    const userProfile = await api.getUserProfile();
+                    if (userProfile && userProfile.username) {
+                        document.getElementById('reviewer-name').value = userProfile.username;
+                    }
+                } catch (error) {
+                    console.log('Could not load user profile for reviewer name');
+                }
+            }
+            
+            reviewForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                if (!api.isLoggedIn()) {
+                    alert('Please log in to submit a review');
+                    return;
+                }
+                
+                const reviewerName = document.getElementById('reviewer-name').value;
+                const rating = parseInt(document.getElementById('review-rating').value);
+                const reviewText = document.getElementById('review-text').value;
+                const bookId = new URLSearchParams(window.location.search).get('id');
+
+                if (!reviewerName || !rating || !reviewText) {
+                    alert('Please fill in all fields');
+                    return;
+                }
+
+                try {
+                    // Disable submit button during submission
+                    const submitBtn = reviewForm.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.textContent;
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
+                    
+                    // Submit review to API
+                    const response = await fetch('/api/reviews', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${api.token}`
+                        },
+                        body: JSON.stringify({
+                            bookId: parseInt(bookId),
+                            rating: rating,
+                            reviewText: reviewText,
+                            reviewerName: reviewerName
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        alert('Thank you for your review! It has been submitted successfully.');
+                        reviewForm.reset();
+                        // Reload reviews to show the new review
+                        await loadReviews(bookId);
+                    } else {
+                        throw new Error(result.error || 'Failed to submit review');
+                    }
+                } catch (error) {
+                    console.error('Error submitting review:', error);
+                    alert('Failed to submit review: ' + error.message);
+                } finally {
+                    // Re-enable submit button
+                    const submitBtn = reviewForm.querySelector('button[type="submit"]');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                }
+            });
+        }
+
+        // Initialize reviews when book details are loaded
+        document.addEventListener('DOMContentLoaded', async function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const bookId = urlParams.get('id');
+
+            if (bookId) {
+                await loadBookDetails(bookId);
+                await loadReviews(bookId);
+                initializeReviewForm();
+            } else {
+                document.querySelector('.content').innerHTML = 
+                    '<div class="alert alert-danger">No book ID provided</div>';
+            }
+            
+            // Initialize cart count and other UI elements
+            await dbBookDisplay.updateCartCount();
+            await updateFavoritesCount();
+            updateNavbarAccountLink();
+            setupQuantityControls();
+            
+            if (window.navbarCounts) {
+                await window.navbarCounts.init();
+            }
+            
+            // Initialize quantity controls
+            initializeQuantityControls();
         });
+
+        // Handle search
+        function handleSearch(event) {
+            event.preventDefault();
+            const query = document.getElementById('searchInput').value.trim();
+            if (query) {
+                window.location.href = `search-results.html?q=${encodeURIComponent(query)}`;
+            }
+        }
     </script>
-    <script src="list.js"></script>
-    <script src="populate.js"></script>
-    <script src="backend.js"></script>
+
+    <script src="js/api-client.js"></script>
+    <script src="js/navbar-counts.js"></script>
+    <script src="js/database-book-display.js"></script>
+    <!-- Remove conflicting scripts that might override notification system -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>

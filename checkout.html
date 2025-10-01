@@ -12,6 +12,123 @@
     <script src="https://kit.fontawesome.com/f8c6d79c7d.js" crossorigin="anonymous"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 
+    <style>
+        /* Base layout fixes */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        .main-content {
+            min-height: calc(100vh - 160px);
+            padding: 100px 0 40px 0;
+        }
+        
+        /* Navbar improvements */
+        .navbar {
+            z-index: 1030;
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            background: rgba(22, 66, 60, 0.95) !important;
+            box-shadow: 0 2px 20px rgba(22, 66, 60, 0.3);
+        }
+        
+        .navbar.fixed-top {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            right: 0;
+        }
+        
+        /* Navbar text styling */
+        .navbar .nav-link {
+            color: #ffffff !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar .nav-link:hover {
+            color: #74b9ff !important;
+            transform: translateY(-1px);
+        }
+        
+        .navbar .dropdown-toggle {
+            color: #ffffff !important;
+        }
+        
+        .navbar .icon-link {
+            color: #ffffff !important;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .navbar .icon-link:hover {
+            color: #74b9ff !important;
+            transform: scale(1.1);
+        }
+        
+        .navbar .icon-link i {
+            color: #ffffff !important;
+        }
+        
+        /* Audio control positioning */
+        .audio-control {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            z-index: 1040;
+            background: linear-gradient(135deg, #16423C 0%, #1a4f47 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(22, 66, 60, 0.3);
+        }
+        
+        .audio-control:hover {
+            background: linear-gradient(135deg, #1a4f47 0%, #2a5f57 100%);
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(22, 66, 60, 0.4);
+        }
+        
+        /* Checkout specific styles */
+        .checkout-items {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            background-color: #f8f9fa;
+        }
+        
+        .checkout-items::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .checkout-items::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        
+        .checkout-items::-webkit-scrollbar-thumb {
+            background: #16423C;
+            border-radius: 3px;
+        }
+        
+        .checkout-items::-webkit-scrollbar-thumb:hover {
+            background: #1a4f47;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -43,46 +160,40 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto">
                     <li class="nav-item">
-                        <a class="nav-link fw-bold" aria-current="page" href="index.html"
-                            style="color: #ffffff;">Home</a>
+                        <a class="nav-link" href="index.html">Home</a>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="shopDropdown" role="button"
-                            data-bs-toggle="dropdown" aria-expanded="false" style="color: #ffffff;">Shop</a>
+                            data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
                         <ul class="dropdown-menu" aria-labelledby="shopDropdown">
                             <li><a class="dropdown-item" href="fiction.html">Fiction</a></li>
                             <li><a class="dropdown-item" href="non-fiction.html">Non-Fiction</a></li>
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="about-us.html" style="color: #ffffff;">About Us</a>
+                        <a class="nav-link" href="about-us.html">About Us</a>
                     </li>
                 </ul>
 
                 <!-- Search Bar -->
-                <form class="d-flex mx-3">
+                <form class="d-flex mx-3" onsubmit="handleSearch(event)">
                     <div class="search-wrapper w-100">
-                        <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search">
+                        <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search" id="searchInput">
                         <button class="btn mx-0" title="search-btn" type="submit"><i class="bi bi-search"></i></button>
                     </div>
                 </form>
 
-                <div id="search-popup" class="search-popup">
-                    <div class="search-results">
-                        <div id="results-content">
-                            <!-- Results will be populated here -->
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Icons -->
                 <div class="d-flex align-items-center nav-icons">
-                    <a href="favorites.html" class="icon-link me-3"><i class="fa-solid fa-heart"
-                            style="color: #ffffff;"></i></a>
-                    <a href="cart.html" class="icon-link me-3"><i class="fa-solid fa-cart-shopping"
-                            style="color: #ffffff;"></i></a>
-                    <a href="account.html" class="icon-link"><i class="fa-solid fa-user"
-                            style="color: #ffffff;"></i></a>
+                    <a href="favorites.html" class="icon-link" title="Favorites">
+                        <i class="fa-solid fa-heart"></i>
+                        <span id="favorites-count" class="cart-count">0</span>
+                    </a>
+                    <a href="cart.html" class="icon-link" title="Shopping Cart">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span id="cart-count" class="cart-count">0</span>
+                    </a>
+                    <a href="account.html" class="icon-link" title="Account"><i class="fa-solid fa-user"></i></a>
                 </div>
             </div>
         </div>
@@ -99,9 +210,19 @@
                         </div>
                         <div class="card-body text-start">
                             <form>
-                                <div class="mb-2">
-                                    <label for="name" class="form-label">Full Name</label>
-                                    <input type="text" class="form-control" id="name" required>
+                                <div class="row mb-2">
+                                    <div class="col-md-5">
+                                        <label for="firstName" class="form-label">First Name</label>
+                                        <input type="text" class="form-control" id="firstName" required>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label for="middleInitial" class="form-label">M.I.</label>
+                                        <input type="text" class="form-control" id="middleInitial" maxlength="2" placeholder="M.">
+                                    </div>
+                                    <div class="col-md-5">
+                                        <label for="lastName" class="form-label">Last Name</label>
+                                        <input type="text" class="form-control" id="lastName" required>
+                                    </div>
                                 </div>
                                 <div class="mb-2">
                                     <label for="address" class="form-label">Address</label>
@@ -122,6 +243,122 @@
                             </form>
                         </div>
                     </div>
+
+                    <!-- Payment Method Section -->
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h4>Payment Method</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="codPayment" value="cod" checked>
+                                <label class="form-check-label" for="codPayment">
+                                    <i class="fas fa-money-bill-wave me-2"></i>Cash on Delivery
+                                    <small class="text-muted d-block">Pay when your order arrives</small>
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="gcashPayment" value="gcash">
+                                <label class="form-check-label" for="gcashPayment">
+                                    <i class="fas fa-mobile-alt me-2"></i>GCash/Maya App
+                                    <small class="text-muted d-block">Pay using your mobile wallet</small>
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="cardPayment" value="card">
+                                <label class="form-check-label" for="cardPayment">
+                                    <i class="fas fa-credit-card me-2"></i>Credit/Debit Card
+                                    <small class="text-muted d-block">Pay with Visa, Mastercard, or other cards</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Delivery Courier Section -->
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h4>Delivery Courier</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="courier" id="jntCourier" value="jnt" data-fee="50" checked>
+                                <label class="form-check-label" for="jntCourier">
+                                    <strong>J&T Express</strong> <span class="text-success">₱50.00</span>
+                                    <small class="text-muted d-block">2-3 business days delivery</small>
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="courier" id="lbcCourier" value="lbc" data-fee="75">
+                                <label class="form-check-label" for="lbcCourier">
+                                    <strong>LBC Express</strong> <span class="text-success">₱75.00</span>
+                                    <small class="text-muted d-block">1-2 business days delivery</small>
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="courier" id="ninjaCourier" value="ninja" data-fee="60">
+                                <label class="form-check-label" for="ninjaCourier">
+                                    <strong>Ninja Van</strong> <span class="text-success">₱60.00</span>
+                                    <small class="text-muted d-block">2-4 business days delivery</small>
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="courier" id="flashCourier" value="flash" data-fee="45">
+                                <label class="form-check-label" for="flashCourier">
+                                    <strong>Flash Express</strong> <span class="text-success">₱45.00</span>
+                                    <small class="text-muted d-block">3-5 business days delivery</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Discounts & Vouchers Section -->
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h4>Discounts & Vouchers</h4>
+                        </div>
+                        <div class="card-body">
+                            <!-- Voucher Code Input -->
+                            <div class="mb-3">
+                                <label for="voucherCode" class="form-label">Voucher Code <small class="text-muted">(Optional)</small></label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="voucherCode" placeholder="Enter voucher code (optional)">
+                                    <button class="btn btn-outline-primary" type="button" id="applyVoucher">Apply</button>
+                                    <button class="btn btn-outline-danger d-none" type="button" id="removeVoucher">Remove</button>
+                                </div>
+                                <div id="voucherStatus" class="mt-1"></div>
+                            </div>
+
+                            <!-- Senior Citizen/PWD Discount -->
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="seniorPwdDiscount">
+                                <label class="form-check-label" for="seniorPwdDiscount">
+                                    <i class="fas fa-id-card me-2"></i>Senior Citizen/PWD Discount (20% off)
+                                </label>
+                            </div>
+
+                            <!-- ID Upload for Senior/PWD -->
+                            <div id="idUploadSection" class="d-none">
+                                <div class="mb-2">
+                                    <label for="idType" class="form-label">ID Type</label>
+                                    <select class="form-control" id="idType">
+                                        <option value="">Select ID Type</option>
+                                        <option value="senior">Senior Citizen ID</option>
+                                        <option value="pwd">PWD ID</option>
+                                        <option value="osca">OSCA ID</option>
+                                    </select>
+                                </div>
+                                <div class="mb-2">
+                                    <label for="idNumber" class="form-label">ID Number</label>
+                                    <input type="text" class="form-control" id="idNumber" placeholder="Enter ID number">
+                                </div>
+                                <div class="mb-2">
+                                    <label for="idUpload" class="form-label">Upload ID Photo</label>
+                                    <input type="file" class="form-control" id="idUpload" accept="image/*">
+                                    <small class="text-muted">Upload a clear photo of your ID for verification</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-lg-4">
                     <div class="card">
@@ -136,15 +373,29 @@
                                 <span id="subtotal">₱0.00</span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
-                                <span>Shipping:</span>
-                                <span>₱50.00</span>
+                                <span>Shipping (<span id="courierName">J&T Express</span>):</span>
+                                <span id="shippingFee">₱50.00</span>
+                            </div>
+                            <div id="voucherDiscountRow" class="d-flex justify-content-between mb-2 text-success d-none">
+                                <span>Voucher Discount:</span>
+                                <span id="voucherDiscount">-₱0.00</span>
+                            </div>
+                            <div id="seniorPwdDiscountRow" class="d-flex justify-content-between mb-2 text-success d-none">
+                                <span>Senior/PWD Discount (20%):</span>
+                                <span id="seniorPwdDiscountAmount">-₱0.00</span>
                             </div>
                             <hr>
                             <div class="d-flex justify-content-between mb-3">
                                 <strong>Total:</strong>
                                 <strong id="total">₱0.00</strong>
                             </div>
-                            <button type="submit" id="checkout-btn-cart" class="btn btn-success w-100">
+                            <div class="payment-summary mb-3">
+                                <small class="text-muted">
+                                    Payment Method: <span id="selectedPaymentMethod">Cash on Delivery</span>
+                                </small>
+                            </div>
+                            </div>
+                            <button type="button" id="checkout-btn-cart" class="btn btn-success w-100">
                                 <i class="fas fa-shopping-cart me-2"></i>
                                 Proceed to Payment
                             </button>
@@ -167,112 +418,651 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            displayOrderItems();
-
-            // Redirect if cart is empty
-            const orderSummary = JSON.parse(localStorage.getItem('orderSummary'));
-            if (!orderSummary || orderSummary.items.length === 0) {
-                window.location.href = 'cart.html';
-            }
-        });
-        
-        function updateQuantity(index, change) {
-            // Get current cart and order summary
-            const cart = JSON.parse(localStorage.getItem('cart')) || [];
-            let orderSummary = JSON.parse(localStorage.getItem('orderSummary')) || {};
-
-            // Update quantity if it won't go below 1
-            if (cart[index].quantity + change > 0) {
-                cart[index].quantity += change;
-
-                // Update cart in localStorage
-                localStorage.setItem('cart', JSON.stringify(cart));
-
-                // Recalculate order summary
-                const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-                const shipping = cart.length > 0 ? 50 : 0;
-                const total = subtotal + shipping;
-
-                // Update order summary
-                orderSummary = {
-                    subtotal: subtotal,
-                    shipping: shipping,
-                    total: total,
-                    items: cart
-                };
-
-                localStorage.setItem('orderSummary', JSON.stringify(orderSummary));
-
-                // Refresh displays
-                displayOrderItems();
-                updateTotals();
-            }
-        }
-
-        function displayOrderItems() {
-            const orderSummary = JSON.parse(localStorage.getItem('orderSummary'));
-            const checkoutContainer = document.getElementById('checkoutItemsContainer');
-
-            if (!orderSummary || !orderSummary.items.length) {
-                window.location.href = 'cart.html';
+            // Check authentication first
+            if (!api || !api.isLoggedIn || !api.isLoggedIn()) {
+                showNotification('Please log in to proceed with checkout', 'error');
+                setTimeout(() => {
+                    window.location.href = 'account.html';
+                }, 2000);
                 return;
             }
 
-            const itemsHTML = orderSummary.items.map((item) => `
-        <div class="checkout-item d-flex align-items-start mb-3">
-            <div class="item-image me-3">
-                <img src="${item.image}" alt="${item.name}" style="width: 80px; height: 100px; object-fit: cover;">
-            </div>
-            <div class="item-details flex-grow-1">
-                <h5 class="mb-1">${item.name}</h5>
-                <div class="text-muted">Quantity: ${item.quantity}</div>
-                <div class="text-muted">₱${item.price.toFixed(2)} each</div>
-            </div>
-        </div>
-    `).join('');
+            initializeCheckout();
+            updateNavbarAccountLink();
+        });
 
-            checkoutContainer.innerHTML = itemsHTML;
-
-            // Update totals
-            document.getElementById('subtotal').textContent = `₱${orderSummary.subtotal.toFixed(2)}`;
-            document.getElementById('total').textContent = `₱${orderSummary.total.toFixed(2)}`;
+        async function initializeCheckout() {
+            try {
+                // Load user's saved addresses
+                await loadUserAddresses();
+                
+                // Auto-fill user information from profile
+                await populateUserInfo();
+                
+                // Load cart items from database
+                await loadCartItems();
+                
+                // Initialize payment, courier, and discount features
+                initializePaymentMethods();
+                initializeCourierSelection();
+                initializeDiscounts();
+                
+                // Display order summary
+                displayOrderSummary();
+                
+            } catch (error) {
+                console.error('Failed to initialize checkout:', error);
+                showNotification('Failed to load checkout data', 'error');
+            }
         }
 
-        function handlePaymentRedirect() {
+        // Debug helper function
+        function debugCheckout() {
+            console.log('🔍 Current cartItems:', cartItems);
+            console.log('🔍 Items container content:', document.getElementById('checkoutItemsContainer').innerHTML);
+        }
+        
+        // Add debug button in development
+        if (window.location.hostname === 'localhost') {
+            window.debugCheckout = debugCheckout;
+            console.log('🛠️ Debug function added: call debugCheckout() in console');
+        }
+
+        let cartItems = [];
+        let userAddresses = [];
+        let selectedAddress = null;
+        let currentShippingFee = 50;
+        let voucherDiscount = 0;
+        let seniorPwdDiscount = 0;
+        let appliedVoucher = null;
+
+        // Show notification function
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = 'top: 100px; right: 20px; z-index: 1050; min-width: 300px;';
+            notification.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 3000);
+        }
+
+        // Initialize payment method functionality
+        function initializePaymentMethods() {
+            const paymentRadios = document.querySelectorAll('input[name="paymentMethod"]');
+            paymentRadios.forEach(radio => {
+                radio.addEventListener('change', handlePaymentMethodChange);
+            });
+        }
+
+        // Initialize courier selection functionality
+        function initializeCourierSelection() {
+            const courierRadios = document.querySelectorAll('input[name="courier"]');
+            courierRadios.forEach(radio => {
+                radio.addEventListener('change', handleCourierChange);
+            });
+        }
+
+        // Initialize discount functionality
+        function initializeDiscounts() {
+            // Voucher code functionality
+            const applyVoucherBtn = document.getElementById('applyVoucher');
+            const removeVoucherBtn = document.getElementById('removeVoucher');
+            const voucherInput = document.getElementById('voucherCode');
+            
+            applyVoucherBtn.addEventListener('click', handleVoucherApplication);
+            removeVoucherBtn.addEventListener('click', handleVoucherRemoval);
+            
+            voucherInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleVoucherApplication();
+                }
+            });
+
+            // Senior/PWD discount functionality
+            const seniorPwdCheckbox = document.getElementById('seniorPwdDiscount');
+            seniorPwdCheckbox.addEventListener('change', handleSeniorPwdToggle);
+        }
+
+        function handlePaymentMethodChange(event) {
+            const selectedMethod = event.target.value;
+            const methodNames = {
+                'cod': 'Cash on Delivery',
+                'gcash': 'GCash/Maya App',
+                'card': 'Credit/Debit Card'
+            };
+            
+            document.getElementById('selectedPaymentMethod').textContent = methodNames[selectedMethod];
+            console.log('Payment method changed to:', methodNames[selectedMethod]);
+        }
+
+        function handleCourierChange(event) {
+            const selectedCourier = event.target;
+            const courierFee = parseInt(selectedCourier.dataset.fee);
+            const courierLabels = {
+                'jnt': 'J&T Express',
+                'lbc': 'LBC Express', 
+                'ninja': 'Ninja Van',
+                'flash': 'Flash Express'
+            };
+            
+            currentShippingFee = courierFee;
+            document.getElementById('courierName').textContent = courierLabels[selectedCourier.value];
+            document.getElementById('shippingFee').textContent = `₱${courierFee}.00`;
+            
+            updateOrderTotal();
+            console.log('Courier changed to:', courierLabels[selectedCourier.value], 'Fee:', courierFee);
+        }
+
+        async function handleVoucherApplication() {
+            const voucherCode = document.getElementById('voucherCode').value.trim();
+            const statusDiv = document.getElementById('voucherStatus');
+            
+            if (!voucherCode) {
+                statusDiv.innerHTML = '<small class="text-danger">Please enter a voucher code</small>';
+                return;
+            }
+            
             try {
-                console.log('Payment redirect handler triggered'); // Debug log
+                const voucher = await validateVoucher(voucherCode);
+                
+                if (voucher.valid) {
+                    // Check minimum order requirement
+                    const subtotalElement = document.getElementById('subtotal');
+                    const subtotalText = subtotalElement.textContent.replace('₱', '').replace(',', '');
+                    const subtotalAmount = parseFloat(subtotalText) || 0;
+                    
+                    if (voucher.minOrder && subtotalAmount < voucher.minOrder) {
+                        statusDiv.innerHTML = `<small class="text-danger">Minimum order of ₱${voucher.minOrder} required</small>`;
+                        return;
+                    }
+                    
+                    appliedVoucher = voucher;
+                    
+                    // Calculate discount based on voucher type
+                    if (voucher.type === 'freeshipping') {
+                        voucherDiscount = currentShippingFee;
+                    } else if (voucher.type === 'percentage') {
+                        voucherDiscount = Math.round(subtotalAmount * (voucher.discountAmount / 100));
+                    } else {
+                        voucherDiscount = voucher.discountAmount;
+                    }
+                    
+                    document.getElementById('voucherDiscountRow').classList.remove('d-none');
+                    document.getElementById('voucherDiscount').textContent = `-₱${voucherDiscount}.00`;
+                    statusDiv.innerHTML = `<small class="text-success">✓ ${voucher.description}</small>`;
+                    
+                    // Show remove button, hide apply button
+                    document.getElementById('applyVoucher').classList.add('d-none');
+                    document.getElementById('removeVoucher').classList.remove('d-none');
+                    document.getElementById('voucherCode').disabled = true;
+                    
+                    updateOrderTotal();
+                } else {
+                    statusDiv.innerHTML = `<small class="text-danger">${voucher.message || 'Invalid voucher code'}</small>`;
+                }
+            } catch (error) {
+                console.error('Voucher validation failed:', error);
+                statusDiv.innerHTML = '<small class="text-danger">Failed to validate voucher</small>';
+            }
+        }
 
-                // Get required form inputs
-                const requiredInputs = document.querySelectorAll('input[required]');
-                console.log('Required inputs:', requiredInputs.length); // Debug log
+        async function validateVoucher(code) {
+            try {
+                // Use the API to validate voucher
+                const voucher = await api.validateVoucher(code);
+                return voucher;
+            } catch (error) {
+                console.error('Voucher validation API failed:', error);
+                return { valid: false, message: 'Failed to validate voucher' };
+            }
+        }
 
-                // Check if all required fields have values
-                const allFieldsFilled = Array.from(requiredInputs).every(input => {
-                    const isFilled = input.value.trim() !== '';
-                    console.log(`Input ${input.name || input.id}: ${isFilled}`); // Debug log
-                    return isFilled;
+        function handleVoucherRemoval() {
+            // Reset voucher state
+            appliedVoucher = null;
+            voucherDiscount = 0;
+            
+            // Hide voucher discount row
+            document.getElementById('voucherDiscountRow').classList.add('d-none');
+            document.getElementById('voucherDiscount').textContent = '-₱0.00';
+            
+            // Reset input and buttons
+            document.getElementById('voucherCode').value = '';
+            document.getElementById('voucherCode').disabled = false;
+            document.getElementById('voucherStatus').innerHTML = '';
+            document.getElementById('applyVoucher').classList.remove('d-none');
+            document.getElementById('removeVoucher').classList.add('d-none');
+            
+            // Update totals
+            updateOrderTotal();
+            
+            console.log('Voucher removed');
+        }
+
+        function handleSeniorPwdToggle(event) {
+            const isChecked = event.target.checked;
+            const idUploadSection = document.getElementById('idUploadSection');
+            
+            if (isChecked) {
+                idUploadSection.classList.remove('d-none');
+                // Calculate 20% discount on subtotal
+                const subtotalElement = document.getElementById('subtotal');
+                const subtotalText = subtotalElement.textContent.replace('₱', '').replace(',', '');
+                const subtotalAmount = parseFloat(subtotalText) || 0;
+                seniorPwdDiscount = Math.round(subtotalAmount * 0.2);
+                
+                document.getElementById('seniorPwdDiscountRow').classList.remove('d-none');
+                document.getElementById('seniorPwdDiscountAmount').textContent = `-₱${seniorPwdDiscount}.00`;
+                
+                updateOrderTotal();
+            } else {
+                idUploadSection.classList.add('d-none');
+                seniorPwdDiscount = 0;
+                document.getElementById('seniorPwdDiscountRow').classList.add('d-none');
+                updateOrderTotal();
+            }
+        }
+
+        function updateOrderTotal() {
+            const subtotalElement = document.getElementById('subtotal');
+            const subtotalText = subtotalElement.textContent.replace('₱', '').replace(',', '');
+            const subtotalAmount = parseFloat(subtotalText) || 0;
+            
+            // Recalculate senior/PWD discount if active
+            if (document.getElementById('seniorPwdDiscount').checked) {
+                seniorPwdDiscount = Math.round(subtotalAmount * 0.2);
+                document.getElementById('seniorPwdDiscountAmount').textContent = `-₱${seniorPwdDiscount}.00`;
+            }
+            
+            const total = subtotalAmount + currentShippingFee - voucherDiscount - seniorPwdDiscount;
+            document.getElementById('total').textContent = `₱${total.toFixed(2)}`;
+        }
+
+        async function loadUserAddresses() {
+            try {
+                userAddresses = await api.getUserAddresses();
+                displayAddressOptions();
+            } catch (error) {
+                console.error('Failed to load addresses:', error);
+                showNotification('Failed to load saved addresses', 'error');
+            }
+        }
+
+        function displayAddressOptions() {
+            const shippingSection = document.querySelector('.card-body');
+            if (userAddresses.length > 0) {
+                // Add saved addresses section before the form
+                const savedAddressesHtml = `
+                    <div class="mb-4">
+                        <h6>Saved Addresses</h6>
+                        <div id="savedAddresses">
+                            ${userAddresses.map(address => `
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="savedAddress" id="address_${address.id}" value="${address.id}" ${address.is_default ? 'checked' : ''}>
+                                    <label class="form-check-label" for="address_${address.id}">
+                                        <strong>${address.label}</strong><br>
+                                        ${address.full_address}<br>
+                                        ${address.city}, ${address.zip_code}
+                                        ${address.is_default ? '<span class="badge bg-primary ms-2">Default</span>' : ''}
+                                    </label>
+                                </div>
+                            `).join('')}
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="savedAddress" id="address_new" value="new">
+                                <label class="form-check-label" for="address_new">
+                                    <strong>Use new address</strong>
+                                </label>
+                            </div>
+                        </div>
+                        <hr>
+                    </div>
+                `;
+                
+                shippingSection.insertAdjacentHTML('afterbegin', savedAddressesHtml);
+                
+                // Add event listeners for address selection
+                document.querySelectorAll('input[name="savedAddress"]').forEach(radio => {
+                    radio.addEventListener('change', handleAddressSelection);
                 });
+                
+                // Set default address if available
+                const defaultAddress = userAddresses.find(addr => addr.is_default);
+                if (defaultAddress) {
+                    selectedAddress = defaultAddress;
+                    populateAddressForm(defaultAddress);
+                    toggleFormFields(false);
+                }
+            }
+        }
 
-                if (!allFieldsFilled) {
+        function handleAddressSelection(event) {
+            const addressId = event.target.value;
+            
+            if (addressId === 'new') {
+                selectedAddress = null;
+                clearAddressForm();
+                toggleFormFields(true);
+            } else {
+                const address = userAddresses.find(addr => addr.id == addressId);
+                selectedAddress = address;
+                populateAddressForm(address);
+                toggleFormFields(false);
+            }
+        }
+
+        function populateAddressForm(address) {
+            // For saved addresses, the label might contain the full name
+            if (address.label) {
+                const nameParts = address.label.split(' ');
+                document.getElementById('firstName').value = nameParts[0] || '';
+                document.getElementById('lastName').value = nameParts[nameParts.length - 1] || '';
+                if (nameParts.length > 2) {
+                    document.getElementById('middleInitial').value = nameParts[1].charAt(0) || '';
+                }
+            }
+            document.getElementById('address').value = address.full_address || '';
+            document.getElementById('city').value = address.city || '';
+            document.getElementById('zip').value = address.zip_code || '';
+        }
+
+        function clearAddressForm() {
+            document.getElementById('firstName').value = '';
+            document.getElementById('middleInitial').value = '';
+            document.getElementById('lastName').value = '';
+            document.getElementById('address').value = '';
+            document.getElementById('city').value = '';
+            document.getElementById('zip').value = '';
+        }
+
+        async function populateUserInfo() {
+            try {
+                // Get full user profile from database
+                const userProfile = await api.getUserProfile();
+                console.log('User profile loaded:', userProfile);
+                
+                if (userProfile) {
+                    // Auto-fill name fields if they exist in the profile
+                    if (userProfile.first_name) {
+                        document.getElementById('firstName').value = userProfile.first_name;
+                    }
+                    if (userProfile.last_name) {
+                        document.getElementById('lastName').value = userProfile.last_name;
+                    }
+                    
+                    // Auto-fill address information if available
+                    if (userProfile.address) {
+                        document.getElementById('address').value = userProfile.address;
+                    }
+                    if (userProfile.city) {
+                        document.getElementById('city').value = userProfile.city;
+                    }
+                    if (userProfile.zip_code) {
+                        document.getElementById('zip').value = userProfile.zip_code;
+                    }
+                    
+                    // Set default country if not specified
+                    if (!document.getElementById('country').value) {
+                        document.getElementById('country').value = 'Philippines';
+                    }
+                    
+                    console.log('✅ User information auto-filled');
+                }
+            } catch (error) {
+                console.error('Failed to load user profile:', error);
+                // Don't show error notification, just log it as this is optional auto-fill
+            }
+        }
+
+        function toggleFormFields(enabled) {
+            const fields = ['firstName', 'middleInitial', 'lastName', 'address', 'city', 'zip'];
+            fields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                field.disabled = !enabled;
+                field.style.backgroundColor = enabled ? '' : '#f8f9fa';
+            });
+        }
+
+        async function loadCartItems() {
+            try {
+                // Load selected items from database instead of localStorage
+                cartItems = await api.getSelectedCartItems();
+                console.log('✅ Loaded selected items from database:', cartItems.length, 'items');
+                console.log('Selected items:', cartItems);
+                
+                // If no items are selected, try to select all cart items automatically
+                if (cartItems.length === 0) {
+                    console.log('⚠️ No items selected, attempting to select all cart items...');
+                    
+                    try {
+                        // Select all items in cart for checkout
+                        await api.selectAllForCheckout();
+                        // Reload selected items
+                        cartItems = await api.getSelectedCartItems();
+                        console.log('✅ Auto-selected items:', cartItems.length, 'items');
+                        
+                        if (cartItems.length === 0) {
+                            showNotification('Your cart is empty. Redirecting to cart page.', 'error');
+                            setTimeout(() => {
+                                window.location.href = 'cart.html';
+                            }, 2000);
+                            return;
+                        } else {
+                            showNotification(`Auto-selected ${cartItems.length} items for checkout`, 'info');
+                        }
+                    } catch (autoSelectError) {
+                        console.error('Failed to auto-select items:', autoSelectError);
+                        showNotification('No items selected for checkout. Please select items in your cart.', 'error');
+                        setTimeout(() => {
+                            window.location.href = 'cart.html';
+                        }, 2000);
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load selected cart items:', error);
+                showNotification('Failed to load cart items', 'error');
+            }
+        }
+
+        function displayOrderSummary() {
+            const orderItemsContainer = document.getElementById('checkoutItemsContainer');
+            const subtotalElement = document.getElementById('subtotal');
+            const totalElement = document.getElementById('total');
+            
+            if (!orderItemsContainer) return;
+            
+            let subtotal = 0;
+            let html = '';
+            
+            // Display message about selected items
+            html += `<div class="alert alert-info mb-3"><small><i class="fas fa-check-circle me-1"></i> Showing ${cartItems.length} selected item(s) for checkout</small></div>`;
+            
+            cartItems.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+                
+                html += `
+                    <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                        <div class="d-flex align-items-center">
+                            <img src="${item.cover || 'media/books/default.jpg'}" alt="${item.title}" style="width: 50px; height: 75px; object-fit: cover;" class="me-3">
+                            <div>
+                                <h6 class="mb-1">${item.title}</h6>
+                                <small class="text-muted">by ${item.author}</small>
+                                <div class="d-flex align-items-center mt-1">
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="updateQuantity(${index}, -1)">-</button>
+                                    <span class="mx-2">${item.quantity}</span>
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="updateQuantity(${index}, 1)">+</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold">₱${itemTotal.toFixed(2)}</div>
+                            <small class="text-muted">₱${item.price.toFixed(2)} each</small>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            orderItemsContainer.innerHTML = html;
+            subtotalElement.textContent = `₱${subtotal.toFixed(2)}`;
+            
+            // Update total using the new calculation system
+            updateOrderTotal();
+        }
+
+        function getInitials(name) {
+            return name.split(' ').map(word => word[0]).join('').toUpperCase().substring(0, 2);
+        }
+
+        function updateNavbarAccountLink() {
+            const accountIcon = document.querySelector('.nav-icons .icon-link:last-child');
+            if (accountIcon && api && api.isLoggedIn && api.isLoggedIn()) {
+                accountIcon.href = 'account-dashboard.html';
+                const user = api.getCurrentUser();
+                if (user) {
+                    // Replace the icon with user initials
+                    const userInitials = getInitials(user.username);
+                    accountIcon.innerHTML = userInitials;
+                    accountIcon.className = 'navbar-user-avatar';
+                    accountIcon.title = `Logged in as ${user.username}`;
+                }
+            } else if (accountIcon) {
+                // Ensure link goes to login page when not logged in
+                accountIcon.href = 'account.html';
+                accountIcon.innerHTML = '<i class="fa-solid fa-user" style="color: #ffffff;"></i>';
+                accountIcon.className = 'icon-link';
+                accountIcon.title = 'Login or Sign Up';
+            }
+        }
+        
+        async function updateQuantity(index, change) {
+            try {
+                const item = cartItems[index];
+                const newQuantity = item.quantity + change;
+                
+                if (newQuantity <= 0) {
+                    // Remove item from cart
+                    await api.removeFromCart(item.book_id);
+                    cartItems = cartItems.filter((_, i) => i !== index);
+                } else {
+                    // Update quantity in database
+                    await api.updateCartItem(item.book_id, newQuantity);
+                    item.quantity = newQuantity;
+                }
+                
+                // Refresh display
+                displayOrderSummary();
+                updateCartCount();
+                
+                // Redirect if cart becomes empty
+                if (cartItems.length === 0) {
+                    showNotification('Your cart is now empty', 'info');
+                    setTimeout(() => {
+                        window.location.href = 'cart.html';
+                    }, 2000);
+                }
+                
+            } catch (error) {
+                console.error('Failed to update quantity:', error);
+                showNotification('Failed to update quantity', 'error');
+            }
+        }
+
+        async function handlePaymentRedirect() {
+            try {
+                // Validate form inputs
+                const firstName = document.getElementById('firstName').value.trim();
+                const middleInitial = document.getElementById('middleInitial').value.trim();
+                const lastName = document.getElementById('lastName').value.trim();
+                const address = document.getElementById('address').value.trim();
+                const city = document.getElementById('city').value.trim();
+                const zip = document.getElementById('zip').value.trim();
+                const country = document.getElementById('country').value.trim();
+
+                if (!firstName || !lastName || !address || !city || !zip) {
                     showNotification('Please fill out all required fields.', 'error');
                     return;
                 }
 
-                // Clear cart and show success
-                localStorage.removeItem('cart');
-                localStorage.removeItem('orderSummary');
-                updateCartCount();
+                // Prepare shipping address
+                const shippingAddress = selectedAddress ? {
+                    label: selectedAddress.label,
+                    full_address: selectedAddress.full_address,
+                    city: selectedAddress.city,
+                    zip_code: selectedAddress.zip_code
+                } : {
+                    label: `${firstName} ${middleInitial ? middleInitial + '.' : ''} ${lastName}`.trim(),
+                    full_address: address,
+                    city: city,
+                    zip_code: zip,
+                    country
+                };
 
-                showNotification('Order processed successfully! Redirecting...', 'success');
+                showNotification('Processing your order...', 'info');
 
-                // Redirect after notification
+                // Collect payment method
+                const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'cod';
+                // Collect courier
+                const courierRadio = document.querySelector('input[name="courier"]:checked');
+                const courier = courierRadio ? { code: courierRadio.value, fee: parseInt(courierRadio.dataset.fee) } : { code: 'jnt', fee: currentShippingFee };
+
+                // Discounts summary
+                const discounts = {
+                    voucher: appliedVoucher ? { code: document.getElementById('voucherCode').value.trim(), amount: voucherDiscount } : null,
+                    seniorPwd: document.getElementById('seniorPwdDiscount').checked ? { amount: seniorPwdDiscount } : null
+                };
+
+                // Totals
+                const subtotalText = document.getElementById('subtotal').textContent.replace('₱', '').replace(',', '');
+                const subtotalAmount = parseFloat(subtotalText) || 0;
+                const totalText = document.getElementById('total').textContent.replace('₱', '').replace(',', '');
+                const totalAmount = parseFloat(totalText) || 0;
+                const totals = { subtotal: subtotalAmount, shipping: currentShippingFee, discount: (voucherDiscount + seniorPwdDiscount), total: totalAmount };
+
+                // Create order via API with full payload
+                console.log('🛒 Creating order with payload:', { shippingAddress, paymentMethod, courier, discounts, totals });
+                console.log('📦 Cart items for order:', cartItems.length, 'items');
+                
+                const result = await api.createOrder({ shippingAddress, paymentMethod, courier, discounts, totals });
+                console.log('✅ Order creation result:', result);
+                
+                showNotification('Order created successfully!', 'success');
+                
+                // Redirect to success page or account dashboard
                 setTimeout(() => {
-                    window.location.href = 'cart.html'; // Update this to your payment page
-                }, 3000);
+                    window.location.href = 'account-dashboard.html#orders';
+                }, 2000);
 
             } catch (error) {
-                console.error('Payment redirect error:', error);
-                showNotification('An error occurred. Please try again.', 'error');
+                console.error('❌ Order creation error:', error);
+                console.error('Error details:', error.message);
+                
+                // More specific error handling
+                if (error.message && error.message.includes('Cart is empty')) {
+                    showNotification('No items in cart. Please add items before checkout.', 'error');
+                    setTimeout(() => {
+                        window.location.href = 'cart.html';
+                    }, 2000);
+                } else if (error.message && error.message.includes('token')) {
+                    showNotification('Please login to complete your order.', 'error');
+                    setTimeout(() => {
+                        window.location.href = 'account.html';
+                    }, 2000);
+                } else {
+                    showNotification(`Failed to create order: ${error.message || 'Unknown error'}`, 'error');
+                }
             }
         }
 
@@ -281,26 +1071,22 @@
             const checkoutButton = document.getElementById('checkout-btn-cart');
             if (checkoutButton) {
                 checkoutButton.addEventListener('click', handlePaymentRedirect);
-                console.log('Checkout button handler attached'); // Debug log
-            } else {
-                console.error('Checkout button not found');
             }
         });
 
-        document.addEventListener('DOMContentLoaded', function () {
-            loadCheckoutSummary();
-
-            // Redirect if cart is empty
-            const orderSummary = JSON.parse(localStorage.getItem('orderSummary'));
-            if (!orderSummary || orderSummary.items.length === 0) {
-                window.location.href = 'cart.html';
+        // Handle search
+        function handleSearch(event) {
+            event.preventDefault();
+            const query = document.getElementById('searchInput').value.trim();
+            if (query) {
+                window.location.href = `search-results.html?q=${encodeURIComponent(query)}`;
             }
-        });
+        }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="list.js"></script>
-    <script src="backend.js"></script>
-    <script src="populate.js"></script>
+    <script src="js/api-client.js"></script>
+    <script src="js/navbar-counts.js"></script>
+    <script src="js/database-book-display.js"></script>
 </body>
 
 </html>

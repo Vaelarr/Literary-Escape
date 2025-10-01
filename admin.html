@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Literary Escape</title>
+    <link rel="icon" type="image/x-icon" href="./media/icon.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/f8c6d79c7d.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="./css/admin_style.css">
+</head>
+<body>
+    <!-- Admin Login Container (shown when not authenticated) -->
+    <div id="adminLogin" style="display: none; padding: 40px; max-width: 480px; margin: 60px auto;">
+        <div class="content-card" style="padding: 24px;">
+            <h2 class="section-title" style="margin-bottom: 20px;">Admin Login</h2>
+            <form id="adminLoginForm">
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" id="adminEmail" class="form-control" placeholder="Enter email" value="" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="adminPassword" class="form-control" placeholder="Enter password" value="" required>
+                </div>
+                <button type="submit" class="btn-add" style="width: 100%;">Login</button>
+                <div id="adminLoginError" class="mt-3 text-danger" style="display:none;">Invalid credentials</div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin App Container (hidden until authenticated) -->
+    <div id="adminApp">
+    <div class="sidebar">
+        <div class="logo-container">
+            <img src="./media/icon.png" alt="Literary Escape" id="logoImg">
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li><a href="#" class="menu-link active" data-section="dashboard">Dashboard</a></li>
+            <li><a href="#" class="menu-link" data-section="books">Book Management</a></li>
+            <li><a href="#" class="menu-link" data-section="users">User Management</a></li>
+            <li><a href="#" class="menu-link" data-section="settings">Security & Settings</a></li>
+        </ul>
+
+        <a href="#" class="logout-btn" onclick="logoutAdmin(event)">Logout</a>
+    </div>
+
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="search-box">
+                <input type="text" placeholder="Search...">
+                <i class="fas fa-search"></i>
+            </div>
+            <div class="user-menu">
+                <span id="dbStatus" class="badge bg-secondary" style="margin-right: 12px;">DB: checking...</span>
+                <div class="notification-icon">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge">5</span>
+                </div>
+                <div class="user-avatar"></div>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard-section" class="content-section active">
+            <h2 class="section-title">Books lists</h2>
+            <div class="stats-container">
+                <div class="stat-card">
+                    <h3>Books Number</h3>
+                    <div class="value" id="booksNumber">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Stock</h3>
+                    <div class="value" id="totalStock">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Book Sells</h3>
+                    <div class="value" id="bookSells">0</div>
+                </div>
+            </div>
+
+            <h2 class="section-title">User Accounts</h2>
+            <div class="content-card">
+                <div class="table-container">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Password</th>
+                                <th>Role</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userAccountsTable">
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">Loading users...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Books Management Section -->
+        <div id="books-section" class="content-section">
+            <h2 class="section-title">
+                Books lists
+                <select class="category-filter" id="categoryFilter" name="category" title="category">
+                    <option value="all">All Categories</option>
+                    <option value="Fiction">Fiction</option>
+                    <option value="Non - Fiction">Non-Fiction</option>
+                    <option value="Discover">Discover</option>
+                </select>
+            </h2>
+            <div class="content-card">
+                <div class="table-container">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Cover</th>
+                                <th>Name</th>
+                                <th>Author</th>
+                                <th>Stock</th>
+                                <th>Category</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="booksTable"></tbody>
+                    </table>
+                </div>
+                <button class="btn-add" data-bs-toggle="modal" data-bs-target="#addBookModal">Add Book</button>
+            </div>
+        </div>
+
+        <!-- User Management Section -->
+        <div id="users-section" class="content-section">
+            <h2 class="section-title">Account List</h2>
+            <div class="content-card">
+                <div class="table-container">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Password</th>
+                                <th>Role</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody id="accountListTable">
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">No users registered</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <h2 class="section-title" style="margin-top: 40px;">Admin List</h2>
+            <div class="content-card">
+                <div class="table-container">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Password</th>
+                                <th>Role</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminListTable">
+                            <tr>
+                                <td>Admin</td>
+                                <td>••••••••</td>
+                                <td>Super Admin</td>
+                                <td><button class="btn-delete">x</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <h2 class="section-title" style="margin-top: 40px;">Orders</h2>
+            <div class="content-card">
+                <div class="table-container">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>User</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTable">
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: rgba(255,255,255,0.5);">No orders yet</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div id="settings-section" class="content-section">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                <div>
+                    <h2 class="section-title">LOGO</h2>
+                    <div class="content-card">
+                        <div class="logo-upload-area">
+                            <div>LOGO IMG</div>
+                        </div>
+                        <button class="btn-change">CHANGE</button>
+                    </div>
+                </div>
+                
+                <div>
+                    <h2 class="section-title">Permissions</h2>
+                    <div class="permission-card">
+                        <h4 style="color: white; margin-bottom: 20px;">Admin name</h4>
+                        <div style="color: rgba(255,255,255,0.7); margin-bottom: 15px;">Access</div>
+                        <div class="permission-item">Full Access</div>
+                        <div class="permission-item">Books Management</div>
+                        <div class="permission-item">User Management</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Book Modal -->
+    <div class="modal fade" id="addBookModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Book</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="bookForm">
+                        <input type="hidden" id="bookId">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Title</label>
+                                <input type="text" class="form-control" id="bookTitle" aria-label="Title" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Author</label>
+                                <input type="text" class="form-control" id="bookAuthor" aria-label="Author" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" id="bookDescription" rows="3" aria-label="Description" required></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Category</label>
+                                <select class="form-select" id="bookCategory" aria-label="Category" required>
+                                    <option value="Fiction">Fiction</option>
+                                    <option value="Non - Fiction">Non-Fiction</option>
+                                    <option value="Discover">Discover</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Genre</label>
+                                <input type="text" class="form-control" id="bookGenre" aria-label="Genre" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Price (₱)</label>
+                                <input type="number" class="form-control" id="bookPrice" aria-label="Price" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Stock Quantity</label>
+                            <input type="number" class="form-control" id="bookStock" value="1" aria-label="Stock Quantity" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Cover Image URL</label>
+                            <input type="text" class="form-control" id="bookCover" aria-label="Cover Image URL" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn-add" onclick="saveBook()">Save Book</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- User Orders Modal -->
+    <div class="modal fade" id="userOrdersModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">User Orders</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-container">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userOrdersTable">
+                                <tr>
+                                    <td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">No orders</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Details Modal -->
+    <div class="modal fade" id="orderDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Order Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <!-- Customer Information -->
+                        <div class="col-md-6">
+                            <h6 class="text-white mb-3">Customer Information</h6>
+                            <div class="card bg-dark text-white mb-3">
+                                <div class="card-body">
+                                    <p><strong>Name:</strong> <span id="customerName">-</span></p>
+                                    <p><strong>Email:</strong> <span id="customerEmail">-</span></p>
+                                    <p><strong>Phone:</strong> <span id="customerPhone">-</span></p>
+                                    <p><strong>Username:</strong> <span id="customerUsername">-</span></p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Order Information -->
+                        <div class="col-md-6">
+                            <h6 class="text-white mb-3">Order Information</h6>
+                            <div class="card bg-dark text-white mb-3">
+                                <div class="card-body">
+                                    <p><strong>Order ID:</strong> <span id="orderIdDetail">-</span></p>
+                                    <p><strong>Status:</strong> <span id="orderStatus">-</span></p>
+                                    <p><strong>Total Amount:</strong> <span id="orderTotal">-</span></p>
+                                    <p><strong>Date:</strong> <span id="orderDate">-</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Shipping Address -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-white mb-3">Shipping Address</h6>
+                            <div class="card bg-dark text-white">
+                                <div class="card-body">
+                                    <p id="shippingAddress">-</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Ordered Books -->
+                    <div class="row">
+                        <div class="col-12">
+                            <h6 class="text-white mb-3">Ordered Books</h6>
+                            <div class="table-container">
+                                <table class="custom-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Cover</th>
+                                            <th>Title</th>
+                                            <th>Author</th>
+                                            <th>Category</th>
+                                            <th>Quantity</th>
+                                            <th>Price</th>
+                                            <th>Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="orderItemsTable">
+                                        <tr>
+                                            <td colspan="7" style="text-align: center; color: rgba(255,255,255,0.5);">No items</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="./js/api-client.js"></script>
+    <script>
+        let adminBooks = [];
+
+        function initAdmin() {
+            setupNavigation();
+            setupCategoryFilter();
+            loadBooksFromAPI();
+            loadUsersFromAPI();
+            loadOrdersFromAPI();
+            loadDashboardUsers(); // Add this for dashboard user accounts
+        }
+
+        async function loadBooksFromAPI() {
+            try {
+                console.log('Loading books from API...');
+                const all = await api.getBooks();
+                console.log('Books loaded:', all.length);
+                adminBooks = all.map(b => ({
+                    id: b.id,
+                    title: b.title,
+                    author: b.author,
+                    description: b.description,
+                    category: b.category,
+                    genre: b.genre,
+                    price: b.price,
+                    stock: b.stock_quantity,
+                    cover: b.cover
+                }));
+                await updateDashboard();
+                displayBooks();
+            } catch (e) {
+                console.error('Error loading books:', e);
+                alert('Failed to load books from server: ' + (e.message || e));
+            }
+        }
+
+        async function loadUsersFromAPI() {
+            try {
+                console.log('Loading users from API...');
+                const allUsers = await api.adminListUsers();
+                console.log('All users loaded:', allUsers ? allUsers.length : 0);
+                
+                // Filter to only show users with role 'user' (exclude admin accounts)
+                const regularUsers = allUsers ? allUsers.filter(user => 
+                    !user.role || user.role.toLowerCase() === 'user'
+                ) : [];
+                
+                console.log('Regular users (non-admin) for management:', regularUsers.length);
+                
+                const tbody = document.getElementById('accountListTable');
+                if (!regularUsers || regularUsers.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">No regular users registered</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = regularUsers.map(u => `
+                    <tr>
+                        <td>${u.username}</td>
+                        <td>••••••••</td>
+                        <td>User</td>
+                        <td>
+                            <button class="btn-change" onclick="viewUserOrders(${u.id}, '${u.username}')">Orders</button>
+                            <button class="btn-delete" onclick="handleDeleteUser(${u.id})">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error('Error loading users:', e);
+                alert('Failed to load users: ' + (e.message || e));
+            }
+        }
+
+        async function loadDashboardUsers() {
+            try {
+                console.log('Loading dashboard users from API...');
+                const allUsers = await api.adminListUsers();
+                console.log('All users loaded:', allUsers ? allUsers.length : 0);
+                
+                // Filter to only show users with role 'user' (exclude admin accounts)
+                const regularUsers = allUsers ? allUsers.filter(user => 
+                    !user.role || user.role.toLowerCase() === 'user'
+                ) : [];
+                
+                console.log('Regular users (non-admin):', regularUsers.length);
+                
+                const tbody = document.getElementById('userAccountsTable');
+                if (!regularUsers || regularUsers.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">No regular users registered</td></tr>';
+                    return;
+                }
+                
+                // Show only first 5 regular users for dashboard (to keep it clean)
+                const displayUsers = regularUsers.slice(0, 5);
+                tbody.innerHTML = displayUsers.map(u => `
+                    <tr>
+                        <td>${u.username}</td>
+                        <td>••••••••</td>
+                        <td>
+                            <select class="dropdown-role" name="role" title="role" onchange="updateUserRole(${u.id}, this.value)">
+                                <option value="user" ${(!u.role || u.role === 'user') ? 'selected' : ''}>User</option>
+                                <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
+                            </select>
+                        </td>
+                        <td><button class="btn-delete" onclick="handleDeleteUser(${u.id})">x</button></td>
+                    </tr>
+                `).join('');
+                
+                // Add "View All" row if there are more regular users
+                if (regularUsers.length > 5) {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: rgba(255,255,255,0.7); font-style: italic;">
+                                Showing ${displayUsers.length} of ${regularUsers.length} regular users. 
+                                <a href="#" onclick="switchToUsersSection()" style="color: #007bff; text-decoration: none;">View all users</a>
+                            </td>
+                        </tr>
+                    `;
+                }
+            } catch (e) {
+                console.error('Error loading dashboard users:', e);
+                const tbody = document.getElementById('userAccountsTable');
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">Failed to load users</td></tr>';
+            }
+        }
+
+        async function loadOrdersFromAPI() {
+            try {
+                console.log('Loading orders from API...');
+                const orders = await api.adminListOrders();
+                console.log('Orders loaded:', orders ? orders.length : 0);
+                const tbody = document.getElementById('ordersTable');
+                if (!orders || orders.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: rgba(255,255,255,0.5);">No orders yet</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = orders.map(o => `
+                    <tr>
+                        <td>${o.id}</td>
+                        <td>${o.username || o.user_id}</td>
+                        <td>₱${(o.total_amount || 0).toFixed(2)}</td>
+                        <td>
+                            <select onchange="updateOrderStatus(${o.id}, this.value)">
+                                ${['pending','processing','shipped','completed','cancelled'].map(s => `<option value="${s}" ${o.status===s?'selected':''}>${s}</option>`).join('')}
+                            </select>
+                        </td>
+                        <td>${o.created_at || ''}</td>
+                        <td>
+                            <button class="btn-change" onclick="viewOrderDetails(${o.id})">Details</button>
+                            <button class="btn-delete" onclick="deleteOrder(${o.id})">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error('Error loading orders:', e);
+                alert('Failed to load orders: ' + (e.message || e));
+            }
+        }
+
+        async function updateOrderStatus(orderId, status) {
+            try {
+                await api.adminUpdateOrder(orderId, { status });
+                console.log(`📊 Order ${orderId} status updated to: ${status}`);
+                
+                // Refresh the dashboard to update book sales count
+                // This is important when orders are marked as completed
+                await updateBookSales();
+                
+            } catch (e) {
+                console.error(e);
+                alert('Failed to update order status');
+                await loadOrdersFromAPI();
+            }
+        }
+
+        async function deleteOrder(orderId) {
+            if (!confirm('Delete this order?')) return;
+            try {
+                await api.adminDeleteOrder(orderId);
+                await loadOrdersFromAPI();
+            } catch (e) {
+                console.error(e);
+                alert('Failed to delete order');
+            }
+        }
+
+        async function viewUserOrders(userId, username) {
+            try {
+                const orders = await api.adminGetUserOrders(userId);
+                const tbody = document.getElementById('userOrdersTable');
+                document.querySelector('#userOrdersModal .modal-title').textContent = `Orders of ${username}`;
+                if (!orders || orders.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">No orders</td></tr>';
+                } else {
+                    tbody.innerHTML = orders.map(o => `
+                        <tr>
+                            <td>${o.id}</td>
+                            <td>₱${(o.total_amount || 0).toFixed(2)}</td>
+                            <td>${o.status}</td>
+                            <td>${o.created_at || ''}</td>
+                        </tr>
+                    `).join('');
+                }
+                const modal = new bootstrap.Modal(document.getElementById('userOrdersModal'));
+                modal.show();
+            } catch (e) {
+                console.error(e);
+                alert('Failed to load user orders');
+            }
+        }
+
+        async function viewOrderDetails(orderId) {
+            try {
+                const orderDetails = await api.adminGetOrderDetails(orderId);
+                
+                // Populate customer information
+                document.getElementById('customerName').textContent = 
+                    `${orderDetails.first_name || ''} ${orderDetails.last_name || ''}`.trim() || 'N/A';
+                document.getElementById('customerEmail').textContent = orderDetails.email || 'N/A';
+                document.getElementById('customerPhone').textContent = orderDetails.phone || 'N/A';
+                document.getElementById('customerUsername').textContent = orderDetails.username || 'N/A';
+                
+                // Populate order information
+                document.getElementById('orderIdDetail').textContent = orderDetails.id;
+                document.getElementById('orderStatus').textContent = orderDetails.status || 'pending';
+                document.getElementById('orderTotal').textContent = `₱${(orderDetails.total_amount || 0).toFixed(2)}`;
+                document.getElementById('orderDate').textContent = orderDetails.created_at || 'N/A';
+                
+                // Populate shipping address
+                let shippingText = 'No shipping address provided';
+                if (orderDetails.shippingInfo) {
+                    const shipping = orderDetails.shippingInfo;
+                    if (shipping.shippingAddress) {
+                        // Format courier information properly
+                        let courierText = 'N/A';
+                        if (shipping.courier) {
+                            // Map courier codes to display names
+                            const courierNames = {
+                                'jnt': 'J&T Express',
+                                'lbc': 'LBC Express',
+                                'ninja': 'Ninja Van',
+                                'flash': 'Flash Express'
+                            };
+                            
+                            if (typeof shipping.courier === 'object' && shipping.courier.code) {
+                                const courierName = courierNames[shipping.courier.code] || shipping.courier.code.toUpperCase();
+                                const fee = shipping.courier.fee ? `₱${shipping.courier.fee}` : '';
+                                courierText = `${courierName} ${fee ? `(${fee})` : ''}`;
+                            } else if (typeof shipping.courier === 'string') {
+                                courierText = courierNames[shipping.courier] || shipping.courier.toUpperCase();
+                            } else {
+                                courierText = String(shipping.courier);
+                            }
+                        }
+                        
+                        shippingText = `
+                            <strong>Address:</strong> ${shipping.shippingAddress.full_address || ''}<br>
+                            <strong>City:</strong> ${shipping.shippingAddress.city || ''}<br>
+                            <strong>ZIP:</strong> ${shipping.shippingAddress.zip_code || ''}<br>
+                            <strong>Payment Method:</strong> ${shipping.paymentMethod || ''}<br>
+                            <strong>Courier:</strong> ${courierText}
+                        `;
+                    } else if (typeof shipping === 'string') {
+                        shippingText = shipping;
+                    }
+                }
+                document.getElementById('shippingAddress').innerHTML = shippingText;
+                
+                // Populate ordered books
+                const itemsTableBody = document.getElementById('orderItemsTable');
+                if (!orderDetails.items || orderDetails.items.length === 0) {
+                    itemsTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: rgba(255,255,255,0.5);">No items</td></tr>';
+                } else {
+                    itemsTableBody.innerHTML = orderDetails.items.map(item => `
+                        <tr>
+                            <td><img src="${item.cover || ''}" alt="${item.title}" class="book-img" style="width: 40px; height: 60px; object-fit: cover;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 50 70%22%3E%3Crect width=%2250%22 height=%2270%22 fill=%22%23ccc%22/%3E%3C/svg%3E'"></td>
+                            <td>${item.title}</td>
+                            <td>${item.author || 'Unknown'}</td>
+                            <td>${item.category || 'N/A'}</td>
+                            <td>${item.quantity}</td>
+                            <td>₱${(item.price || 0).toFixed(2)}</td>
+                            <td>₱${((item.quantity || 0) * (item.price || 0)).toFixed(2)}</td>
+                        </tr>
+                    `).join('');
+                }
+                
+                // Show the modal
+                const modal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
+                modal.show();
+                
+            } catch (e) {
+                console.error('Error loading order details:', e);
+                alert('Failed to load order details');
+            }
+        }
+
+        function setupNavigation() {
+            document.querySelectorAll('.menu-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    const section = this.getAttribute('data-section');
+                    document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+                    document.getElementById(section + '-section').classList.add('active');
+                });
+            });
+        }
+
+        function setupCategoryFilter() {
+            document.getElementById('categoryFilter').addEventListener('change', function() {
+                displayBooks(this.value);
+            });
+        }
+
+        async function updateDashboard() {
+            try {
+                // Update books number and total stock
+                document.getElementById('booksNumber').textContent = adminBooks.length;
+                const totalStock = adminBooks.reduce((sum, b) => sum + (b.stock || 0), 0);
+                document.getElementById('totalStock').textContent = totalStock;
+                
+                // Calculate book sales from completed orders
+                await updateBookSales();
+            } catch (error) {
+                console.error('Error updating dashboard:', error);
+                // Fallback values if there's an error
+                document.getElementById('booksNumber').textContent = adminBooks.length || 0;
+                document.getElementById('totalStock').textContent = 0;
+                document.getElementById('bookSells').textContent = 0;
+            }
+        }
+
+        async function updateBookSales() {
+            try {
+                console.log('📊 Calculating book sales from completed orders...');
+                
+                // Get all orders from the API
+                const orders = await api.adminListOrders();
+                
+                if (!orders || orders.length === 0) {
+                    console.log('No orders found');
+                    document.getElementById('bookSells').textContent = 0;
+                    return;
+                }
+                
+                // Filter only completed orders
+                const completedOrders = orders.filter(order => 
+                    order.status && order.status.toLowerCase() === 'completed'
+                );
+                
+                console.log(`📋 Total orders: ${orders.length}, Completed orders: ${completedOrders.length}`);
+                
+                // Count total books sold from completed orders
+                let totalBooksSold = 0;
+                
+                // For each completed order, we need to get the order details to count books
+                for (const order of completedOrders) {
+                    try {
+                        const orderDetails = await api.adminGetOrderDetails(order.id);
+                        if (orderDetails && orderDetails.items) {
+                            // Sum up the quantities of all items in this order
+                            const orderBookCount = orderDetails.items.reduce((sum, item) => 
+                                sum + (item.quantity || 0), 0
+                            );
+                            totalBooksSold += orderBookCount;
+                            console.log(`📚 Order ${order.id}: ${orderBookCount} books`);
+                        }
+                    } catch (error) {
+                        console.warn(`Failed to get details for order ${order.id}:`, error);
+                    }
+                }
+                
+                console.log(`✅ Total books sold (completed orders): ${totalBooksSold}`);
+                document.getElementById('bookSells').textContent = totalBooksSold;
+                
+            } catch (error) {
+                console.error('❌ Error calculating book sales:', error);
+                document.getElementById('bookSells').textContent = 0;
+            }
+        }
+
+        function displayBooks(category = 'all') {
+            const tbody = document.getElementById('booksTable');
+            const filtered = category === 'all' ? adminBooks : adminBooks.filter(b => b.category === category);
+            tbody.innerHTML = filtered.map(book => `
+                <tr>
+                    <td><img src="${book.cover || ''}" alt="${book.title}" class="book-img" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 50 70%22%3E%3Crect width=%2250%22 height=%2270%22 fill=%22%23ccc%22/%3E%3C/svg%3E'"></td>
+                    <td>${book.title}</td>
+                    <td>${book.author || ''}</td>
+                    <td>${book.stock || 0}</td>
+                    <td>${book.category || ''}</td>
+                    <td>
+                        <button class="btn-change" onclick="openEditBook(${book.id})">Edit</button>
+                        <button class="btn-delete" onclick="handleDeleteBook(${book.id})">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function saveBook() {
+            try {
+                const id = document.getElementById('bookId').value;
+                const payload = {
+                    title: document.getElementById('bookTitle').value,
+                    author: document.getElementById('bookAuthor').value,
+                    description: document.getElementById('bookDescription').value,
+                    category: document.getElementById('bookCategory').value,
+                    genre: document.getElementById('bookGenre').value,
+                    price: parseFloat(document.getElementById('bookPrice').value),
+                    stock_quantity: parseInt(document.getElementById('bookStock').value),
+                    cover: document.getElementById('bookCover').value
+                };
+
+                // Validate required fields
+                if (!payload.title || !payload.author || !payload.description) {
+                    alert('Please fill in all required fields (Title, Author, Description)');
+                    return;
+                }
+
+                console.log('Saving book:', { id, payload });
+
+                if (id) {
+                    await api.adminUpdateBook(parseInt(id), payload);
+                } else {
+                    await api.adminCreateBook(payload);
+                }
+                await loadBooksFromAPI();
+                bootstrap.Modal.getInstance(document.getElementById('addBookModal')).hide();
+                document.getElementById('bookForm').reset();
+                alert('Book saved successfully!');
+            } catch (e) {
+                console.error('Error saving book:', e);
+                alert('Failed to save book: ' + (e.message || e));
+            }
+        }
+
+        function openEditBook(id) {
+            const book = adminBooks.find(b => b.id === id);
+            if (!book) return;
+            document.getElementById('bookId').value = book.id;
+            document.getElementById('bookTitle').value = book.title || '';
+            document.getElementById('bookAuthor').value = book.author || '';
+            document.getElementById('bookDescription').value = book.description || '';
+            document.getElementById('bookCategory').value = book.category || 'Fiction';
+            document.getElementById('bookGenre').value = book.genre || '';
+            document.getElementById('bookPrice').value = book.price || 0;
+            document.getElementById('bookStock').value = book.stock || 0;
+            document.getElementById('bookCover').value = book.cover || '';
+            document.querySelector('#addBookModal .modal-title').textContent = 'Edit Book';
+            const modal = new bootstrap.Modal(document.getElementById('addBookModal'));
+            modal.show();
+        }
+
+        async function handleDeleteBook(id) {
+            if (!confirm('Are you sure you want to delete this book?')) return;
+            try {
+                await api.adminDeleteBook(id);
+                await loadBooksFromAPI();
+                alert('Book deleted successfully!');
+            } catch (e) {
+                console.error(e);
+                alert('Failed to delete book');
+            }
+        }
+
+        async function handleDeleteUser(userId) {
+            if (!confirm('Delete this user?')) return;
+            try {
+                await api.adminDeleteUser(userId);
+                await loadUsersFromAPI();
+                await loadDashboardUsers(); // Also refresh dashboard
+            } catch (e) {
+                console.error(e);
+                alert('Failed to delete user');
+            }
+        }
+
+        async function updateUserRole(userId, newRole) {
+            try {
+                // Note: This would require a new API endpoint to update user roles
+                // For now, we'll just show a message
+                console.log(`Updating user ${userId} role to ${newRole}`);
+                alert('Role update functionality would be implemented here');
+                // TODO: Implement API endpoint for updating user roles
+            } catch (e) {
+                console.error('Error updating user role:', e);
+                alert('Failed to update user role');
+            }
+        }
+
+        function switchToUsersSection() {
+            // Switch to the Users section
+            document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active'));
+            document.querySelector('[data-section="users"]').classList.add('active');
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.getElementById('users-section').classList.add('active');
+        }
+
+        document.getElementById('addBookModal').addEventListener('hidden.bs.modal', function() {
+            document.getElementById('bookForm').reset();
+            document.getElementById('bookId').value = '';
+            document.querySelector('#addBookModal .modal-title').textContent = 'Add New Book';
+        });
+
+        async function showAdminApp() {
+            document.getElementById('adminLogin').style.display = 'none';
+            document.getElementById('adminApp').style.display = 'block';
+            await updateDbStatus();
+            initAdmin();
+        }
+
+        function showLogin() {
+            document.getElementById('adminApp').style.display = 'none';
+            document.getElementById('adminLogin').style.display = 'block';
+        }
+
+        async function handleAdminLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+            const errorEl = document.getElementById('adminLoginError');
+            errorEl.style.display = 'none';
+            try {
+                await api.adminLogin(email, password);
+                // Check if user is admin
+                const isAdmin = await api.isAdmin();
+                if (isAdmin) {
+                    showAdminApp();
+                } else {
+                    errorEl.textContent = 'Access denied. Admin privileges required.';
+                    errorEl.style.display = 'block';
+                    api.logout(); // Log out non-admin users
+                }
+            } catch (err) {
+                errorEl.textContent = (err && err.message) ? err.message : 'Login failed';
+                errorEl.style.display = 'block';
+            }
+        }
+
+        function logoutAdmin(e) {
+            if (e) e.preventDefault();
+            api.logout();
+            showLogin();
+        }
+
+        async function updateDbStatus() {
+            const el = document.getElementById('dbStatus');
+            try {
+                const ok = await api.testConnection();
+                if (ok) {
+                    el.textContent = 'DB: connected';
+                    el.className = 'badge bg-success';
+                    return true;
+                }
+                el.textContent = 'DB: unreachable';
+                el.className = 'badge bg-danger';
+                return false;
+            } catch {
+                el.textContent = 'DB: error';
+                el.className = 'badge bg-danger';
+                return false;
+            }
+        }
+
+        // Attach login handler and decide initial view
+        document.getElementById('adminLoginForm').addEventListener('submit', handleAdminLogin);
+        
+        // Check if user is already logged in and is admin
+        async function checkInitialAccess() {
+            if (api.isLoggedIn()) {
+                try {
+                    const isAdmin = await api.isAdmin();
+                    if (isAdmin) {
+                        showAdminApp();
+                    } else {
+                        showLogin();
+                    }
+                } catch (error) {
+                    console.error('Error checking admin status:', error);
+                    showLogin();
+                }
+            } else {
+                showLogin();
+            }
+        }
+        
+        checkInitialAccess();
+    </script>
+</body>
+</html>

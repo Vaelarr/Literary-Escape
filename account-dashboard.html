@@ -1,0 +1,1532 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account - Literary Escape</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="icon" type="image/x-icon" href="./media/icon.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://kit.fontawesome.com/f8c6d79c7d.js" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        /* Base layout fixes */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
+        .main-content {
+            min-height: calc(100vh - 160px);
+            padding: 100px 0 40px 0;
+        }
+        
+        /* Navbar improvements */
+        .navbar {
+            z-index: 1030;
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            background: rgba(22, 66, 60, 0.95) !important;
+            box-shadow: 0 2px 20px rgba(22, 66, 60, 0.3);
+        }
+        
+        .navbar.fixed-top {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            right: 0;
+        }
+        
+        /* Navbar text styling */
+        .navbar .nav-link {
+            color: #ffffff !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar .nav-link:hover {
+            color: #74b9ff !important;
+            transform: translateY(-1px);
+        }
+        
+        .navbar .dropdown-toggle {
+            color: #ffffff !important;
+        }
+        
+        .navbar .icon-link {
+            color: #ffffff !important;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+        
+        .navbar .icon-link:hover {
+            color: #74b9ff !important;
+            transform: scale(1.1);
+        }
+        
+        .navbar .icon-link i {
+            color: #ffffff !important;
+        }
+        
+        /* Audio control positioning */
+        .audio-control {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            z-index: 1040;
+            background: linear-gradient(135deg, #16423C 0%, #1a4f47 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(22, 66, 60, 0.3);
+        }
+        
+        .audio-control:hover {
+            background: linear-gradient(135deg, #1a4f47 0%, #2a5f57 100%);
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(22, 66, 60, 0.4);
+        }
+        
+        .account-sidebar {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            height: fit-content;
+        }
+        
+        .account-content {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        .nav-pills .nav-link {
+            color: #16423C;
+            border-radius: 8px;
+            margin-bottom: 5px;
+        }
+        
+        .nav-pills .nav-link.active {
+            background-color: #16423C;
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #16423C;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0 auto 20px;
+        }
+        
+        .order-card {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: box-shadow 0.3s ease;
+        }
+        
+        .order-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .status-badge {
+            font-size: 0.85rem;
+            padding: 5px 12px;
+        }
+        
+        .address-card {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: border-color 0.3s ease;
+        }
+        
+        .address-card:hover {
+            border-color: #16423C;
+        }
+        
+        .address-card.default {
+            border-color: #16423C;
+            background-color: #f8f9fa;
+        }
+
+        /* Review History Styles */
+        .review-card {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .review-card:hover {
+            box-shadow: 0 4px 12px rgba(22, 66, 60, 0.1);
+        }
+
+        .review-book-info {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .review-book-cover {
+            width: 60px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 15px;
+        }
+
+        .review-book-details h6 {
+            color: #16423C;
+            margin-bottom: 5px;
+        }
+
+        .review-stars {
+            color: #ffd700;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .review-stars .far {
+            color: #ddd;
+        }
+
+        .review-text {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .review-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #e9ecef;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .review-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .review-actions .btn {
+            padding: 5px 15px;
+            font-size: 0.85rem;
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 5px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .star-rating i {
+            color: #ddd;
+            transition: color 0.2s ease;
+        }
+
+        .star-rating i.active,
+        .star-rating i:hover {
+            color: #ffd700;
+        }
+
+        .stats-card {
+            border: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .review-book-info {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .review-book-cover {
+                margin: 0 auto 15px auto;
+            }
+
+            .review-meta {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+
+            .review-actions {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-custom fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="index.html">
+                <img src="media/icon.png" alt="Logo" width="50" height="50" class="me-2">
+                <span>LITERARY ESCAPE</span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="shopDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
+                        <ul class="dropdown-menu" aria-labelledby="shopDropdown">
+                            <li><a class="dropdown-item" href="fiction.html">Fiction</a></li>
+                            <li><a class="dropdown-item" href="non-fiction.html">Non-Fiction</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="about-us.html">About Us</a>
+                    </li>
+                </ul>
+
+                <!-- Search Bar -->
+                <form class="d-flex mx-3" onsubmit="handleSearch(event)">
+                    <div class="search-wrapper w-100">
+                        <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search" id="searchInput">
+                        <button class="btn mx-0" title="search-btn" type="submit"><i class="bi bi-search"></i></button>
+                    </div>
+                </form>
+
+                <!-- Icons -->
+                <div class="d-flex align-items-center nav-icons">
+                    <a href="favorites.html" class="icon-link" title="Favorites">
+                        <i class="fa-solid fa-heart"></i>
+                        <span id="favorites-count" class="cart-count">0</span>
+                    </a>
+                    <a href="cart.html" class="icon-link" title="Shopping Cart">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span id="cart-count" class="cart-count">0</span>
+                    </a>
+                    <a href="account.html" class="icon-link" title="Account"><i class="fa-solid fa-user"></i></a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 100px; padding: 20px 0;">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3">
+                <div class="account-sidebar">
+                    <div class="profile-avatar" id="userAvatar">
+                        <!-- User initials will be inserted here -->
+                    </div>
+                    <h5 class="text-center mb-3" id="userName">Loading...</h5>
+                    
+                    <ul class="nav nav-pills flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#profile" data-section="profile">
+                                <i class="fas fa-user me-2"></i>Profile
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#orders" data-section="orders">
+                                <i class="fas fa-shopping-bag me-2"></i>Orders
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#addresses" data-section="addresses">
+                                <i class="fas fa-map-marker-alt me-2"></i>Addresses
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#reviews" data-section="reviews">
+                                <i class="fas fa-star me-2"></i>My Reviews
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#security" data-section="security">
+                                <i class="fas fa-lock me-2"></i>Security
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-danger" href="#" id="logoutLink">
+                                <i class="fas fa-sign-out-alt me-2"></i>Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9">
+                <div class="account-content">
+                    <!-- Profile Section -->
+                    <div class="account-section" id="profile-section">
+                        <h3 class="mb-4" style="color: #16423C;">Profile Information</h3>
+                        <form id="profileForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="firstName" class="form-label">First Name</label>
+                                        <input type="text" class="form-control" id="firstName" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="lastName" class="form-label">Last Name</label>
+                                        <input type="text" class="form-control" id="lastName" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="phone">
+                            </div>
+                            <div class="mb-3">
+                                <label for="address" class="form-label">Address</label>
+                                <textarea class="form-control" id="address" rows="3"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="birthdate" class="form-label">Birth Date</label>
+                                <input type="date" class="form-control" id="birthdate">
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="city" class="form-label">City</label>
+                                        <input type="text" class="form-control" id="city">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="zipCode" class="form-label">ZIP Code</label>
+                                        <input type="text" class="form-control" id="zipCode">
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="background-color: #16423C; border-color: #16423C;">
+                                Update Profile
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Orders Section -->
+                    <div class="account-section d-none" id="orders-section">
+                        <h3 class="mb-4" style="color: #16423C;">Order History</h3>
+                        <div id="ordersContainer">
+                            <div class="text-center py-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-2">Loading your orders...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Addresses Section -->
+                    <div class="account-section d-none" id="addresses-section">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h3 style="color: #16423C;">Saved Addresses</h3>
+                            <button class="btn btn-primary" style="background-color: #16423C; border-color: #16423C;" data-bs-toggle="modal" data-bs-target="#addressModal">
+                                <i class="fas fa-plus me-2"></i>Add New Address
+                            </button>
+                        </div>
+                        <div id="addressesContainer">
+                            <!-- Addresses will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Security Section -->
+                    <div class="account-section d-none" id="security-section">
+                        <h3 class="mb-4" style="color: #16423C;">Security Settings</h3>
+                        
+                        <!-- Change Password -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Change Password</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="passwordChangeForm">
+                                    <div class="mb-3">
+                                        <label for="currentPassword" class="form-label">Current Password</label>
+                                        <input type="password" class="form-control" id="currentPassword" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="newPassword" class="form-label">New Password</label>
+                                        <input type="password" class="form-control" id="newPassword" required>
+                                        <div class="password-requirements mt-2">
+                                            <small class="text-muted">Password must contain:</small>
+                                            <div class="requirements-list">
+                                                <small class="requirement" id="length-req-security">• At least 8 characters</small>
+                                                <small class="requirement" id="uppercase-req-security">• One uppercase letter</small>
+                                                <small class="requirement" id="lowercase-req-security">• One lowercase letter</small>
+                                                <small class="requirement" id="number-req-security">• One number</small>
+                                                <small class="requirement" id="special-req-security">• One special character</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="confirmNewPassword" class="form-label">Confirm New Password</label>
+                                        <input type="password" class="form-control" id="confirmNewPassword" required>
+                                        <div class="password-match-feedback-security mt-1"></div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary" style="background-color: #16423C; border-color: #16423C;">
+                                        Change Password
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Account Activity -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Recent Account Activity</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="activityLog">
+                                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                        <div>
+                                            <strong>Last Login:</strong>
+                                            <span id="lastLogin">Loading...</span>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                        <div>
+                                            <strong>Account Created:</strong>
+                                            <span id="accountCreated">Loading...</span>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center py-2">
+                                        <div>
+                                            <strong>Profile Last Updated:</strong>
+                                            <span id="lastProfileUpdate">Loading...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reviews Section -->
+                    <div class="account-section d-none" id="reviews-section">
+                        <h3 class="mb-4" style="color: #16423C;">My Reviews</h3>
+                        
+                        <!-- Reviews Stats -->
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="card stats-card text-center">
+                                    <div class="card-body">
+                                        <h5 class="card-title" id="totalReviews">0</h5>
+                                        <p class="card-text text-muted">Total Reviews</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card stats-card text-center">
+                                    <div class="card-body">
+                                        <h5 class="card-title" id="averageRating">0.0</h5>
+                                        <p class="card-text text-muted">Average Rating Given</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card stats-card text-center">
+                                    <div class="card-body">
+                                        <h5 class="card-title" id="mostRecentReview">-</h5>
+                                        <p class="card-text text-muted">Latest Review</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Review Filters and Search -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <select class="form-select" id="reviewFilter" aria-label="Filter Reviews">
+                                    <option value="all">All Reviews</option>
+                                    <option value="5">5 Star Reviews</option>
+                                    <option value="4">4 Star Reviews</option>
+                                    <option value="3">3 Star Reviews</option>
+                                    <option value="2">2 Star Reviews</option>
+                                    <option value="1">1 Star Reviews</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="text" class="form-control" id="reviewSearch" placeholder="Search reviews by book title...">
+                            </div>
+                        </div>
+
+                        <!-- Reviews List -->
+                        <div id="reviewsContainer">
+                            <div class="text-center py-5" id="loadingReviews">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-2">Loading your reviews...</p>
+                            </div>
+                        </div>
+
+                        <!-- No Reviews Message -->
+                        <div class="text-center py-5 d-none" id="noReviews">
+                            <i class="fas fa-star fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No Reviews Yet</h5>
+                            <p class="text-muted">You haven't written any reviews yet. Start exploring books and share your thoughts!</p>
+                            <a href="index.html" class="btn btn-primary" style="background-color: #16423C; border-color: #16423C;">
+                                Browse Books
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Details Modal -->
+        <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Order Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3 d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="mb-1"><strong>Order #</strong><span id="odId"></span></div>
+                                <div class="text-muted"><small>Placed on <span id="odDate"></span></small></div>
+                            </div>
+                            <span id="odStatus" class="badge status-badge"></span>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <h6>Shipping Address</h6>
+                                <div id="odShipping"></div>
+                            </div>
+                            <div class="col-md-6 text-md-end">
+                                <h6>Total</h6>
+                                <div><strong id="odTotal"></strong></div>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th class="text-end">Price</th>
+                                        <th class="text-center">Qty</th>
+                                        <th class="text-end">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="odItemsBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Edit Review Modal -->
+        <div class="modal fade" id="editReviewModal" tabindex="-1" aria-labelledby="editReviewModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editReviewModalLabel">Edit Review</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editReviewForm">
+                            <input type="hidden" id="editReviewId">
+                            <div class="mb-3">
+                                <label class="form-label">Book</label>
+                                <div class="d-flex align-items-center">
+                                    <img id="editBookCover" src="" alt="Book Cover" style="width: 50px; height: 75px; object-fit: cover;" class="me-3">
+                                    <div>
+                                        <h6 class="mb-0" id="editBookTitle"></h6>
+                                        <small class="text-muted" id="editBookAuthor"></small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editRating" class="form-label">Rating</label>
+                                <div class="star-rating" id="editStarRating">
+                                    <i class="fas fa-star" data-rating="1"></i>
+                                    <i class="fas fa-star" data-rating="2"></i>
+                                    <i class="fas fa-star" data-rating="3"></i>
+                                    <i class="fas fa-star" data-rating="4"></i>
+                                    <i class="fas fa-star" data-rating="5"></i>
+                                </div>
+                                <input type="hidden" id="editRating" name="rating" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="editReviewText" class="form-label">Review</label>
+                                <textarea class="form-control" id="editReviewText" rows="4" placeholder="Update your thoughts about this book..." required></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="saveReviewChanges" style="background-color: #16423C; border-color: #16423C;">
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Address Modal -->
+    <div class="modal fade" id="addressModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Address</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" title="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addressForm">
+                        <div class="mb-3">
+                            <label for="addressLabel" class="form-label">Address Label</label>
+                            <input type="text" class="form-control" id="addressLabel" placeholder="e.g., Home, Work" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="fullAddress" class="form-label">Full Address</label>
+                            <textarea class="form-control" id="fullAddress" rows="3" required></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="addressCity" class="form-label">City</label>
+                                    <input type="text" class="form-control" id="addressCity" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="addressZip" class="form-label">ZIP Code</label>
+                                    <input type="text" class="form-control" id="addressZip" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="setAsDefault">
+                            <label class="form-check-label" for="setAsDefault">
+                                Set as default address
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" style="background-color: #16423C; border-color: #16423C;" id="saveAddressBtn">
+                        Save Address
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <a href="https://www.facebook.com/" class="text-decoration-none" style="color: white;"><i class="fa-brands fa-facebook"></i></a>
+        <a href="https://www.instagram.com/" class="text-decoration-none" style="color: white;"><i class="fa-brands fa-instagram"></i></a>
+    </footer>
+
+    <script>
+        let currentUser = null;
+        let userOrders = [];
+        let userAddresses = [];
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            // Check if user is logged in
+            if (!api.isLoggedIn()) {
+                window.location.href = 'account.html';
+                return;
+            }
+
+            currentUser = api.getCurrentUser();
+            if (!currentUser) {
+                window.location.href = 'account.html';
+                return;
+            }
+
+            await initializeAccountPage();
+            setupEventListeners();
+            updateNavbarAccountLink();
+            await dbBookDisplay.updateCartCount();
+        });
+
+        function updateNavbarAccountLink() {
+            const accountIcon = document.querySelector('.nav-icons .icon-link:last-child');
+            if (accountIcon && api && api.isLoggedIn && api.isLoggedIn()) {
+                accountIcon.href = 'account-dashboard.html';
+                const user = api.getCurrentUser();
+                if (user) {
+                    // Replace the icon with user initials
+                    const userInitials = getInitials(user.username);
+                    accountIcon.innerHTML = userInitials;
+                    accountIcon.className = 'navbar-user-avatar';
+                    accountIcon.title = `Logged in as ${user.username}`;
+                }
+            } else if (accountIcon) {
+                // Ensure link goes to login page when not logged in
+                accountIcon.href = 'account.html';
+                accountIcon.innerHTML = '<i class="fa-solid fa-user" style="color: #ffffff;"></i>';
+                accountIcon.className = 'icon-link';
+                accountIcon.title = 'Login or Sign Up';
+            }
+        }
+
+        async function initializeAccountPage() {
+            // Set user info in sidebar
+            document.getElementById('userName').textContent = currentUser.username;
+            document.getElementById('userAvatar').textContent = getInitials(currentUser.username);
+
+            // Load user profile
+            await loadUserProfile();
+            
+            // Load user data
+            await loadUserOrders();
+            await loadUserAddresses();
+        }
+
+        function getInitials(name) {
+            return name.split(' ').map(word => word[0]).join('').toUpperCase().substring(0, 2);
+        }
+
+        async function loadUserProfile() {
+            try {
+                const profile = await api.getUserProfile();
+                
+                // Populate form fields
+                document.getElementById('firstName').value = profile.first_name || '';
+                document.getElementById('lastName').value = profile.last_name || '';
+                document.getElementById('email').value = profile.email || '';
+                document.getElementById('phone').value = profile.phone || '';
+                document.getElementById('address').value = profile.address || '';
+                document.getElementById('birthdate').value = profile.birthdate || '';
+                document.getElementById('city').value = profile.city || '';
+                document.getElementById('zipCode').value = profile.zip_code || '';
+
+                // Update activity log
+                document.getElementById('accountCreated').textContent = new Date(profile.created_at).toLocaleDateString();
+                document.getElementById('lastProfileUpdate').textContent = new Date(profile.updated_at).toLocaleDateString();
+                document.getElementById('lastLogin').textContent = 'Today'; // This would come from login logs in a real system
+
+            } catch (error) {
+                console.error('Failed to load user profile:', error);
+                dbBookDisplay.showMessage('Failed to load profile data', 'error');
+            }
+        }
+
+        async function loadUserOrders() {
+            try {
+                userOrders = await api.getOrders();
+                displayOrders();
+            } catch (error) {
+                console.error('Failed to load orders:', error);
+                document.getElementById('ordersContainer').innerHTML = 
+                    '<div class="text-center py-5"><p class="text-muted">Failed to load orders</p></div>';
+            }
+        }
+
+        function displayOrders() {
+            const container = document.getElementById('ordersContainer');
+            
+            if (userOrders.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No orders yet</h5>
+                        <p class="text-muted">Start shopping to see your orders here!</p>
+                        <a href="index.html" class="btn btn-primary" style="background-color: #16423C; border-color: #16423C;">
+                            Continue Shopping
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = userOrders.map(order => `
+                <div class="order-card">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1">Order #${order.id}</h6>
+                            <p class="text-muted mb-1">Placed on ${new Date(order.created_at).toLocaleDateString()}</p>
+                            <p class="mb-2">Total: <strong>₱${order.total_amount.toFixed(2)}</strong></p>
+                        </div>
+                        <span class="badge status-badge ${getStatusClass(order.status)}">${order.status}</span>
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm" onclick="viewOrderDetails(${order.id})">
+                        View Details
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function getStatusClass(status) {
+            const statusClasses = {
+                'pending': 'bg-warning',
+                'processing': 'bg-info',
+                'shipped': 'bg-primary',
+                'delivered': 'bg-success',
+                'cancelled': 'bg-danger'
+            };
+            return statusClasses[status] || 'bg-secondary';
+        }
+
+        async function viewOrderDetails(orderId) {
+            try {
+                const order = await api.getOrderDetails(orderId);
+                if (!order) return;
+
+                document.getElementById('odId').textContent = order.id;
+                document.getElementById('odDate').textContent = new Date(order.created_at).toLocaleString();
+                const statusEl = document.getElementById('odStatus');
+                statusEl.textContent = order.status;
+                statusEl.className = `badge status-badge ${getStatusClass(order.status)}`;
+
+                // Shipping address (stored as JSON string in shipping_address)
+                let shippingHtml = '';
+                try {
+                    const s = typeof order.shipping_address === 'string' ? JSON.parse(order.shipping_address) : order.shipping_address;
+                    if (s && s.shippingAddress) {
+                        const a = s.shippingAddress;
+                        shippingHtml = `
+                            <div>${a.label || ''}</div>
+                            <div>${a.full_address || ''}</div>
+                            <div>${a.city || ''} ${a.zip_code || ''}</div>
+                        `;
+                    } else if (s) {
+                        shippingHtml = `
+                            <div>${s.label || ''}</div>
+                            <div>${s.full_address || ''}</div>
+                            <div>${s.city || ''} ${s.zip_code || ''}</div>
+                        `;
+                    }
+                } catch {
+                    shippingHtml = order.shipping_address || '';
+                }
+                document.getElementById('odShipping').innerHTML = shippingHtml;
+
+                // Total
+                document.getElementById('odTotal').textContent = `₱${(order.total_amount || 0).toFixed(2)}`;
+
+                // Items
+                const tbody = document.getElementById('odItemsBody');
+                if (order.items && order.items.length > 0) {
+                    tbody.innerHTML = order.items.map(it => `
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="${it.cover || 'media/books/default.jpg'}" alt="${it.title}" style="width: 40px; height: 60px; object-fit: cover;" class="me-2">
+                                    <div>
+                                        <div>${it.title}</div>
+                                        <small class="text-muted">by ${it.author || ''}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-end">₱${(it.price || 0).toFixed(2)}</td>
+                            <td class="text-center">${it.quantity}</td>
+                            <td class="text-end">₱${((it.price || 0) * (it.quantity || 0)).toFixed(2)}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No items</td></tr>';
+                }
+
+                new bootstrap.Modal(document.getElementById('orderDetailsModal')).show();
+            } catch (error) {
+                console.error('Failed to load order details:', error);
+                dbBookDisplay.showMessage('Failed to load order details', 'error');
+            }
+        }
+
+        async function loadUserAddresses() {
+            try {
+                userAddresses = await api.getUserAddresses();
+                displayAddresses();
+            } catch (error) {
+                console.error('Failed to load addresses:', error);
+                document.getElementById('addressesContainer').innerHTML = 
+                    '<div class="text-center py-3"><p class="text-muted">Failed to load addresses</p></div>';
+            }
+        }
+
+        function displayAddresses() {
+            const container = document.getElementById('addressesContainer');
+            
+            if (userAddresses.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="fas fa-map-marker-alt fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No saved addresses</h5>
+                        <p class="text-muted">Add addresses for faster checkout</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = userAddresses.map(address => `
+                <div class="address-card ${address.is_default ? 'default' : ''}" data-address-id="${address.id}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1">
+                                ${address.label} 
+                                ${address.is_default ? '<span class="badge bg-primary ms-2">Default</span>' : ''}
+                            </h6>
+                            <p class="mb-0">${address.full_address}</p>
+                            <p class="text-muted mb-0">${address.city}, ${address.zip_code}</p>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-link text-muted" data-bs-toggle="dropdown">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" onclick="editAddress(${address.id})">Edit</a></li>
+                                ${!address.is_default ? `<li><a class="dropdown-item" href="#" onclick="setDefaultAddress(${address.id})">Set as Default</a></li>` : ''}
+                                <li><a class="dropdown-item text-danger" href="#" onclick="deleteAddress(${address.id})">Delete</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function setupEventListeners() {
+            // Navigation
+            document.querySelectorAll('[data-section]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const section = this.dataset.section;
+                    switchSection(section);
+                });
+            });
+
+            // Profile form
+            document.getElementById('profileForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await updateProfile();
+            });
+
+            // Password change form
+            document.getElementById('passwordChangeForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await changePassword();
+            });
+
+            // Address form
+            document.getElementById('saveAddressBtn').addEventListener('click', async function() {
+                await saveAddress();
+            });
+
+            // Logout
+            document.getElementById('logoutLink').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Are you sure you want to logout?')) {
+                    api.logout();
+                    window.location.href = 'index.html';
+                }
+            });
+
+            // Password validation for security section
+            setupPasswordValidation('newPassword', 'confirmNewPassword', 'security');
+        }
+
+        function switchSection(sectionName) {
+            // Hide all sections
+            document.querySelectorAll('.account-section').forEach(section => {
+                section.classList.add('d-none');
+            });
+
+            // Remove active class from all nav links
+            document.querySelectorAll('.nav-pills .nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+
+            // Show selected section
+            document.getElementById(`${sectionName}-section`).classList.remove('d-none');
+            
+            // Add active class to selected nav link
+            document.querySelector(`[data-section="${sectionName}"]`).classList.add('active');
+
+            // Load section-specific data
+            if (sectionName === 'reviews') {
+                loadUserReviews();
+            }
+        }
+
+        async function updateProfile() {
+            try {
+                const formData = {
+                    first_name: document.getElementById('firstName').value,
+                    last_name: document.getElementById('lastName').value,
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value,
+                    address: document.getElementById('address').value,
+                    birthdate: document.getElementById('birthdate').value,
+                    city: document.getElementById('city').value,
+                    zip_code: document.getElementById('zipCode').value
+                };
+
+                await api.updateUserProfile(formData);
+                dbBookDisplay.showMessage('Profile updated successfully!', 'success');
+                
+                // Update sidebar name if name changed
+                const newUsername = `${formData.first_name} ${formData.last_name}`;
+                document.getElementById('userName').textContent = newUsername;
+                document.getElementById('userAvatar').textContent = getInitials(newUsername);
+
+            } catch (error) {
+                console.error('Failed to update profile:', error);
+                dbBookDisplay.showMessage('Failed to update profile', 'error');
+            }
+        }
+
+        async function changePassword() {
+            try {
+                const currentPassword = document.getElementById('currentPassword').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmNewPassword').value;
+
+                if (newPassword !== confirmPassword) {
+                    dbBookDisplay.showMessage('New passwords do not match', 'warning');
+                    return;
+                }
+
+                const passwordValidation = validatePassword(newPassword);
+                if (!passwordValidation.isValid) {
+                    dbBookDisplay.showMessage(`Password requirements not met: ${passwordValidation.errors.join(', ')}`, 'warning');
+                    return;
+                }
+
+                await api.changePassword(currentPassword, newPassword);
+                dbBookDisplay.showMessage('Password changed successfully!', 'success');
+                
+                // Clear form
+                document.getElementById('passwordChangeForm').reset();
+
+            } catch (error) {
+                console.error('Failed to change password:', error);
+                let errorMessage = 'Failed to change password';
+                if (error.message.includes('current password')) {
+                    errorMessage = 'Current password is incorrect';
+                }
+                dbBookDisplay.showMessage(errorMessage, 'error');
+            }
+        }
+
+        async function saveAddress() {
+            try {
+                const addressData = {
+                    label: document.getElementById('addressLabel').value,
+                    full_address: document.getElementById('fullAddress').value,
+                    city: document.getElementById('addressCity').value,
+                    zip_code: document.getElementById('addressZip').value,
+                    is_default: document.getElementById('setAsDefault').checked
+                };
+
+                await api.saveUserAddress(addressData);
+                dbBookDisplay.showMessage('Address saved successfully!', 'success');
+                
+                // Close modal and reload addresses
+                bootstrap.Modal.getInstance(document.getElementById('addressModal')).hide();
+                await loadUserAddresses();
+                
+                // Clear form
+                document.getElementById('addressForm').reset();
+
+            } catch (error) {
+                console.error('Failed to save address:', error);
+                dbBookDisplay.showMessage('Failed to save address', 'error');
+            }
+        }
+
+        async function deleteAddress(addressId) {
+            if (!confirm('Are you sure you want to delete this address?')) {
+                return;
+            }
+
+            try {
+                await api.deleteUserAddress(addressId);
+                dbBookDisplay.showMessage('Address deleted successfully!', 'success');
+                await loadUserAddresses();
+            } catch (error) {
+                console.error('Failed to delete address:', error);
+                dbBookDisplay.showMessage('Failed to delete address', 'error');
+            }
+        }
+
+        async function setDefaultAddress(addressId) {
+            try {
+                await api.setDefaultAddress(addressId);
+                dbBookDisplay.showMessage('Default address updated!', 'success');
+                await loadUserAddresses();
+            } catch (error) {
+                console.error('Failed to update default address:', error);
+                dbBookDisplay.showMessage('Failed to update default address', 'error');
+            }
+        }
+
+        function setupPasswordValidation(passwordId, confirmPasswordId, suffix) {
+            const passwordInput = document.getElementById(passwordId);
+            const confirmPasswordInput = document.getElementById(confirmPasswordId);
+
+            passwordInput?.addEventListener('input', function() {
+                const password = this.value;
+                updatePasswordRequirements(password, suffix);
+                checkPasswordMatch(suffix);
+            });
+
+            confirmPasswordInput?.addEventListener('input', function() {
+                checkPasswordMatch(suffix);
+            });
+
+            function updatePasswordRequirements(password, suffix) {
+                const requirements = {
+                    [`length-req-${suffix}`]: password.length >= 8,
+                    [`uppercase-req-${suffix}`]: /[A-Z]/.test(password),
+                    [`lowercase-req-${suffix}`]: /[a-z]/.test(password),
+                    [`number-req-${suffix}`]: /\d/.test(password),
+                    [`special-req-${suffix}`]: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+                };
+
+                for (const [reqId, met] of Object.entries(requirements)) {
+                    const element = document.getElementById(reqId);
+                    if (element) {
+                        if (met) {
+                            element.style.color = '#28a745';
+                            element.innerHTML = element.innerHTML.replace('•', '✓');
+                        } else {
+                            element.style.color = '#dc3545';
+                            element.innerHTML = element.innerHTML.replace('✓', '•');
+                        }
+                    }
+                }
+            }
+
+            function checkPasswordMatch(suffix) {
+                const password = passwordInput?.value || '';
+                const confirmPassword = confirmPasswordInput?.value || '';
+                const feedbackDiv = document.querySelector(`.password-match-feedback-${suffix}`);
+
+                if (confirmPassword.length > 0) {
+                    if (password === confirmPassword) {
+                        feedbackDiv.innerHTML = '<small class="text-success">✓ Passwords match</small>';
+                    } else {
+                        feedbackDiv.innerHTML = '<small class="text-danger">✗ Passwords do not match</small>';
+                    }
+                } else {
+                    feedbackDiv.innerHTML = '';
+                }
+            }
+        }
+
+        function validatePassword(password) {
+            const errors = [];
+            
+            if (password.length < 8) errors.push('at least 8 characters');
+            if (!/[A-Z]/.test(password)) errors.push('one uppercase letter');
+            if (!/[a-z]/.test(password)) errors.push('one lowercase letter');
+            if (!/\d/.test(password)) errors.push('one number');
+            if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) errors.push('one special character');
+            
+            return {
+                isValid: errors.length === 0,
+                errors: errors
+            };
+        }
+
+        // Review History Functions
+        let userReviews = [];
+        let filteredReviews = [];
+
+        async function loadUserReviews() {
+            try {
+                const response = await fetch('/api/user/reviews', {
+                    headers: {
+                        'Authorization': `Bearer ${api.token}`
+                    }
+                });
+
+                if (response.ok) {
+                    userReviews = await response.json();
+                    filteredReviews = [...userReviews];
+                    displayReviews();
+                    updateReviewStats();
+                } else {
+                    console.error('Failed to load reviews');
+                    showNoReviews();
+                }
+            } catch (error) {
+                console.error('Error loading reviews:', error);
+                showNoReviews();
+            } finally {
+                document.getElementById('loadingReviews').style.display = 'none';
+            }
+        }
+
+        function displayReviews() {
+            const container = document.getElementById('reviewsContainer');
+            
+            if (filteredReviews.length === 0) {
+                showNoReviews();
+                return;
+            }
+
+            document.getElementById('noReviews').classList.add('d-none');
+            
+            const reviewsHTML = filteredReviews.map(review => `
+                <div class="review-card">
+                    <div class="review-book-info">
+                        <img src="${review.cover || 'media/books/default-cover.jpg'}" 
+                             alt="${review.title}" 
+                             class="review-book-cover">
+                        <div class="review-book-details">
+                            <h6>${review.title}</h6>
+                            <p class="text-muted mb-2">by ${review.author}</p>
+                            <span class="badge bg-secondary">${review.genre || review.category}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="review-stars">
+                        ${generateStars(review.rating)}
+                    </div>
+                    
+                    <div class="review-text">
+                        ${review.review_text}
+                    </div>
+                    
+                    <div class="review-meta">
+                        <span>
+                            Reviewed on ${new Date(review.created_at).toLocaleDateString()}
+                            ${review.updated_at !== review.created_at ? 
+                                `(Updated ${new Date(review.updated_at).toLocaleDateString()})` : ''}
+                        </span>
+                        <div class="review-actions">
+                            <button class="btn btn-outline-primary btn-sm" onclick="editReview(${review.id})">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" onclick="deleteReview(${review.id})">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                            <a href="product.html?id=${review.book_id}" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-book"></i> View Book
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = reviewsHTML;
+        }
+
+        function generateStars(rating) {
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= rating) {
+                    stars += '<i class="fas fa-star"></i>';
+                } else {
+                    stars += '<i class="far fa-star"></i>';
+                }
+            }
+            return stars;
+        }
+
+        function updateReviewStats() {
+            const totalReviews = userReviews.length;
+            const averageRating = totalReviews > 0 ? 
+                (userReviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews).toFixed(1) : 0;
+            const mostRecentReview = totalReviews > 0 ? 
+                new Date(userReviews[0].created_at).toLocaleDateString() : '-';
+
+            document.getElementById('totalReviews').textContent = totalReviews;
+            document.getElementById('averageRating').textContent = averageRating;
+            document.getElementById('mostRecentReview').textContent = mostRecentReview;
+        }
+
+        function showNoReviews() {
+            document.getElementById('reviewsContainer').innerHTML = '';
+            document.getElementById('noReviews').classList.remove('d-none');
+        }
+
+        function filterReviews() {
+            const filterValue = document.getElementById('reviewFilter').value;
+            const searchValue = document.getElementById('reviewSearch').value.toLowerCase();
+
+            filteredReviews = userReviews.filter(review => {
+                const matchesFilter = filterValue === 'all' || review.rating == filterValue;
+                const matchesSearch = review.title.toLowerCase().includes(searchValue) || 
+                                    review.author.toLowerCase().includes(searchValue);
+                return matchesFilter && matchesSearch;
+            });
+
+            displayReviews();
+        }
+
+        function editReview(reviewId) {
+            const review = userReviews.find(r => r.id === reviewId);
+            if (!review) return;
+
+            // Populate modal
+            document.getElementById('editReviewId').value = review.id;
+            document.getElementById('editBookCover').src = review.cover || 'media/books/default-cover.jpg';
+            document.getElementById('editBookTitle').textContent = review.title;
+            document.getElementById('editBookAuthor').textContent = `by ${review.author}`;
+            document.getElementById('editReviewText').value = review.review_text;
+            document.getElementById('editRating').value = review.rating;
+
+            // Set star rating
+            setStarRating('editStarRating', review.rating);
+
+            // Show modal
+            new bootstrap.Modal(document.getElementById('editReviewModal')).show();
+        }
+
+        function setStarRating(containerId, rating) {
+            const container = document.getElementById(containerId);
+            const stars = container.querySelectorAll('i');
+            
+            stars.forEach((star, index) => {
+                star.classList.remove('active');
+                if (index < rating) {
+                    star.classList.add('active');
+                }
+            });
+        }
+
+        async function saveReviewChanges() {
+            const reviewId = document.getElementById('editReviewId').value;
+            const rating = document.getElementById('editRating').value;
+            const reviewText = document.getElementById('editReviewText').value;
+
+            if (!rating || !reviewText.trim()) {
+                alert('Please provide both rating and review text.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/reviews/${reviewId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${api.token}`
+                    },
+                    body: JSON.stringify({
+                        rating: parseInt(rating),
+                        reviewText: reviewText.trim()
+                    })
+                });
+
+                if (response.ok) {
+                    // Close modal
+                    bootstrap.Modal.getInstance(document.getElementById('editReviewModal')).hide();
+                    
+                    // Reload reviews
+                    await loadUserReviews();
+                    
+                    alert('Review updated successfully!');
+                } else {
+                    const error = await response.json();
+                    alert('Failed to update review: ' + error.error);
+                }
+            } catch (error) {
+                console.error('Error updating review:', error);
+                alert('Failed to update review. Please try again.');
+            }
+        }
+
+        async function deleteReview(reviewId) {
+            if (!confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/reviews/${reviewId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${api.token}`
+                    }
+                });
+
+                if (response.ok) {
+                    // Reload reviews
+                    await loadUserReviews();
+                    alert('Review deleted successfully!');
+                } else {
+                    const error = await response.json();
+                    alert('Failed to delete review: ' + error.error);
+                }
+            } catch (error) {
+                console.error('Error deleting review:', error);
+                alert('Failed to delete review. Please try again.');
+            }
+        }
+
+        // Initialize star rating for edit modal
+        document.addEventListener('DOMContentLoaded', function() {
+            const editStarRating = document.getElementById('editStarRating');
+            if (editStarRating) {
+                editStarRating.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('fa-star')) {
+                        const rating = parseInt(e.target.dataset.rating);
+                        document.getElementById('editRating').value = rating;
+                        setStarRating('editStarRating', rating);
+                    }
+                });
+            }
+
+            // Add event listeners for filters
+            document.getElementById('reviewFilter').addEventListener('change', filterReviews);
+            document.getElementById('reviewSearch').addEventListener('input', filterReviews);
+            
+            // Add event listener for save button
+            document.getElementById('saveReviewChanges').addEventListener('click', saveReviewChanges);
+        });
+    </script>
+
+    <script src="js/api-client.js"></script>
+    <script src="js/navbar-counts.js"></script>
+    <script src="js/database-book-display.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
