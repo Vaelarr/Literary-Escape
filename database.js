@@ -80,7 +80,7 @@ function initializeDatabase(callback) {
         )
     `;
 
-        const createAdminsable = `
+        const createAdminsTable = `
         CREATE TABLE IF NOT EXISTS admins (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
@@ -190,7 +190,7 @@ function initializeDatabase(callback) {
         });
 
         console.log('Creating admins table...');
-        db.run(createAdmsTable, (err) => {
+        db.run(createAdminsTable, (err) => {
             if (err) console.error('Error creating admin table:', err);
             else console.log('Admin table created/verified');
         });
@@ -276,6 +276,8 @@ function createAdminAccount(callback) {
     const bcrypt = require('bcrypt');
     const adminEmail = 'admin@literaryescape.com';
     const adminPassword = 'Admin123!';
+    const adminFirstName = 'System';
+    const adminLastName = 'Administrator';
     
     // Check if admin already exists
     db.get("SELECT id FROM admins WHERE email = ?", [adminEmail], (err, row) => {
@@ -304,12 +306,12 @@ function createAdminAccount(callback) {
                 VALUES (?, ?, ?, ?, ?, ?)
             `;
             
-            db.run(query, ['admin', adminEmail, hash, adminFirstName, adminLastName, 'Administrator'], function(err) {
+            db.run(query, ['admin', adminEmail, hash, adminFirstName, adminLastName, 'admin'], function(err) {
                 if (err) {
-                    console.error('Error creating an Administrator account:', err);
+                    console.error('Error creating Administrator account:', err);
                 } else {
                     console.log('Administrator account created successfully');
-                    console.log('Admininstrator credentials:');
+                    console.log('Administrator credentials:');
                     console.log('Email:', adminEmail);
                     console.log('Password:', adminPassword);
                 }
@@ -754,7 +756,7 @@ const orderOperations = {
 // Admin order operations
 orderOperations.getAllOrders = (callback) => {
     const query = `
-        SELECT o.*, u.username
+        SELECT o.*, u.username, u.email, u.first_name, u.last_name
         FROM orders o
         LEFT JOIN users u ON o.user_id = u.id
         ORDER BY o.created_at DESC
@@ -1074,6 +1076,83 @@ function bulkInsertBooks(books, callback) {
     processNext();
 }
 
+// Admin operations
+const adminOperations = {
+    // Get admin by email for login
+    getByEmail: (email, callback) => {
+        const query = `SELECT * FROM admins WHERE email = ?`;
+        db.get(query, [email], callback);
+    },
+
+    // Get admin by ID
+    getById: (id, callback) => {
+        const query = `SELECT * FROM admins WHERE id = ?`;
+        db.get(query, [id], callback);
+    },
+
+    // Register new admin (should be restricted to super admins)
+    register: (admin, callback) => {
+        console.log('Attempting to register admin:', admin.email);
+        
+        const query = `
+            INSERT INTO admins (username, email, password_hash, first_name, last_name, phone)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `;
+        const values = [admin.username, admin.email, admin.password_hash, admin.first_name, admin.last_name, admin.phone];
+        
+        db.run(query, values, function(err) {
+            if (err) {
+                console.error('Error registering admin:', err.message);
+                if (err.message.includes('UNIQUE constraint failed')) {
+                    callback(new Error('Admin with this email or username already exists'));
+                } else {
+                    callback(err);
+                }
+            } else {
+                console.log('Admin registered successfully with ID:', this.lastID);
+            }
+            callback(err);
+        });
+    },
+
+    // Update admin profile
+    updateProfile: (id, profileData, callback) => {
+        const query = `
+            UPDATE admins SET 
+                first_name = ?, last_name = ?, email = ?, phone = ?, 
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        `;
+        const values = [
+            profileData.first_name, profileData.last_name, profileData.email, 
+            profileData.phone, id
+        ];
+        db.run(query, values, callback);
+    },
+
+    // Update password
+    updatePassword: (adminId, passwordHash, callback) => {
+        const query = `UPDATE admins SET password_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
+        db.run(query, [passwordHash, adminId], callback);
+    },
+
+    // Get all admins (for super admin use)
+    getAll: (callback) => {
+        const query = `
+            SELECT id, username, email, first_name, last_name, created_at
+            FROM admins
+            ORDER BY created_at DESC
+        `;
+        db.all(query, [], callback);
+    },
+
+    // Delete admin (should be restricted to super admins)
+    deleteAdmin: (id, callback) => {
+        const query = `DELETE FROM admins WHERE id = ?`;
+        db.run(query, [id], callback);
+    }
+};
+
 module.exports = {
     db,
     initializeDatabase,
@@ -1083,6 +1162,7 @@ module.exports = {
     favoritesOperations,
     orderOperations,
     reviewsOperations,
+    adminOperations,
     checkDatabaseHealth,
     bulkInsertBooks
 };

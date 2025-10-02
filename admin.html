@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="./css/admin_style.css">
 </head>
 <body>
-    <!-- Admin Login Container (shown when not authenticated) -->
+    <!-- Admin Login Container -->
     <div id="adminLogin" style="display: none; padding: 40px; max-width: 480px; margin: 60px auto;">
         <div class="content-card" style="padding: 24px;">
             <h2 class="section-title" style="margin-bottom: 20px;">Admin Login</h2>
@@ -30,7 +30,7 @@
         </div>
     </div>
 
-    <!-- Admin App Container (hidden until authenticated) -->
+    <!-- Admin App Container -->
     <div id="adminApp">
     <div class="sidebar">
         <div class="logo-container">
@@ -41,6 +41,7 @@
             <li><a href="#" class="menu-link active" data-section="dashboard">Dashboard</a></li>
             <li><a href="#" class="menu-link" data-section="books">Book Management</a></li>
             <li><a href="#" class="menu-link" data-section="users">User Management</a></li>
+            <li><a href="#" class="menu-link" data-section="orders">Order Management</a></li>
             <li><a href="#" class="menu-link" data-section="settings">Security & Settings</a></li>
         </ul>
 
@@ -156,26 +157,45 @@
                     </table>
                 </div>
             </div>
+        </div>
 
-            <!--Orders Management-->
-            <div id="orders-section" class="content-section">
-            <h2 class="section-title">Order List</h2>
+        <!-- Order Management Section -->
+        <div id="orders-section" class="content-section">
+            <h2 class="section-title">
+                Order Management
+                <div style="display: inline-flex; gap: 15px; margin-left: 20px;">
+                    <select class="category-filter" id="statusFilter" title="Filter by status">
+                        <option value="all">All Statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="processing">Processing</option>
+                        <option value="shipped">Shipped</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                    <input type="text" id="orderSearch" placeholder="Search orders..." 
+                           style="padding: 5px 10px; border-radius: 4px; border: 1px solid #34495e; background: #2c3e50; color: white;">
+                </div>
+            </h2>
             <div class="content-card">
+                <div style="margin-bottom: 15px; color: rgba(255,255,255,0.7);">
+                    <span id="orderCount">Loading...</span> orders found
+                </div>
                 <div class="table-container">
                     <table class="custom-table">
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>User</th>
-                                <th>Total</th>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Email</th>
+                                <th>Total Amount</th>
                                 <th>Status</th>
-                                <th>Created</th>
+                                <th>Order Date</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="ordersTable">
                             <tr>
-                                <td colspan="6" style="text-align: center; color: rgba(255,255,255,0.5);">No orders yet</td>
+                                <td colspan="7" style="text-align: center; color: rgba(255,255,255,0.5);">Loading orders...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -396,6 +416,7 @@
         function initAdmin() {
             setupNavigation();
             setupCategoryFilter();
+            setupOrderFilters();
             loadBooksFromAPI();
             loadUsersFromAPI();
             loadOrdersFromAPI();
@@ -519,38 +540,94 @@
                 console.log('Loading orders from API...');
                 const orders = await api.adminListOrders();
                 console.log('Orders loaded:', orders ? orders.length : 0);
+                
+                // Store orders globally for filtering
+                window.allOrders = orders || [];
+                
                 const tbody = document.getElementById('ordersTable');
                 if (!orders || orders.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: rgba(255,255,255,0.5);">No orders yet</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: rgba(255,255,255,0.5);">No orders yet</td></tr>';
+                    document.getElementById('orderCount').textContent = '0';
                     return;
                 }
-                tbody.innerHTML = orders.map(o => `
-                    <tr>
-                        <td>${o.id}</td>
-                        <td>${o.username || o.user_id}</td>
-                        <td>₱${(o.total_amount || 0).toFixed(2)}</td>
-                        <td>
-                            <select onchange="updateOrderStatus(${o.id}, this.value)">
-                                ${['pending','processing','shipped','completed','cancelled'].map(s => `<option value="${s}" ${o.status===s?'selected':''}>${s}</option>`).join('')}
-                            </select>
-                        </td>
-                        <td>${o.created_at || ''}</td>
-                        <td>
-                            <button class="btn-change" onclick="viewOrderDetails(${o.id})">Details</button>
-                            <button class="btn-delete" onclick="deleteOrder(${o.id})"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `).join('');
+                
+                displayOrders(orders);
             } catch (e) {
                 console.error('Error loading orders:', e);
-                alert('Failed to load orders: ' + (e.message || e));
+                const tbody = document.getElementById('ordersTable');
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: rgba(255,255,255,0.5);">Failed to load orders</td></tr>';
+                document.getElementById('orderCount').textContent = '0';
             }
+        }
+
+        function displayOrders(orders) {
+            const tbody = document.getElementById('ordersTable');
+            const orderCountEl = document.getElementById('orderCount');
+            
+            if (!orders || orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: rgba(255,255,255,0.5);">No orders match your criteria</td></tr>';
+                orderCountEl.textContent = '0';
+                return;
+            }
+            
+            orderCountEl.textContent = orders.length;
+            
+            tbody.innerHTML = orders.map(o => {
+                // Format the date
+                const orderDate = o.created_at ? new Date(o.created_at).toLocaleDateString() : 'N/A';
+                
+                // Format customer name
+                let customerName = 'Unknown Customer';
+                if (o.first_name || o.last_name) {
+                    customerName = `${o.first_name || ''} ${o.last_name || ''}`.trim();
+                } else if (o.username) {
+                    customerName = o.username;
+                }
+                
+                // Format status badge
+                const statusColors = {
+                    'pending': '#f39c12',
+                    'processing': '#3498db',
+                    'shipped': '#9b59b6',
+                    'completed': '#27ae60',
+                    'cancelled': '#e74c3c'
+                };
+                
+                return `
+                    <tr>
+                        <td style="font-weight: bold;">#${o.id}</td>
+                        <td>${customerName}</td>
+                        <td>${o.email || 'N/A'}</td>
+                        <td style="font-weight: bold; color: #27ae60;">₱${(o.total_amount || 0).toFixed(2)}</td>
+                        <td>
+                            <select onchange="updateOrderStatus(${o.id}, this.value)" 
+                                    style="padding: 4px 8px; border-radius: 4px; background: ${statusColors[o.status] || '#2c3e50'}; color: white; border: 1px solid #34495e; font-weight: bold;">
+                                ${['pending','processing','shipped','completed','cancelled'].map(s => 
+                                    `<option value="${s}" ${o.status===s?'selected':''}>${s.charAt(0).toUpperCase() + s.slice(1)}</option>`
+                                ).join('')}
+                            </select>
+                        </td>
+                        <td>${orderDate}</td>
+                        <td>
+                            <button class="btn-change" onclick="viewOrderDetails(${o.id})" title="View Details" style="margin-right: 5px;">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn-delete" onclick="deleteOrder(${o.id})" title="Delete Order">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         }
 
         async function updateOrderStatus(orderId, status) {
             try {
                 await api.adminUpdateOrder(orderId, { status });
                 console.log(`📊 Order ${orderId} status updated to: ${status}`);
+                
+                // Refresh the orders display
+                await loadOrdersFromAPI();
                 
                 // Refresh the dashboard to update book sales count
                 // This is important when orders are marked as completed
@@ -701,6 +778,52 @@
             document.getElementById('categoryFilter').addEventListener('change', function() {
                 displayBooks(this.value);
             });
+        }
+
+        function setupOrderFilters() {
+            const statusFilter = document.getElementById('statusFilter');
+            const orderSearch = document.getElementById('orderSearch');
+            
+            if (statusFilter) {
+                statusFilter.addEventListener('change', function() {
+                    filterOrders();
+                });
+            }
+            
+            if (orderSearch) {
+                orderSearch.addEventListener('input', function() {
+                    filterOrders();
+                });
+            }
+        }
+
+        function filterOrders() {
+            if (!window.allOrders) return;
+            
+            const statusFilter = document.getElementById('statusFilter').value;
+            const searchTerm = document.getElementById('orderSearch').value.toLowerCase();
+            
+            let filteredOrders = window.allOrders;
+            
+            // Filter by status
+            if (statusFilter !== 'all') {
+                filteredOrders = filteredOrders.filter(order => order.status === statusFilter);
+            }
+            
+            // Filter by search term (search in order ID, customer name, email)
+            if (searchTerm) {
+                filteredOrders = filteredOrders.filter(order => {
+                    const customerName = `${order.first_name || ''} ${order.last_name || ''}`.trim() || order.username || '';
+                    const email = order.email || '';
+                    const orderId = order.id.toString();
+                    
+                    return customerName.toLowerCase().includes(searchTerm) ||
+                           email.toLowerCase().includes(searchTerm) ||
+                           orderId.includes(searchTerm);
+                });
+            }
+            
+            displayOrders(filteredOrders);
         }
 
         async function updateDashboard() {

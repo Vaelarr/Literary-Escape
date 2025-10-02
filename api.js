@@ -9,6 +9,7 @@ const {
     favoritesOperations, 
     orderOperations,
     reviewsOperations,
+    adminOperations,
     initializeDatabase 
 } = require('./database');
 
@@ -50,33 +51,30 @@ function authenticateAdmin(req, res, next) {
         
         console.log('Admin middleware - Token payload:', user);
         
-        // Check if this is an admin token (either hardcoded admin or database admin)
-        if (user.role === 'admin' || user.userId === 'admin') {
+        // Check if this is an admin token
+        if (user.role === 'admin' && user.isAdmin === true) {
             console.log('Admin authentication successful');
-            req.user = user;
-            req.userData = user; // For hardcoded admin, user data is in the token
-            next();
-        } else {
-            // For regular users stored in database, check their role
-            userOperations.getById(user.userId, (err, userData) => {
+            
+            // Verify admin still exists in database
+            adminOperations.getById(user.userId, (err, adminData) => {
                 if (err) {
-                    console.log('Error getting user by ID:', err);
-                    return res.status(500).json({ error: 'Failed to verify user role' });
+                    console.log('Error getting admin by ID:', err);
+                    return res.status(500).json({ error: 'Failed to verify admin' });
                 }
                 
-                console.log('Admin middleware - Database user found:', userData ? 'Yes' : 'No');
-                console.log('Admin middleware - User role:', userData ? userData.role : 'N/A');
-                
-                if (!userData || (userData.role !== 'Admin' && userData.role !== 'admin')) {
-                    console.log('Admin access denied - role check failed');
-                    return res.status(403).json({ error: 'Admin access required' });
+                if (!adminData) {
+                    console.log('Admin not found in database - token invalid');
+                    return res.status(403).json({ error: 'Admin access revoked' });
                 }
                 
-                console.log('Database admin authentication successful');
+                console.log('Database admin verification successful');
                 req.user = user;
-                req.userData = userData;
+                req.adminData = adminData;
                 next();
             });
+        } else {
+            console.log('Admin access denied - not an admin token');
+            return res.status(403).json({ error: 'Admin access required' });
         }
     });
 }
@@ -224,34 +222,98 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/login', (req, res) => {
     const { email, password } = req.body;
     
-    // Hardcoded admin credentials
-    const ADMIN_EMAIL = 'admin@literaryescape.com';
-    const ADMIN_PASSWORD = 'Admin123!';
-    
-    // Prevent hardcoded admin from logging in through regular login
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-        return res.status(403).json({ 
-            error: 'Admin accounts must use the admin login portal. Please visit the admin panel to login.' 
-        });
-    }
-    
-    userOperations.getByEmail(email, async (err, user) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (!user) return res.status(400).json({ error: 'Invalid credentials' });
+    // First check if this email belongs to an admin account
+    adminOperations.getByEmail(email, (err, admin) => {
+        if (err) {
+            console.error('Error checking admin table during regular login:', err);
+            return res.status(500).json({ error: 'Database error' });
+        }
         
-        // Prevent database admin users from logging in through regular login (if any exist)
-        if (user.role === 'Admin' || user.role === 'admin') {
+        if (admin) {
+            // This email belongs to an admin account
             return res.status(403).json({ 
                 error: 'Admin accounts must use the admin login portal. Please visit the admin panel to login.' 
             });
         }
         
-        try {
-            const validPassword = await bcrypt.compare(password, user.password_hash);
-            if (!validPassword) return res.status(400).json({ error: 'Invalid credentials' });
+        // Continue with regular user login
+        userOperations.getByEmail(email, async (err, user) => {
+            if (err) return res.status(500).json({ error: err.message });
+            if (!user) return res.status(400).json({ error: 'Invalid credentials' });
             
+            // Additional check: Prevent any users with admin role from logging in through regular login
+            if (user.role === 'Admin' || user.role === 'admin') {
+                return res.status(403).json({ 
+                    error: 'Admin accounts must use the admin login portal. Please visit the admin panel to login.' 
+                });
+            }
+            
+            try {
+                const validPassword = await bcrypt.compare(password, user.password_hash);
+                if (!validPassword) return res.status(400).json({ error: 'Invalid credentials' });
+            
+                const token = jwt.sign(
+                    { userId: user.id, email: user.email }, 
+                    JWT_SECRET, 
+                    { expiresIn: '24h' }
+                );
+                
+                res.json({ 
+                    token, 
+                    user: { 
+                        id: user.id, 
+                        username: user.username, 
+                        email: user.email,
+                        first_name: user.first_name,
+                        last_name: user.last_name
+                    } 
+                });
+            } catch (error) {
+                res.status(500).json({ error: error.message });
+            }
+        });
+    });
+});
+
+// Admin login endpoint - uses database authentication
+app.post('/api/admin/login', async (req, res) => {
+    const { email, password } = req.body;
+    
+    console.log('Admin login attempt for:', email);
+    
+    try {
+        // Check if admin exists in database
+        adminOperations.getByEmail(email, async (err, admin) => {
+            if (err) {
+                console.error('Database error during admin login:', err);
+                return res.status(500).json({ error: 'Database error' });
+            }
+            
+            if (!admin) {
+                console.log('Admin not found in database:', email);
+                return res.status(400).json({ error: 'Invalid credentials' });
+            }
+            
+            console.log('Admin found in database, verifying password...');
+            
+            // Verify password
+            const passwordMatch = await bcrypt.compare(password, admin.password_hash);
+            
+            if (!passwordMatch) {
+                console.log('Invalid password for admin:', email);
+                return res.status(400).json({ error: 'Invalid credentials' });
+            }
+            
+            console.log('Admin credentials validated successfully');
+            
+            // Generate JWT token
             const token = jwt.sign(
-                { userId: user.id, email: user.email }, 
+                { 
+                    userId: admin.id,
+                    email: admin.email,
+                    role: 'admin',
+                    isAdmin: true
+                }, 
                 JWT_SECRET, 
                 { expiresIn: '24h' }
             );
@@ -259,62 +321,18 @@ app.post('/api/login', (req, res) => {
             res.json({ 
                 token, 
                 user: { 
-                    id: user.id, 
-                    username: user.username, 
-                    email: user.email,
-                    first_name: user.first_name,
-                    last_name: user.last_name
+                    id: admin.id,
+                    username: admin.username,
+                    email: admin.email,
+                    first_name: admin.first_name,
+                    last_name: admin.last_name,
+                    role: 'admin'
                 } 
             });
-        } catch (error) {
-            res.status(500).json({ error: error.message });
-        }
-    });
-});
-
-// Admin login endpoint - separate from regular user login
-app.post('/api/admin/login', async (req, res) => {
-    const { email, password } = req.body;
-    
-    // Hardcoded admin credentials
-    const ADMIN_EMAIL = 'admin@literaryescape.com';
-    const ADMIN_PASSWORD = 'Admin123!';
-    
-    console.log('Admin login attempt for:', email);
-    
-    // Check if credentials match hardcoded admin credentials
-    if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
-        console.log('Invalid admin credentials provided');
-        return res.status(400).json({ error: 'Invalid credentials' });
-    }
-    
-    console.log('Admin credentials validated successfully');
-    
-    try {
-        const token = jwt.sign(
-            { 
-                userId: 'admin', 
-                email: ADMIN_EMAIL,
-                role: 'admin'
-            }, 
-            JWT_SECRET, 
-            { expiresIn: '24h' }
-        );
-        
-        res.json({ 
-            token, 
-            user: { 
-                id: 'admin', 
-                username: 'admin', 
-                email: ADMIN_EMAIL,
-                first_name: 'System',
-                last_name: 'Administrator',
-                role: 'admin'
-            } 
         });
     } catch (error) {
-        console.error('Error generating admin token:', error);
-        res.status(500).json({ error: error.message });
+        console.error('Error during admin login:', error);
+        res.status(500).json({ error: 'Login failed' });
     }
 });
 
@@ -665,27 +683,28 @@ app.get('/api/admin/orders/:id/details', authenticateAdmin, (req, res) => {
 
 // User profile endpoints
 app.get('/api/user/profile', authenticateToken, (req, res) => {
-    // Handle hardcoded admin case
-    if (req.user.userId === 'admin') {
-        return res.json({
-            id: 'admin',
-            username: 'admin',
-            email: 'admin@literaryescape.com',
-            first_name: 'System',
-            last_name: 'Administrator',
-            role: 'admin'
+    // Check if this is an admin token
+    if (req.user.role === 'admin' && req.user.isAdmin === true) {
+        // For admin users, get admin profile from database
+        adminOperations.getById(req.user.userId, (err, admin) => {
+            if (err) return res.status(500).json({ error: err.message });
+            if (!admin) return res.status(404).json({ error: 'Admin not found' });
+            
+            // Remove password hash from response
+            const { password_hash, ...adminProfile } = admin;
+            res.json(adminProfile);
+        });
+    } else {
+        // Handle regular database users
+        userOperations.getById(req.user.userId, (err, user) => {
+            if (err) return res.status(500).json({ error: err.message });
+            if (!user) return res.status(404).json({ error: 'User not found' });
+            
+            // Remove password hash from response
+            const { password_hash, ...userProfile } = user;
+            res.json(userProfile);
         });
     }
-    
-    // Handle regular database users
-    userOperations.getById(req.user.userId, (err, user) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (!user) return res.status(404).json({ error: 'User not found' });
-        
-        // Remove password hash from response
-        const { password_hash, ...userProfile } = user;
-        res.json(userProfile);
-    });
 });
 
 // Admin user management endpoints (require admin authentication)
