@@ -263,8 +263,35 @@ function runMigrations(callback) {
         } else {
             console.log('Users table migration completed - role column ready');
         }
+    });
+
+    // Add archive columns to books table
+    db.run("ALTER TABLE books ADD COLUMN archived BOOLEAN DEFAULT 0", (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+            console.error('Error adding archived column to books:', err);
+        } else {
+            console.log('Books table migration completed - archived column ready');
+        }
+    });
+
+    // Add archive columns to users table
+    db.run("ALTER TABLE users ADD COLUMN archived BOOLEAN DEFAULT 0", (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+            console.error('Error adding archived column to users:', err);
+        } else {
+            console.log('Users table migration completed - archived column ready');
+        }
+    });
+
+    // Add archive columns to orders table
+    db.run("ALTER TABLE orders ADD COLUMN archived BOOLEAN DEFAULT 0", (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+            console.error('Error adding archived column to orders:', err);
+        } else {
+            console.log('Orders table migration completed - archived column ready');
+        }
         
-        // Create admin account after migrations
+        // Create admin account after all migrations
         createAdminAccount(() => {
             if (callback) callback(null);
         });
@@ -323,27 +350,27 @@ function createAdminAccount(callback) {
 
 // CRUD operations for books
 const bookOperations = {
-    // Get all books
+    // Get all books (excluding archived)
     getAll: (callback) => {
-        const query = `SELECT * FROM books ORDER BY title`;
+        const query = `SELECT * FROM books WHERE archived = 0 OR archived IS NULL ORDER BY title`;
         db.all(query, [], callback);
     },
 
-    // Get book by ID
+    // Get book by ID (excluding archived)
     getById: (id, callback) => {
-        const query = `SELECT * FROM books WHERE id = ?`;
+        const query = `SELECT * FROM books WHERE id = ? AND (archived = 0 OR archived IS NULL)`;
         db.get(query, [id], callback);
     },
     
-    // Get books by category
+    // Get books by category (excluding archived)
     getByCategory: (category, callback) => {
-        const query = `SELECT * FROM books WHERE category = ? ORDER BY title`;
+        const query = `SELECT * FROM books WHERE category = ? AND (archived = 0 OR archived IS NULL) ORDER BY title`;
         db.all(query, [category], callback);
     },
 
-    // Get books by genre
+    // Get books by genre (excluding archived)
     getByGenre: (genre, callback) => {
-        const query = `SELECT * FROM books WHERE genre = ? ORDER BY title`;
+        const query = `SELECT * FROM books WHERE genre = ? AND (archived = 0 OR archived IS NULL) ORDER BY title`;
         db.all(query, [genre], callback);
     },
 
@@ -418,11 +445,12 @@ const bookOperations = {
         db.run(query, [id], callback);
     },
 
-    // Search books
+    // Search books (excluding archived)
     search: (term, callback) => {
         const query = `
             SELECT * FROM books 
-            WHERE title LIKE ? OR author LIKE ? OR description LIKE ?
+            WHERE (title LIKE ? OR author LIKE ? OR description LIKE ?)
+            AND (archived = 0 OR archived IS NULL)
             ORDER BY title
         `;
         const searchTerm = `%${term}%`;
@@ -1150,6 +1178,301 @@ const adminOperations = {
     deleteAdmin: (id, callback) => {
         const query = `DELETE FROM admins WHERE id = ?`;
         db.run(query, [id], callback);
+    },
+
+    // Admin methods to get all items (including archived)
+    getAllBooks: (page = 1, limit = 10, callback) => {
+        const offset = (page - 1) * limit;
+        const query = `
+            SELECT * FROM books 
+            WHERE archived = 0 OR archived IS NULL
+            ORDER BY created_at DESC
+            LIMIT ? OFFSET ?
+        `;
+        db.all(query, [limit, offset], (err, books) => {
+            if (err) {
+                callback(err);
+                return;
+            }
+            
+            // Get total count for pagination
+            db.get('SELECT COUNT(*) as total FROM books WHERE archived = 0 OR archived IS NULL', [], (countErr, countResult) => {
+                if (countErr) {
+                    callback(countErr);
+                    return;
+                }
+                
+                callback(null, {
+                    books: books,
+                    pagination: {
+                        currentPage: page,
+                        totalItems: countResult.total,
+                        totalPages: Math.ceil(countResult.total / limit),
+                        itemsPerPage: limit
+                    }
+                });
+            });
+        });
+    },
+
+    getAllUsers: (page = 1, limit = 10, callback) => {
+        const offset = (page - 1) * limit;
+        const query = `
+            SELECT id, username, email, first_name, last_name, address, phone, created_at
+            FROM users 
+            WHERE archived = 0 OR archived IS NULL
+            ORDER BY created_at DESC
+            LIMIT ? OFFSET ?
+        `;
+        db.all(query, [limit, offset], (err, users) => {
+            if (err) {
+                callback(err);
+                return;
+            }
+            
+            // Get total count for pagination
+            db.get('SELECT COUNT(*) as total FROM users WHERE archived = 0 OR archived IS NULL', [], (countErr, countResult) => {
+                if (countErr) {
+                    callback(countErr);
+                    return;
+                }
+                
+                callback(null, {
+                    users: users,
+                    pagination: {
+                        currentPage: page,
+                        totalItems: countResult.total,
+                        totalPages: Math.ceil(countResult.total / limit),
+                        itemsPerPage: limit
+                    }
+                });
+            });
+        });
+    },
+
+    getAllOrders: (page = 1, limit = 10, callback) => {
+        const offset = (page - 1) * limit;
+        const query = `
+            SELECT o.*, u.username, u.email
+            FROM orders o
+            JOIN users u ON o.user_id = u.id
+            WHERE o.archived = 0 OR o.archived IS NULL
+            ORDER BY o.created_at DESC
+            LIMIT ? OFFSET ?
+        `;
+        db.all(query, [limit, offset], (err, orders) => {
+            if (err) {
+                callback(err);
+                return;
+            }
+            
+            // Get total count for pagination
+            db.get('SELECT COUNT(*) as total FROM orders WHERE archived = 0 OR archived IS NULL', [], (countErr, countResult) => {
+                if (countErr) {
+                    callback(countErr);
+                    return;
+                }
+                
+                callback(null, {
+                    orders: orders,
+                    pagination: {
+                        currentPage: page,
+                        totalItems: countResult.total,
+                        totalPages: Math.ceil(countResult.total / limit),
+                        itemsPerPage: limit
+                    }
+                });
+            });
+        });
+    }
+};
+
+// Archive operations for admin functionality
+const archiveOperations = {
+    // Archive a book
+    archiveBook: (id, callback) => {
+        const query = `UPDATE books SET archived = 1 WHERE id = ?`;
+        db.run(query, [id], function(err) {
+            if (err) {
+                console.error('Error archiving book:', err);
+            } else {
+                console.log(`Book ${id} archived successfully`);
+            }
+            callback(err, { changes: this.changes });
+        });
+    },
+
+    // Unarchive a book
+    unarchiveBook: (id, callback) => {
+        const query = `UPDATE books SET archived = 0 WHERE id = ?`;
+        db.run(query, [id], function(err) {
+            if (err) {
+                console.error('Error unarchiving book:', err);
+            } else {
+                console.log(`Book ${id} unarchived successfully`);
+            }
+            callback(err, { changes: this.changes });
+        });
+    },
+
+    // Archive a user
+    archiveUser: (id, callback) => {
+        const query = `UPDATE users SET archived = 1 WHERE id = ?`;
+        db.run(query, [id], function(err) {
+            if (err) {
+                console.error('Error archiving user:', err);
+            } else {
+                console.log(`User ${id} archived successfully`);
+            }
+            callback(err, { changes: this.changes });
+        });
+    },
+
+    // Unarchive a user
+    unarchiveUser: (id, callback) => {
+        const query = `UPDATE users SET archived = 0 WHERE id = ?`;
+        db.run(query, [id], function(err) {
+            if (err) {
+                console.error('Error unarchiving user:', err);
+            } else {
+                console.log(`User ${id} unarchived successfully`);
+            }
+            callback(err, { changes: this.changes });
+        });
+    },
+
+    // Archive an order
+    archiveOrder: (id, callback) => {
+        const query = `UPDATE orders SET archived = 1 WHERE id = ?`;
+        db.run(query, [id], function(err) {
+            if (err) {
+                console.error('Error archiving order:', err);
+            } else {
+                console.log(`Order ${id} archived successfully`);
+            }
+            callback(err, { changes: this.changes });
+        });
+    },
+
+    // Unarchive an order
+    unarchiveOrder: (id, callback) => {
+        const query = `UPDATE orders SET archived = 0 WHERE id = ?`;
+        db.run(query, [id], function(err) {
+            if (err) {
+                console.error('Error unarchiving order:', err);
+            } else {
+                console.log(`Order ${id} unarchived successfully`);
+            }
+            callback(err, { changes: this.changes });
+        });
+    },
+
+    // Get archived books with pagination
+    getArchivedBooks: (page = 1, limit = 10, callback) => {
+        const offset = (page - 1) * limit;
+        const query = `
+            SELECT * FROM books 
+            WHERE archived = 1
+            ORDER BY created_at DESC
+            LIMIT ? OFFSET ?
+        `;
+        db.all(query, [limit, offset], (err, books) => {
+            if (err) {
+                callback(err);
+                return;
+            }
+            
+            // Get total count for pagination
+            db.get('SELECT COUNT(*) as total FROM books WHERE archived = 1', [], (countErr, countResult) => {
+                if (countErr) {
+                    callback(countErr);
+                    return;
+                }
+                
+                callback(null, {
+                    books: books,
+                    pagination: {
+                        currentPage: page,
+                        totalItems: countResult.total,
+                        totalPages: Math.ceil(countResult.total / limit),
+                        itemsPerPage: limit
+                    }
+                });
+            });
+        });
+    },
+
+    // Get archived users with pagination
+    getArchivedUsers: (page = 1, limit = 10, callback) => {
+        const offset = (page - 1) * limit;
+        const query = `
+            SELECT id, username, email, first_name, last_name, address, phone, created_at
+            FROM users 
+            WHERE archived = 1
+            ORDER BY created_at DESC
+            LIMIT ? OFFSET ?
+        `;
+        db.all(query, [limit, offset], (err, users) => {
+            if (err) {
+                callback(err);
+                return;
+            }
+            
+            // Get total count for pagination
+            db.get('SELECT COUNT(*) as total FROM users WHERE archived = 1', [], (countErr, countResult) => {
+                if (countErr) {
+                    callback(countErr);
+                    return;
+                }
+                
+                callback(null, {
+                    users: users,
+                    pagination: {
+                        currentPage: page,
+                        totalItems: countResult.total,
+                        totalPages: Math.ceil(countResult.total / limit),
+                        itemsPerPage: limit
+                    }
+                });
+            });
+        });
+    },
+
+    // Get archived orders with pagination
+    getArchivedOrders: (page = 1, limit = 10, callback) => {
+        const offset = (page - 1) * limit;
+        const query = `
+            SELECT o.*, u.username, u.email
+            FROM orders o
+            JOIN users u ON o.user_id = u.id
+            WHERE o.archived = 1
+            ORDER BY o.created_at DESC
+            LIMIT ? OFFSET ?
+        `;
+        db.all(query, [limit, offset], (err, orders) => {
+            if (err) {
+                callback(err);
+                return;
+            }
+            
+            // Get total count for pagination
+            db.get('SELECT COUNT(*) as total FROM orders WHERE archived = 1', [], (countErr, countResult) => {
+                if (countErr) {
+                    callback(countErr);
+                    return;
+                }
+                
+                callback(null, {
+                    orders: orders,
+                    pagination: {
+                        currentPage: page,
+                        totalItems: countResult.total,
+                        totalPages: Math.ceil(countResult.total / limit),
+                        itemsPerPage: limit
+                    }
+                });
+            });
+        });
     }
 };
 
@@ -1163,6 +1486,7 @@ module.exports = {
     orderOperations,
     reviewsOperations,
     adminOperations,
+    archiveOperations,
     checkDatabaseHealth,
     bulkInsertBooks
 };

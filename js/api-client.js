@@ -390,7 +390,68 @@ class APIClient {
         return user;
     }
 
-    
+    // Archive methods
+    async archiveBook(bookId) {
+        return this.makeRequest(`/admin/books/${bookId}/archive`, {
+            method: 'POST'
+        });
+    }
+
+    async unarchiveBook(bookId) {
+        return this.makeRequest(`/admin/books/${bookId}/unarchive`, {
+            method: 'POST'
+        });
+    }
+
+    async archiveUser(userId) {
+        return this.makeRequest(`/admin/users/${userId}/archive`, {
+            method: 'POST'
+        });
+    }
+
+    async unarchiveUser(userId) {
+        return this.makeRequest(`/admin/users/${userId}/unarchive`, {
+            method: 'POST'
+        });
+    }
+
+    async archiveOrder(orderId) {
+        return this.makeRequest(`/admin/orders/${orderId}/archive`, {
+            method: 'POST'
+        });
+    }
+
+    async unarchiveOrder(orderId) {
+        return this.makeRequest(`/admin/orders/${orderId}/unarchive`, {
+            method: 'POST'
+        });
+    }
+
+    // Get archived items
+    async getArchivedBooks(page = 1, limit = 10) {
+        return this.makeRequest(`/admin/books/archived?page=${page}&limit=${limit}`);
+    }
+
+    async getArchivedUsers(page = 1, limit = 10) {
+        return this.makeRequest(`/admin/users/archived?page=${page}&limit=${limit}`);
+    }
+
+    async getArchivedOrders(page = 1, limit = 10) {
+        return this.makeRequest(`/admin/orders/archived?page=${page}&limit=${limit}`);
+    }
+
+    // Get all items for admin (non-archived)
+    async getAllBooksForAdmin(page = 1, limit = 10) {
+        return this.makeRequest(`/admin/books?page=${page}&limit=${limit}`);
+    }
+
+    async getAllUsersForAdmin(page = 1, limit = 10) {
+        return this.makeRequest(`/admin/users?page=${page}&limit=${limit}`);
+    }
+
+    async getAllOrdersForAdmin(page = 1, limit = 10) {
+        return this.makeRequest(`/admin/orders?page=${page}&limit=${limit}`);
+    }
 
     async validateVoucher(code) {
         return this.makeRequest('/vouchers/validate', {

@@ -10,6 +10,7 @@ const {
     orderOperations,
     reviewsOperations,
     adminOperations,
+    archiveOperations,
     initializeDatabase 
 } = require('./database');
 
@@ -619,18 +620,7 @@ app.get('/api/admin/users/:userId/orders', authenticateAdmin, (req, res) => {
     });
 });
 
-// Admin orders endpoints
-app.get('/api/admin/orders', authenticateAdmin, (req, res) => {
-    console.log('Admin requesting all orders');
-    orderOperations.getAllOrders((err, orders) => {
-        if (err) {
-            console.error('Error getting orders:', err);
-            return res.status(500).json({ error: err.message });
-        }
-        console.log('Returning', orders.length, 'orders');
-        res.json(orders);
-    });
-});
+// Admin orders endpoints - UPDATED ENDPOINTS ARE BELOW WITH ARCHIVE FUNCTIONALITY
 
 app.put('/api/admin/orders/:id', authenticateAdmin, (req, res) => {
     const orderId = parseInt(req.params.id);
@@ -680,6 +670,262 @@ app.get('/api/admin/orders/:id/details', authenticateAdmin, (req, res) => {
         res.json(orderDetails);
     });
 });
+
+// ARCHIVE ENDPOINTS
+
+// Archive a book
+app.post('/api/admin/books/:id/archive', authenticateAdmin, (req, res) => {
+    const bookId = parseInt(req.params.id);
+    
+    if (isNaN(bookId)) {
+        return res.status(400).json({ error: 'Invalid book ID' });
+    }
+    
+    console.log('Admin archiving book ID:', bookId);
+    
+    archiveOperations.archiveBook(bookId, (err, result) => {
+        if (err) {
+            console.error('Error archiving book:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        
+        if (result.changes === 0) {
+            return res.status(404).json({ error: 'Book not found' });
+        }
+        
+        console.log('Book archived successfully');
+        res.json({ message: 'Book archived successfully' });
+    });
+});
+
+// Unarchive a book
+app.post('/api/admin/books/:id/unarchive', authenticateAdmin, (req, res) => {
+    const bookId = parseInt(req.params.id);
+    
+    if (isNaN(bookId)) {
+        return res.status(400).json({ error: 'Invalid book ID' });
+    }
+    
+    console.log('Admin unarchiving book ID:', bookId);
+    
+    archiveOperations.unarchiveBook(bookId, (err, result) => {
+        if (err) {
+            console.error('Error unarchiving book:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        
+        if (result.changes === 0) {
+            return res.status(404).json({ error: 'Book not found' });
+        }
+        
+        console.log('Book unarchived successfully');
+        res.json({ message: 'Book unarchived successfully' });
+    });
+});
+
+// Archive a user
+app.post('/api/admin/users/:id/archive', authenticateAdmin, (req, res) => {
+    const userId = parseInt(req.params.id);
+    
+    if (isNaN(userId)) {
+        return res.status(400).json({ error: 'Invalid user ID' });
+    }
+    
+    console.log('Admin archiving user ID:', userId);
+    
+    archiveOperations.archiveUser(userId, (err, result) => {
+        if (err) {
+            console.error('Error archiving user:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        
+        if (result.changes === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        console.log('User archived successfully');
+        res.json({ message: 'User archived successfully' });
+    });
+});
+
+// Unarchive a user
+app.post('/api/admin/users/:id/unarchive', authenticateAdmin, (req, res) => {
+    const userId = parseInt(req.params.id);
+    
+    if (isNaN(userId)) {
+        return res.status(400).json({ error: 'Invalid user ID' });
+    }
+    
+    console.log('Admin unarchiving user ID:', userId);
+    
+    archiveOperations.unarchiveUser(userId, (err, result) => {
+        if (err) {
+            console.error('Error unarchiving user:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        
+        if (result.changes === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        console.log('User unarchived successfully');
+        res.json({ message: 'User unarchived successfully' });
+    });
+});
+
+// Archive an order
+app.post('/api/admin/orders/:id/archive', authenticateAdmin, (req, res) => {
+    const orderId = parseInt(req.params.id);
+    
+    if (isNaN(orderId)) {
+        return res.status(400).json({ error: 'Invalid order ID' });
+    }
+    
+    console.log('Admin archiving order ID:', orderId);
+    
+    archiveOperations.archiveOrder(orderId, (err, result) => {
+        if (err) {
+            console.error('Error archiving order:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        
+        if (result.changes === 0) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+        
+        console.log('Order archived successfully');
+        res.json({ message: 'Order archived successfully' });
+    });
+});
+
+// Unarchive an order
+app.post('/api/admin/orders/:id/unarchive', authenticateAdmin, (req, res) => {
+    const orderId = parseInt(req.params.id);
+    
+    if (isNaN(orderId)) {
+        return res.status(400).json({ error: 'Invalid order ID' });
+    }
+    
+    console.log('Admin unarchiving order ID:', orderId);
+    
+    archiveOperations.unarchiveOrder(orderId, (err, result) => {
+        if (err) {
+            console.error('Error unarchiving order:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        
+        if (result.changes === 0) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+        
+        console.log('Order unarchived successfully');
+        res.json({ message: 'Order unarchived successfully' });
+    });
+});
+
+// Get archived books
+app.get('/api/admin/books/archived', authenticateAdmin, (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    
+    console.log('Admin fetching archived books, page:', page, 'limit:', limit);
+    
+    archiveOperations.getArchivedBooks(page, limit, (err, result) => {
+        if (err) {
+            console.error('Error fetching archived books:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        
+        res.json(result);
+    });
+});
+
+// Get archived users
+app.get('/api/admin/users/archived', authenticateAdmin, (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    
+    console.log('Admin fetching archived users, page:', page, 'limit:', limit);
+    
+    archiveOperations.getArchivedUsers(page, limit, (err, result) => {
+        if (err) {
+            console.error('Error fetching archived users:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        
+        res.json(result);
+    });
+});
+
+// Get archived orders
+app.get('/api/admin/orders/archived', authenticateAdmin, (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    
+    console.log('Admin fetching archived orders, page:', page, 'limit:', limit);
+    
+    archiveOperations.getArchivedOrders(page, limit, (err, result) => {
+        if (err) {
+            console.error('Error fetching archived orders:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        
+        res.json(result);
+    });
+});
+
+// Get all books for admin (non-archived)
+app.get('/api/admin/books', authenticateAdmin, (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    
+    console.log('Admin fetching books, page:', page, 'limit:', limit);
+    
+    adminOperations.getAllBooks(page, limit, (err, result) => {
+        if (err) {
+            console.error('Error fetching books for admin:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        
+        res.json(result);
+    });
+});
+
+// Get all users for admin (non-archived)
+app.get('/api/admin/users', authenticateAdmin, (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    
+    console.log('Admin fetching users, page:', page, 'limit:', limit);
+    
+    adminOperations.getAllUsers(page, limit, (err, result) => {
+        if (err) {
+            console.error('Error fetching users for admin:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        
+        res.json(result);
+    });
+});
+
+// Update existing orders endpoint to use new admin method
+app.get('/api/admin/orders', authenticateAdmin, (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    
+    console.log('Admin fetching orders, page:', page, 'limit:', limit);
+    
+    adminOperations.getAllOrders(page, limit, (err, result) => {
+        if (err) {
+            console.error('Error fetching orders for admin:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        
+        res.json(result);
+    });
+});
+
+// END ARCHIVE ENDPOINTS
 
 // User profile endpoints
 app.get('/api/user/profile', authenticateToken, (req, res) => {

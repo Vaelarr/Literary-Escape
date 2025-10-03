@@ -42,6 +42,10 @@
             <li><a href="#" class="menu-link" data-section="books">Book Management</a></li>
             <li><a href="#" class="menu-link" data-section="users">User Management</a></li>
             <li><a href="#" class="menu-link" data-section="orders">Order Management</a></li>
+            <li class="menu-separator">Archived Data</li>
+            <li><a href="#" class="menu-link archived-link" data-section="archived-books">Archived Books</a></li>
+            <li><a href="#" class="menu-link archived-link" data-section="archived-users">Archived Users</a></li>
+            <li><a href="#" class="menu-link archived-link" data-section="archived-orders">Archived Orders</a></li>
             <li><a href="#" class="menu-link" data-section="settings">Security & Settings</a></li>
         </ul>
 
@@ -50,10 +54,9 @@
 
     <div class="main-content">
         <div class="top-bar">
-            <div class="search-box">
-                <input type="text" placeholder="Search...">
-                <i class="fas fa-search"></i>
-            </div>
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" title="Menu Toggle">
+                <i class="fas fa-bars"></i>
+            </button>
             <div class="user-menu">
                 <span id="dbStatus" class="badge bg-secondary" style="margin-right: 12px;">DB: checking...</span>
                 <div class="notification-icon">
@@ -66,7 +69,7 @@
 
         <!-- Dashboard Section -->
         <div id="dashboard-section" class="content-section active">
-            <h2 class="section-title">Books lists</h2>
+            <h2 class="section-title">Statistics</h2>
             <div class="stats-container">
                 <div class="stat-card">
                     <h3>Books Number</h3>
@@ -84,14 +87,14 @@
 
             <h2 class="section-title">User Accounts</h2>
             <div class="content-card">
-                <div class="table-container">
+                <div class="table-container scrollable-content">
                     <table class="custom-table">
                         <thead>
                             <tr>
                                 <th>Username</th>
                                 <th>Password</th>
                                 <th>Role</th>
-                                <th>Delete</th>
+                                <th>Archive</th>
                             </tr>
                         </thead>
                         <tbody id="userAccountsTable">
@@ -107,16 +110,16 @@
         <!-- Books Management Section -->
         <div id="books-section" class="content-section">
             <h2 class="section-title">
-                Books lists
+                Books Lists
                 <select class="category-filter" id="categoryFilter" name="category" title="category">
-                    <option value="all" style="color: white;">All Categories</option>
+                    <option value="all">All Categories</option>
                     <option value="Fiction">Fiction</option>
                     <option value="Non - Fiction">Non-Fiction</option>
-                    <option value="Discover">Discover</option>
                 </select>
+                <button class="btn-add" data-bs-toggle="modal" data-bs-target="#addBookModal">Add Book</button>
             </h2>
             <div class="content-card">
-                <div class="table-container">
+                <div class="table-container scrollable-content">
                     <table class="custom-table">
                         <thead>
                             <tr>
@@ -131,7 +134,15 @@
                         <tbody id="booksTable"></tbody>
                     </table>
                 </div>
-                <button class="btn-add" data-bs-toggle="modal" data-bs-target="#addBookModal">Add Book</button>
+                <div class="pagination-container">
+                    <div class="pagination-info">
+                        Showing <span id="booksRange">0</span> books
+                    </div>
+                    <nav aria-label="Books pagination">
+                        <ul class="pagination" id="booksPagination">
+                        </ul>
+                    </nav>
+                </div>
             </div>
         </div>
 
@@ -139,14 +150,14 @@
         <div id="users-section" class="content-section">
             <h2 class="section-title">Account List</h2>
             <div class="content-card">
-                <div class="table-container">
+                <div class="table-container scrollable-content">
                     <table class="custom-table">
                         <thead>
                             <tr>
                                 <th>Name</th>
                                 <th>Password</th>
                                 <th>Role</th>
-                                <th>Delete</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody id="accountListTable">
@@ -155,6 +166,15 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+                <div class="pagination-container">
+                    <div class="pagination-info">
+                        Showing <span id="usersRange">0</span> users
+                    </div>
+                    <nav aria-label="Users pagination">
+                        <ul class="pagination" id="usersPagination">
+                        </ul>
+                    </nav>
                 </div>
             </div>
         </div>
@@ -172,15 +192,16 @@
                         <option value="completed">Completed</option>
                         <option value="cancelled">Cancelled</option>
                     </select>
-                    <input type="text" id="orderSearch" placeholder="Search orders..." 
-                           style="padding: 5px 10px; border-radius: 4px; border: 1px solid #34495e; background: #2c3e50; color: white;">
+                    <div class="search-box" style="margin-left: 0;">
+                        <input type="text" id="orderSearch" placeholder="Search orders..."><i class="fas fa-search"></i>
+                    </div>
                 </div>
             </h2>
             <div class="content-card">
                 <div style="margin-bottom: 15px; color: rgba(255,255,255,0.7);">
                     <span id="orderCount">Loading...</span> orders found
                 </div>
-                <div class="table-container">
+                <div class="table-container scrollable-content">
                     <table class="custom-table">
                         <thead>
                             <tr>
@@ -199,6 +220,15 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+                <div class="pagination-container">
+                    <div class="pagination-info">
+                        Showing <span id="ordersRange">0</span> orders
+                    </div>
+                    <nav aria-label="Orders pagination">
+                        <ul class="pagination" id="ordersPagination">
+                        </ul>
+                    </nav>
                 </div>
             </div>
         </div>
@@ -229,6 +259,131 @@
                 </div>
             </div>
         </div>
+
+        <!-- Archived Books Section -->
+    <div id="archived-books-section" class="content-section">
+        <h2 class="section-title">Archived Books</h2>
+        <div class="content-card">
+            <div class="filter-controls">
+                <select id="archivedBookCategoryFilter" onchange="displayArchivedBooks()" title="Archived Books Category Filter">
+                    <option value="all">All Categories</option>
+                    <option value="Fiction">Fiction</option>
+                    <option value="Non-Fiction">Non-Fiction</option>
+                </select>
+            </div>
+            <div class="table-container scrollable-content">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th>Stock</th>
+                            <th>Category</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="archivedBooksTable">
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: rgba(255,255,255,0.5);">Loading archived books...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    Showing <span id="archivedBooksRange">0</span> books
+                </div>
+                <nav aria-label="Archived Books pagination">
+                    <ul class="pagination" id="archivedBooksPagination">
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Archived Users Section -->
+    <div id="archived-users-section" class="content-section">
+        <h2 class="section-title">Archived Users</h2>
+        <div class="content-card">
+            <div class="table-container scrollable-content">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Password</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="archivedUsersTable">
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">Loading archived users...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    Showing <span id="archivedUsersRange">0</span> users
+                </div>
+                <nav aria-label="Archived Users pagination">
+                    <ul class="pagination" id="archivedUsersPagination">
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Archived Orders Section -->
+    <div id="archived-orders-section" class="content-section">
+        <h2 class="section-title">Archived Orders</h2>
+        <div class="content-card">
+            <div class="filter-controls">
+                <select class="category-filter" id="archivedStatusFilter" title="Filter by status">
+                    <option value="all">All Statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="processing">Processing</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 15px; color: rgba(255,255,255,0.7);">
+                <span id="archivedOrderCount">Loading...</span> orders found
+            </div>
+            <div class="table-container scrollable-content">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Email</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Order Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="archivedOrdersTable">
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: rgba(255,255,255,0.5);">Loading archived orders...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    Showing <span id="archivedOrdersRange">0</span> orders
+                </div>
+                <nav aria-label="Archived Orders pagination">
+                    <ul class="pagination" id="archivedOrdersPagination">
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
     </div>
 
     <!-- Add Book Modal -->
@@ -260,15 +415,37 @@
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Category</label>
                                 <select class="form-select" id="bookCategory" aria-label="Category" required>
+                                    <option value="" disabled selected>Select Category</option>
                                     <option value="Fiction">Fiction</option>
                                     <option value="Non - Fiction">Non-Fiction</option>
-                                    <option value="Discover">Discover</option>
                                 </select>
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Genre</label>
-                                <selecct class="form-select" id="bookGenre" aria-label="Genre" required>
-                                <option value=""></option>
+                                <select class="form-select" id="bookGenre" aria-label="Genre" required>
+                                <span id="Non-FictionGenres" style="display: none;">
+                                    <option value="" style="color: gray;" disabled selected>Select Category</option>
+                                    <option value="True Crime">True Crime</option>
+                                    <option value="Politics">Politics</option>
+                                    <option value="Self - Help">Self - Help</option>
+                                    <option value="Educational">Educational</option>
+                                    <option value="Cookbook">Cookbook</option>
+                                    <option value="Business">Business</option>
+                                    <option value="Philosophy">Philosophy</option>
+                                    <option value="Religion">Religion</option>
+                                    <option value="Health & Wellness">Health & Wellness</option>
+                                </span>
+                                <span id="FictionGenres">
+                                    <option value="" style="color: gray;" disabled selected>Select Category</option>
+                                    <option value="Science Fiction">Science Fiction</option>
+                                    <option value="Mystery">Mystery</option>
+                                    <option value="LGBTQ+">LGBTQ+</option>
+                                    <option value="Magic Realism">Magic Realism</option>
+                                    <option value="Crime">Crime</option>
+                                    <option value="Dystopian">Dystopian</option>
+
+                                </span>
+                                </select>
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Price (₱)</label>
@@ -412,6 +589,37 @@
     <script src="./js/api-client.js"></script>
     <script>
         let adminBooks = [];
+        let allUsers = [];
+        let allOrders = [];
+        
+        // Pagination variables
+        const ITEMS_PER_PAGE = 10;
+        const itemsPerPage = 10;
+        let currentBooksPage = 1;
+        let currentUsersPage = 1;
+        let currentOrdersPage = 1;
+        let currentArchivedBooksPage = 1;
+        let currentArchivedUsersPage = 1;
+        let currentArchivedOrdersPage = 1;
+        
+        // Pagination totals
+        let totalBooksPages = 1;
+        let totalUsersPages = 1;
+        let totalOrdersPages = 1;
+        let totalArchivedBooksPages = 1;
+        let totalArchivedUsersPages = 1;
+        let totalArchivedOrdersPages = 1;
+        let totalBooksItems = 0;
+        let totalUsersItems = 0;
+        let totalOrdersItems = 0;
+        let totalArchivedBooksItems = 0;
+        let totalArchivedUsersItems = 0;
+        let totalArchivedOrdersItems = 0;
+
+        // Archive data storage
+        let archivedBooks = [];
+        let archivedUsers = [];
+        let archivedOrders = [];
 
         function initAdmin() {
             setupNavigation();
@@ -426,9 +634,10 @@
         async function loadBooksFromAPI() {
             try {
                 console.log('Loading books from API...');
-                const all = await api.getBooks();
-                console.log('Books loaded:', all.length);
-                adminBooks = all.map(b => ({
+                const result = await api.getAllBooksForAdmin(currentBooksPage, itemsPerPage);
+                console.log('Books loaded:', result);
+                
+                adminBooks = result.books.map(b => ({
                     id: b.id,
                     title: b.title,
                     author: b.author,
@@ -439,8 +648,13 @@
                     stock: b.stock_quantity,
                     cover: b.cover
                 }));
+                
+                // Update pagination info
+                totalBooksPages = result.pagination.totalPages;
+                totalBooksItems = result.pagination.totalItems;
+                
                 await updateDashboard();
-                displayBooks();
+                displayBooks('all', currentBooksPage);
             } catch (e) {
                 console.error('Error loading books:', e);
                 alert('Failed to load books from server: ' + (e.message || e));
@@ -450,36 +664,91 @@
         async function loadUsersFromAPI() {
             try {
                 console.log('Loading users from API...');
-                const allUsers = await api.adminListUsers();
-                console.log('All users loaded:', allUsers ? allUsers.length : 0);
+                const result = await api.getAllUsersForAdmin(currentUsersPage, itemsPerPage);
+                console.log('Users loaded:', result);
                 
                 // Filter to only show users with role 'user' (exclude admin accounts)
-                const regularUsers = allUsers ? allUsers.filter(user => 
+                allUsers = result.users ? result.users.filter(user => 
                     !user.role || user.role.toLowerCase() === 'user'
                 ) : [];
                 
-                console.log('Regular users (non-admin) for management:', regularUsers.length);
+                // Update pagination info
+                totalUsersPages = result.pagination.totalPages;
+                totalUsersItems = result.pagination.totalItems;
                 
-                const tbody = document.getElementById('accountListTable');
-                if (!regularUsers || regularUsers.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">No regular users registered</td></tr>';
-                    return;
-                }
-                tbody.innerHTML = regularUsers.map(u => `
-                    <tr>
-                        <td>${u.username}</td>
-                        <td>••••••••</td>
-                        <td>User</td>
-                        <td>
-                            <button class="btn-change" onclick="viewUserOrders(${u.id}, '${u.username}')">Orders</button>
-                            <button class="btn-delete" onclick="handleDeleteUser(${u.id})"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `).join('');
+                console.log('Regular users (non-admin) for management:', allUsers.length);
+                
+                displayUsers();
             } catch (e) {
                 console.error('Error loading users:', e);
-                alert('Failed to load users: ' + (e.message || e));
+                alert('Failed to load users from server: ' + (e.message || e));
             }
+        }
+
+        function displayUsers(page = currentUsersPage) {
+            currentUsersPage = page;
+            const tbody = document.getElementById('accountListTable');
+            
+            if (!allUsers || allUsers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">No regular users registered</td></tr>';
+                document.getElementById('usersRange').textContent = '0';
+                document.getElementById('usersPagination').innerHTML = '';
+                return;
+            }
+
+            // Update range display (for API pagination, we use total count from server)
+            const startIndex = (currentUsersPage - 1) * itemsPerPage + 1;
+            const endIndex = Math.min(currentUsersPage * itemsPerPage, totalUsersItems);
+            document.getElementById('usersRange').textContent = `${startIndex}-${endIndex} of ${totalUsersItems}`;
+
+            // Display users
+            tbody.innerHTML = allUsers.map(u => `
+                <tr>
+                    <td>${u.username}</td>
+                    <td>••••••••</td>
+                    <td>User</td>
+                    <td>
+                        <button class="btn-change" onclick="viewUserOrders(${u.id}, '${u.username}')">Orders</button>
+                        <button class="btn-archive" onclick="handleArchiveUser(${u.id}, false)" title="Archive"><i class="fas fa-archive"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Generate pagination
+            generatePagination('usersPagination', totalUsersPages, currentUsersPage, paginateUsers);
+        }
+
+        function displayArchivedUsers(page = 1) {
+            const tbody = document.getElementById('archivedUsersTable');
+            
+            if (!archivedUsers || archivedUsers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">No archived users found</td></tr>';
+                document.getElementById('archivedUsersRange').textContent = '0';
+                document.getElementById('archivedUsersPagination').innerHTML = '';
+                return;
+            }
+
+            // Update range display (for API pagination, we use total count from server)
+            const startIndex = (currentArchivedUsersPage - 1) * itemsPerPage + 1;
+            const endIndex = Math.min(currentArchivedUsersPage * itemsPerPage, totalArchivedUsersItems);
+            document.getElementById('archivedUsersRange').textContent = `${startIndex}-${endIndex} of ${totalArchivedUsersItems}`;
+
+            // Display users
+            tbody.innerHTML = archivedUsers.map(u => `
+                <tr class="archived-item">
+                    <td>${u.username}</td>
+                    <td>••••••••</td>
+                    <td>User</td>
+                    <td>
+                        <button class="btn-change" onclick="viewUserOrders(${u.id}, '${u.username}')">Orders</button>
+                        <button class="btn-change" onclick="handleArchiveUser(${u.id}, true)" title="Unarchive"><i class="fas fa-undo"></i></button>
+                        <span class="archived-badge">ARCHIVED</span>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Generate pagination
+            generatePagination('archivedUsersPagination', totalArchivedUsersPages, currentArchivedUsersPage, paginateArchivedUsers);
         }
 
         async function loadDashboardUsers() {
@@ -513,7 +782,13 @@
                                 <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
                             </select>
                         </td>
-                        <td><button class="btn-delete" onclick="handleDeleteUser(${u.id})"><i class="fas fa-trash"></i></button></td>
+                        <td>
+                            ${u.archived ? 
+                                `<button class="btn-change" onclick="handleUnarchiveUser(${u.id})" title="Unarchive"><i class="fas fa-undo"></i></button>
+                                <span class="archived-badge">ARCHIVED</span>` :
+                                `<button class="btn-archive" onclick="handleArchiveUser(${u.id})" title="Archive"><i class="fas fa-archive"></i></button>`
+                            }
+                        </td>
                     </tr>
                 `).join('');
                 
@@ -538,39 +813,122 @@
         async function loadOrdersFromAPI() {
             try {
                 console.log('Loading orders from API...');
-                const orders = await api.adminListOrders();
-                console.log('Orders loaded:', orders ? orders.length : 0);
+                const result = await api.getAllOrdersForAdmin(currentOrdersPage, itemsPerPage);
+                console.log('Orders loaded:', result);
                 
                 // Store orders globally for filtering
-                window.allOrders = orders || [];
+                allOrders = result.orders || [];
+                window.allOrders = allOrders; // Keep for backward compatibility
                 
-                const tbody = document.getElementById('ordersTable');
-                if (!orders || orders.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: rgba(255,255,255,0.5);">No orders yet</td></tr>';
-                    document.getElementById('orderCount').textContent = '0';
-                    return;
-                }
+                // Update pagination info
+                totalOrdersPages = result.pagination.totalPages;
+                totalOrdersItems = result.pagination.totalItems;
                 
-                displayOrders(orders);
+                displayOrdersWithPagination(allOrders);
             } catch (e) {
                 console.error('Error loading orders:', e);
                 const tbody = document.getElementById('ordersTable');
                 tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: rgba(255,255,255,0.5);">Failed to load orders</td></tr>';
                 document.getElementById('orderCount').textContent = '0';
+                document.getElementById('ordersRange').textContent = '0';
+                document.getElementById('ordersPagination').innerHTML = '';
+            }
+        }
+
+        // Archive loading functions
+        async function loadArchivedBooksFromAPI() {
+            try {
+                console.log('Loading archived books from API...');
+                const result = await api.getArchivedBooks(currentArchivedBooksPage, itemsPerPage);
+                console.log('Archived books loaded:', result);
+                
+                archivedBooks = result.books.map(b => ({
+                    id: b.id,
+                    title: b.title,
+                    author: b.author,
+                    description: b.description,
+                    category: b.category,
+                    genre: b.genre,
+                    price: b.price,
+                    stock: b.stock_quantity,
+                    cover: b.cover,
+                    archived: true
+                }));
+                
+                // Update pagination info
+                totalArchivedBooksPages = result.pagination.totalPages;
+                totalArchivedBooksItems = result.pagination.totalItems;
+                
+                displayArchivedBooks('all', currentArchivedBooksPage);
+            } catch (e) {
+                console.error('Error loading archived books:', e);
+                const tbody = document.getElementById('archivedBooksTable');
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: rgba(255,255,255,0.5);">Failed to load archived books</td></tr>';
+            }
+        }
+
+        async function loadArchivedUsersFromAPI() {
+            try {
+                console.log('Loading archived users from API...');
+                const result = await api.getArchivedUsers(currentArchivedUsersPage, itemsPerPage);
+                console.log('Archived users loaded:', result);
+                
+                archivedUsers = result.users || [];
+                
+                // Update pagination info
+                totalArchivedUsersPages = result.pagination.totalPages;
+                totalArchivedUsersItems = result.pagination.totalItems;
+                
+                displayArchivedUsers(currentArchivedUsersPage);
+            } catch (e) {
+                console.error('Error loading archived users:', e);
+                const tbody = document.getElementById('archivedUsersTable');
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: rgba(255,255,255,0.5);">Failed to load archived users</td></tr>';
+            }
+        }
+
+        async function loadArchivedOrdersFromAPI() {
+            try {
+                console.log('Loading archived orders from API...');
+                const result = await api.getArchivedOrders(currentArchivedOrdersPage, itemsPerPage);
+                console.log('Archived orders loaded:', result);
+                
+                archivedOrders = result.orders || [];
+                
+                // Update pagination info
+                totalArchivedOrdersPages = result.pagination.totalPages;
+                totalArchivedOrdersItems = result.pagination.totalItems;
+                
+                displayArchivedOrders(currentArchivedOrdersPage);
+            } catch (e) {
+                console.error('Error loading archived orders:', e);
+                const tbody = document.getElementById('archivedOrdersTable');
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: rgba(255,255,255,0.5);">Failed to load archived orders</td></tr>';
             }
         }
 
         function displayOrders(orders) {
+            displayOrdersWithPagination(orders, 1); // Default to page 1
+        }
+
+        function displayOrdersWithPagination(orders, page = currentOrdersPage) {
+            currentOrdersPage = page;
             const tbody = document.getElementById('ordersTable');
             const orderCountEl = document.getElementById('orderCount');
             
             if (!orders || orders.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: rgba(255,255,255,0.5);">No orders match your criteria</td></tr>';
                 orderCountEl.textContent = '0';
+                document.getElementById('ordersRange').textContent = '0';
+                document.getElementById('ordersPagination').innerHTML = '';
                 return;
             }
             
-            orderCountEl.textContent = orders.length;
+            // Update display counts using API pagination data
+            orderCountEl.textContent = totalOrdersItems;
+            const startIndex = (currentOrdersPage - 1) * itemsPerPage + 1;
+            const endIndex = Math.min(currentOrdersPage * itemsPerPage, totalOrdersItems);
+            document.getElementById('ordersRange').textContent = `${startIndex}-${endIndex} of ${totalOrdersItems}`;
             
             tbody.innerHTML = orders.map(o => {
                 // Format the date
@@ -584,13 +942,13 @@
                     customerName = o.username;
                 }
                 
-                // Format status badge
+                // Format status badge with Literary Escape theme colors
                 const statusColors = {
-                    'pending': '#f39c12',
-                    'processing': '#3498db',
-                    'shipped': '#9b59b6',
-                    'completed': '#27ae60',
-                    'cancelled': '#e74c3c'
+                    'pending': '#8b7355',        // Warm brown (pending review)
+                    'processing': '#5a7a6b',     // Medium green (in progress)
+                    'shipped': '#6a9c89',        // Main accent green (on the way)
+                    'completed': '#2d4a3e',      // Dark green (success)
+                    'cancelled': '#8b4a4a'       // Muted red (cancelled)
                 };
                 
                 return `
@@ -598,10 +956,10 @@
                         <td style="font-weight: bold;">#${o.id}</td>
                         <td>${customerName}</td>
                         <td>${o.email || 'N/A'}</td>
-                        <td style="font-weight: bold; color: #27ae60;">₱${(o.total_amount || 0).toFixed(2)}</td>
+                        <td style="font-weight: bold; color: #6a9c89;">₱${(o.total_amount || 0).toFixed(2)}</td>
                         <td>
                             <select onchange="updateOrderStatus(${o.id}, this.value)" 
-                                    style="padding: 4px 8px; border-radius: 4px; background: ${statusColors[o.status] || '#2c3e50'}; color: white; border: 1px solid #34495e; font-weight: bold;">
+                                    style="padding: 4px 8px; border-radius: 4px; background: ${statusColors[o.status] || '#2d4a3e'}; color: white; border: 1px solid rgba(255,255,255,0.3); font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
                                 ${['pending','processing','shipped','completed','cancelled'].map(s => 
                                     `<option value="${s}" ${o.status===s?'selected':''}>${s.charAt(0).toUpperCase() + s.slice(1)}</option>`
                                 ).join('')}
@@ -612,13 +970,83 @@
                             <button class="btn-change" onclick="viewOrderDetails(${o.id})" title="View Details" style="margin-right: 5px;">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <button class="btn-delete" onclick="deleteOrder(${o.id})" title="Delete Order">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            <button class="btn-archive" onclick="handleArchiveOrder(${o.id}, false)" title="Archive"><i class="fas fa-archive"></i></button>
                         </td>
                     </tr>
                 `;
             }).join('');
+
+            // Generate pagination
+            generatePagination('ordersPagination', totalOrdersPages, currentOrdersPage, paginateOrders);
+        }
+
+        function displayArchivedOrders(page = 1) {
+            const tbody = document.getElementById('archivedOrdersTable');
+            const orderCountEl = document.getElementById('archivedOrderCount');
+            
+            if (!archivedOrders || archivedOrders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: rgba(255,255,255,0.5);">No archived orders found</td></tr>';
+                orderCountEl.textContent = '0';
+                document.getElementById('archivedOrdersRange').textContent = '0';
+                document.getElementById('archivedOrdersPagination').innerHTML = '';
+                return;
+            }
+            
+            // Update display counts using API pagination data
+            orderCountEl.textContent = totalArchivedOrdersItems;
+            const startIndex = (currentArchivedOrdersPage - 1) * itemsPerPage + 1;
+            const endIndex = Math.min(currentArchivedOrdersPage * itemsPerPage, totalArchivedOrdersItems);
+            document.getElementById('archivedOrdersRange').textContent = `${startIndex}-${endIndex} of ${totalArchivedOrdersItems}`;
+            
+            tbody.innerHTML = archivedOrders.map(o => {
+                // Format the date
+                const orderDate = o.created_at ? new Date(o.created_at).toLocaleDateString() : 'N/A';
+                
+                // Format customer name
+                let customerName = 'Unknown Customer';
+                if (o.first_name || o.last_name) {
+                    customerName = `${o.first_name || ''} ${o.last_name || ''}`.trim();
+                } else if (o.username) {
+                    customerName = o.username;
+                }
+                
+                // Format status badge with Literary Escape theme colors
+                const statusColors = {
+                    'pending': '#8b7355',        // Warm brown (pending review)
+                    'processing': '#5a7a6b',     // Medium green (in progress)
+                    'shipped': '#6a9c89',        // Main accent green (on the way)
+                    'completed': '#2d4a3e',      // Dark green (success)
+                    'cancelled': '#8b4a4a'       // Muted red (cancelled)
+                };
+                
+                return `
+                    <tr class="archived-item">
+                        <td style="font-weight: bold;">#${o.id}</td>
+                        <td>${customerName}</td>
+                        <td>${o.email || 'N/A'}</td>
+                        <td style="font-weight: bold; color: #6a9c89;">₱${(o.total_amount || 0).toFixed(2)}</td>
+                        <td>
+                            <select onchange="updateOrderStatus(${o.id}, this.value)" 
+                                    style="padding: 4px 8px; border-radius: 4px; background: ${statusColors[o.status] || '#2d4a3e'}; color: white; border: 1px solid rgba(255,255,255,0.3); font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                                ${['pending','processing','shipped','completed','cancelled'].map(s => 
+                                    `<option value="${s}" ${o.status===s?'selected':''}>${s.charAt(0).toUpperCase() + s.slice(1)}</option>`
+                                ).join('')}
+                            </select>
+                        </td>
+                        <td>${orderDate}</td>
+                        <td>
+                            <button class="btn-change" onclick="viewOrderDetails(${o.id})" title="View Details" style="margin-right: 5px;">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn-change" onclick="handleArchiveOrder(${o.id}, true)" title="Unarchive"><i class="fas fa-undo"></i></button>
+                            <span class="archived-badge">ARCHIVED</span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Generate pagination
+            generatePagination('archivedOrdersPagination', totalArchivedOrdersPages, currentArchivedOrdersPage, paginateArchivedOrders);
         }
 
         async function updateOrderStatus(orderId, status) {
@@ -637,17 +1065,6 @@
                 console.error(e);
                 alert('Failed to update order status');
                 await loadOrdersFromAPI();
-            }
-        }
-
-        async function deleteOrder(orderId) {
-            if (!confirm('Delete this order?')) return;
-            try {
-                await api.adminDeleteOrder(orderId);
-                await loadOrdersFromAPI();
-            } catch (e) {
-                console.error(e);
-                alert('Failed to delete order');
             }
         }
 
@@ -770,13 +1187,23 @@
                     const section = this.getAttribute('data-section');
                     document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
                     document.getElementById(section + '-section').classList.add('active');
+
+                    // Load data for archived sections
+                    if (section === 'archived-books') {
+                        loadArchivedBooksFromAPI();
+                    } else if (section === 'archived-users') {
+                        loadArchivedUsersFromAPI();
+                    } else if (section === 'archived-orders') {
+                        loadArchivedOrdersFromAPI();
+                    }
                 });
             });
         }
 
         function setupCategoryFilter() {
             document.getElementById('categoryFilter').addEventListener('change', function() {
-                displayBooks(this.value);
+                currentBooksPage = 1; // Reset to first page when filtering
+                displayBooks(this.value, 1);
             });
         }
 
@@ -823,7 +1250,8 @@
                 });
             }
             
-            displayOrders(filteredOrders);
+            currentOrdersPage = 1; // Reset to first page when filtering
+            displayOrdersWithPagination(filteredOrders, 1);
         }
 
         async function updateDashboard() {
@@ -893,9 +1321,23 @@
             }
         }
 
-        function displayBooks(category = 'all') {
+        function displayBooks(category = 'all', page = 1) {
+            currentBooksPage = page;
             const tbody = document.getElementById('booksTable');
-            const filtered = category === 'all' ? adminBooks : adminBooks.filter(b => b.category === category);
+            let filtered = category === 'all' ? adminBooks : adminBooks.filter(b => b.category === category);
+            
+            if (!filtered || filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: rgba(255,255,255,0.5);">No books found</td></tr>';
+                document.getElementById('booksRange').textContent = '0';
+                document.getElementById('booksPagination').innerHTML = '';
+                return;
+            }
+
+            // Update range display (for API pagination, we use total count from server)
+            const startIndex = (currentBooksPage - 1) * itemsPerPage + 1;
+            const endIndex = Math.min(currentBooksPage * itemsPerPage, totalBooksItems);
+            document.getElementById('booksRange').textContent = `${startIndex}-${endIndex} of ${totalBooksItems}`;
+
             tbody.innerHTML = filtered.map(book => `
                 <tr>
                     <td><img src="${book.cover || ''}" alt="${book.title}" class="book-img" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 50 70%22%3E%3Crect width=%2250%22 height=%2270%22 fill=%22%23ccc%22/%3E%3C/svg%3E'"></td>
@@ -905,10 +1347,47 @@
                     <td>${book.category || ''}</td>
                     <td>
                         <button class="btn-change" onclick="openEditBook(${book.id})"><i class="fas fa-edit"></i></button>
-                        <button class="btn-delete" onclick="handleDeleteBook(${book.id})"><i class="fas fa-trash"></i></button>
+                        <button class="btn-archive" onclick="handleArchiveBook(${book.id}, false)" title="Archive"><i class="fas fa-archive"></i></button>
                     </td>
                 </tr>
             `).join('');
+
+            // Generate pagination
+            generatePagination('booksPagination', totalBooksPages, currentBooksPage, paginateBooks);
+        }
+
+        function displayArchivedBooks(category = 'all', page = 1) {
+            const tbody = document.getElementById('archivedBooksTable');
+            let filtered = category === 'all' ? archivedBooks : archivedBooks.filter(b => b.category === category);
+            
+            if (!filtered || filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: rgba(255,255,255,0.5);">No archived books found</td></tr>';
+                document.getElementById('archivedBooksRange').textContent = '0';
+                document.getElementById('archivedBooksPagination').innerHTML = '';
+                return;
+            }
+
+            // Update range display (for API pagination, we use total count from server)
+            const startIndex = (currentArchivedBooksPage - 1) * itemsPerPage + 1;
+            const endIndex = Math.min(currentArchivedBooksPage * itemsPerPage, totalArchivedBooksItems);
+            document.getElementById('archivedBooksRange').textContent = `${startIndex}-${endIndex} of ${totalArchivedBooksItems}`;
+
+            tbody.innerHTML = filtered.map(book => `
+                <tr class="archived-item">
+                    <td><img src="${book.cover || ''}" alt="${book.title}" class="book-img" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 50 70%22%3E%3Crect width=%2250%22 height=%2270%22 fill=%22%23ccc%22/%3E%3C/svg%3E'"></td>
+                    <td>${book.title}</td>
+                    <td>${book.author || ''}</td>
+                    <td>${book.stock || 0}</td>
+                    <td>${book.category || ''}</td>
+                    <td>
+                        <button class="btn-change" onclick="handleArchiveBook(${book.id}, true)" title="Unarchive"><i class="fas fa-undo"></i></button>
+                        <span class="archived-badge">ARCHIVED</span>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Generate pagination
+            generatePagination('archivedBooksPagination', totalArchivedBooksPages, currentArchivedBooksPage, paginateArchivedBooks);
         }
 
         async function saveBook() {
@@ -963,30 +1442,6 @@
             document.querySelector('#addBookModal .modal-title').textContent = 'Edit Book';
             const modal = new bootstrap.Modal(document.getElementById('addBookModal'));
             modal.show();
-        }
-
-        async function handleDeleteBook(id) {
-            if (!confirm('Are you sure you want to delete this book?')) return;
-            try {
-                await api.adminDeleteBook(id);
-                await loadBooksFromAPI();
-                alert('Book deleted successfully!');
-            } catch (e) {
-                console.error(e);
-                alert('Failed to delete book');
-            }
-        }
-
-        async function handleDeleteUser(userId) {
-            if (!confirm('Delete this user?')) return;
-            try {
-                await api.adminDeleteUser(userId);
-                await loadUsersFromAPI();
-                await loadDashboardUsers(); // Also refresh dashboard
-            } catch (e) {
-                console.error(e);
-                alert('Failed to delete user');
-            }
         }
 
         async function updateUserRole(userId, newRole) {
@@ -1079,6 +1534,61 @@
         // Attach login handler and decide initial view
         document.getElementById('adminLoginForm').addEventListener('submit', handleAdminLogin);
         
+        // Toggle genre options based on category selection
+        function setupCategoryGenreToggle() {
+            const categorySelect = document.getElementById('bookCategory');
+            const genreSelect = document.getElementById('bookGenre');
+            const fictionGenres = document.getElementById('FictionGenres');
+            const nonFictionGenres = document.getElementById('Non-FictionGenres');
+            
+            function updateGenreOptions() {
+                const selectedCategory = categorySelect.value;
+                
+                // Clear current selection
+                genreSelect.value = '';
+                
+                if (selectedCategory === 'Fiction') {
+                    // Show Fiction genres, hide Non-Fiction genres
+                    fictionGenres.style.display = 'block';
+                    nonFictionGenres.style.display = 'none';
+                    
+                    // Enable Fiction options
+                    fictionGenres.querySelectorAll('option').forEach(option => {
+                        option.disabled = false;
+                        option.style.display = 'block';
+                    });
+                    
+                    // Disable Non-Fiction options
+                    nonFictionGenres.querySelectorAll('option').forEach(option => {
+                        option.disabled = true;
+                        option.style.display = 'none';
+                    });
+                } else if (selectedCategory === 'Non - Fiction') {
+                    // Show Non-Fiction genres, hide Fiction genres
+                    nonFictionGenres.style.display = 'block';
+                    fictionGenres.style.display = 'none';
+                    
+                    // Enable Non-Fiction options
+                    nonFictionGenres.querySelectorAll('option').forEach(option => {
+                        option.disabled = false;
+                        option.style.display = 'block';
+                    });
+                    
+                    // Disable Fiction options
+                    fictionGenres.querySelectorAll('option').forEach(option => {
+                        option.disabled = true;
+                        option.style.display = 'none';
+                    });
+                }
+            }
+            
+            // Set up event listener for category changes
+            categorySelect.addEventListener('change', updateGenreOptions);
+            
+            // Initialize with default category (Fiction)
+            updateGenreOptions();
+        }
+
         // Check if user is already logged in and is admin
         async function checkInitialAccess() {
             if (api.isLoggedIn()) {
@@ -1098,6 +1608,260 @@
             }
         }
         
+        // Generate pagination controls
+        function generatePagination(containerId, totalPages, currentPage, onPageChange) {
+            const container = document.getElementById(containerId);
+            if (!container || totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let paginationHTML = '';
+            
+            // Previous button
+            const prevDisabled = currentPage === 1 ? 'disabled' : '';
+            paginationHTML += `
+                <li class="page-item ${prevDisabled}">
+                    <a class="page-link" onclick="${prevDisabled ? '' : `${onPageChange.name}(${currentPage - 1})`}">‹</a>
+                </li>
+            `;
+
+            // Page numbers
+            const startPage = Math.max(1, currentPage - 2);
+            const endPage = Math.min(totalPages, currentPage + 2);
+
+            if (startPage > 1) {
+                paginationHTML += `
+                    <li class="page-item">
+                        <a class="page-link" onclick="${onPageChange.name}(1)">1</a>
+                    </li>
+                `;
+                if (startPage > 2) {
+                    paginationHTML += `<li class="page-item disabled"><a class="page-link">...</a></li>`;
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const active = i === currentPage ? 'active' : '';
+                paginationHTML += `
+                    <li class="page-item ${active}">
+                        <a class="page-link" onclick="${active ? '' : `${onPageChange.name}(${i})`}">${i}</a>
+                    </li>
+                `;
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    paginationHTML += `<li class="page-item disabled"><a class="page-link">...</a></li>`;
+                }
+                paginationHTML += `
+                    <li class="page-item">
+                        <a class="page-link" onclick="${onPageChange.name}(${totalPages})">${totalPages}</a>
+                    </li>
+                `;
+            }
+
+            // Next button
+            const nextDisabled = currentPage === totalPages ? 'disabled' : '';
+            paginationHTML += `
+                <li class="page-item ${nextDisabled}">
+                    <a class="page-link" onclick="${nextDisabled ? '' : `${onPageChange.name}(${currentPage + 1})`}">›</a>
+                </li>
+            `;
+
+            container.innerHTML = paginationHTML;
+        }
+
+        // Helper functions for pagination callbacks
+        function paginateBooks(page) {
+            currentBooksPage = page;
+            loadBooksFromAPI();
+        }
+
+        function paginateUsers(page) {
+            currentUsersPage = page;
+            loadUsersFromAPI();
+        }
+
+        function paginateOrders(page) {
+            currentOrdersPage = page;
+            loadOrdersFromAPI();
+        }
+
+        function paginateArchivedBooks(page) {
+            currentArchivedBooksPage = page;
+            loadArchivedBooksFromAPI();
+        }
+
+        function paginateArchivedUsers(page) {
+            currentArchivedUsersPage = page;
+            loadArchivedUsersFromAPI();
+        }
+
+        function paginateArchivedOrders(page) {
+            currentArchivedOrdersPage = page;
+            loadArchivedOrdersFromAPI();
+        }
+
+        // Archive functionality
+
+        async function handleArchiveBook(bookId, isUnarchive = false) {
+            try {
+                const action = isUnarchive ? 'unarchive' : 'archive';
+                const confirmMessage = isUnarchive ? 'unarchive' : 'archive';
+                
+                if (!confirm(`Are you sure you want to ${confirmMessage} this book?`)) return;
+
+                let response;
+                if (isUnarchive) {
+                    response = await api.unarchiveBook(bookId);
+                } else {
+                    response = await api.archiveBook(bookId);
+                }
+
+                if (response) {
+                    alert(`Book ${action}d successfully!`);
+                    // Reload both active and archived books
+                    await loadBooksFromAPI();
+                    await loadArchivedBooksFromAPI();
+                    
+                    // Refresh current displays
+                    displayBooks(document.getElementById('categoryFilter').value);
+                    if (document.getElementById('archived-books-section').style.display !== 'none') {
+                        displayArchivedBooks(document.getElementById('archivedBookCategoryFilter').value);
+                    }
+                } else {
+                    alert(`Failed to ${action} book`);
+                }
+            } catch (error) {
+                console.error(`Error ${action}ing book:`, error);
+                alert(`Failed to ${action} book: ${error.message}`);
+            }
+        }
+
+        async function handleArchiveUser(userId, isUnarchive = false) {
+            try {
+                const action = isUnarchive ? 'unarchive' : 'archive';
+                const confirmMessage = isUnarchive ? 'unarchive' : 'archive';
+                
+                if (!confirm(`Are you sure you want to ${confirmMessage} this user?`)) return;
+
+                let response;
+                if (isUnarchive) {
+                    response = await api.unarchiveUser(userId);
+                } else {
+                    response = await api.archiveUser(userId);
+                }
+
+                if (response) {
+                    alert(`User ${action}d successfully!`);
+                    // Reload both active and archived users
+                    await loadUsersFromAPI();
+                    await loadArchivedUsersFromAPI();
+                    
+                    // Refresh current displays
+                    displayUsers();
+                    if (document.getElementById('archived-users-section').style.display !== 'none') {
+                        displayArchivedUsers();
+                    }
+                } else {
+                    alert(`Failed to ${action} user`);
+                }
+            } catch (error) {
+                console.error(`Error ${action}ing user:`, error);
+                alert(`Failed to ${action} user: ${error.message}`);
+            }
+        }
+
+        async function handleArchiveOrder(orderId, isUnarchive = false) {
+            try {
+                const action = isUnarchive ? 'unarchive' : 'archive';
+                const confirmMessage = isUnarchive ? 'unarchive' : 'archive';
+                
+                if (!confirm(`Are you sure you want to ${confirmMessage} this order?`)) return;
+
+                let response;
+                if (isUnarchive) {
+                    response = await api.unarchiveOrder(orderId);
+                } else {
+                    response = await api.archiveOrder(orderId);
+                }
+
+                if (response) {
+                    alert(`Order ${action}d successfully!`);
+                    // Reload both active and archived orders
+                    await loadOrdersFromAPI();
+                    await loadArchivedOrdersFromAPI();
+                    
+                    // Refresh current displays
+                    displayOrdersWithPagination(allOrders);
+                    if (document.getElementById('archived-orders-section').style.display !== 'none') {
+                        displayArchivedOrders();
+                    }
+                } else {
+                    alert(`Failed to ${action} order`);
+                }
+            } catch (error) {
+                console.error(`Error ${action}ing order:`, error);
+                alert(`Failed to ${action} order: ${error.message}`);
+            }
+        }
+
+        // Mobile menu functionality
+        function setupMobileMenu() {
+            const mobileToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+            
+            // Create overlay if it doesn't exist
+            let overlay = document.querySelector('.sidebar-overlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.className = 'sidebar-overlay';
+                document.body.appendChild(overlay);
+            }
+
+            // Toggle mobile menu
+            mobileToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('mobile-open');
+                overlay.classList.toggle('show');
+                document.body.style.overflow = sidebar.classList.contains('mobile-open') ? 'hidden' : '';
+            });
+
+            // Close menu when clicking overlay
+            overlay.addEventListener('click', function() {
+                sidebar.classList.remove('mobile-open');
+                overlay.classList.remove('show');
+                document.body.style.overflow = '';
+            });
+
+            // Close menu when clicking a menu item on mobile
+            document.querySelectorAll('.menu-link').forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('mobile-open');
+                        overlay.classList.remove('show');
+                        document.body.style.overflow = '';
+                    }
+                });
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    sidebar.classList.remove('mobile-open');
+                    overlay.classList.remove('show');
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+
+        // Initialize category-genre toggle when modal is shown
+        document.getElementById('addBookModal').addEventListener('shown.bs.modal', function() {
+            setupCategoryGenreToggle();
+        });
+        
+        setupMobileMenu();
         checkInitialAccess();
     </script>
 </body>
