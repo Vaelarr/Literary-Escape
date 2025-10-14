@@ -808,19 +808,18 @@ const orderOperations = {
 
 // Reviews Operations
 const reviewsOperations = {
-    create: async (reviewData, callback) => {
+    create: async (userId, bookId, rating, reviewText, reviewerName, callback) => {
         try {
             await query(
-                `INSERT INTO reviews (book_id, user_id, rating, comment)
+                `INSERT INTO reviews (book_id, user_id, rating, review_text)
                  VALUES (?, ?, ?, ?)
                  ON CONFLICT(book_id, user_id) DO UPDATE SET 
-                 rating = ?, comment = ?, updated_at = CURRENT_TIMESTAMP`,
-                [reviewData.book_id, reviewData.user_id, reviewData.rating, reviewData.comment,
-                 reviewData.rating, reviewData.comment]
+                 rating = ?, review_text = ?, updated_at = CURRENT_TIMESTAMP`,
+                [bookId, userId, rating, reviewText, rating, reviewText]
             );
             const result = await query(
                 'SELECT * FROM reviews WHERE book_id = ? AND user_id = ?',
-                [reviewData.book_id, reviewData.user_id]
+                [bookId, userId]
             );
             callback(null, result.rows[0]);
         } catch (error) {
@@ -839,6 +838,106 @@ const reviewsOperations = {
                 [bookId]
             );
             callback(null, result.rows);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    getByBookId: async (bookId, callback) => {
+        try {
+            const result = await query(
+                `SELECT r.*, u.username, u.first_name, u.last_name
+                 FROM reviews r
+                 JOIN users u ON r.user_id = u.id
+                 WHERE r.book_id = ?
+                 ORDER BY r.created_at DESC`,
+                [bookId]
+            );
+            callback(null, result.rows);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    getByUserId: async (userId, callback) => {
+        try {
+            const result = await query(
+                `SELECT r.*, b.title, b.author, b.cover, b.genre, b.category
+                 FROM reviews r
+                 JOIN books b ON r.book_id = b.id
+                 WHERE r.user_id = ?
+                 ORDER BY r.created_at DESC`,
+                [userId]
+            );
+            callback(null, result.rows);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    getUserReviewHistory: async (userId, callback) => {
+        try {
+            const result = await query(
+                `SELECT r.*, b.title, b.author, b.cover, b.genre, b.category
+                 FROM reviews r
+                 JOIN books b ON r.book_id = b.id
+                 WHERE r.user_id = ?
+                 ORDER BY r.created_at DESC`,
+                [userId]
+            );
+            callback(null, result.rows);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    hasUserReviewed: async (userId, bookId, callback) => {
+        try {
+            const result = await query(
+                'SELECT COUNT(*) as count FROM reviews WHERE user_id = ? AND book_id = ?',
+                [userId, bookId]
+            );
+            callback(null, result.rows[0].count > 0);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    update: async (reviewId, userId, rating, reviewText, callback) => {
+        try {
+            const result = await query(
+                `UPDATE reviews 
+                 SET rating = ?, review_text = ?, updated_at = CURRENT_TIMESTAMP
+                 WHERE id = ? AND user_id = ?`,
+                [rating, reviewText, reviewId, userId]
+            );
+            callback(null, result);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    delete: async (reviewId, userId, callback) => {
+        try {
+            const result = await query(
+                'DELETE FROM reviews WHERE id = ? AND user_id = ?',
+                [reviewId, userId]
+            );
+            callback(null, result);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    getAverageRating: async (bookId, callback) => {
+        try {
+            const result = await query(
+                `SELECT AVG(rating) as average, COUNT(*) as count
+                 FROM reviews
+                 WHERE book_id = ?`,
+                [bookId]
+            );
+            callback(null, result.rows[0]);
         } catch (error) {
             callback(error);
         }
