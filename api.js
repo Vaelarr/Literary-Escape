@@ -1224,6 +1224,42 @@ function validatePasswordServer(password) {
 // Add a test endpoint to verify database connectivity (public)
 app.get('/api/test-db', async (req, res) => {
     try {
+        // Auto-run migrations on first connection test
+        const database = require('./database-config');
+        
+        // Run migrations if using Turso (has query function)
+        if (database.query && typeof database.query === 'function') {
+            try {
+                console.log('🔧 Auto-running migrations on test-db call...');
+                
+                // Try to add archived column to users table
+                try {
+                    await database.query('ALTER TABLE users ADD COLUMN archived INTEGER DEFAULT 0');
+                    console.log('  ✅ Added archived column to users table');
+                } catch (error) {
+                    const errorMsg = error.message ? error.message.toLowerCase() : '';
+                    if (errorMsg.includes('duplicate') || errorMsg.includes('already exists')) {
+                        console.log('  ℹ️  Users.archived already exists');
+                    }
+                }
+                
+                // Try to add archived column to orders table
+                try {
+                    await database.query('ALTER TABLE orders ADD COLUMN archived INTEGER DEFAULT 0');
+                    console.log('  ✅ Added archived column to orders table');
+                } catch (error) {
+                    const errorMsg = error.message ? error.message.toLowerCase() : '';
+                    if (errorMsg.includes('duplicate') || errorMsg.includes('already exists')) {
+                        console.log('  ℹ️  Orders.archived already exists');
+                    }
+                }
+                
+                console.log('🎉 Auto-migration completed');
+            } catch (migrationError) {
+                console.error('⚠️  Auto-migration error (continuing anyway):', migrationError.message);
+            }
+        }
+        
         // Test with a simple query that works across all database types
         const testResult = await new Promise((resolve, reject) => {
             bookOperations.getAll((err, books) => {
