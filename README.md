@@ -195,6 +195,88 @@ Invoke-RestMethod -Uri "https://your-project.vercel.app/api/admin/register" -Met
 
 ## Database Configuration
 
+### Database Options
+
+Literary Escape supports **three database options** with automatic switching:
+
+1. **Turso Cloud** (Edge SQLite) - Best for global edge deployment
+2. **PostgreSQL** (Vercel Postgres) - Traditional cloud database
+3. **SQLite** (Local file) - Default for local development
+
+The app automatically selects the database based on environment variables:
+
+```javascript
+// Priority order:
+1. TURSO_DATABASE_URL present → Use Turso Cloud
+2. POSTGRES_URL present → Use PostgreSQL
+3. Default → Use local SQLite
+```
+
+### Option 1: Turso Cloud (Recommended for Edge)
+
+**Benefits:**
+- ✅ Global edge deployment with low latency
+- ✅ Generous free tier (9 GB storage, 1B reads/month)
+- ✅ SQLite compatibility
+- ✅ Built-in multi-region replication
+- ✅ Perfect for Vercel edge functions
+
+**Setup:**
+See [TURSO_SETUP.md](./TURSO_SETUP.md) for complete guide.
+
+**Quick Setup:**
+```bash
+# Install Turso CLI
+irm get.turso.tech/install.ps1 | iex  # Windows
+# OR
+curl -sSfL https://get.turso.tech/install.sh | bash  # macOS/Linux
+
+# Login and create database
+turso auth login
+turso db create literary-escape
+
+# Get credentials
+turso db show literary-escape --url
+turso db tokens create literary-escape
+```
+
+**Environment Variables:**
+```env
+TURSO_DATABASE_URL=libsql://literary-escape-yourname.turso.io
+TURSO_AUTH_TOKEN=your-turso-auth-token
+```
+
+### Option 2: PostgreSQL (Vercel Postgres)
+
+**Benefits:**
+- ✅ Integrated with Vercel
+- ✅ Traditional PostgreSQL features
+- ✅ Connection pooling support
+
+**Setup:**
+Follow the Vercel deployment guide above (Part 3).
+
+**Environment Variables (Auto-set by Vercel):**
+```env
+POSTGRES_URL=postgres://user:pass@host:5432/db
+DATABASE_URL=postgres://...
+```
+
+### Option 3: SQLite (Local Development)
+
+**Benefits:**
+- ✅ Zero configuration
+- ✅ Fast local development
+- ✅ No internet required
+
+**Setup:**
+No configuration needed! Just run:
+```bash
+npm run dev
+```
+
+Creates `literary_escape.db` automatically.
+
 ### How It Works
 
 The app **automatically** detects which database to use:
