@@ -11,13 +11,13 @@
     "vercel-build": "echo 'Build complete'",
     "seed-postgres": "node seed-postgres.js",
     "seed-turso": "node seed-turso.js",
-    "db-health": "node -e \"const db = require('./database-config'); db.checkDatabaseHealth((err, results) => { console.log('Database Health:', results); process.exit(0); });\""
-,
+    "db-health": "node check-db-health.js",
     "test-database": "node test-database.js"
   },
   "dependencies": {
     "@libsql/client": "^0.14.0",
     "bcrypt": "^5.1.1",
+    "dotenv": "^17.2.3",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
     "node-fetch": "^2.7.0",

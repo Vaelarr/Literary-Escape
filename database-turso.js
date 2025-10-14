@@ -296,11 +296,25 @@ const bookOperations = {
                     format, weight, dimensions, stock_quantity, sku, cost_price
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
-                    bookData.isbn, bookData.title, bookData.author, bookData.description,
-                    bookData.category, bookData.genre, bookData.cover, bookData.price,
-                    bookData.publisher, bookData.publication_date, bookData.publication_year,
-                    bookData.pages, bookData.language, bookData.format, bookData.weight,
-                    bookData.dimensions, bookData.stock_quantity, bookData.sku, bookData.cost_price
+                    bookData.isbn || null,
+                    bookData.title,
+                    bookData.author,
+                    bookData.description || null,
+                    bookData.category || null,
+                    bookData.genre || null,
+                    bookData.cover || null,
+                    bookData.price || null,
+                    bookData.publisher || null,
+                    bookData.publication_date || null,
+                    bookData.publication_year || null,
+                    bookData.pages || null,
+                    bookData.language || 'English',
+                    bookData.format || 'Paperback',
+                    bookData.weight || null,
+                    bookData.dimensions || null,
+                    bookData.stock_quantity || 0,
+                    bookData.sku || null,
+                    bookData.cost_price || 0
                 ]
             );
             const newBook = await query('SELECT * FROM books WHERE id = ?', [result.lastInsertRowid]);
