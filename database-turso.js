@@ -507,9 +507,28 @@ const userOperations = {
         }
     },
 
+    // Alias for create - used by registration endpoint
+    register: async (userData, callback) => {
+        try {
+            const result = await query(
+                `INSERT INTO users (username, email, password_hash, first_name, last_name, address, phone, city, zip_code)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [
+                    userData.username, userData.email, userData.password_hash,
+                    userData.first_name || null, userData.last_name || null, 
+                    userData.address || null, userData.phone || null, 
+                    userData.city || null, userData.zip_code || null
+                ]
+            );
+            callback(null, { id: result.lastInsertRowid, message: 'User registered successfully' });
+        } catch (error) {
+            callback(error);
+        }
+    },
+
     getByEmail: async (email, callback) => {
         try {
-            const result = await query('SELECT * FROM users WHERE email = ?', [email]);
+            const result = await query('SELECT * FROM users WHERE email = ? AND archived = 0', [email]);
             callback(null, result.rows[0]);
         } catch (error) {
             callback(error);
@@ -548,6 +567,43 @@ const userOperations = {
             );
             const updated = await query('SELECT * FROM users WHERE id = ?', [id]);
             callback(null, updated.rows[0]);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Update user password
+    updatePassword: async (userId, newPasswordHash, callback) => {
+        try {
+            await query(
+                'UPDATE users SET password_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+                [newPasswordHash, userId]
+            );
+            callback(null, { message: 'Password updated successfully' });
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Update user role (admin function)
+    updateRole: async (userId, role, callback) => {
+        try {
+            await query(
+                'UPDATE users SET role = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+                [role, userId]
+            );
+            const updated = await query('SELECT * FROM users WHERE id = ?', [userId]);
+            callback(null, updated.rows[0]);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Delete user (admin function)
+    deleteUser: async (userId, callback) => {
+        try {
+            await query('DELETE FROM users WHERE id = ?', [userId]);
+            callback(null, { message: 'User deleted successfully' });
         } catch (error) {
             callback(error);
         }
