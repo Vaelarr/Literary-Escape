@@ -964,6 +964,7 @@
         async function checkDbConnectionAndLoadData() {
             try {
                 console.log('🔌 Checking database connection...');
+                console.log('🔧 Auto-running database migrations if needed...');
                 const isConnected = await verifyDatabaseConnection();
                 
                 if (isConnected) {
