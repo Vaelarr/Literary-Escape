@@ -995,18 +995,19 @@ app.get('/api/user/profile', authenticateToken, (req, res) => {
 // Admin user management endpoints (require admin authentication)
 app.get('/api/users', authenticateAdmin, (req, res) => {
     console.log('Admin requesting all users');
-    userOperations.getAll((err, users) => {
+    
+    // Use the admin operations method with pagination
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    
+    adminOperations.getAllUsers(page, limit, (err, result) => {
         if (err) {
             console.error('Error getting users:', err);
             return res.status(500).json({ error: err.message });
         }
-        console.log('Returning', users.length, 'users');
-        // Remove password hashes from response
-        const safeUsers = users.map(u => {
-            const { password_hash, ...user } = u;
-            return user;
-        });
-        res.json(safeUsers);
+        
+        console.log('Returning users:', result);
+        res.json(result);
     });
 });
 
