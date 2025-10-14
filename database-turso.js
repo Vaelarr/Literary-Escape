@@ -6,13 +6,27 @@ const { createClient } = require('@libsql/client');
 // Turso Database Configuration
 // Uses Turso Cloud for edge-hosted SQLite database
 
+// Validate that Turso credentials are set
+if (!process.env.TURSO_DATABASE_URL || !process.env.TURSO_AUTH_TOKEN) {
+    throw new Error('TURSO_DATABASE_URL and TURSO_AUTH_TOKEN must be set in .env file for cloud database connection');
+}
+
+// Validate that URL points to cloud (not local file)
+if (!process.env.TURSO_DATABASE_URL.startsWith('libsql://') && 
+    !process.env.TURSO_DATABASE_URL.startsWith('https://')) {
+    throw new Error('TURSO_DATABASE_URL must be a cloud URL (libsql:// or https://)');
+}
+
+console.log('🌐 Connecting to Turso Cloud Database...');
+console.log('   Database:', process.env.TURSO_DATABASE_URL.split('.')[0].replace('libsql://', ''));
+
 // Create Turso client
 const turso = createClient({
     url: process.env.TURSO_DATABASE_URL,
     authToken: process.env.TURSO_AUTH_TOKEN,
 });
 
-console.log('Connected to Turso database');
+console.log('✅ Connected to Turso Cloud Database (ONLINE)');
 
 // Helper function to execute queries
 async function query(sql, params = []) {
