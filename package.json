@@ -8,13 +8,18 @@
     "init-db": "node list.js",
     "test-db": "node -e \"const { checkDatabaseHealth } = require('./database'); checkDatabaseHealth((err, results) => { console.log('Database Health:', results); process.exit(0); });\"",
     "dev": "nodemon api.js",
-    "vercel-build": "echo 'Build complete'"
+    "vercel-build": "echo 'Build complete'",
+    "seed-postgres": "node seed-postgres.js",
+    "db-health": "node -e \"const db = require('./database-config'); db.checkDatabaseHealth((err, results) => { console.log('Database Health:', results); process.exit(0); });\""
+,
+    "test-database": "node test-database.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
     "node-fetch": "^2.7.0",
+    "pg": "^8.11.3",
     "sqlite3": "^5.1.6"
   },
   "devDependencies": {

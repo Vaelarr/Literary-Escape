@@ -12,7 +12,7 @@ const {
     adminOperations,
     archiveOperations,
     initializeDatabase 
-} = require('./database');
+} = require('./database-config');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
