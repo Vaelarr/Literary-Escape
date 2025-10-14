@@ -1,6 +1,18 @@
 class APIClient {
     constructor() {
-        this.baseURL = 'http://localhost:3000/api';
+        // Dynamically set base URL based on environment
+        // In production (Vercel), use relative path
+        // In development, use localhost
+        const isLocalhost = window.location.hostname === 'localhost' || 
+                           window.location.hostname === '127.0.0.1' ||
+                           window.location.hostname === '';
+        
+        this.baseURL = isLocalhost 
+            ? 'http://localhost:3000/api'
+            : '/api'; // Relative path for production (Vercel)
+        
+        console.log('API Client initialized with baseURL:', this.baseURL);
+        
         this.token = localStorage.getItem('authToken');
         this.connectionTested = false;
         

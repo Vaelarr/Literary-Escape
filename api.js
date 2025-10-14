@@ -1151,11 +1151,16 @@ initializeDatabase((err) => {
     
     console.log('Database initialized successfully');
     
-    // Start the server after database is ready
-    app.listen(PORT, () => {
-        console.log(`API server running on http://localhost:${PORT}`);
-        console.log('Database connection established and ready');
-    });
+    // Only start the server if not running on Vercel (serverless environment)
+    // Vercel handles the server startup automatically
+    if (!process.env.VERCEL && require.main === module) {
+        app.listen(PORT, () => {
+            console.log(`API server running on http://localhost:${PORT}`);
+            console.log('Database connection established and ready');
+        });
+    } else {
+        console.log('Running in serverless environment (Vercel)');
+    }
 });
 
 // Enhanced server-side password validation function with database logging
@@ -1216,24 +1221,31 @@ function validatePasswordServer(password) {
 }
 
 // Add a test endpoint to verify database connectivity (public)
-app.get('/api/test-db', (req, res) => {
-    const { db } = require('./database');
-    
-    db.get("SELECT COUNT(*) as count FROM sqlite_master WHERE type='table'", (err, row) => {
-        if (err) {
-            console.error('Database test failed:', err);
-            return res.status(500).json({ 
-                error: 'Database connection failed', 
-                details: err.message 
+app.get('/api/test-db', async (req, res) => {
+    try {
+        // Test with a simple query that works across all database types
+        const testResult = await new Promise((resolve, reject) => {
+            bookOperations.getAll((err, books) => {
+                if (err) reject(err);
+                else resolve(books);
             });
-        }
+        });
         
         res.json({ 
             success: true, 
             message: 'Database connection successful', 
-            tableCount: row.count 
+            bookCount: testResult ? testResult.length : 0,
+            databaseType: process.env.TURSO_DATABASE_URL ? 'Turso' : 
+                         (process.env.POSTGRES_URL || process.env.DATABASE_URL) ? 'PostgreSQL' : 
+                         'SQLite'
         });
-    });
+    } catch (err) {
+        console.error('Database test failed:', err);
+        res.status(500).json({ 
+            error: 'Database connection failed', 
+            details: err.message 
+        });
+    }
 });
 
 // Voucher validation endpoint
