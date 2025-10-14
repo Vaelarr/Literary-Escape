@@ -39,7 +39,7 @@ function initializeDatabase(callback) {
     const createBooksTable = `
         CREATE TABLE IF NOT EXISTS books (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            isbn TEXT UNIQUE NOT NULL,
+            isbn TEXT,
             title TEXT NOT NULL,
             author TEXT NOT NULL,
             description TEXT,
@@ -49,6 +49,7 @@ function initializeDatabase(callback) {
             price REAL,
             publisher TEXT,
             publication_date DATE,
+            publication_year INTEGER,
             pages INTEGER,
             language TEXT DEFAULT 'English',
             format TEXT DEFAULT 'Paperback',
@@ -56,6 +57,19 @@ function initializeDatabase(callback) {
             dimensions TEXT,
             rating REAL DEFAULT 0,
             stock_quantity INTEGER DEFAULT 0,
+            status TEXT DEFAULT 'active',
+            sku TEXT,
+            min_stock INTEGER DEFAULT 5,
+            max_stock INTEGER DEFAULT 100,
+            reorder_point INTEGER DEFAULT 10,
+            reorder_quantity INTEGER DEFAULT 20,
+            warehouse_location TEXT,
+            cost_price REAL DEFAULT 0,
+            discount_percentage REAL DEFAULT 0,
+            supplier_name TEXT,
+            supplier_contact TEXT,
+            notes TEXT,
+            archived BOOLEAN DEFAULT 0,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
@@ -272,6 +286,34 @@ function runMigrations(callback) {
         } else {
             console.log('Books table migration completed - archived column ready');
         }
+    });
+
+    // Add new inventory management fields to books table
+    const inventoryFields = [
+        { name: 'publication_year', type: 'INTEGER', default: 'NULL' },
+        { name: 'status', type: 'TEXT', default: "'active'" },
+        { name: 'sku', type: 'TEXT', default: 'NULL' },
+        { name: 'min_stock', type: 'INTEGER', default: '5' },
+        { name: 'max_stock', type: 'INTEGER', default: '100' },
+        { name: 'reorder_point', type: 'INTEGER', default: '10' },
+        { name: 'reorder_quantity', type: 'INTEGER', default: '20' },
+        { name: 'warehouse_location', type: 'TEXT', default: 'NULL' },
+        { name: 'cost_price', type: 'REAL', default: '0' },
+        { name: 'discount_percentage', type: 'REAL', default: '0' },
+        { name: 'supplier_name', type: 'TEXT', default: 'NULL' },
+        { name: 'supplier_contact', type: 'TEXT', default: 'NULL' },
+        { name: 'notes', type: 'TEXT', default: 'NULL' }
+    ];
+
+    inventoryFields.forEach(field => {
+        const alterQuery = `ALTER TABLE books ADD COLUMN ${field.name} ${field.type} DEFAULT ${field.default}`;
+        db.run(alterQuery, (err) => {
+            if (err && !err.message.includes('duplicate column name')) {
+                console.error(`Error adding ${field.name} column to books:`, err);
+            } else if (!err) {
+                console.log(`Books table migration completed - ${field.name} column added`);
+            }
+        });
     });
 
     // Add archive columns to users table
@@ -590,6 +632,25 @@ userOperations.getAll = (callback) => {
 userOperations.deleteUser = (id, callback) => {
     const query = `DELETE FROM users WHERE id = ?`;
     db.run(query, [id], callback);
+};
+
+userOperations.updateRole = (userId, role, callback) => {
+    console.log('Updating user role in database:', { userId, role });
+    const query = `UPDATE users SET role = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`;
+    db.run(query, [role, userId], function(err) {
+        if (err) {
+            console.error('Error updating user role:', err);
+            return callback(err);
+        }
+        
+        if (this.changes === 0) {
+            console.log('No user found with ID:', userId);
+            return callback(null, false);
+        }
+        
+        console.log('User role updated successfully');
+        callback(null, true);
+    });
 };
 
 // Cart operations
@@ -1181,22 +1242,39 @@ const adminOperations = {
     },
 
     // Admin methods to get all items (including archived)
-    getAllBooks: (page = 1, limit = 10, callback) => {
+    getAllBooks: (page = 1, limit = 10, category = null, callback) => {
         const offset = (page - 1) * limit;
-        const query = `
+        
+        let query = `
             SELECT * FROM books 
-            WHERE archived = 0 OR archived IS NULL
-            ORDER BY created_at DESC
-            LIMIT ? OFFSET ?
+            WHERE (archived = 0 OR archived IS NULL)
         `;
-        db.all(query, [limit, offset], (err, books) => {
+        let params = [];
+        
+        if (category) {
+            query += ` AND category = ?`;
+            params.push(category);
+        }
+        
+        query += ` ORDER BY created_at DESC LIMIT ? OFFSET ?`;
+        params.push(limit, offset);
+        
+        db.all(query, params, (err, books) => {
             if (err) {
                 callback(err);
                 return;
             }
             
             // Get total count for pagination
-            db.get('SELECT COUNT(*) as total FROM books WHERE archived = 0 OR archived IS NULL', [], (countErr, countResult) => {
+            let countQuery = 'SELECT COUNT(*) as total FROM books WHERE archived = 0 OR archived IS NULL';
+            let countParams = [];
+            
+            if (category) {
+                countQuery += ' AND category = ?';
+                countParams.push(category);
+            }
+            
+            db.get(countQuery, countParams, (countErr, countResult) => {
                 if (countErr) {
                     callback(countErr);
                     return;
@@ -1250,24 +1328,67 @@ const adminOperations = {
         });
     },
 
-    getAllOrders: (page = 1, limit = 10, callback) => {
+    getAllOrders: (page = 1, limit = 10, filters = {}, callback) => {
         const offset = (page - 1) * limit;
-        const query = `
-            SELECT o.*, u.username, u.email
+        
+        let query = `
+            SELECT o.*, u.username, u.email, u.first_name, u.last_name, u.phone, u.address
             FROM orders o
             JOIN users u ON o.user_id = u.id
-            WHERE o.archived = 0 OR o.archived IS NULL
-            ORDER BY o.created_at DESC
-            LIMIT ? OFFSET ?
+            WHERE (o.archived = 0 OR o.archived IS NULL)
         `;
-        db.all(query, [limit, offset], (err, orders) => {
+        let params = [];
+        
+        // Add status filter
+        if (filters.status) {
+            query += ` AND o.status = ?`;
+            params.push(filters.status);
+        }
+        
+        // Add search filter (search in customer name, email, or order ID)
+        if (filters.search) {
+            query += ` AND (
+                u.username LIKE ? OR 
+                u.email LIKE ? OR 
+                u.first_name LIKE ? OR 
+                u.last_name LIKE ? OR 
+                CAST(o.id AS TEXT) LIKE ?
+            )`;
+            const searchTerm = `%${filters.search}%`;
+            params.push(searchTerm, searchTerm, searchTerm, searchTerm, searchTerm);
+        }
+        
+        query += ` ORDER BY o.created_at DESC LIMIT ? OFFSET ?`;
+        params.push(limit, offset);
+        
+        db.all(query, params, (err, orders) => {
             if (err) {
                 callback(err);
                 return;
             }
             
-            // Get total count for pagination
-            db.get('SELECT COUNT(*) as total FROM orders WHERE archived = 0 OR archived IS NULL', [], (countErr, countResult) => {
+            // Get total count for pagination with same filters
+            let countQuery = 'SELECT COUNT(*) as total FROM orders o JOIN users u ON o.user_id = u.id WHERE (o.archived = 0 OR o.archived IS NULL)';
+            let countParams = [];
+            
+            if (filters.status) {
+                countQuery += ' AND o.status = ?';
+                countParams.push(filters.status);
+            }
+            
+            if (filters.search) {
+                countQuery += ` AND (
+                    u.username LIKE ? OR 
+                    u.email LIKE ? OR 
+                    u.first_name LIKE ? OR 
+                    u.last_name LIKE ? OR 
+                    CAST(o.id AS TEXT) LIKE ?
+                )`;
+                const searchTerm = `%${filters.search}%`;
+                countParams.push(searchTerm, searchTerm, searchTerm, searchTerm, searchTerm);
+            }
+            
+            db.get(countQuery, countParams, (countErr, countResult) => {
                 if (countErr) {
                     callback(countErr);
                     return;

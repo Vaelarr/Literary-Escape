@@ -72,19 +72,57 @@
         .navbar .icon-link i {
             color: #ffffff !important;
         }
+        
+        /* Fix checkbox stretching */
+        .form-check-input {
+            width: 1rem !important;
+            height: 1rem !important;
+            flex-shrink: 0;
+            margin-top: 0.25em;
+        }
+        
+        .form-check {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+        
+        .form-check-label {
+            flex: 1;
+            line-height: 1.5;
+        }
+        
+        /* Prevent body scroll when modal is open */
+        body.modal-open {
+            overflow: hidden !important;
+            padding-right: 0 !important;
+            position: fixed !important;
+            width: 100% !important;
+            height: 100% !important;
+        }
+        
+        .modal {
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        
+        .modal.fade .modal-dialog {
+            transition: transform 0.3s ease-out;
+        }
+        
+        /* Additional modal backdrop fix */
+        .modal-backdrop {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            z-index: 1040 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+        }
     </style>
 </head>
 
 <body>
-<!-- 
-    <audio id="bgMusic" loop>
-        <source src="./media/Frédéric Chopin_ Nocturne in E-Flat Major, Op. 9, No. 2.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio> -->
-
-    <!-- <button id="audioControl" class="audio-control" title="Audio Control">
-        <i class="fas fa-volume-mute"></i>
-    </button> -->
 
     <nav class="navbar navbar-expand-lg navbar-light bg-custom fixed-top" id="navbar">
         <div class="container-fluid">
@@ -124,6 +162,27 @@
                     <div class="search-wrapper w-100">
                         <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search" id="searchInput">
                         <button class="btn mx-0" title="search-btn" type="submit"><i class="bi bi-search"></i></button>
+                        
+                        <!-- Search Dropdown -->
+                        <div class="search-dropdown" id="searchDropdown">
+                            <!-- Loading indicator -->
+                            <div class="search-loading" id="searchLoading">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <span class="loading-text">Searching...</span>
+                            </div>
+                            
+                            <!-- Search results container -->
+                            <div class="search-results-container" id="searchResultsContainer">
+                            </div>
+                            
+                            <!-- No results message -->
+                            <div class="no-results-message" id="noResultsMessage">
+                                <i class="bi bi-search"></i>
+                                <p>No books found for your search.</p>
+                            </div>
+                        </div>
                     </div>
                 </form>
 
@@ -206,6 +265,12 @@
                                     required>
                                 <div class="password-match-feedback mt-1"></div>
                             </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="termsCheckbox" required>
+                                <label class="form-check-label" for="termsCheckbox">
+                                    I agree to the <a href="#" onclick="showTermsAndConditions()">Terms and Conditions</a>
+                                </label>
+                            </div>
                             <button type="submit" class="btn btn-primary w-100" id="signup-submit-btn" disabled>Sign Up</button>
                         </form>
                         <p class="text-center mt-3">
@@ -220,10 +285,69 @@
 
     <!-- Footer -->
     <footer>
-        <a href="https://www.facebook.com/" class="text-decoration-none" style="color: white;"><i
-                class="fa-brands fa-facebook"></i></a>
-        <a href="https://www.instagram.com/" class="text-decoration-none" style="color: white;"><i
-                class="fa-brands fa-instagram"></i></a>
+        <div class="footer-content">
+            <div class="footer-row">
+                <div class="footer-column">
+                    <div class="footer-logo">
+                        <img src="media/icon.png" alt="Literary Escape Logo">
+                        <span>LITERARY ESCAPE</span>
+                    </div>
+                    <p class="footer-description">
+                        Your gateway to endless literary adventures. Discover, explore, and escape into the world of books with our carefully curated collection of fiction, non-fiction, and specialty titles.
+                    </p>
+                    <div class="social-links">
+                        <a href="https://www.facebook.com/" target="_blank" rel="noopener" aria-label="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="https://www.twitter.com/" target="_blank" rel="noopener" aria-label="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="https://www.youtube.com/" target="_blank" rel="noopener" aria-label="YouTube">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="fiction.html">Fiction</a></li>
+                        <li><a href="non-fiction.html">Non-Fiction</a></li>
+                        <li><a href="about-us.html">About Us</a></li>
+                        <li><a href="account.html">My Account</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h4 class="footer-title">Customer Service</h4>
+                    <ul class="footer-links">
+                        <li><a href="cart.html">Shopping Cart</a></li>
+                        <li><a href="favorites.html">My Favorites</a></li>
+                        <li><a href="checkout.html">Checkout</a></li>
+                        <li><a href="#" onclick="showInfo('Contact us at: support@literaryescape.com')">Contact Support</a></li>
+                        <li><a href="#" onclick="showInfo('Shipping: 3-5 business days')">Shipping Info</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h4 class="footer-title">Contact Info</h4>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-envelope me-2"></i>support@literaryescape.com</li>
+                        <li><i class="fas fa-phone me-2"></i>+1 (555) 123-4567</li>
+                        <li><i class="fas fa-map-marker-alt me-2"></i>123 Book Street, Reading City, RC 12345</li>
+                        <li><i class="fas fa-clock me-2"></i>Mon-Fri: 9AM-6PM</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Literary Escape. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+            </div>
+        </div>
     </footer>
 
     <script>
@@ -280,6 +404,7 @@
                     const email = document.getElementById('signupEmail').value.trim();
                     const password = document.getElementById('signupPassword').value;
                     const confirmPassword = document.getElementById('signupConfirmPassword').value;
+                    const termsAccepted = document.getElementById('termsCheckbox').checked;
 
                     // Create username from name components
                     const username = middleInitial 
@@ -289,6 +414,12 @@
                     // Enhanced validation
                     if (!firstName || !lastName || !email || !password || !confirmPassword) {
                         dbBookDisplay.showMessage('Please fill in all required fields', 'warning');
+                        return;
+                    }
+
+                    // Terms and Conditions validation
+                    if (!termsAccepted) {
+                        dbBookDisplay.showMessage('You must agree to the Terms and Conditions to create an account', 'warning');
                         return;
                     }
 
@@ -411,6 +542,7 @@
             // Real-time password validation
             const passwordInput = document.getElementById('signupPassword');
             const confirmPasswordInput = document.getElementById('signupConfirmPassword');
+            const termsCheckbox = document.getElementById('termsCheckbox');
             const submitBtn = document.getElementById('signup-submit-btn');
 
             passwordInput?.addEventListener('input', function() {
@@ -421,6 +553,10 @@
 
             confirmPasswordInput?.addEventListener('input', function() {
                 checkPasswordMatch();
+            });
+
+            termsCheckbox?.addEventListener('change', function() {
+                updateSubmitButton();
             });
 
             function updatePasswordRequirements(password) {
@@ -471,9 +607,10 @@
                 const confirmPassword = confirmPasswordInput?.value || '';
                 const passwordValid = validatePassword(password).isValid;
                 const passwordsMatch = password === confirmPassword && password.length > 0;
+                const termsAccepted = termsCheckbox?.checked || false;
 
                 if (submitBtn) {
-                    submitBtn.disabled = !(passwordValid && passwordsMatch);
+                    submitBtn.disabled = !(passwordValid && passwordsMatch && termsAccepted);
                 }
             }
 
@@ -492,10 +629,274 @@
                     feedbackDiv.innerHTML = '';
                 }
                 
+                if (termsCheckbox) {
+                    termsCheckbox.checked = false;
+                }
+                
                 if (submitBtn) {
                     submitBtn.disabled = true;
                 }
             }
+
+            // Add function to show Terms and Conditions - Move this outside of DOMContentLoaded
+            window.showTermsAndConditions = function() {
+                const termsContent = `
+                    <div class="terms-content">
+                        <h4>Terms and Conditions for Literary Escape</h4>
+                        <p><strong>Last updated: ${new Date().getFullYear()}</strong></p>
+                        
+                        <div class="terms-section">
+                            <h5>1. Acceptance of Terms</h5>
+                            <p>By creating an account with Literary Escape, you agree to be bound by these Terms and Conditions. If you do not agree to these terms, please do not use our services.</p>
+                        </div>
+                        
+                        <div class="terms-section">
+                            <h5>2. Account Registration and Security</h5>
+                            <p>You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. You must provide accurate and complete information when creating your account.</p>
+                            <ul>
+                                <li>You must be at least 13 years old to create an account</li>
+                                <li>One account per person</li>
+                                <li>You are responsible for keeping your password secure</li>
+                                <li>Notify us immediately of any unauthorized use of your account</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="terms-section">
+                            <h5>3. Privacy and Data Protection</h5>
+                            <p>Your privacy is important to us. We collect and use your information in accordance with our Privacy Policy, which includes:</p>
+                            <ul>
+                                <li>Personal information for account creation and order processing</li>
+                                <li>Usage data to improve our services</li>
+                                <li>Communication preferences for marketing (opt-out available)</li>
+                                <li>Secure storage of payment information</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="terms-section">
+                            <h5>4. Prohibited Activities</h5>
+                            <p>You may not use our service for any unlawful purposes or in any way that could damage, disable, or impair our service. Prohibited activities include:</p>
+                            <ul>
+                                <li>Creating fake accounts or providing false information</li>
+                                <li>Attempting to gain unauthorized access to our systems</li>
+                                <li>Using automated tools to scrape or harvest data</li>
+                                <li>Engaging in fraudulent transactions</li>
+                                <li>Violating intellectual property rights</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="terms-section">
+                            <h5>5. Orders and Payments</h5>
+                            <p>All orders are subject to acceptance and availability. We reserve the right to refuse or cancel orders at our discretion.</p>
+                            <ul>
+                                <li>Prices are subject to change without notice</li>
+                                <li>Payment is required at time of order</li>
+                                <li>We accept major credit cards and PayPal</li>
+                                <li>Shipping costs are additional unless otherwise stated</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="terms-section">
+                            <h5>6. Returns and Refunds</h5>
+                            <p>We want you to be satisfied with your purchase. Our return policy includes:</p>
+                            <ul>
+                                <li>30-day return period for most items</li>
+                                <li>Items must be in original condition</li>
+                                <li>Customer responsible for return shipping costs</li>
+                                <li>Refunds processed within 5-10 business days</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="terms-section">
+                            <h5>7. Limitation of Liability</h5>
+                            <p>Literary Escape shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of our service, including but not limited to loss of profits, data, or business interruption.</p>
+                        </div>
+                        
+                        <div class="terms-section">
+                            <h5>8. Intellectual Property</h5>
+                            <p>All content on our website, including text, graphics, logos, and images, is the property of Literary Escape or our licensors and is protected by copyright and other intellectual property laws.</p>
+                        </div>
+                        
+                        <div class="terms-section">
+                            <h5>9. Changes to Terms</h5>
+                            <p>We reserve the right to modify these terms at any time. Changes will be effective immediately upon posting on our website. Your continued use of our services after changes constitutes acceptance of the new terms.</p>
+                        </div>
+                        
+                        <div class="terms-section">
+                            <h5>10. Governing Law</h5>
+                            <p>These terms are governed by and construed in accordance with the laws of the jurisdiction where Literary Escape operates, without regard to conflict of law principles.</p>
+                        </div>
+                        
+                        <div class="terms-section">
+                            <h5>11. Contact Information</h5>
+                            <p>If you have any questions about these Terms and Conditions, please contact us:</p>
+                            <ul>
+                                <li>Email: support@literaryescape.com</li>
+                                <li>Phone: +1 (555) 123-4567</li>
+                                <li>Address: 123 Book Street, Reading City, RC 12345</li>
+                                <li>Business Hours: Monday-Friday, 9AM-6PM</li>
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                
+                // Create a modal to display terms
+                const modal = document.createElement('div');
+                modal.className = 'modal fade';
+                modal.id = 'termsModal';
+                modal.setAttribute('tabindex', '-1');
+                modal.setAttribute('aria-labelledby', 'termsModalLabel');
+                modal.setAttribute('aria-hidden', 'true');
+                modal.innerHTML = `
+                    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="termsModalLabel">Terms and Conditions</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                ${termsContent}
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary" onclick="acceptTermsFromModal()">I Agree</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Add custom styles for the modal
+                const style = document.createElement('style');
+                style.textContent = `
+                    .terms-content {
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                        line-height: 1.6;
+                    }
+                    .terms-section {
+                        margin-bottom: 1.5rem;
+                        padding-bottom: 1rem;
+                        border-bottom: 1px solid #e9ecef;
+                    }
+                    .terms-section:last-child {
+                        border-bottom: none;
+                    }
+                    .terms-section h5 {
+                        color: #16423c;
+                        margin-bottom: 0.75rem;
+                        font-weight: 600;
+                    }
+                    .terms-section ul {
+                        margin-left: 1rem;
+                        margin-bottom: 0.5rem;
+                    }
+                    .terms-section li {
+                        margin-bottom: 0.25rem;
+                    }
+                    .modal-body {
+                        max-height: 70vh;
+                        overflow-y: auto;
+                    }
+                `;
+                
+                document.head.appendChild(style);
+                document.body.appendChild(modal);
+                
+                const bootstrapModal = new bootstrap.Modal(modal, {
+                    backdrop: 'static',
+                    keyboard: true
+                });
+                
+                // Store original body styles
+                let originalBodyStyle = '';
+                let originalBodyPosition = '';
+                let originalBodyTop = '';
+                
+                // Prevent body scroll when modal is shown
+                modal.addEventListener('show.bs.modal', function () {
+                    // Store original styles
+                    originalBodyStyle = document.body.style.overflow;
+                    originalBodyPosition = document.body.style.position;
+                    originalBodyTop = document.body.style.top;
+                    
+                    // Get current scroll position
+                    const scrollY = window.scrollY;
+                    
+                    // Apply styles to prevent scrolling
+                    document.body.style.position = 'fixed';
+                    document.body.style.top = `-${scrollY}px`;
+                    document.body.style.overflow = 'hidden';
+                    document.body.style.width = '100%';
+                    document.body.classList.add('modal-open');
+                    
+                    // Prevent touch events on iOS
+                    document.addEventListener('touchmove', preventTouchMove, { passive: false });
+                });
+                
+                // Re-enable body scroll when modal is hidden
+                modal.addEventListener('hide.bs.modal', function () {
+                    // Remove touch event listener
+                    document.removeEventListener('touchmove', preventTouchMove);
+                    
+                    // Get the scroll position from the fixed body
+                    const scrollY = document.body.style.top;
+                    
+                    // Restore original styles
+                    document.body.style.position = originalBodyPosition;
+                    document.body.style.top = originalBodyTop;
+                    document.body.style.overflow = originalBodyStyle;
+                    document.body.style.width = '';
+                    document.body.classList.remove('modal-open');
+                    
+                    // Restore scroll position
+                    if (scrollY) {
+                        window.scrollTo(0, parseInt(scrollY || '0') * -1);
+                    }
+                });
+                
+                // Function to prevent touch scrolling on mobile
+                function preventTouchMove(e) {
+                    // Allow scrolling within the modal
+                    if (e.target.closest('.modal-body')) {
+                        return;
+                    }
+                    e.preventDefault();
+                }
+                
+                bootstrapModal.show();
+                
+                // Remove modal and styles from DOM when hidden
+                modal.addEventListener('hidden.bs.modal', function() {
+                    // Ensure body scroll is completely restored
+                    document.removeEventListener('touchmove', preventTouchMove);
+                    document.body.classList.remove('modal-open');
+                    document.body.style.position = '';
+                    document.body.style.top = '';
+                    document.body.style.overflow = '';
+                    document.body.style.width = '';
+                    document.body.style.paddingRight = '';
+                    
+                    modal.remove();
+                    style.remove();
+                });
+            };
+
+            // Function to accept terms from modal
+            window.acceptTermsFromModal = function() {
+                const termsCheckbox = document.getElementById('termsCheckbox');
+                if (termsCheckbox) {
+                    termsCheckbox.checked = true;
+                    updateSubmitButton(); // Update submit button state
+                }
+                
+                // Close the modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('termsModal'));
+                if (modal) {
+                    modal.hide();
+                }
+                
+                // Show confirmation message
+                dbBookDisplay.showMessage('Terms and Conditions accepted', 'success');
+            };
+
             // Handle Login with enhanced API integration
             loginForm?.addEventListener('submit', async function (e) {
                 e.preventDefault();
@@ -619,9 +1020,229 @@
                 }
             }
         }
+
+        // Handle search
+        function handleSearch(event) {
+            event.preventDefault();
+            const query = document.getElementById('searchInput').value.trim();
+            if (query) {
+                window.location.href = `search-results.html?q=${encodeURIComponent(query)}`;
+            }
+        }
+
+        // Search Dropdown Functionality
+        let searchTimeout;
+        let currentSearchTerm = '';
+        let apiClient;
+
+        // Initialize search functionality when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            apiClient = new APIClient();
+            initializeSearchDropdown();
+        });
+
+        function initializeSearchDropdown() {
+            const searchInput = document.getElementById('searchInput');
+            const searchDropdown = document.getElementById('searchDropdown');
+
+            // Listen for input events on search bar
+            searchInput.addEventListener('input', function(e) {
+                const query = e.target.value.trim();
+                
+                if (query.length >= 2) {
+                    currentSearchTerm = query;
+                    showSearchDropdown();
+                    performSearch(query);
+                } else if (query.length === 0) {
+                    hideSearchDropdown();
+                } else {
+                    // Show dropdown but with a "type more" message
+                    currentSearchTerm = query;
+                    showSearchDropdown();
+                    showTypeMoreMessage();
+                }
+            });
+
+            // Hide dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
+                    hideSearchDropdown();
+                }
+            });
+
+            // Handle escape key to close dropdown
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    hideSearchDropdown();
+                } else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    const firstResult = searchDropdown.querySelector('.search-result-item');
+                    if (firstResult) {
+                        firstResult.focus();
+                    }
+                }
+            });
+
+            // Handle arrow key navigation in search results
+            searchDropdown.addEventListener('keydown', function(e) {
+                const resultItems = searchDropdown.querySelectorAll('.search-result-item');
+                const currentFocus = document.activeElement;
+                let currentIndex = Array.from(resultItems).indexOf(currentFocus);
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    currentIndex = currentIndex < resultItems.length - 1 ? currentIndex + 1 : 0;
+                    resultItems[currentIndex]?.focus();
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (currentIndex <= 0) {
+                        searchInput.focus();
+                    } else {
+                        resultItems[currentIndex - 1]?.focus();
+                    }
+                } else if (e.key === 'Enter' && currentFocus.classList.contains('search-result-item')) {
+                    e.preventDefault();
+                    currentFocus.click();
+                } else if (e.key === 'Escape') {
+                    hideSearchDropdown();
+                    searchInput.focus();
+                }
+            });
+
+            // Prevent form submission when dropdown is visible
+            const searchForm = searchInput.closest('form');
+            searchForm.addEventListener('submit', function(e) {
+                if (searchDropdown.classList.contains('show')) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        }
+
+        function showSearchDropdown() {
+            const dropdown = document.getElementById('searchDropdown');
+            dropdown.classList.add('show');
+        }
+
+        function hideSearchDropdown() {
+            const dropdown = document.getElementById('searchDropdown');
+            dropdown.classList.remove('show');
+            currentSearchTerm = '';
+        }
+
+        function performSearch(query) {
+            // Clear previous timeout
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+
+            // Show loading state
+            showSearchLoading();
+
+            // Debounce search requests
+            searchTimeout = setTimeout(async () => {
+                try {
+                    // Only search if the query hasn't changed
+                    if (query !== currentSearchTerm) return;
+
+                    const response = await apiClient.getBooks({ search: query });
+                    
+                    if (query !== currentSearchTerm) return; // Query changed while searching
+                    
+                    if (response && response.length > 0) {
+                        displaySearchResults(response);
+                    } else {
+                        showNoResults();
+                    }
+                } catch (error) {
+                    console.error('Search error:', error);
+                    showSearchError();
+                } finally {
+                    hideSearchLoading();
+                }
+            }, 300); // 300ms debounce delay
+        }
+
+        function showSearchLoading() {
+            document.getElementById('searchLoading').classList.add('show');
+            document.getElementById('searchResultsContainer').innerHTML = '';
+            document.getElementById('noResultsMessage').classList.remove('show');
+        }
+
+        function hideSearchLoading() {
+            document.getElementById('searchLoading').classList.remove('show');
+        }
+
+        function showNoResults() {
+            document.getElementById('noResultsMessage').classList.add('show');
+            document.getElementById('searchResultsContainer').innerHTML = '';
+        }
+
+        function showTypeMoreMessage() {
+            const container = document.getElementById('searchResultsContainer');
+            container.innerHTML = `
+                <div class="type-more-message">
+                    <i class="bi bi-keyboard"></i>
+                    <p>Type at least 2 characters to search for books...</p>
+                </div>
+            `;
+            document.getElementById('noResultsMessage').classList.remove('show');
+            hideSearchLoading();
+        }
+
+        function showSearchError() {
+            const container = document.getElementById('searchResultsContainer');
+            container.innerHTML = `
+                <div class="alert alert-danger m-2" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    Error occurred while searching. Please try again.
+                </div>
+            `;
+            document.getElementById('noResultsMessage').classList.remove('show');
+        }
+
+        function displaySearchResults(books) {
+            const container = document.getElementById('searchResultsContainer');
+            document.getElementById('noResultsMessage').classList.remove('show');
+            
+            container.innerHTML = books.map(book => createSearchResultItem(book)).join('');
+        }
+
+        function createSearchResultItem(book) {
+            const coverImage = book.cover || './media/books/default-cover.jpg';
+            const price = book.price ? `₱${parseFloat(book.price).toFixed(2)}` : 'Price not available';
+            
+            return `
+                <div class="search-result-item" onclick="goToBookDetails('${book.id}')" tabindex="0" role="button" aria-label="View details for ${escapeHtml(book.title)} by ${escapeHtml(book.author)}">
+                    <img src="${coverImage}" alt="${book.title}" onerror="this.src='./media/books/default-cover.jpg'">
+                    <div class="search-result-info">
+                        <h6 class="search-result-title">${escapeHtml(book.title)}</h6>
+                        <p class="search-result-author">by ${escapeHtml(book.author)}</p>
+                        <p class="search-result-price">${price}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function goToBookDetails(bookId) {
+            hideSearchDropdown();
+            window.location.href = `product.html?id=${bookId}`;
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
     </script>
 
     <!-- Load scripts in proper order for database connectivity -->
+    <script src="js/custom-notifications.js"></script>
     <script src="js/api-client.js"></script>
     <script src="js/navbar-counts.js"></script>
     <script src="js/database-book-display.js"></script>

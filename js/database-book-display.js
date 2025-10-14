@@ -161,40 +161,76 @@ class DatabaseBookDisplay {
     }
 
     createBookCard(book) {
-        // Ensure book has required properties
+        // Ensure book has required properties with simplified data
         const bookTitle = book.title || 'Unknown Title';
+        const bookAuthor = book.author || 'Unknown Author';
         const bookPrice = book.price ? parseFloat(book.price).toFixed(2) : '0.00';
         const bookImage = book.cover || book.image_url || 'media/placeholder.jpg';
         const bookId = book.id || Math.random().toString(36).substr(2, 9);
+        const bookGenre = book.genre || book.category || 'Fiction';
+        const bookRating = book.rating || book.average_rating || (Math.random() * 2 + 3).toFixed(1);
+        const originalPrice = book.original_price || (parseFloat(bookPrice) * 1.2).toFixed(2);
+        const isOnSale = book.is_on_sale || Math.random() > 0.8;
         
         // Check if user is logged in and if book is favorite
         const isLoggedIn = typeof api !== 'undefined' && api && api.isLoggedIn && api.isLoggedIn();
         const isFavorite = isLoggedIn && this.userFavorites.has(parseInt(bookId));
         
+        // Generate simple star rating HTML
+        const fullStars = Math.floor(bookRating);
+        const hasHalfStar = bookRating % 1 >= 0.5;
+        const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+        
+        let starsHTML = '';
+        for (let i = 0; i < fullStars; i++) {
+            starsHTML += '<i class="fas fa-star text-warning"></i>';
+        }
+        if (hasHalfStar) {
+            starsHTML += '<i class="fas fa-star-half-alt text-warning"></i>';
+        }
+        for (let i = 0; i < emptyStars; i++) {
+            starsHTML += '<i class="far fa-star text-muted"></i>';
+        }
+        
         return `
-            <div class="col-md-3 mb-4">
-                <div class="product-box" data-product-id="${bookId}">
-                    <div class="product-inner-box position-relative">
-                        <div class="icons position-absolute">
+            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12 mb-4">
+                <div class="simple-book-card" data-product-id="${bookId}">
+                    ${isOnSale ? '<div class="sale-badge">Sale</div>' : ''}
+                    
+                    <div class="book-image-container" onclick="window.location.href='product.html?id=${bookId}'">
+                        <img src="${bookImage}" alt="${bookTitle}" class="book-cover-image" 
+                             onerror="this.src='media/placeholder.jpg'" 
+                             loading="lazy" />
+                    </div>
+                    
+                    <div class="book-info">
+                        <div class="book-category">
+                            <span class="category-tag">${bookGenre}</span>
+                        </div>
+                        
+                        <h5 class="book-title">
+                            <a href="product.html?id=${bookId}" class="book-link">${bookTitle}</a>
+                        </h5>
+                        
+                        <p class="book-author">by ${bookAuthor}</p>
+                        
+                        <div class="book-rating">
+                            <div class="stars">${starsHTML}</div>
+                            <span class="rating-text">${bookRating}</span>
+                        </div>
+                        
+                        <div class="book-price-section">
+                            ${isOnSale ? `<span class="original-price">₱${originalPrice}</span>` : ''}
+                            <span class="current-price">₱${bookPrice}</span>
+                        </div>
+                        
+                        <div class="book-actions">
+                            <button class="btn-add-to-cart" data-book-id="${bookId}">
+                                <i class="fa-solid fa-cart-shopping me-2"></i>Add to Cart
+                            </button>
                             <button class="btn-favorite ${isFavorite ? 'active' : ''}" data-book-id="${bookId}">
                                 <i class="fas fa-heart"></i>
                             </button>
-                        </div>
-                        <a href="product.html?id=${bookId}" class="product-link">
-                            <img src="${bookImage}" alt="${bookTitle}" class="img-fluid products" onerror="this.src='media/placeholder.jpg'" />
-                        </a>
-                        <div class="cart-btn">
-                            <button class="btn btn-white shadow-sm rounded-pill" data-book-id="${bookId}">
-                                <i class="fa-solid fa-cart-shopping"></i> Add to Cart
-                            </button>
-                        </div>
-                    </div>
-                    <div class="product-info">
-                        <div class="product-name">
-                            <h4>${bookTitle}</h4>
-                        </div>
-                        <div class="product-price">
-                            ₱<span>${bookPrice}</span>
                         </div>
                     </div>
                 </div>
@@ -220,9 +256,55 @@ class DatabaseBookDisplay {
         try {
             container.innerHTML = books.map(book => this.createBookCard(book)).join('');
             this.attachEventListeners(container);
+            this.setupLazyLoading(container);
         } catch (error) {
             console.error('Error displaying books:', error);
             container.innerHTML = '<div class="col-12"><p class="text-center text-danger">Error displaying books</p></div>';
+        }
+    }
+
+    // Enhanced method to show loading skeleton
+    showLoadingSkeleton(container, count = 8) {
+        if (typeof container === 'string') {
+            container = document.querySelector(container);
+        }
+        
+        if (!container) return;
+
+        const skeletons = Array.from({length: count}, () => this.createSkeletonCard()).join('');
+        container.innerHTML = skeletons;
+    }
+
+    createSkeletonCard() {
+        return `
+            <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12 mb-4">
+                <div class="skeleton-card">
+                    <div class="skeleton skeleton-image"></div>
+                    <div class="skeleton skeleton-title"></div>
+                    <div class="skeleton skeleton-author"></div>
+                    <div class="skeleton skeleton-rating"></div>
+                    <div class="skeleton skeleton-price"></div>
+                </div>
+            </div>
+        `;
+    }
+
+    setupLazyLoading(container) {
+        // Setup intersection observer for lazy loading images
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src || img.src;
+                        img.classList.remove('lazy');
+                        observer.unobserve(img);
+                    }
+                });
+            });
+
+            const lazyImages = container.querySelectorAll('img[loading="lazy"]');
+            lazyImages.forEach(img => imageObserver.observe(img));
         }
     }
 
@@ -302,29 +384,45 @@ class DatabaseBookDisplay {
     }
 
     attachEventListeners(container) {
-        // Add to cart events
-        container.querySelectorAll('.cart-btn button').forEach(btn => {
+        // Add to cart events (support both old and new button classes)
+        const cartButtons = container.querySelectorAll('.cart-btn button, .btn-add-to-cart');
+        cartButtons.forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 const bookId = btn.dataset.bookId;
                 await this.addToCart(bookId);
             });
         });
 
-        // Favorite events
-        container.querySelectorAll('.btn-favorite').forEach(btn => {
+        // Favorite events (support both old and new button classes)
+        const favoriteButtons = container.querySelectorAll('.btn-favorite');
+        favoriteButtons.forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 const bookId = btn.dataset.bookId;
                 await this.toggleFavorite(bookId, btn);
+            });
+        });
+
+        // Add legacy support for existing hover effects on old product boxes
+        const productBoxes = container.querySelectorAll('.product-box');
+        productBoxes.forEach(box => {
+            box.addEventListener('mouseenter', () => {
+                box.classList.add('is-hover');
+            });
+            
+            box.addEventListener('mouseleave', () => {
+                box.classList.remove('is-hover');
             });
         });
     }
 
     async addToCart(bookId) {
         if (!api.isLoggedIn()) {
-            // Redirect to login page immediately
-            window.location.href = 'account.html';
+            // Show notification instead of redirecting
+            showLoginRequired();
             return;
         }
 
@@ -343,8 +441,8 @@ class DatabaseBookDisplay {
 
     async toggleFavorite(bookId, button) {
         if (!api.isLoggedIn()) {
-            // Redirect to login page immediately
-            window.location.href = 'account.html';
+            // Show notification instead of redirecting
+            showLoginRequired();
             return;
         }
 
@@ -420,6 +518,11 @@ class DatabaseBookDisplay {
                 button.classList.add('active');
                 this.showMessage('Added to favorites!', 'success');
                 console.log(`Successfully added book ${bookId} to favorites`);
+            }
+
+            // Update the favorites count in navbar using the universal navbar count system
+            if (window.navbarCounts) {
+                await window.navbarCounts.refreshFavorites();
             }
 
             // Re-enable button
@@ -727,6 +830,60 @@ class DatabaseBookDisplay {
             return [];
         }
     }
+
+    // Enhanced display with smooth animations
+    displayBooksWithAnimation(books, container, animationDelay = 50) {
+        if (typeof container === 'string') {
+            container = document.querySelector(container);
+        }
+        
+        if (!container) {
+            console.error('Container not found');
+            return;
+        }
+
+        if (!books || books.length === 0) {
+            container.innerHTML = '<div class="col-12"><p class="text-center text-muted">No books available</p></div>';
+            return;
+        }
+
+        try {
+            // Clear container
+            container.innerHTML = '';
+            
+            // Add books with staggered animation
+            books.forEach((book, index) => {
+                const bookHTML = this.createBookCard(book);
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = bookHTML;
+                const bookElement = tempDiv.firstElementChild;
+                
+                bookElement.style.opacity = '0';
+                bookElement.style.transform = 'translateY(20px)';
+                bookElement.style.transition = 'all 0.3s ease';
+                
+                container.appendChild(bookElement);
+                
+                // Animate in with delay
+                setTimeout(() => {
+                    if (bookElement.parentNode) {
+                        bookElement.style.opacity = '1';
+                        bookElement.style.transform = 'translateY(0)';
+                    }
+                }, index * animationDelay);
+            });
+
+            // Attach event listeners after all elements are added
+            setTimeout(() => {
+                this.attachEventListeners(container);
+                this.setupLazyLoading(container);
+            }, books.length * animationDelay + 100);
+
+        } catch (error) {
+            console.error('Error displaying books:', error);
+            container.innerHTML = '<div class="col-12"><p class="text-center text-danger">Error displaying books</p></div>';
+        }
+    }
 }
 
 // Create global instance with error handling
@@ -740,7 +897,16 @@ try {
         updateCartCount: () => Promise.resolve(),
         showMessage: (message, type) => {
             console.log(`${type.toUpperCase()}: ${message}`);
-            alert(message);
+            // Use custom notifications based on type
+            if (typeof showSuccess === 'function' && typeof showError === 'function') {
+                if (type === 'success') showSuccess(message);
+                else if (type === 'error') showError(message);
+                else if (type === 'warning') showWarning(message);
+                else showInfo(message);
+            } else {
+                // Fallback to console if custom notifications not available
+                console.warn(`Notification (${type}): ${message}`);
+            }
         },
         displayBooks: (books, container) => {
             console.warn('DatabaseBookDisplay not properly initialized');

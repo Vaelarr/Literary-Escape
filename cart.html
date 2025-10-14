@@ -74,19 +74,213 @@
         .navbar .icon-link i {
             color: #ffffff !important;
         }
+        
+        /* Enhanced Login Required Card */
+        .login-required-card {
+            margin: 2rem auto;
+            max-width: 600px;
+            background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(22, 66, 60, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .login-required-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #16423C 0%, #33bdaa 50%, #16423C 100%);
+        }
+        
+        .login-card-inner {
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+        
+        .login-icon-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 2rem;
+        }
+        
+        .login-icon-wrapper .fas.fa-cart-shopping {
+            font-size: 4rem;
+            color: #16423C;
+            opacity: 0.3;
+        }
+        
+        .lock-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #16423C 0%, #1a4f47 100%);
+            color: white;
+            padding: 0.8rem;
+            border-radius: 50%;
+            box-shadow: 0 8px 25px rgba(22, 66, 60, 0.3);
+        }
+        
+        .lock-overlay .fas.fa-lock {
+            font-size: 1.2rem;
+        }
+        
+        .login-required-card h3 {
+            color: #16423C;
+            font-weight: 700;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+        
+        .login-required-card p {
+            color: #6c757d;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+        
+        .login-benefits {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: rgba(22, 66, 60, 0.05);
+            border-radius: 16px;
+            border-left: 4px solid #16423C;
+        }
+        
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+            color: #495057;
+        }
+        
+        .benefit-item i {
+            color: #16423C;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .login-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #16423C 0%, #1a4f47 100%);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px rgba(22, 66, 60, 0.3);
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .btn-primary-custom::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-primary-custom:hover {
+            background: linear-gradient(135deg, #1a4f47 0%, #2a5f57 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(22, 66, 60, 0.4);
+            color: white;
+        }
+        
+        .btn-primary-custom:hover::before {
+            left: 100%;
+        }
+        
+        .btn-outline-custom {
+            background: transparent;
+            border: 2px solid #16423C;
+            color: #16423C;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .btn-outline-custom:hover {
+            background: #16423C;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(22, 66, 60, 0.25);
+        }
+        
+        .login-footer-text {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        .login-footer-text a {
+            color: #16423C;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .login-footer-text a:hover {
+            color: #33bdaa;
+            text-decoration: underline;
+        }
+        
+        /* Responsive adjustments for login card */
+        @media (max-width: 768px) {
+            .login-card-inner {
+                padding: 2rem 1.5rem;
+            }
+            
+            .login-benefits {
+                padding: 1rem;
+            }
+            
+            .login-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .login-actions .btn {
+                width: 100%;
+                max-width: 280px;
+            }
+        }
+        
+        /* Layout adjustments when order summary is hidden */
+        .cart-full-width .col-lg-8 {
+            max-width: 100% !important;
+            flex: 0 0 100% !important;
+        }
     </style>
 </head>
 
 <body>
-<!-- 
-    <audio id="bgMusic" loop>
-        <source src="./media/Frédéric Chopin_ Nocturne in E-Flat Major, Op. 9, No. 2.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio> -->
-<!-- 
-    <button id="audioControl" class="audio-control" title="Audio Control">
-        <i class="fas fa-volume-mute"></i>
-    </button> -->
 
     <nav class="navbar navbar-expand-lg navbar-light fixed-top bg-custom">
         <div class="container-fluid">
@@ -126,6 +320,27 @@
                     <div class="search-wrapper w-100">
                         <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search" id="searchInput">
                         <button class="btn mx-0" title="search-btn" type="submit"><i class="bi bi-search"></i></button>
+                        
+                        <!-- Search Dropdown -->
+                        <div class="search-dropdown" id="searchDropdown">
+                            <!-- Loading indicator -->
+                            <div class="search-loading" id="searchLoading">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <span class="loading-text">Searching...</span>
+                            </div>
+                            
+                            <!-- Search results container -->
+                            <div class="search-results-container" id="searchResultsContainer">
+                            </div>
+                            
+                            <!-- No results message -->
+                            <div class="no-results-message" id="noResultsMessage">
+                                <i class="bi bi-search"></i>
+                                <p>No books found for your search.</p>
+                            </div>
+                        </div>
                     </div>
                 </form>
 
@@ -148,10 +363,10 @@
     <section style="height: 100vh;">
         <div class="container mt-5">
             <h2 style="margin-top: 100px;">Shopping Cart</h2>
-            <div class="row mt-4">
+            <div class="row mt-4" id="cartRow">
                 <div class="col-lg-8">
                     <!-- Selection Controls -->
-                    <div class="d-flex justify-content-between align-items-center mb-3" id="selectionControls" style="display: none !important;">
+                    <div class="d-flex justify-content-between align-items-center mb-3" id="selectionControls" style="display: none;">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()">
                             <label class="form-check-label fw-bold" for="selectAllCheckbox">
@@ -173,7 +388,7 @@
                         <!-- Cart items will be dynamically loaded here -->
                     </div>
                 </div>
-                <div class="col-lg-4">
+                <div class="col-lg-4" id="orderSummarySection">
                     <div class="card">
                         <div class="card-body">
                             <h4 class="card-title">Order Summary</h4>
@@ -212,10 +427,69 @@
 
     <!-- Footer -->
     <footer>
-        <a href="https://www.facebook.com/" class="text-decoration-none" style="color: white;"><i
-                class="fa-brands fa-facebook"></i></a>
-        <a href="https://www.instagram.com/" class="text-decoration-none" style="color: white;"><i
-                class="fa-brands fa-instagram"></i></a>
+        <div class="footer-content">
+            <div class="footer-row">
+                <div class="footer-column">
+                    <div class="footer-logo">
+                        <img src="media/icon.png" alt="Literary Escape Logo">
+                        <span>LITERARY ESCAPE</span>
+                    </div>
+                    <p class="footer-description">
+                        Your gateway to endless literary adventures. Discover, explore, and escape into the world of books with our carefully curated collection of fiction, non-fiction, and specialty titles.
+                    </p>
+                    <div class="social-links">
+                        <a href="https://www.facebook.com/" target="_blank" rel="noopener" aria-label="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="https://www.twitter.com/" target="_blank" rel="noopener" aria-label="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="https://www.youtube.com/" target="_blank" rel="noopener" aria-label="YouTube">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="fiction.html">Fiction</a></li>
+                        <li><a href="non-fiction.html">Non-Fiction</a></li>
+                        <li><a href="about-us.html">About Us</a></li>
+                        <li><a href="account.html">My Account</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h4 class="footer-title">Customer Service</h4>
+                    <ul class="footer-links">
+                        <li><a href="cart.html">Shopping Cart</a></li>
+                        <li><a href="favorites.html">My Favorites</a></li>
+                        <li><a href="checkout.html">Checkout</a></li>
+                        <li><a href="#" onclick="showInfo('Contact us at: support@literaryescape.com')">Contact Support</a></li>
+                        <li><a href="#" onclick="showInfo('Shipping: 3-5 business days')">Shipping Info</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h4 class="footer-title">Contact Info</h4>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-envelope me-2"></i>support@literaryescape.com</li>
+                        <li><i class="fas fa-phone me-2"></i>+1 (555) 123-4567</li>
+                        <li><i class="fas fa-map-marker-alt me-2"></i>123 Book Street, Reading City, RC 12345</li>
+                        <li><i class="fas fa-clock me-2"></i>Mon-Fri: 9AM-6PM</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Literary Escape. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+            </div>
+        </div>
     </footer>
 
 
@@ -266,15 +540,57 @@
         function displayLoginRequired() {
             const cartContainer = document.getElementById('cartItems');
             cartContainer.innerHTML = `
-                <div class="text-center py-5">
-                    <i class="fas fa-user-lock fa-3x text-muted mb-3"></i>
-                    <h4 class="text-muted">Login Required</h4>
-                    <p class="text-muted mb-4">Please log in to view your shopping cart.</p>
-                    <a href="account.html" class="btn btn-primary" style="background-color: #16423C; border-color: #16423C;">
-                        <i class="fas fa-sign-in-alt me-2"></i>Login
-                    </a>
+                <div class="login-required-card">
+                    <div class="login-card-inner">
+                        <div class="login-icon-wrapper">
+                            <i class="fas fa-cart-shopping"></i>
+                            <div class="lock-overlay">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                        </div>
+                        <h3>Your Shopping Cart Awaits</h3>
+                        <p class="mb-4">Create an account or log in to save items to your cart and enjoy a seamless shopping experience.</p>
+                        <div class="login-benefits">
+                            <div class="benefit-item">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span>Save cart items across sessions</span>
+                            </div>
+                            <div class="benefit-item">
+                                <i class="fas fa-heart"></i>
+                                <span>Access your favorites and wishlist</span>
+                            </div>
+                            <div class="benefit-item">
+                                <i class="fas fa-truck"></i>
+                                <span>Fast checkout and order tracking</span>
+                            </div>
+                            <div class="benefit-item">
+                                <i class="fas fa-user-circle"></i>
+                                <span>Personalized book recommendations</span>
+                            </div>
+                        </div>
+                        <div class="login-actions">
+                            <a href="account.html" class="btn btn-primary-custom btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Log In
+                            </a>
+                        </div>
+                        <p class="login-footer-text">
+                            Want to browse first? <a href="index.html">Explore our book collection</a>!
+                        </p>
+                    </div>
                 </div>
             `;
+            
+            // Hide order summary section when not logged in
+            const orderSummarySection = document.getElementById('orderSummarySection');
+            if (orderSummarySection) {
+                orderSummarySection.style.display = 'none';
+            }
+            
+            // Make cart items take full width when order summary is hidden
+            const cartRow = document.getElementById('cartRow');
+            if (cartRow) {
+                cartRow.classList.add('cart-full-width');
+            }
             
             // Hide checkout button
             document.getElementById('checkout-btn-cart').disabled = true;
@@ -283,6 +599,18 @@
 
         async function loadCartItems() {
             const cartContainer = document.getElementById('cartItems');
+            
+            // Show order summary section when user is logged in
+            const orderSummarySection = document.getElementById('orderSummarySection');
+            if (orderSummarySection) {
+                orderSummarySection.style.display = 'block';
+            }
+            
+            // Remove full-width class when order summary is shown
+            const cartRow = document.getElementById('cartRow');
+            if (cartRow) {
+                cartRow.classList.remove('cart-full-width');
+            }
             
             try {
                 // Show loading state
@@ -426,7 +754,7 @@
                 if (typeof dbBookDisplay !== 'undefined' && dbBookDisplay.showMessage) {
                     dbBookDisplay.showMessage('Failed to update quantity', 'error');
                 } else {
-                    alert('Failed to update quantity');
+                    showError('Failed to update quantity');
                 }
             }
         }
@@ -460,7 +788,7 @@
                 if (typeof dbBookDisplay !== 'undefined' && dbBookDisplay.showMessage) {
                     dbBookDisplay.showMessage('Failed to remove item', 'error');
                 } else {
-                    alert('Failed to remove item');
+                    showError('Failed to remove item');
                 }
             }
         }
@@ -475,7 +803,7 @@
                 if (typeof dbBookDisplay !== 'undefined' && dbBookDisplay.showMessage) {
                     dbBookDisplay.showMessage('Your cart is empty', 'warning');
                 } else {
-                    alert('Your cart is empty');
+                    showInfo('Your cart is empty');
                 }
                 return;
             }
@@ -533,6 +861,8 @@
             const checkedBoxes = document.querySelectorAll('.cart-item-checkbox:checked');
             const selectAllCheckbox = document.getElementById('selectAllCheckbox');
             
+            if (!selectAllCheckbox) return; // Guard against missing element
+            
             // Update select all checkbox state
             if (checkedBoxes.length === 0) {
                 selectAllCheckbox.indeterminate = false;
@@ -548,12 +878,16 @@
             // Update visual feedback for items
             checkboxes.forEach(checkbox => {
                 const cartItem = checkbox.closest('.cart-item');
-                if (checkbox.checked) {
-                    cartItem.style.opacity = '1';
-                    cartItem.style.border = '2px solid #16423C';
-                } else {
-                    cartItem.style.opacity = '0.6';
-                    cartItem.style.border = '1px solid #dee2e6';
+                if (cartItem) {
+                    if (checkbox.checked) {
+                        cartItem.style.opacity = '1';
+                        cartItem.style.border = '2px solid #16423C';
+                        cartItem.style.backgroundColor = 'rgba(22, 66, 60, 0.05)';
+                    } else {
+                        cartItem.style.opacity = '0.7';
+                        cartItem.style.border = '1px solid #dee2e6';
+                        cartItem.style.backgroundColor = 'transparent';
+                    }
                 }
             });
             
@@ -565,8 +899,13 @@
             const selectAllCheckbox = document.getElementById('selectAllCheckbox');
             const itemCheckboxes = document.querySelectorAll('.cart-item-checkbox');
             
-            itemCheckboxes.forEach(checkbox => {
-                checkbox.checked = selectAllCheckbox.checked;
+            // Update all checkboxes to match the select all state
+            itemCheckboxes.forEach(async (checkbox) => {
+                if (checkbox.checked !== selectAllCheckbox.checked) {
+                    checkbox.checked = selectAllCheckbox.checked;
+                    // Trigger the selection change for each item
+                    await handleItemSelection(parseInt(checkbox.value), selectAllCheckbox.checked);
+                }
             });
             
             updateSelection();
@@ -678,7 +1017,7 @@
                     if (typeof dbBookDisplay !== 'undefined' && dbBookDisplay.showMessage) {
                         dbBookDisplay.showMessage('Please select at least one item to checkout', 'warning');
                     } else {
-                        alert('Please select at least one item to checkout');
+                        showWarning('Please select at least one item to checkout');
                     }
                     return;
                 }
@@ -688,7 +1027,7 @@
                 
             } catch (error) {
                 console.error('Error proceeding to checkout:', error);
-                alert('Failed to proceed to checkout. Please try again.');
+                showError('Failed to proceed to checkout. Please try again.');
             }
         }
 
@@ -707,7 +1046,218 @@
                 window.location.href = `search-results.html?q=${encodeURIComponent(query)}`;
             }
         }
+
+        // Search Dropdown Functionality
+        let searchTimeout;
+        let currentSearchTerm = '';
+        let apiClient;
+
+        // Initialize search functionality when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            apiClient = new APIClient();
+            initializeSearchDropdown();
+        });
+
+        function initializeSearchDropdown() {
+            const searchInput = document.getElementById('searchInput');
+            const searchDropdown = document.getElementById('searchDropdown');
+
+            // Listen for input events on search bar
+            searchInput.addEventListener('input', function(e) {
+                const query = e.target.value.trim();
+                
+                if (query.length >= 2) {
+                    currentSearchTerm = query;
+                    showSearchDropdown();
+                    performSearch(query);
+                } else if (query.length === 0) {
+                    hideSearchDropdown();
+                } else {
+                    // Show dropdown but with a "type more" message
+                    currentSearchTerm = query;
+                    showSearchDropdown();
+                    showTypeMoreMessage();
+                }
+            });
+
+            // Hide dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
+                    hideSearchDropdown();
+                }
+            });
+
+            // Handle escape key to close dropdown
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    hideSearchDropdown();
+                } else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    const firstResult = searchDropdown.querySelector('.search-result-item');
+                    if (firstResult) {
+                        firstResult.focus();
+                    }
+                }
+            });
+
+            // Handle arrow key navigation in search results
+            searchDropdown.addEventListener('keydown', function(e) {
+                const resultItems = searchDropdown.querySelectorAll('.search-result-item');
+                const currentFocus = document.activeElement;
+                let currentIndex = Array.from(resultItems).indexOf(currentFocus);
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    currentIndex = currentIndex < resultItems.length - 1 ? currentIndex + 1 : 0;
+                    resultItems[currentIndex]?.focus();
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (currentIndex <= 0) {
+                        searchInput.focus();
+                    } else {
+                        resultItems[currentIndex - 1]?.focus();
+                    }
+                } else if (e.key === 'Enter' && currentFocus.classList.contains('search-result-item')) {
+                    e.preventDefault();
+                    currentFocus.click();
+                } else if (e.key === 'Escape') {
+                    hideSearchDropdown();
+                    searchInput.focus();
+                }
+            });
+
+            // Prevent form submission when dropdown is visible
+            const searchForm = searchInput.closest('form');
+            searchForm.addEventListener('submit', function(e) {
+                if (searchDropdown.classList.contains('show')) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        }
+
+        function showSearchDropdown() {
+            const dropdown = document.getElementById('searchDropdown');
+            dropdown.classList.add('show');
+        }
+
+        function hideSearchDropdown() {
+            const dropdown = document.getElementById('searchDropdown');
+            dropdown.classList.remove('show');
+            currentSearchTerm = '';
+        }
+
+        function performSearch(query) {
+            // Clear previous timeout
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+
+            // Show loading state
+            showSearchLoading();
+
+            // Debounce search requests
+            searchTimeout = setTimeout(async () => {
+                try {
+                    // Only search if the query hasn't changed
+                    if (query !== currentSearchTerm) return;
+
+                    const response = await apiClient.getBooks({ search: query });
+                    
+                    if (query !== currentSearchTerm) return; // Query changed while searching
+                    
+                    if (response && response.length > 0) {
+                        displaySearchResults(response);
+                    } else {
+                        showNoResults();
+                    }
+                } catch (error) {
+                    console.error('Search error:', error);
+                    showSearchError();
+                } finally {
+                    hideSearchLoading();
+                }
+            }, 300); // 300ms debounce delay
+        }
+
+        function showSearchLoading() {
+            document.getElementById('searchLoading').classList.add('show');
+            document.getElementById('searchResultsContainer').innerHTML = '';
+            document.getElementById('noResultsMessage').classList.remove('show');
+        }
+
+        function hideSearchLoading() {
+            document.getElementById('searchLoading').classList.remove('show');
+        }
+
+        function showNoResults() {
+            document.getElementById('noResultsMessage').classList.add('show');
+            document.getElementById('searchResultsContainer').innerHTML = '';
+        }
+
+        function showTypeMoreMessage() {
+            const container = document.getElementById('searchResultsContainer');
+            container.innerHTML = `
+                <div class="type-more-message">
+                    <i class="bi bi-keyboard"></i>
+                    <p>Type at least 2 characters to search for books...</p>
+                </div>
+            `;
+            document.getElementById('noResultsMessage').classList.remove('show');
+            hideSearchLoading();
+        }
+
+        function showSearchError() {
+            const container = document.getElementById('searchResultsContainer');
+            container.innerHTML = `
+                <div class="alert alert-danger m-2" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    Error occurred while searching. Please try again.
+                </div>
+            `;
+            document.getElementById('noResultsMessage').classList.remove('show');
+        }
+
+        function displaySearchResults(books) {
+            const container = document.getElementById('searchResultsContainer');
+            document.getElementById('noResultsMessage').classList.remove('show');
+            
+            container.innerHTML = books.map(book => createSearchResultItem(book)).join('');
+        }
+
+        function createSearchResultItem(book) {
+            const coverImage = book.cover || './media/books/default-cover.jpg';
+            const price = book.price ? `₱${parseFloat(book.price).toFixed(2)}` : 'Price not available';
+            
+            return `
+                <div class="search-result-item" onclick="goToBookDetails('${book.id}')" tabindex="0" role="button" aria-label="View details for ${escapeHtml(book.title)} by ${escapeHtml(book.author)}">
+                    <img src="${coverImage}" alt="${book.title}" onerror="this.src='./media/books/default-cover.jpg'">
+                    <div class="search-result-info">
+                        <h6 class="search-result-title">${escapeHtml(book.title)}</h6>
+                        <p class="search-result-author">by ${escapeHtml(book.author)}</p>
+                        <p class="search-result-price">${price}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function goToBookDetails(bookId) {
+            hideSearchDropdown();
+            window.location.href = `product.html?id=${bookId}`;
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
     </script>
+    <script src="js/custom-notifications.js"></script>
     <script src="js/api-client.js"></script>
     <script src="js/navbar-counts.js"></script>
     <script src="js/database-book-display.js"></script>

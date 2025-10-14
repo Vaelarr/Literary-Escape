@@ -3,6 +3,27 @@ class APIClient {
         this.baseURL = 'http://localhost:3000/api';
         this.token = localStorage.getItem('authToken');
         this.connectionTested = false;
+        
+        // Check if stored token belongs to admin and clear it if on regular site
+        this.checkAndClearAdminToken();
+    }
+    
+    // Check if the stored token is an admin token and clear it if on regular pages
+    checkAndClearAdminToken() {
+        try {
+            const user = this.getCurrentUser();
+            if (user && (user.role === 'admin' || user.isAdmin === true)) {
+                console.warn('Admin token detected on regular user interface. Clearing session.');
+                this.logout();
+                
+                // Optionally show a message to the user
+                if (typeof window !== 'undefined' && !window.location.pathname.includes('admin')) {
+                    console.log('Admin session cleared. Please login with a regular user account.');
+                }
+            }
+        } catch (error) {
+            console.error('Error checking admin token:', error);
+        }
     }
 
     // Test database connectivity
@@ -115,6 +136,12 @@ class APIClient {
         console.log('Login response:', response);
         
         if (response.token) {
+            // Additional check: ensure this is not an admin account
+            if (response.user && (response.user.role === 'admin' || response.user.isAdmin === true)) {
+                console.error('Admin account detected in regular login. This should not happen.');
+                throw new Error('Admin accounts must use the admin login portal');
+            }
+            
             this.token = response.token;
             localStorage.setItem('authToken', response.token);
             localStorage.setItem('user', JSON.stringify(response.user));
@@ -164,7 +191,7 @@ class APIClient {
     }
 
     async searchBooks(query) {
-        return this.makeRequest(`/api/books?search=${encodeURIComponent(query)}`);
+        return this.makeRequest(`/books?search=${encodeURIComponent(query)}`);
     }
 
     // Cart methods
@@ -376,6 +403,15 @@ class APIClient {
         });
     }
 
+    async adminUpdateUserRole(userId, role) {
+        console.log('Admin updating user role:', { userId, role });
+        console.log('Current token:', this.token ? 'Present' : 'Missing');
+        return this.makeRequest(`/admin/users/${userId}/role`, {
+            method: 'PUT',
+            body: JSON.stringify({ role })
+        });
+    }
+
     // Utility methods
     isLoggedIn() {
         const hasToken = !!this.token;
@@ -428,29 +464,57 @@ class APIClient {
     }
 
     // Get archived items
-    async getArchivedBooks(page = 1, limit = 10) {
-        return this.makeRequest(`/admin/books/archived?page=${page}&limit=${limit}`);
+    async getArchivedBooks(page = 1, limit = 10, category = null) {
+        let url = `/admin/books/archived?page=${page}&limit=${limit}`;
+        if (category) {
+            url += `&category=${encodeURIComponent(category)}`;
+        }
+        return this.makeRequest(url);
     }
 
     async getArchivedUsers(page = 1, limit = 10) {
         return this.makeRequest(`/admin/users/archived?page=${page}&limit=${limit}`);
     }
 
-    async getArchivedOrders(page = 1, limit = 10) {
-        return this.makeRequest(`/admin/orders/archived?page=${page}&limit=${limit}`);
+    async getArchivedOrders(page = 1, limit = 10, filters = {}) {
+        let url = `/admin/orders/archived?page=${page}&limit=${limit}`;
+        
+        // Add filters to URL
+        if (filters.status) {
+            url += `&status=${encodeURIComponent(filters.status)}`;
+        }
+        if (filters.search) {
+            url += `&search=${encodeURIComponent(filters.search)}`;
+        }
+        
+        return this.makeRequest(url);
     }
 
     // Get all items for admin (non-archived)
-    async getAllBooksForAdmin(page = 1, limit = 10) {
-        return this.makeRequest(`/admin/books?page=${page}&limit=${limit}`);
+    async getAllBooksForAdmin(page = 1, limit = 10, category = null) {
+        let url = `/admin/books?page=${page}&limit=${limit}`;
+        if (category) {
+            url += `&category=${encodeURIComponent(category)}`;
+        }
+        return this.makeRequest(url);
     }
 
     async getAllUsersForAdmin(page = 1, limit = 10) {
         return this.makeRequest(`/admin/users?page=${page}&limit=${limit}`);
     }
 
-    async getAllOrdersForAdmin(page = 1, limit = 10) {
-        return this.makeRequest(`/admin/orders?page=${page}&limit=${limit}`);
+    async getAllOrdersForAdmin(page = 1, limit = 10, filters = {}) {
+        let url = `/admin/orders?page=${page}&limit=${limit}`;
+        
+        // Add filters to URL
+        if (filters.status) {
+            url += `&status=${encodeURIComponent(filters.status)}`;
+        }
+        if (filters.search) {
+            url += `&search=${encodeURIComponent(filters.search)}`;
+        }
+        
+        return this.makeRequest(url);
     }
 
     async validateVoucher(code) {

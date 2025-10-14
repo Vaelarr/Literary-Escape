@@ -878,10 +878,11 @@ app.get('/api/admin/orders/archived', authenticateAdmin, (req, res) => {
 app.get('/api/admin/books', authenticateAdmin, (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
+    const category = req.query.category || null;
     
-    console.log('Admin fetching books, page:', page, 'limit:', limit);
+    console.log('Admin fetching books, page:', page, 'limit:', limit, 'category:', category);
     
-    adminOperations.getAllBooks(page, limit, (err, result) => {
+    adminOperations.getAllBooks(page, limit, category, (err, result) => {
         if (err) {
             console.error('Error fetching books for admin:', err);
             return res.status(500).json({ error: err.message });
@@ -908,14 +909,49 @@ app.get('/api/admin/users', authenticateAdmin, (req, res) => {
     });
 });
 
+// Update user role (admin only)
+app.put('/api/admin/users/:id/role', authenticateAdmin, (req, res) => {
+    const userId = parseInt(req.params.id);
+    const { role } = req.body;
+    
+    console.log('Admin updating user role:', { userId, role });
+    
+    if (!role || !['user', 'admin'].includes(role)) {
+        return res.status(400).json({ error: 'Invalid role. Must be "user" or "admin"' });
+    }
+    
+    userOperations.updateRole(userId, role, (err, result) => {
+        if (err) {
+            console.error('Error updating user role:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        
+        if (!result) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        console.log('User role updated successfully');
+        res.json({ success: true, message: 'User role updated successfully' });
+    });
+});
+
 // Update existing orders endpoint to use new admin method
 app.get('/api/admin/orders', authenticateAdmin, (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
+    const filters = {};
     
-    console.log('Admin fetching orders, page:', page, 'limit:', limit);
+    if (req.query.status) {
+        filters.status = req.query.status;
+    }
     
-    adminOperations.getAllOrders(page, limit, (err, result) => {
+    if (req.query.search) {
+        filters.search = req.query.search;
+    }
+    
+    console.log('Admin fetching orders, page:', page, 'limit:', limit, 'filters:', filters);
+    
+    adminOperations.getAllOrders(page, limit, filters, (err, result) => {
         if (err) {
             console.error('Error fetching orders for admin:', err);
             return res.status(500).json({ error: err.message });
@@ -1267,4 +1303,29 @@ app.post('/api/vouchers/validate', (req, res) => {
     } else {
         res.json({ valid: false, message: 'Invalid voucher code' });
     }
+});
+
+// Debug endpoint to check current authentication state
+app.get('/api/debug/auth', authenticateToken, (req, res) => {
+    res.json({
+        authenticated: true,
+        tokenPayload: req.user,
+        timestamp: new Date().toISOString(),
+        userAgent: req.headers['user-agent']
+    });
+});
+
+// Debug endpoint (public) to check if admin accounts exist
+app.get('/api/debug/admin-status', (req, res) => {
+    adminOperations.getByEmail('admin@literaryescape.com', (err, admin) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database error' });
+        }
+        
+        res.json({
+            adminAccountExists: !!admin,
+            adminId: admin ? admin.id : null,
+            timestamp: new Date().toISOString()
+        });
+    });
 });

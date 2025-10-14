@@ -42,6 +42,7 @@
             <li><a href="#" class="menu-link" data-section="books">Book Management</a></li>
             <li><a href="#" class="menu-link" data-section="users">User Management</a></li>
             <li><a href="#" class="menu-link" data-section="orders">Order Management</a></li>
+            <li><a href="#" class="menu-link" data-section="vouchers">Voucher Management</a></li>
             <li class="menu-separator">Archived Data</li>
             <li><a href="#" class="menu-link archived-link" data-section="archived-books">Archived Books</a></li>
             <li><a href="#" class="menu-link archived-link" data-section="archived-users">Archived Users</a></li>
@@ -111,14 +112,22 @@
         <div id="books-section" class="content-section">
             <h2 class="section-title">
                 Books Lists
-                <select class="category-filter" id="categoryFilter" name="category" title="category">
-                    <option value="all">All Categories</option>
-                    <option value="Fiction">Fiction</option>
-                    <option value="Non - Fiction">Non-Fiction</option>
-                </select>
+                <div style="display: inline-flex; gap: 15px; margin-left: 20px;">
+                    <select class="category-filter" id="categoryFilter" name="category" title="category">
+                        <option value="all">All Categories</option>
+                        <option value="Fiction">Fiction</option>
+                        <option value="Non - Fiction">Non-Fiction</option>
+                    </select>
+                    <div class="search-box" style="margin-left: 0;">
+                        <input type="text" id="bookSearch" placeholder="Search books..."><i class="fas fa-search"></i>
+                    </div>
+                </div>
                 <button class="btn-add" data-bs-toggle="modal" data-bs-target="#addBookModal">Add Book</button>
             </h2>
             <div class="content-card">
+                <div style="margin-bottom: 15px; color: rgba(255,255,255,0.7);">
+                    <span id="bookCount">Loading...</span> books found
+                </div>
                 <div class="table-container scrollable-content">
                     <table class="custom-table">
                         <thead>
@@ -155,6 +164,7 @@
                         <thead>
                             <tr>
                                 <th>Name</th>
+                                <th>Email</th>
                                 <th>Password</th>
                                 <th>Role</th>
                                 <th>Actions</th>
@@ -162,7 +172,7 @@
                         </thead>
                         <tbody id="accountListTable">
                             <tr>
-                                <td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">No users registered</td>
+                                <td colspan="5" style="text-align: center; color: rgba(255,255,255,0.5);">No users registered</td>
                             </tr>
                         </tbody>
                     </table>
@@ -207,7 +217,6 @@
                             <tr>
                                 <th>Order ID</th>
                                 <th>Customer</th>
-                                <th>Email</th>
                                 <th>Total Amount</th>
                                 <th>Status</th>
                                 <th>Order Date</th>
@@ -216,7 +225,7 @@
                         </thead>
                         <tbody id="ordersTable">
                             <tr>
-                                <td colspan="7" style="text-align: center; color: rgba(255,255,255,0.5);">Loading orders...</td>
+                                <td colspan="6" style="text-align: center; color: rgba(255,255,255,0.5);">Loading orders...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -260,12 +269,55 @@
             </div>
         </div>
 
+        <!-- Voucher Management Section -->
+        <div id="vouchers-section" class="content-section">
+            <h2 class="section-title">
+                Voucher Management
+                <button class="btn-add" data-bs-toggle="modal" data-bs-target="#addVoucherModal">Add Voucher</button>
+            </h2>
+            <div class="content-card">
+                <div class="table-container scrollable-content">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Discount Type</th>
+                                <th>Discount Value</th>
+                                <th>Min. Purchase</th>
+                                <th>Max. Discount</th>
+                                <th>Usage Limit</th>
+                                <th>Used</th>
+                                <th>Valid From</th>
+                                <th>Valid Until</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vouchersTable">
+                            <tr>
+                                <td colspan="11" style="text-align: center; color: rgba(255,255,255,0.5);">Loading vouchers...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination-container">
+                    <div class="pagination-info">
+                        Showing <span id="vouchersRange">0</span> vouchers
+                    </div>
+                    <nav aria-label="Vouchers pagination">
+                        <ul class="pagination" id="vouchersPagination">
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
         <!-- Archived Books Section -->
     <div id="archived-books-section" class="content-section">
         <h2 class="section-title">Archived Books</h2>
         <div class="content-card">
             <div class="filter-controls">
-                <select id="archivedBookCategoryFilter" onchange="displayArchivedBooks()" title="Archived Books Category Filter">
+                <select id="archivedBookCategoryFilter" onchange="loadArchivedBooksFromAPI(1, this.value)" title="Archived Books Category Filter">
                     <option value="all">All Categories</option>
                     <option value="Fiction">Fiction</option>
                     <option value="Non-Fiction">Non-Fiction</option>
@@ -340,7 +392,7 @@
         <h2 class="section-title">Archived Orders</h2>
         <div class="content-card">
             <div class="filter-controls">
-                <select class="category-filter" id="archivedStatusFilter" title="Filter by status">
+                <select class="category-filter" id="archivedStatusFilter" title="Filter by status" onchange="loadArchivedOrdersFromAPI(1, this.value)">
                     <option value="all">All Statuses</option>
                     <option value="pending">Pending</option>
                     <option value="processing">Processing</option>
@@ -388,32 +440,53 @@
 
     <!-- Add Book Modal -->
     <div class="modal fade" id="addBookModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Add New Book</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
                     <form id="bookForm">
                         <input type="hidden" id="bookId">
+                        
+                        <!-- Basic Information Section -->
+                        <h6 class="text-white mb-3 pb-2 border-bottom"><i class="fas fa-book me-2"></i>Basic Information</h6>
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label class="form-label">Title <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="bookTitle" aria-label="Title" placeholder="Enter book title" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">ISBN</label>
+                                <input type="text" class="form-control" id="bookISBN" aria-label="ISBN" placeholder="978-0-xxx-xxxxx-x" pattern="[0-9\-]{10,17}">
+                                <small class="text-muted">Optional: ISBN-10 or ISBN-13</small>
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Title</label>
-                                <input type="text" class="form-control" id="bookTitle" aria-label="Title" required>
+                                <label class="form-label">Author <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="bookAuthor" aria-label="Author" placeholder="Author name" required>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Author</label>
-                                <input type="text" class="form-control" id="bookAuthor" aria-label="Author" required>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Publisher</label>
+                                <input type="text" class="form-control" id="bookPublisher" aria-label="Publisher" placeholder="Publisher name">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Publication Year</label>
+                                <input type="number" class="form-control" id="bookYear" aria-label="Publication Year" placeholder="YYYY" min="1000" max="2999">
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea class="form-control" id="bookDescription" rows="3" aria-label="Description" required></textarea>
+                            <label class="form-label">Description <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="bookDescription" rows="3" aria-label="Description" placeholder="Detailed description of the book" required></textarea>
                         </div>
+
+                        <!-- Classification Section -->
+                        <h6 class="text-white mb-3 pb-2 border-bottom mt-4"><i class="fas fa-tags me-2"></i>Classification</h6>
                         <div class="row">
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Category</label>
+                                <label class="form-label">Category <span class="text-danger">*</span></label>
                                 <select class="form-select" id="bookCategory" aria-label="Category" required>
                                     <option value="" disabled selected>Select Category</option>
                                     <option value="Fiction">Fiction</option>
@@ -421,10 +494,10 @@
                                 </select>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Genre</label>
+                                <label class="form-label">Genre <span class="text-danger">*</span></label>
                                 <select class="form-select" id="bookGenre" aria-label="Genre" required>
                                 <span id="Non-FictionGenres" style="display: none;">
-                                    <option value="" style="color: gray;" disabled selected>Select Category</option>
+                                    <option value="" style="color: gray;" disabled selected>Select Genre</option>
                                     <option value="True Crime">True Crime</option>
                                     <option value="Politics">Politics</option>
                                     <option value="Self - Help">Self - Help</option>
@@ -436,35 +509,172 @@
                                     <option value="Health & Wellness">Health & Wellness</option>
                                 </span>
                                 <span id="FictionGenres">
-                                    <option value="" style="color: gray;" disabled selected>Select Category</option>
+                                    <option value="" style="color: gray;" disabled selected>Select Genre</option>
                                     <option value="Science Fiction">Science Fiction</option>
                                     <option value="Mystery">Mystery</option>
                                     <option value="LGBTQ+">LGBTQ+</option>
                                     <option value="Magic Realism">Magic Realism</option>
                                     <option value="Crime">Crime</option>
                                     <option value="Dystopian">Dystopian</option>
-
                                 </span>
                                 </select>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Price (₱)</label>
-                                <input type="number" class="form-control" id="bookPrice" aria-label="Price" step="0.01" required>
+                                <label class="form-label">Status <span class="text-danger">*</span></label>
+                                <select class="form-select" id="bookStatus" aria-label="Status" required>
+                                    <option value="active" selected>Active (Available for Sale)</option>
+                                    <option value="inactive">Inactive (Not Available)</option>
+                                    <option value="coming-soon">Coming Soon</option>
+                                    <option value="discontinued">Discontinued</option>
+                                </select>
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Stock Quantity</label>
-                            <input type="number" class="form-control" id="bookStock" value="1" aria-label="Stock Quantity" required>
+
+                        <!-- Inventory Management Section -->
+                        <h6 class="text-white mb-3 pb-2 border-bottom mt-4"><i class="fas fa-boxes me-2"></i>Inventory Management</h6>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">SKU (Stock Keeping Unit)</label>
+                                <input type="text" class="form-control" id="bookSKU" aria-label="SKU" placeholder="e.g., BK-FIC-001">
+                                <small class="text-muted">Unique identifier</small>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Current Stock <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="bookStock" aria-label="Stock Quantity" min="0" value="0" required>
+                                <small class="text-muted">Available quantity</small>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Minimum Stock Level</label>
+                                <input type="number" class="form-control" id="bookMinStock" aria-label="Minimum Stock" min="0" value="5" placeholder="5">
+                                <small class="text-muted">Reorder alert threshold</small>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Maximum Stock Level</label>
+                                <input type="number" class="form-control" id="bookMaxStock" aria-label="Maximum Stock" min="0" value="100" placeholder="100">
+                                <small class="text-muted">Maximum capacity</small>
+                            </div>
                         </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Reorder Point</label>
+                                <input type="number" class="form-control" id="bookReorderPoint" aria-label="Reorder Point" min="0" value="10" placeholder="10">
+                                <small class="text-muted">When to reorder</small>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Reorder Quantity</label>
+                                <input type="number" class="form-control" id="bookReorderQty" aria-label="Reorder Quantity" min="1" value="20" placeholder="20">
+                                <small class="text-muted">How many to reorder</small>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Warehouse Location</label>
+                                <input type="text" class="form-control" id="bookLocation" aria-label="Location" placeholder="e.g., Shelf A-12">
+                                <small class="text-muted">Storage location</small>
+                            </div>
+                        </div>
+
+                        <!-- Pricing Section -->
+                        <h6 class="text-white mb-3 pb-2 border-bottom mt-4"><i class="fas fa-money-bill-wave me-2"></i>Pricing & Costs</h6>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Cost Price (₱)</label>
+                                <input type="number" class="form-control" id="bookCostPrice" aria-label="Cost Price" step="0.01" min="0" placeholder="0.00">
+                                <small class="text-muted">Purchase/wholesale cost</small>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Selling Price (₱) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="bookPrice" aria-label="Price" step="0.01" min="0.01" placeholder="0.00" required>
+                                <small class="text-muted">Retail price</small>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Profit Margin</label>
+                                <input type="text" class="form-control" id="bookProfitMargin" aria-label="Profit Margin" readonly style="background-color: #2a2a2a; cursor: not-allowed;">
+                                <small class="text-muted">Auto-calculated</small>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Discount Percentage (%)</label>
+                                <input type="number" class="form-control" id="bookDiscount" aria-label="Discount" step="0.01" min="0" max="100" value="0" placeholder="0.00">
+                                <small class="text-muted">Current discount</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Final Price After Discount</label>
+                                <input type="text" class="form-control" id="bookFinalPrice" aria-label="Final Price" readonly style="background-color: #2a2a2a; cursor: not-allowed;">
+                                <small class="text-muted">Auto-calculated</small>
+                            </div>
+                        </div>
+
+                        <!-- Supplier Information Section -->
+                        <h6 class="text-white mb-3 pb-2 border-bottom mt-4"><i class="fas fa-truck me-2"></i>Supplier Information</h6>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Supplier Name</label>
+                                <input type="text" class="form-control" id="bookSupplier" aria-label="Supplier" placeholder="Supplier/Vendor name">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Supplier Contact</label>
+                                <input type="text" class="form-control" id="bookSupplierContact" aria-label="Supplier Contact" placeholder="Phone or email">
+                            </div>
+                        </div>
+
+                        <!-- Product Media Section -->
+                        <h6 class="text-white mb-3 pb-2 border-bottom mt-4"><i class="fas fa-image me-2"></i>Product Media</h6>
+                        
+                        <!-- Image Upload Options -->
                         <div class="mb-3">
-                            <label class="form-label">Cover Image URL</label>
-                            <input type="text" class="form-control" id="bookCover" aria-label="Cover Image URL" required>
+                            <label class="form-label">Cover Image Upload Method</label>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="uploadMethod" id="uploadMethodFile" value="file" checked>
+                                <label class="btn btn-outline-light" for="uploadMethodFile">
+                                    <i class="fas fa-upload me-2"></i>Upload File
+                                </label>
+                                <input type="radio" class="btn-check" name="uploadMethod" id="uploadMethodURL" value="url">
+                                <label class="btn btn-outline-light" for="uploadMethodURL">
+                                    <i class="fas fa-link me-2"></i>Use URL
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- File Upload Section -->
+                        <div class="mb-3" id="fileUploadSection">
+                            <label class="form-label">Upload Cover Image <span class="text-danger">*</span></label>
+                            <input type="file" class="form-control" id="bookCoverFile" accept="image/*" aria-label="Cover Image File">
+                            <small class="text-muted">Accepted formats: JPG, PNG, WebP, GIF (Max 5MB)</small>
+                        </div>
+
+                        <!-- URL Input Section -->
+                        <div class="mb-3" id="urlInputSection" style="display: none;">
+                            <label class="form-label">Cover Image URL <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="bookCover" aria-label="Cover Image URL" placeholder="https://...">
+                            <small class="text-muted">Full URL to book cover image</small>
+                        </div>
+
+                        <!-- Image Preview -->
+                        <div class="mb-3">
+                            <label class="form-label">Preview</label>
+                            <div id="imagePreviewContainer" style="min-height: 200px; max-height: 300px; background: rgba(0,0,0,0.3); border: 2px dashed rgba(255,255,255,0.3); border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                <img id="imagePreview" src="" alt="Preview" style="max-width: 100%; max-height: 300px; display: none; object-fit: contain;">
+                                <span id="previewPlaceholder" style="color: rgba(255,255,255,0.5);">
+                                    <i class="fas fa-image" style="font-size: 48px; display: block; margin-bottom: 10px; text-align: center;"></i>
+                                    No image selected
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Hidden field to store the final cover path/URL -->
+                        <input type="hidden" id="bookCoverData" aria-label="Book Cover Data">
+
+                        <div class="mb-3">
+                            <label class="form-label">Additional Notes</label>
+                            <textarea class="form-control" id="bookNotes" rows="2" aria-label="Notes" placeholder="Internal notes (edition info, condition, special handling, etc.)"></textarea>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn-add" onclick="saveBook()">Save Book</button>
+                    <button type="button" class="btn-add" onclick="saveBook()">
+                        <i class="fas fa-save me-2"></i>Save Book
+                    </button>
                 </div>
             </div>
         </div>
@@ -585,6 +795,108 @@
         </div>
     </div>
 
+    <!-- Add/Edit Voucher Modal -->
+    <div class="modal fade" id="addVoucherModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Voucher</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="voucherForm">
+                        <input type="hidden" id="voucherId">
+                        
+                        <!-- Voucher Code -->
+                        <div class="mb-3">
+                            <label class="form-label">Voucher Code <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="voucherCode" placeholder="e.g., SUMMER2024" required style="text-transform: uppercase;">
+                            <small class="text-muted">Unique code customers will use at checkout</small>
+                        </div>
+
+                        <!-- Discount Type -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Discount Type <span class="text-danger">*</span></label>
+                                <select class="form-select" id="voucherDiscountType" title="Select discount type" required>
+                                    <option value="" disabled selected>Select Type</option>
+                                    <option value="percentage">Percentage (%)</option>
+                                    <option value="fixed">Fixed Amount (₱)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Discount Value <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="voucherDiscountValue" step="0.01" min="0" placeholder="0.00" required>
+                                <small class="text-muted" id="discountValueHelp">Enter discount value</small>
+                            </div>
+                        </div>
+
+                        <!-- Purchase Constraints -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Minimum Purchase Amount (₱)</label>
+                                <input type="number" class="form-control" id="voucherMinPurchase" step="0.01" min="0" value="0" placeholder="0.00">
+                                <small class="text-muted">Minimum cart value to use voucher</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Maximum Discount (₱)</label>
+                                <input type="number" class="form-control" id="voucherMaxDiscount" step="0.01" min="0" placeholder="No limit">
+                                <small class="text-muted">Cap for percentage discounts</small>
+                            </div>
+                        </div>
+
+                        <!-- Usage Limits -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Total Usage Limit</label>
+                                <input type="number" class="form-control" id="voucherUsageLimit" min="1" placeholder="Unlimited">
+                                <small class="text-muted">Maximum times voucher can be used</small>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Per User Limit</label>
+                                <input type="number" class="form-control" id="voucherPerUserLimit" min="1" value="1" placeholder="1">
+                                <small class="text-muted">Times each user can use voucher</small>
+                            </div>
+                        </div>
+
+                        <!-- Validity Period -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Valid From <span class="text-danger">*</span></label>
+                                <input type="datetime-local" class="form-control" id="voucherValidFrom" title="Select valid from date" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Valid Until <span class="text-danger">*</span></label>
+                                <input type="datetime-local" class="form-control" id="voucherValidUntil" title="Select valid until date" required>
+                            </div>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="mb-3">
+                            <label class="form-label">Status <span class="text-danger">*</span></label>
+                            <select class="form-select" id="voucherStatus" title="Select voucher status" required>
+                                <option value="active" selected>Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" id="voucherDescription" rows="3" placeholder="Optional description for internal use"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn-add" onclick="saveVoucher()">
+                        <i class="fas fa-save me-2"></i>Save Voucher
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="./js/api-client.js"></script>
     <script>
@@ -621,148 +933,457 @@
         let archivedUsers = [];
         let archivedOrders = [];
 
+        // Filter states
+        let currentBookCategory = 'all';
+        let currentBookSearch = '';
+        let currentOrderStatus = 'all';
+        let currentOrderSearch = '';
+
+        // Database connection management
+        let dbConnectionStatus = false;
+        let dbConnectionRetries = 0;
+        const MAX_DB_RETRIES = 3;
+        let dbStatusCheckInterval;
+
         function initAdmin() {
+            console.log('🚀 Initializing admin panel...');
+            
+            // Start database connection monitoring
+            startDbStatusMonitoring();
+            
             setupNavigation();
             setupCategoryFilter();
             setupOrderFilters();
-            loadBooksFromAPI();
-            loadUsersFromAPI();
-            loadOrdersFromAPI();
-            loadDashboardUsers(); // Add this for dashboard user accounts
+            setupCategoryGenreToggle();
+            setupMobileMenu();
+            
+            // Only load data if database is connected
+            checkDbConnectionAndLoadData();
         }
 
-        async function loadBooksFromAPI() {
+        async function checkDbConnectionAndLoadData() {
             try {
-                console.log('Loading books from API...');
-                const result = await api.getAllBooksForAdmin(currentBooksPage, itemsPerPage);
-                console.log('Books loaded:', result);
+                console.log('🔌 Checking database connection...');
+                const isConnected = await verifyDatabaseConnection();
+                
+                if (isConnected) {
+                    console.log('✅ Database connected, loading initial data...');
+                    await loadInitialData();
+                } else {
+                    console.warn('⚠️ Database not connected, retrying...');
+                    showDatabaseError();
+                    
+                    // Retry connection after delay
+                    if (dbConnectionRetries < MAX_DB_RETRIES) {
+                        dbConnectionRetries++;
+                        setTimeout(() => {
+                            console.log(`🔄 Retry ${dbConnectionRetries}/${MAX_DB_RETRIES}...`);
+                            checkDbConnectionAndLoadData();
+                        }, 2000 * dbConnectionRetries); // Exponential backoff
+                    } else {
+                        showFatalDatabaseError();
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Database connection check failed:', error);
+                showDatabaseError(error.message);
+            }
+        }
+
+        async function verifyDatabaseConnection() {
+            try {
+                // Check if API client is available first
+                if (typeof window.api === 'undefined' || !window.api) {
+                    throw new Error('API client not initialized');
+                }
+                
+                // Test basic API connectivity
+                const testResult = await api.testConnection();
+                
+                if (!testResult) {
+                    throw new Error('API connection test failed');
+                }
+
+                // Test actual database operations
+                await Promise.race([
+                    api.adminListUsers(),
+                    new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error('Connection timeout')), 10000)
+                    )
+                ]);
+
+                dbConnectionStatus = true;
+                dbConnectionRetries = 0;
+                updateDbStatusUI(true);
+                return true;
+
+            } catch (error) {
+                console.error('🔌 Database connection verification failed:', error);
+                dbConnectionStatus = false;
+                updateDbStatusUI(false, error.message);
+                return false;
+            }
+        }
+
+        function startDbStatusMonitoring() {
+            // Clear any existing interval
+            if (dbStatusCheckInterval) {
+                clearInterval(dbStatusCheckInterval);
+            }
+
+            // Check database status every 30 seconds
+            dbStatusCheckInterval = setInterval(async () => {
+                try {
+                    const isConnected = await api.testConnection();
+                    
+                    if (isConnected !== dbConnectionStatus) {
+                        dbConnectionStatus = isConnected;
+                        updateDbStatusUI(isConnected);
+                        
+                        if (!isConnected) {
+                            console.warn('⚠️ Database connection lost');
+                            showDatabaseError('Connection lost - attempting to reconnect...');
+                        } else {
+                            console.log('✅ Database connection restored');
+                            showSuccessMessage('Database connection restored');
+                            // Reload current section data
+                            await reloadCurrentSectionData();
+                        }
+                    }
+                } catch (error) {
+                    console.error('❌ Database status check failed:', error);
+                    if (dbConnectionStatus) {
+                        dbConnectionStatus = false;
+                        updateDbStatusUI(false, error.message);
+                    }
+                }
+            }, 30000);
+        }
+
+        function updateDbStatusUI(isConnected, errorMessage = '') {
+            const statusEl = document.getElementById('dbStatus');
+            if (!statusEl) return;
+
+            if (isConnected) {
+                statusEl.textContent = 'DB: Connected';
+                statusEl.className = 'badge bg-success';
+                statusEl.title = 'Database connection is healthy';
+            } else {
+                statusEl.textContent = 'DB: Disconnected';
+                statusEl.className = 'badge bg-danger';
+                statusEl.title = errorMessage || 'Database connection failed';
+            }
+        }
+
+        function showDatabaseError(message = 'Database connection failed') {
+            // Show error in all table areas
+            const tables = [
+                { id: 'booksTable', cols: 6 },
+                { id: 'accountListTable', cols: 4 },
+                { id: 'ordersTable', cols: 7 },
+                { id: 'userAccountsTable', cols: 4 }
+            ];
+
+            tables.forEach(table => {
+                const tbody = document.getElementById(table.id);
+                if (tbody) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="${table.cols}" style="text-align: center; color: #ff6b6b; padding: 20px;">
+                                <i class="fas fa-database" style="font-size: 24px; margin-bottom: 10px;"></i><br>
+                                <strong>Database Connection Error</strong><br>
+                                <small>${escapeHtml(message)}</small><br>
+                                <button class="btn btn-sm btn-outline-light mt-2" onclick="checkDbConnectionAndLoadData()">
+                                    <i class="fas fa-sync"></i> Retry Connection
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
+
+            // Clear pagination and ranges
+            ['booksRange', 'usersRange', 'ordersRange'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = '0';
+            });
+
+            ['booksPagination', 'usersPagination', 'ordersPagination'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerHTML = '';
+            });
+        }
+
+        function showFatalDatabaseError() {
+            const mainContent = document.querySelector('.main-content');
+            if (mainContent) {
+                mainContent.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 80vh; text-align: center; color: #ff6b6b;">
+                        <i class="fas fa-database" style="font-size: 64px; margin-bottom: 20px; opacity: 0.5;"></i>
+                        <h2 style="color: white; margin-bottom: 10px;">Database Connection Failed</h2>
+                        <p style="margin-bottom: 20px; max-width: 500px;">
+                            Unable to establish connection to the database after multiple attempts. 
+                            Please check your server configuration and try again.
+                        </p>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn btn-outline-light" onclick="location.reload()">
+                                <i class="fas fa-refresh"></i> Reload Page
+                            </button>
+                            <button class="btn btn-outline-light" onclick="checkDbConnectionAndLoadData()">
+                                <i class="fas fa-sync"></i> Retry Connection
+                            </button>
+                        </div>
+                        <small style="margin-top: 20px; opacity: 0.7;">
+                            If this problem persists, please contact your system administrator.
+                        </small>
+                    </div>
+                `;
+            }
+        }
+
+        async function reloadCurrentSectionData() {
+            try {
+                // Get currently active section
+                const activeSection = document.querySelector('.content-section.active');
+                if (!activeSection) return;
+
+                const sectionId = activeSection.id;
+                console.log(`🔄 Reloading data for section: ${sectionId}`);
+
+                switch (sectionId) {
+                    case 'dashboard-section':
+                        await Promise.all([
+                            loadBooksFromAPI(1, 'all', ''),
+                            loadDashboardUsers()
+                        ]);
+                        break;
+                    case 'books-section':
+                        await loadBooksFromAPI(currentBooksPage, currentBookCategory, currentBookSearch);
+                        break;
+                    case 'users-section':
+                        await loadUsersFromAPI(currentUsersPage);
+                        break;
+                    case 'orders-section':
+                        await loadOrdersFromAPI(currentOrdersPage, currentOrderStatus, currentOrderSearch);
+                        break;
+                    case 'archived-books-section':
+                        await loadArchivedBooksFromAPI(currentArchivedBooksPage);
+                        break;
+                    case 'archived-users-section':
+                        await loadArchivedUsersFromAPI(currentArchivedUsersPage);
+                        break;
+                    case 'archived-orders-section':
+                        await loadArchivedOrdersFromAPI(currentArchivedOrdersPage);
+                        break;
+                }
+            } catch (error) {
+                console.error('❌ Error reloading section data:', error);
+            }
+        }
+
+        // Enhanced API call wrapper with connection checking
+        async function safeApiCall(apiFunction, ...args) {
+            try {
+                // Check if API client is available
+                if (typeof window.api === 'undefined' || !window.api) {
+                    throw new Error('API client not initialized');
+                }
+                
+                // Check if the API function exists
+                if (typeof apiFunction !== 'function') {
+                    throw new Error('API function is not available');
+                }
+                
+                if (!dbConnectionStatus) {
+                    const isConnected = await verifyDatabaseConnection();
+                    if (!isConnected) {
+                        throw new Error('Database connection not available');
+                    }
+                }
+
+                // Call the function - if it's an arrow function with no args, call it directly
+                // Otherwise, bind to api context and call with args
+                if (args.length === 0) {
+                    return await apiFunction();
+                } else {
+                    return await apiFunction.call(window.api, ...args);
+                }
+            } catch (error) {
+                console.error('❌ API call failed:', error);
+                
+                // Check if it's a connection error
+                if (error.message.includes('fetch') || error.message.includes('network') || error.message.includes('connection')) {
+                    dbConnectionStatus = false;
+                    updateDbStatusUI(false, error.message);
+                    showDatabaseError('Connection lost during operation');
+                }
+                
+                throw error;
+            }
+        }
+
+        // Update existing API calls to use safe wrapper
+        async function loadInitialData() {
+            try {
+                console.log('🔄 Loading initial admin data...');
+                await Promise.all([
+                    loadBooksFromAPI(),
+                    loadUsersFromAPI(),
+                    loadOrdersFromAPI(),
+                    loadDashboardUsers()
+                ]);
+                console.log('✅ Initial data loaded successfully');
+            } catch (error) {
+                console.error('❌ Error loading initial data:', error);
+                showErrorMessage('Failed to load admin data. Please check your connection.');
+            }
+        }
+
+        async function loadBooksFromAPI(page = currentBooksPage, category = currentBookCategory, search = currentBookSearch) {
+            try {
+                console.log(`📚 Loading books - Page: ${page}, Category: ${category}, Search: ${search}`);
+                showLoadingState('booksTable', 6, 'Loading books...');
+                
+                // Build filters object
+                const filters = {};
+                if (category !== 'all') filters.category = category;
+                if (search) filters.search = search;
+                
+                const result = await safeApiCall(() => api.getAllBooksForAdmin(page, itemsPerPage, filters.category, filters.search));
+                
+                if (!result || !result.books) {
+                    throw new Error('Invalid response from books API');
+                }
                 
                 adminBooks = result.books.map(b => ({
                     id: b.id,
-                    title: b.title,
-                    author: b.author,
-                    description: b.description,
-                    category: b.category,
-                    genre: b.genre,
-                    price: b.price,
-                    stock: b.stock_quantity,
-                    cover: b.cover
+                    title: b.title || 'Untitled',
+                    author: b.author || 'Unknown Author',
+                    description: b.description || '',
+                    category: b.category || '',
+                    genre: b.genre || '',
+                    price: parseFloat(b.price) || 0,
+                    stock: parseInt(b.stock_quantity) || 0,
+                    cover: b.cover || ''
                 }));
                 
-                // Update pagination info
-                totalBooksPages = result.pagination.totalPages;
-                totalBooksItems = result.pagination.totalItems;
+                // Update pagination info and filter states
+                currentBooksPage = page;
+                currentBookCategory = category;
+                currentBookSearch = search;
+                totalBooksPages = result.pagination?.totalPages || 1;
+                totalBooksItems = result.pagination?.totalItems || adminBooks.length;
                 
+                console.log(`📊 Books loaded: ${adminBooks.length}, Total: ${totalBooksItems}`);
+                
+                // Update book count display
+                const bookCountEl = document.getElementById('bookCount');
+                if (bookCountEl) {
+                    bookCountEl.textContent = totalBooksItems;
+                }
+                
+                displayBooks();
                 await updateDashboard();
-                displayBooks('all', currentBooksPage);
-            } catch (e) {
-                console.error('Error loading books:', e);
-                alert('Failed to load books from server: ' + (e.message || e));
+                
+            } catch (error) {
+                console.error('❌ Error loading books:', error);
+                showErrorInTable('booksTable', 6, `Failed to load books: ${error.message}`);
+                showErrorMessage('Failed to load books from database');
+                
+                // Update book count on error
+                const bookCountEl = document.getElementById('bookCount');
+                if (bookCountEl) {
+                    bookCountEl.textContent = '0';
+                }
             }
         }
 
-        async function loadUsersFromAPI() {
+        async function loadUsersFromAPI(page = currentUsersPage) {
             try {
-                console.log('Loading users from API...');
-                const result = await api.getAllUsersForAdmin(currentUsersPage, itemsPerPage);
-                console.log('Users loaded:', result);
+                console.log(`👥 Loading users - Page: ${page}`);
+                showLoadingState('accountListTable', 4, 'Loading users...');
+                
+                const result = await safeApiCall(() => api.getAllUsersForAdmin(page, itemsPerPage));
+                
+                if (!result || !result.users) {
+                    throw new Error('Invalid response from users API');
+                }
                 
                 // Filter to only show users with role 'user' (exclude admin accounts)
-                allUsers = result.users ? result.users.filter(user => 
+                allUsers = result.users.filter(user => 
                     !user.role || user.role.toLowerCase() === 'user'
-                ) : [];
+                );
                 
                 // Update pagination info
-                totalUsersPages = result.pagination.totalPages;
-                totalUsersItems = result.pagination.totalItems;
+                currentUsersPage = page;
+                totalUsersPages = result.pagination?.totalPages || 1;
+                totalUsersItems = result.pagination?.totalItems || allUsers.length;
                 
-                console.log('Regular users (non-admin) for management:', allUsers.length);
+                console.log(`👤 Users loaded: ${allUsers.length}, Total: ${totalUsersItems}`);
                 
                 displayUsers();
-            } catch (e) {
-                console.error('Error loading users:', e);
-                alert('Failed to load users from server: ' + (e.message || e));
+                
+            } catch (error) {
+                console.error('❌ Error loading users:', error);
+                showErrorInTable('accountListTable', 4, `Failed to load users: ${error.message}`);
+                showErrorMessage('Failed to load users from database');
             }
         }
 
-        function displayUsers(page = currentUsersPage) {
-            currentUsersPage = page;
-            const tbody = document.getElementById('accountListTable');
-            
-            if (!allUsers || allUsers.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">No regular users registered</td></tr>';
-                document.getElementById('usersRange').textContent = '0';
-                document.getElementById('usersPagination').innerHTML = '';
-                return;
+        async function loadOrdersFromAPI(page = currentOrdersPage, status = currentOrderStatus, search = currentOrderSearch) {
+            try {
+                console.log(`📋 Loading orders - Page: ${page}, Status: ${status}, Search: ${search}`);
+                showLoadingState('ordersTable', 7, 'Loading orders...');
+                
+                // Build filters object
+                const filters = {};
+                if (status !== 'all') filters.status = status;
+                if (search) filters.search = search;
+                
+                const result = await safeApiCall(() => api.getAllOrdersForAdmin(page, itemsPerPage, filters));
+                
+                if (!result || !result.orders) {
+                    throw new Error('Invalid response from orders API');
+                }
+                
+                allOrders = result.orders;
+                window.allOrders = allOrders; // Keep for backward compatibility
+                
+                // Update pagination info and filter states
+                currentOrdersPage = page;
+                currentOrderStatus = status;
+                currentOrderSearch = search;
+                totalOrdersPages = result.pagination?.totalPages || 1;
+                totalOrdersItems = result.pagination?.totalItems || allOrders.length;
+                
+                console.log(`📊 Orders loaded: ${allOrders.length}, Total: ${totalOrdersItems}`);
+                
+                displayOrders();
+                
+                // Update book sales statistics whenever orders are loaded
+                await updateBookSales();
+                
+            } catch (error) {
+                console.error('❌ Error loading orders:', error);
+                showErrorInTable('ordersTable', 7, `Failed to load orders: ${error.message}`);
+                document.getElementById('orderCount').textContent = '0';
+                showErrorMessage('Failed to load orders from database');
             }
-
-            // Update range display (for API pagination, we use total count from server)
-            const startIndex = (currentUsersPage - 1) * itemsPerPage + 1;
-            const endIndex = Math.min(currentUsersPage * itemsPerPage, totalUsersItems);
-            document.getElementById('usersRange').textContent = `${startIndex}-${endIndex} of ${totalUsersItems}`;
-
-            // Display users
-            tbody.innerHTML = allUsers.map(u => `
-                <tr>
-                    <td>${u.username}</td>
-                    <td>••••••••</td>
-                    <td>User</td>
-                    <td>
-                        <button class="btn-change" onclick="viewUserOrders(${u.id}, '${u.username}')">Orders</button>
-                        <button class="btn-archive" onclick="handleArchiveUser(${u.id}, false)" title="Archive"><i class="fas fa-archive"></i></button>
-                    </td>
-                </tr>
-            `).join('');
-
-            // Generate pagination
-            generatePagination('usersPagination', totalUsersPages, currentUsersPage, paginateUsers);
-        }
-
-        function displayArchivedUsers(page = 1) {
-            const tbody = document.getElementById('archivedUsersTable');
-            
-            if (!archivedUsers || archivedUsers.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">No archived users found</td></tr>';
-                document.getElementById('archivedUsersRange').textContent = '0';
-                document.getElementById('archivedUsersPagination').innerHTML = '';
-                return;
-            }
-
-            // Update range display (for API pagination, we use total count from server)
-            const startIndex = (currentArchivedUsersPage - 1) * itemsPerPage + 1;
-            const endIndex = Math.min(currentArchivedUsersPage * itemsPerPage, totalArchivedUsersItems);
-            document.getElementById('archivedUsersRange').textContent = `${startIndex}-${endIndex} of ${totalArchivedUsersItems}`;
-
-            // Display users
-            tbody.innerHTML = archivedUsers.map(u => `
-                <tr class="archived-item">
-                    <td>${u.username}</td>
-                    <td>••••••••</td>
-                    <td>User</td>
-                    <td>
-                        <button class="btn-change" onclick="viewUserOrders(${u.id}, '${u.username}')">Orders</button>
-                        <button class="btn-change" onclick="handleArchiveUser(${u.id}, true)" title="Unarchive"><i class="fas fa-undo"></i></button>
-                        <span class="archived-badge">ARCHIVED</span>
-                    </td>
-                </tr>
-            `).join('');
-
-            // Generate pagination
-            generatePagination('archivedUsersPagination', totalArchivedUsersPages, currentArchivedUsersPage, paginateArchivedUsers);
         }
 
         async function loadDashboardUsers() {
             try {
-                console.log('Loading dashboard users from API...');
+                console.log('📊 Loading dashboard users...');
                 const allUsers = await api.adminListUsers();
-                console.log('All users loaded:', allUsers ? allUsers.length : 0);
+                
+                if (!allUsers) {
+                    throw new Error('Failed to load users for dashboard');
+                }
                 
                 // Filter to only show users with role 'user' (exclude admin accounts)
-                const regularUsers = allUsers ? allUsers.filter(user => 
+                const regularUsers = allUsers.filter(user => 
                     !user.role || user.role.toLowerCase() === 'user'
-                ) : [];
-                
-                console.log('Regular users (non-admin):', regularUsers.length);
+                );
                 
                 const tbody = document.getElementById('userAccountsTable');
                 if (!regularUsers || regularUsers.length === 0) {
@@ -770,11 +1391,11 @@
                     return;
                 }
                 
-                // Show only first 5 regular users for dashboard (to keep it clean)
+                // Show only first 5 regular users for dashboard
                 const displayUsers = regularUsers.slice(0, 5);
                 tbody.innerHTML = displayUsers.map(u => `
                     <tr>
-                        <td>${u.username}</td>
+                        <td>${escapeHtml(censorUsername(u.username))}</td>
                         <td>••••••••</td>
                         <td>
                             <select class="dropdown-role" name="role" title="role" onchange="updateUserRole(${u.id}, this.value)">
@@ -783,11 +1404,7 @@
                             </select>
                         </td>
                         <td>
-                            ${u.archived ? 
-                                `<button class="btn-change" onclick="handleUnarchiveUser(${u.id})" title="Unarchive"><i class="fas fa-undo"></i></button>
-                                <span class="archived-badge">ARCHIVED</span>` :
-                                `<button class="btn-archive" onclick="handleArchiveUser(${u.id})" title="Archive"><i class="fas fa-archive"></i></button>`
-                            }
+                            <button class="btn-archive" onclick="handleArchiveUser(${u.id}, false)" title="Archive"><i class="fas fa-archive"></i></button>
                         </td>
                     </tr>
                 `).join('');
@@ -803,160 +1420,208 @@
                         </tr>
                     `;
                 }
-            } catch (e) {
-                console.error('Error loading dashboard users:', e);
+            } catch (error) {
+                console.error('❌ Error loading dashboard users:', error);
                 const tbody = document.getElementById('userAccountsTable');
                 tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">Failed to load users</td></tr>';
             }
         }
 
-        async function loadOrdersFromAPI() {
+        // Archive loading functions with proper error handling
+        async function loadArchivedBooksFromAPI(page = currentArchivedBooksPage, category = 'all') {
             try {
-                console.log('Loading orders from API...');
-                const result = await api.getAllOrdersForAdmin(currentOrdersPage, itemsPerPage);
-                console.log('Orders loaded:', result);
+                console.log(`📚 Loading archived books - Page: ${page}, Category: ${category}`);
+                showLoadingState('archivedBooksTable', 6, 'Loading archived books...');
                 
-                // Store orders globally for filtering
-                allOrders = result.orders || [];
-                window.allOrders = allOrders; // Keep for backward compatibility
+                const apiCategory = category === 'all' ? null : category;
+                const result = await api.getArchivedBooks(page, itemsPerPage, apiCategory);
                 
-                // Update pagination info
-                totalOrdersPages = result.pagination.totalPages;
-                totalOrdersItems = result.pagination.totalItems;
-                
-                displayOrdersWithPagination(allOrders);
-            } catch (e) {
-                console.error('Error loading orders:', e);
-                const tbody = document.getElementById('ordersTable');
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: rgba(255,255,255,0.5);">Failed to load orders</td></tr>';
-                document.getElementById('orderCount').textContent = '0';
-                document.getElementById('ordersRange').textContent = '0';
-                document.getElementById('ordersPagination').innerHTML = '';
-            }
-        }
-
-        // Archive loading functions
-        async function loadArchivedBooksFromAPI() {
-            try {
-                console.log('Loading archived books from API...');
-                const result = await api.getArchivedBooks(currentArchivedBooksPage, itemsPerPage);
-                console.log('Archived books loaded:', result);
+                if (!result || !result.books) {
+                    throw new Error('Invalid response from archived books API');
+                }
                 
                 archivedBooks = result.books.map(b => ({
                     id: b.id,
-                    title: b.title,
-                    author: b.author,
-                    description: b.description,
-                    category: b.category,
-                    genre: b.genre,
-                    price: b.price,
-                    stock: b.stock_quantity,
-                    cover: b.cover,
+                    title: b.title || 'Untitled',
+                    author: b.author || 'Unknown Author',
+                    description: b.description || '',
+                    category: b.category || '',
+                    genre: b.genre || '',
+                    price: parseFloat(b.price) || 0,
+                    stock: parseInt(b.stock_quantity) || 0,
+                    cover: b.cover || '',
                     archived: true
                 }));
                 
                 // Update pagination info
-                totalArchivedBooksPages = result.pagination.totalPages;
-                totalArchivedBooksItems = result.pagination.totalItems;
+                currentArchivedBooksPage = page;
+                totalArchivedBooksPages = result.pagination?.totalPages || 1;
+                totalArchivedBooksItems = result.pagination?.totalItems || archivedBooks.length;
                 
-                displayArchivedBooks('all', currentArchivedBooksPage);
-            } catch (e) {
-                console.error('Error loading archived books:', e);
-                const tbody = document.getElementById('archivedBooksTable');
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: rgba(255,255,255,0.5);">Failed to load archived books</td></tr>';
+                displayArchivedBooks(category);
+                
+            } catch (error) {
+                console.error('❌ Error loading archived books:', error);
+                showErrorInTable('archivedBooksTable', 6, `Failed to load archived books: ${error.message}`);
             }
         }
 
-        async function loadArchivedUsersFromAPI() {
+        async function loadArchivedUsersFromAPI(page = currentArchivedUsersPage) {
             try {
-                console.log('Loading archived users from API...');
-                const result = await api.getArchivedUsers(currentArchivedUsersPage, itemsPerPage);
-                console.log('Archived users loaded:', result);
+                console.log(`👥 Loading archived users - Page: ${page}`);
+                showLoadingState('archivedUsersTable', 4, 'Loading archived users...');
                 
-                archivedUsers = result.users || [];
+                const result = await api.getArchivedUsers(page, itemsPerPage);
+                
+                if (!result || !result.users) {
+                    throw new Error('Invalid response from archived users API');
+                }
+                
+                archivedUsers = result.users;
                 
                 // Update pagination info
-                totalArchivedUsersPages = result.pagination.totalPages;
-                totalArchivedUsersItems = result.pagination.totalItems;
+                currentArchivedUsersPage = page;
+                totalArchivedUsersPages = result.pagination?.totalPages || 1;
+                totalArchivedUsersItems = result.pagination?.totalItems || archivedUsers.length;
                 
-                displayArchivedUsers(currentArchivedUsersPage);
-            } catch (e) {
-                console.error('Error loading archived users:', e);
-                const tbody = document.getElementById('archivedUsersTable');
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: rgba(255,255,255,0.5);">Failed to load archived users</td></tr>';
+                displayArchivedUsers();
+                
+            } catch (error) {
+                console.error('❌ Error loading archived users:', error);
+                showErrorInTable('archivedUsersTable', 4, `Failed to load archived users: ${error.message}`);
             }
         }
 
-        async function loadArchivedOrdersFromAPI() {
+        async function loadArchivedOrdersFromAPI(page = currentArchivedOrdersPage, status = 'all') {
             try {
-                console.log('Loading archived orders from API...');
-                const result = await api.getArchivedOrders(currentArchivedOrdersPage, itemsPerPage);
-                console.log('Archived orders loaded:', result);
+                console.log(`📋 Loading archived orders - Page: ${page}, Status: ${status}`);
+                showLoadingState('archivedOrdersTable', 7, 'Loading archived orders...');
                 
-                archivedOrders = result.orders || [];
+                const filters = {};
+                if (status !== 'all') filters.status = status;
+                
+                const result = await api.getArchivedOrders(page, itemsPerPage, filters);
+                
+                if (!result || !result.orders) {
+                    throw new Error('Invalid response from archived orders API');
+                }
+                
+                archivedOrders = result.orders;
                 
                 // Update pagination info
-                totalArchivedOrdersPages = result.pagination.totalPages;
-                totalArchivedOrdersItems = result.pagination.totalItems;
+                currentArchivedOrdersPage = page;
+                totalArchivedOrdersPages = result.pagination?.totalPages || 1;
+                totalArchivedOrdersItems = result.pagination?.totalItems || archivedOrders.length;
                 
-                displayArchivedOrders(currentArchivedOrdersPage);
-            } catch (e) {
-                console.error('Error loading archived orders:', e);
-                const tbody = document.getElementById('archivedOrdersTable');
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: rgba(255,255,255,0.5);">Failed to load archived orders</td></tr>';
+                displayArchivedOrders();
+                
+            } catch (error) {
+                console.error('❌ Error loading archived orders:', error);
+                showErrorInTable('archivedOrdersTable', 7, `Failed to load archived orders: ${error.message}`);
+                document.getElementById('archivedOrderCount').textContent = '0';
             }
         }
 
-        function displayOrders(orders) {
-            displayOrdersWithPagination(orders, 1); // Default to page 1
+        // Display functions with proper error handling
+        function displayBooks() {
+            const tbody = document.getElementById('booksTable');
+            
+            if (!adminBooks || adminBooks.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: rgba(255,255,255,0.5);">No books found</td></tr>';
+                updateRangeDisplay('booksRange', 0, 0, 0);
+                clearPagination('booksPagination');
+                return;
+            }
+
+            // Update range display
+            const startIndex = (currentBooksPage - 1) * itemsPerPage + 1;
+            const endIndex = Math.min(currentBooksPage * itemsPerPage, totalBooksItems);
+            updateRangeDisplay('booksRange', startIndex, endIndex, totalBooksItems);
+
+            tbody.innerHTML = adminBooks.map(book => `
+                <tr>
+                    <td><img src="${escapeHtml(book.cover)}" alt="${escapeHtml(book.title)}" class="book-img" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 50 70%22%3E%3Crect width=%2250%22 height=%2270%22 fill=%22%23ccc%22/%3E%3C/svg%3E'"></td>
+                    <td title="${escapeHtml(book.title)}">${truncateText(escapeHtml(book.title), 30)}</td>
+                    <td title="${escapeHtml(book.author)}">${truncateText(escapeHtml(book.author), 20)}</td>
+                    <td><span class="stock-badge ${book.stock > 10 ? 'high' : book.stock > 0 ? 'low' : 'out'}">${book.stock}</span></td>
+                    <td>${escapeHtml(book.category)}</td>
+                    <td>
+                        <button class="btn-change" onclick="openEditBook(${book.id})" title="Edit Book"><i class="fas fa-edit"></i></button>
+                        <button class="btn-archive" onclick="handleArchiveBook(${book.id}, false)" title="Archive"><i class="fas fa-archive"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Generate pagination
+            generatePagination('booksPagination', totalBooksPages, currentBooksPage, paginateBooks);
         }
 
-        function displayOrdersWithPagination(orders, page = currentOrdersPage) {
-            currentOrdersPage = page;
+        function displayUsers() {
+            const tbody = document.getElementById('accountListTable');
+            
+            if (!allUsers || allUsers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: rgba(255,255,255,0.5);">No regular users registered</td></tr>';
+                updateRangeDisplay('usersRange', 0, 0, 0);
+                clearPagination('usersPagination');
+                return;
+            }
+
+            // Update range display
+            const startIndex = (currentUsersPage - 1) * itemsPerPage + 1;
+            const endIndex = Math.min(currentUsersPage * itemsPerPage, totalUsersItems);
+            updateRangeDisplay('usersRange', startIndex, endIndex, totalUsersItems);
+
+            tbody.innerHTML = allUsers.map(u => `
+                <tr>
+                    <td>${escapeHtml(censorUsername(u.username))}</td>
+                    <td>${censorEmail(u.email || '')}</td>
+                    <td>••••••••</td>
+                    <td>User</td>
+                    <td>
+                        <button class="btn-change" onclick="viewUserOrders(${u.id}, '${escapeHtml(censorUsername(u.username) || 'User')}')" title="View Orders">Orders</button>
+                        <button class="btn-archive" onclick="handleArchiveUser(${u.id}, false)" title="Archive"><i class="fas fa-archive"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // Generate pagination
+            generatePagination('usersPagination', totalUsersPages, currentUsersPage, paginateUsers);
+        }
+
+        function displayOrders() {
             const tbody = document.getElementById('ordersTable');
             const orderCountEl = document.getElementById('orderCount');
             
-            if (!orders || orders.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: rgba(255,255,255,0.5);">No orders match your criteria</td></tr>';
+            if (!allOrders || allOrders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: rgba(255,255,255,0.5);">No orders match your criteria</td></tr>';
                 orderCountEl.textContent = '0';
-                document.getElementById('ordersRange').textContent = '0';
-                document.getElementById('ordersPagination').innerHTML = '';
+                updateRangeDisplay('ordersRange', 0, 0, 0);
+                clearPagination('ordersPagination');
                 return;
             }
             
-            // Update display counts using API pagination data
+            // Update display counts
             orderCountEl.textContent = totalOrdersItems;
             const startIndex = (currentOrdersPage - 1) * itemsPerPage + 1;
             const endIndex = Math.min(currentOrdersPage * itemsPerPage, totalOrdersItems);
-            document.getElementById('ordersRange').textContent = `${startIndex}-${endIndex} of ${totalOrdersItems}`;
+            updateRangeDisplay('ordersRange', startIndex, endIndex, totalOrdersItems);
             
-            tbody.innerHTML = orders.map(o => {
-                // Format the date
-                const orderDate = o.created_at ? new Date(o.created_at).toLocaleDateString() : 'N/A';
-                
-                // Format customer name
-                let customerName = 'Unknown Customer';
-                if (o.first_name || o.last_name) {
-                    customerName = `${o.first_name || ''} ${o.last_name || ''}`.trim();
-                } else if (o.username) {
-                    customerName = o.username;
-                }
-                
-                // Format status badge with Literary Escape theme colors
+            tbody.innerHTML = allOrders.map(o => {
+                const orderDate = formatDate(o.created_at);
+                const customerName = formatCustomerName(o);
                 const statusColors = {
-                    'pending': '#8b7355',        // Warm brown (pending review)
-                    'processing': '#5a7a6b',     // Medium green (in progress)
-                    'shipped': '#6a9c89',        // Main accent green (on the way)
-                    'completed': '#2d4a3e',      // Dark green (success)
-                    'cancelled': '#8b4a4a'       // Muted red (cancelled)
+                    'pending': '#8b7355',
+                    'processing': '#5a7a6b',
+                    'shipped': '#6a9c89',
+                    'completed': '#2d4a3e',
+                    'cancelled': '#8b4a4a'
                 };
                 
                 return `
                     <tr>
                         <td style="font-weight: bold;">#${o.id}</td>
-                        <td>${customerName}</td>
-                        <td>${o.email || 'N/A'}</td>
-                        <td style="font-weight: bold; color: #6a9c89;">₱${(o.total_amount || 0).toFixed(2)}</td>
+                        <td title="${escapeHtml(customerName)}">${truncateText(escapeHtml(customerName), 20)}</td>
+                        <td style="font-weight: bold; color: white;">₱${formatPrice(o.total_amount)}</td>
                         <td>
                             <select onchange="updateOrderStatus(${o.id}, this.value)" 
                                     style="padding: 4px 8px; border-radius: 4px; background: ${statusColors[o.status] || '#2d4a3e'}; color: white; border: 1px solid rgba(255,255,255,0.3); font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
@@ -976,206 +1641,492 @@
                 `;
             }).join('');
 
-            // Generate pagination
             generatePagination('ordersPagination', totalOrdersPages, currentOrdersPage, paginateOrders);
         }
 
-        function displayArchivedOrders(page = 1) {
-            const tbody = document.getElementById('archivedOrdersTable');
-            const orderCountEl = document.getElementById('archivedOrderCount');
-            
-            if (!archivedOrders || archivedOrders.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: rgba(255,255,255,0.5);">No archived orders found</td></tr>';
-                orderCountEl.textContent = '0';
-                document.getElementById('archivedOrdersRange').textContent = '0';
-                document.getElementById('archivedOrdersPagination').innerHTML = '';
-                return;
-            }
-            
-            // Update display counts using API pagination data
-            orderCountEl.textContent = totalArchivedOrdersItems;
-            const startIndex = (currentArchivedOrdersPage - 1) * itemsPerPage + 1;
-            const endIndex = Math.min(currentArchivedOrdersPage * itemsPerPage, totalArchivedOrdersItems);
-            document.getElementById('archivedOrdersRange').textContent = `${startIndex}-${endIndex} of ${totalArchivedOrdersItems}`;
-            
-            tbody.innerHTML = archivedOrders.map(o => {
-                // Format the date
-                const orderDate = o.created_at ? new Date(o.created_at).toLocaleDateString() : 'N/A';
+        // CRUD Operations with proper error handling
+        async function saveBook() {
+            try {
+                const form = document.getElementById('bookForm');
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+
+                const id = document.getElementById('bookId').value;
                 
-                // Format customer name
-                let customerName = 'Unknown Customer';
-                if (o.first_name || o.last_name) {
-                    customerName = `${o.first_name || ''} ${o.last_name || ''}`.trim();
-                } else if (o.username) {
-                    customerName = o.username;
+                // Get cover image data
+                let coverData = '';
+                const uploadMethod = document.querySelector('input[name="uploadMethod"]:checked').value;
+                
+                if (uploadMethod === 'file') {
+                    // Use uploaded file data
+                    if (uploadedImageData) {
+                        coverData = uploadedImageData; // Base64 encoded image
+                    } else if (document.getElementById('bookCoverFile').files.length > 0) {
+                        // If file just selected but not yet processed
+                        showErrorMessage('Please wait for the image to finish uploading');
+                        return;
+                    } else {
+                        showErrorMessage('Please select an image file');
+                        return;
+                    }
+                } else {
+                    // Use URL
+                    coverData = document.getElementById('bookCover').value.trim();
+                    if (!coverData) {
+                        showErrorMessage('Please provide a cover image URL');
+                        return;
+                    }
                 }
                 
-                // Format status badge with Literary Escape theme colors
-                const statusColors = {
-                    'pending': '#8b7355',        // Warm brown (pending review)
-                    'processing': '#5a7a6b',     // Medium green (in progress)
-                    'shipped': '#6a9c89',        // Main accent green (on the way)
-                    'completed': '#2d4a3e',      // Dark green (success)
-                    'cancelled': '#8b4a4a'       // Muted red (cancelled)
+                // Build payload with all inventory management fields
+                const payload = {
+                    title: document.getElementById('bookTitle').value.trim(),
+                    author: document.getElementById('bookAuthor').value.trim(),
+                    description: document.getElementById('bookDescription').value.trim(),
+                    category: document.getElementById('bookCategory').value,
+                    genre: document.getElementById('bookGenre').value,
+                    price: parseFloat(document.getElementById('bookPrice').value),
+                    stock_quantity: parseInt(document.getElementById('bookStock').value),
+                    cover: coverData, // Use the cover data (either base64 or URL)
+                    
+                    // New inventory management fields (optional)
+                    isbn: document.getElementById('bookISBN').value.trim() || null,
+                    publisher: document.getElementById('bookPublisher').value.trim() || null,
+                    publication_year: document.getElementById('bookYear').value ? parseInt(document.getElementById('bookYear').value) : null,
+                    status: document.getElementById('bookStatus').value || 'active',
+                    
+                    // Inventory tracking
+                    sku: document.getElementById('bookSKU').value.trim() || null,
+                    min_stock: parseInt(document.getElementById('bookMinStock').value) || 5,
+                    max_stock: parseInt(document.getElementById('bookMaxStock').value) || 100,
+                    reorder_point: parseInt(document.getElementById('bookReorderPoint').value) || 10,
+                    reorder_quantity: parseInt(document.getElementById('bookReorderQty').value) || 20,
+                    warehouse_location: document.getElementById('bookLocation').value.trim() || null,
+                    
+                    // Pricing
+                    cost_price: parseFloat(document.getElementById('bookCostPrice').value) || 0,
+                    discount_percentage: parseFloat(document.getElementById('bookDiscount').value) || 0,
+                    
+                    // Supplier
+                    supplier_name: document.getElementById('bookSupplier').value.trim() || null,
+                    supplier_contact: document.getElementById('bookSupplierContact').value.trim() || null,
+                    
+                    // Notes
+                    notes: document.getElementById('bookNotes').value.trim() || null
                 };
-                
-                return `
-                    <tr class="archived-item">
-                        <td style="font-weight: bold;">#${o.id}</td>
-                        <td>${customerName}</td>
-                        <td>${o.email || 'N/A'}</td>
-                        <td style="font-weight: bold; color: #6a9c89;">₱${(o.total_amount || 0).toFixed(2)}</td>
-                        <td>
-                            <select onchange="updateOrderStatus(${o.id}, this.value)" 
-                                    style="padding: 4px 8px; border-radius: 4px; background: ${statusColors[o.status] || '#2d4a3e'}; color: white; border: 1px solid rgba(255,255,255,0.3); font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-                                ${['pending','processing','shipped','completed','cancelled'].map(s => 
-                                    `<option value="${s}" ${o.status===s?'selected':''}>${s.charAt(0).toUpperCase() + s.slice(1)}</option>`
-                                ).join('')}
-                            </select>
-                        </td>
-                        <td>${orderDate}</td>
-                        <td>
-                            <button class="btn-change" onclick="viewOrderDetails(${o.id})" title="View Details" style="margin-right: 5px;">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn-change" onclick="handleArchiveOrder(${o.id}, true)" title="Unarchive"><i class="fas fa-undo"></i></button>
-                            <span class="archived-badge">ARCHIVED</span>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
 
-            // Generate pagination
-            generatePagination('archivedOrdersPagination', totalArchivedOrdersPages, currentArchivedOrdersPage, paginateArchivedOrders);
+                // Enhanced validation
+                if (!payload.title || !payload.author || !payload.description) {
+                    showErrorMessage('Please fill in all required fields (Title, Author, Description)');
+                    return;
+                }
+
+                if (payload.price < 0) {
+                    showErrorMessage('Selling price cannot be negative');
+                    return;
+                }
+
+                if (payload.stock_quantity < 0) {
+                    showErrorMessage('Stock quantity cannot be negative');
+                    return;
+                }
+                
+                if (payload.cost_price < 0) {
+                    showErrorMessage('Cost price cannot be negative');
+                    return;
+                }
+                
+                if (payload.discount_percentage < 0 || payload.discount_percentage > 100) {
+                    showErrorMessage('Discount percentage must be between 0 and 100');
+                    return;
+                }
+                
+                // Validate stock levels
+                if (payload.min_stock > payload.max_stock) {
+                    showErrorMessage('Minimum stock cannot be greater than maximum stock');
+                    return;
+                }
+                
+                if (payload.reorder_point > payload.max_stock) {
+                    showErrorMessage('Reorder point cannot be greater than maximum stock');
+                    return;
+                }
+                
+                // Warn about low stock
+                if (payload.stock_quantity < payload.min_stock) {
+                    console.warn('⚠️ Stock quantity is below minimum stock level');
+                }
+                
+                if (payload.stock_quantity <= payload.reorder_point) {
+                    console.warn('⚠️ Stock quantity is at or below reorder point');
+                }
+
+                showLoadingMessage('Saving book...');
+
+                let result;
+                if (id) {
+                    console.log(`📝 Updating book ${id}:`, payload);
+                    result = await safeApiCall(() => api.adminUpdateBook(parseInt(id), payload));
+                } else {
+                    console.log('📝 Creating new book:', payload);
+                    result = await safeApiCall(() => api.adminCreateBook(payload));
+                }
+
+                if (result) {
+                    await loadBooksFromAPI(currentBooksPage, currentBookCategory, currentBookSearch);
+                    bootstrap.Modal.getInstance(document.getElementById('addBookModal')).hide();
+                    document.getElementById('bookForm').reset();
+                    
+                    // Show appropriate success message with inventory alerts
+                    let successMsg = `Book ${id ? 'updated' : 'created'} successfully!`;
+                    if (payload.stock_quantity < payload.min_stock) {
+                        successMsg += ' ⚠️ Stock is below minimum level.';
+                    } else if (payload.stock_quantity <= payload.reorder_point) {
+                        successMsg += ' ⚠️ Stock is at or below reorder point.';
+                    }
+                    
+                    showSuccessMessage(successMsg);
+                } else {
+                    throw new Error('Failed to save book');
+                }
+            } catch (error) {
+                console.error('❌ Error saving book:', error);
+                showErrorMessage(`Failed to save book: ${error.message}`);
+            }
         }
 
         async function updateOrderStatus(orderId, status) {
             try {
-                await api.adminUpdateOrder(orderId, { status });
-                console.log(`📊 Order ${orderId} status updated to: ${status}`);
+                console.log(`📊 Updating order ${orderId} status to: ${status}`);
+                showLoadingMessage('Updating order status...');
                 
-                // Refresh the orders display
-                await loadOrdersFromAPI();
+                const result = await api.adminUpdateOrder(orderId, { status });
                 
-                // Refresh the dashboard to update book sales count
-                // This is important when orders are marked as completed
-                await updateBookSales();
-                
-            } catch (e) {
-                console.error(e);
-                alert('Failed to update order status');
-                await loadOrdersFromAPI();
-            }
-        }
-
-        async function viewUserOrders(userId, username) {
-            try {
-                const orders = await api.adminGetUserOrders(userId);
-                const tbody = document.getElementById('userOrdersTable');
-                document.querySelector('#userOrdersModal .modal-title').textContent = `Orders of ${username}`;
-                if (!orders || orders.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">No orders</td></tr>';
+                if (result) {
+                    await loadOrdersFromAPI(currentOrdersPage, currentOrderStatus, currentOrderSearch);
+                    await updateBookSales(); // Refresh dashboard statistics
+                    showSuccessMessage('Order status updated successfully');
                 } else {
-                    tbody.innerHTML = orders.map(o => `
-                        <tr>
-                            <td>${o.id}</td>
-                            <td>₱${(o.total_amount || 0).toFixed(2)}</td>
-                            <td>${o.status}</td>
-                            <td>${o.created_at || ''}</td>
-                        </tr>
-                    `).join('');
+                    throw new Error('Failed to update order status');
                 }
-                const modal = new bootstrap.Modal(document.getElementById('userOrdersModal'));
-                modal.show();
-            } catch (e) {
-                console.error(e);
-                alert('Failed to load user orders');
+                
+            } catch (error) {
+                console.error('❌ Error updating order status:', error);
+                showErrorMessage(`Failed to update order status: ${error.message}`);
+                // Reload to revert any UI changes
+                await loadOrdersFromAPI(currentOrdersPage, currentOrderStatus, currentOrderSearch);
             }
         }
 
-        async function viewOrderDetails(orderId) {
+        async function updateUserRole(userId, newRole) {
             try {
-                const orderDetails = await api.adminGetOrderDetails(orderId);
+                console.log(`👤 Updating user ${userId} role to ${newRole}`);
+                showLoadingMessage('Updating user role...');
                 
-                // Populate customer information
-                document.getElementById('customerName').textContent = 
-                    `${orderDetails.first_name || ''} ${orderDetails.last_name || ''}`.trim() || 'N/A';
-                document.getElementById('customerEmail').textContent = orderDetails.email || 'N/A';
-                document.getElementById('customerPhone').textContent = orderDetails.phone || 'N/A';
-                document.getElementById('customerUsername').textContent = orderDetails.username || 'N/A';
+                // Call API to update user role
+                const result = await api.adminUpdateUserRole(userId, newRole);
                 
-                // Populate order information
-                document.getElementById('orderIdDetail').textContent = orderDetails.id;
-                document.getElementById('orderStatus').textContent = orderDetails.status || 'pending';
-                document.getElementById('orderTotal').textContent = `₱${(orderDetails.total_amount || 0).toFixed(2)}`;
-                document.getElementById('orderDate').textContent = orderDetails.created_at || 'N/A';
+                if (result) {
+                    await loadDashboardUsers();
+                    await loadUsersFromAPI(currentUsersPage);
+                    showSuccessMessage('User role updated successfully');
+                } else {
+                    throw new Error('Failed to update user role');
+                }
+            } catch (error) {
+                console.error('❌ Error updating user role:', error);
+                showErrorMessage(`Failed to update user role: ${error.message}`);
+                // Reload to revert any UI changes
+                await loadDashboardUsers();
+                await loadUsersFromAPI(currentUsersPage);
+            }
+        }
+
+        // Archive functionality with proper error handling
+        async function handleArchiveBook(bookId, isUnarchive = false) {
+            try {
+                const action = isUnarchive ? 'unarchive' : 'archive';
+                const confirmMessage = `Are you sure you want to ${action} this book?`;
                 
-                // Populate shipping address
-                let shippingText = 'No shipping address provided';
-                if (orderDetails.shippingInfo) {
-                    const shipping = orderDetails.shippingInfo;
-                    if (shipping.shippingAddress) {
-                        // Format courier information properly
-                        let courierText = 'N/A';
-                        if (shipping.courier) {
-                            // Map courier codes to display names
-                            const courierNames = {
-                                'jnt': 'J&T Express',
-                                'lbc': 'LBC Express',
-                                'ninja': 'Ninja Van',
-                                'flash': 'Flash Express'
-                            };
-                            
-                            if (typeof shipping.courier === 'object' && shipping.courier.code) {
-                                const courierName = courierNames[shipping.courier.code] || shipping.courier.code.toUpperCase();
-                                const fee = shipping.courier.fee ? `₱${shipping.courier.fee}` : '';
-                                courierText = `${courierName} ${fee ? `(${fee})` : ''}`;
-                            } else if (typeof shipping.courier === 'string') {
-                                courierText = courierNames[shipping.courier] || shipping.courier.toUpperCase();
-                            } else {
-                                courierText = String(shipping.courier);
-                            }
-                        }
-                        
-                        shippingText = `
-                            <strong>Address:</strong> ${shipping.shippingAddress.full_address || ''}<br>
-                            <strong>City:</strong> ${shipping.shippingAddress.city || ''}<br>
-                            <strong>ZIP:</strong> ${shipping.shippingAddress.zip_code || ''}<br>
-                            <strong>Payment Method:</strong> ${shipping.paymentMethod || ''}<br>
-                            <strong>Courier:</strong> ${courierText}
-                        `;
-                    } else if (typeof shipping === 'string') {
-                        shippingText = shipping;
+                if (!confirm(confirmMessage)) return;
+
+                showLoadingMessage(`${action.charAt(0).toUpperCase() + action.slice(1)}ing book...`);
+
+                let result;
+                if (isUnarchive) {
+                    result = await api.unarchiveBook(bookId);
+                } else {
+                    result = await api.archiveBook(bookId);
+                }
+
+                if (result) {
+                    showSuccessMessage(`Book ${action}d successfully!`);
+                    
+                    // Reload appropriate data
+                    await loadBooksFromAPI(currentBooksPage, currentBookCategory, currentBookSearch);
+                    
+                    // If we're viewing archived books, reload that too
+                    const archivedSection = document.getElementById('archived-books-section');
+                    if (archivedSection && archivedSection.classList.contains('active')) {
+                        await loadArchivedBooksFromAPI(currentArchivedBooksPage);
                     }
-                }
-                document.getElementById('shippingAddress').innerHTML = shippingText;
-                
-                // Populate ordered books
-                const itemsTableBody = document.getElementById('orderItemsTable');
-                if (!orderDetails.items || orderDetails.items.length === 0) {
-                    itemsTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: rgba(255,255,255,0.5);">No items</td></tr>';
                 } else {
-                    itemsTableBody.innerHTML = orderDetails.items.map(item => `
-                        <tr>
-                            <td><img src="${item.cover || ''}" alt="${item.title}" class="book-img" style="width: 40px; height: 60px; object-fit: cover;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 50 70%22%3E%3Crect width=%2250%22 height=%2270%22 fill=%22%23ccc%22/%3E%3C/svg%3E'"></td>
-                            <td>${item.title}</td>
-                            <td>${item.author || 'Unknown'}</td>
-                            <td>${item.category || 'N/A'}</td>
-                            <td>${item.quantity}</td>
-                            <td>₱${(item.price || 0).toFixed(2)}</td>
-                            <td>₱${((item.quantity || 0) * (item.price || 0)).toFixed(2)}</td>
-                        </tr>
-                    `).join('');
+                    throw new Error(`Failed to ${action} book`);
+                }
+            } catch (error) {
+                console.error(`❌ Error ${isUnarchive ? 'unarchiving' : 'archiving'} book:`, error);
+                showErrorMessage(`Failed to ${isUnarchive ? 'unarchive' : 'archive'} book: ${error.message}`);
+            }
+        }
+
+        async function handleArchiveUser(userId, isUnarchive = false) {
+            try {
+                const action = isUnarchive ? 'unarchive' : 'archive';
+                const confirmMessage = `Are you sure you want to ${action} this user?`;
+                
+                if (!confirm(confirmMessage)) return;
+
+                showLoadingMessage(`${action.charAt(0).toUpperCase() + action.slice(1)}ing user...`);
+
+                let result;
+                if (isUnarchive) {
+                    result = await api.unarchiveUser(userId);
+                } else {
+                    result = await api.archiveUser(userId);
+                }
+
+                if (result) {
+                    showSuccessMessage(`User ${action}d successfully!`);
+                    
+                    // Reload appropriate data
+                    await loadUsersFromAPI(currentUsersPage);
+                    await loadDashboardUsers();
+                    
+                    // If we're viewing archived users, reload that too
+                    const archivedSection = document.getElementById('archived-users-section');
+                    if (archivedSection && archivedSection.classList.contains('active')) {
+                        await loadArchivedUsersFromAPI(currentArchivedUsersPage);
+                    }
+                } else {
+                    throw new Error(`Failed to ${action} user`);
+                }
+            } catch (error) {
+                console.error(`❌ Error ${isUnarchive ? 'unarchiving' : 'archiving'} user:`, error);
+                showErrorMessage(`Failed to ${isUnarchive ? 'unarchive' : 'archive'} user: ${error.message}`);
+            }
+        }
+
+        async function handleArchiveOrder(orderId, isUnarchive = false) {
+            try {
+                const action = isUnarchive ? 'unarchive' : 'archive';
+                const confirmMessage = `Are you sure you want to ${action} this order?`;
+                
+                if (!confirm(confirmMessage)) return;
+
+                showLoadingMessage(`${action.charAt(0).toUpperCase() + action.slice(1)}ing order...`);
+
+                let result;
+                if (isUnarchive) {
+                    result = await api.unarchiveOrder(orderId);
+                } else {
+                    result = await api.archiveOrder(orderId);
+                }
+
+                if (result) {
+                    showSuccessMessage(`Order ${action}d successfully!`);
+                    
+                    // Reload appropriate data
+                    await loadOrdersFromAPI(currentOrdersPage, currentOrderStatus, currentOrderSearch);
+                    
+                    // If we're viewing archived orders, reload that too
+                    const archivedSection = document.getElementById('archived-orders-section');
+                    if (archivedSection && archivedSection.classList.contains('active')) {
+                        await loadArchivedOrdersFromAPI(currentArchivedOrdersPage);
+                    }
+                } else {
+                    throw new Error(`Failed to ${action} order`);
+                }
+            } catch (error) {
+                console.error(`❌ Error ${isUnarchive ? 'unarchiving' : 'archiving'} order:`, error);
+                showErrorMessage(`Failed to ${isUnarchive ? 'unarchive' : 'archive'} order: ${error.message}`);
+            }
+        }
+
+        // Utility functions
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function censorUsername(username) {
+            if (!username || username === 'N/A') {
+                return username;
+            }
+            
+            // Remove extra spaces and convert to string
+            const cleanUsername = String(username).trim();
+            
+            if (cleanUsername.length === 0) {
+                return 'N/A';
+            }
+            
+            if (cleanUsername.length === 1) {
+                return cleanUsername;
+            }
+            
+            if (cleanUsername.length === 2) {
+                return cleanUsername[0] + '*';
+            }
+            
+            // For usernames with 3+ characters
+            // Process each character, preserving whitespace
+            let result = '';
+            let nonSpaceChars = cleanUsername.replace(/\s/g, ''); // Get non-space characters
+            let nonSpaceIndex = 0;
+            
+            for (let i = 0; i < cleanUsername.length; i++) {
+                const char = cleanUsername[i];
+                
+                // Preserve whitespace
+                if (/\s/.test(char)) {
+                    result += char;
+                } else {
+                    // For first and last non-space character, show it; otherwise use asterisk
+                    if (nonSpaceIndex === 0 || nonSpaceIndex === nonSpaceChars.length - 1) {
+                        result += char;
+                    } else {
+                        result += '*';
+                    }
+                    nonSpaceIndex++;
+                }
+            }
+            
+            return result;
+        }
+
+        function censorEmail(email) {
+            if (!email || email === 'N/A' || email === '') {
+                return 'N/A';
+            }
+            
+            const cleanEmail = String(email).trim();
+            
+            // Check if it's a valid email format
+            const emailParts = cleanEmail.split('@');
+            if (emailParts.length !== 2) {
+                return 'N/A';
+            }
+            
+            const localPart = emailParts[0];
+            const domain = emailParts[1];
+            
+            // Censor local part (before @)
+            let censoredLocal = '';
+            if (localPart.length === 1) {
+                censoredLocal = localPart;
+            } else if (localPart.length === 2) {
+                censoredLocal = localPart[0] + '*';
+            } else {
+                // Show first character and last character, censor middle
+                censoredLocal = localPart[0] + '*'.repeat(localPart.length - 2) + localPart[localPart.length - 1];
+            }
+            
+            // Censor domain (after @)
+            const domainParts = domain.split('.');
+            let censoredDomain = '';
+            
+            if (domainParts.length === 0) {
+                censoredDomain = domain;
+            } else {
+                // Censor the first part of domain, keep the rest visible
+                const firstPart = domainParts[0];
+                let censoredFirstPart = '';
+                
+                if (firstPart.length === 1) {
+                    censoredFirstPart = firstPart;
+                } else if (firstPart.length === 2) {
+                    censoredFirstPart = firstPart[0] + '*';
+                } else {
+                    censoredFirstPart = firstPart[0] + '*'.repeat(firstPart.length - 2) + firstPart[firstPart.length - 1];
                 }
                 
-                // Show the modal
-                const modal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
-                modal.show();
-                
-            } catch (e) {
-                console.error('Error loading order details:', e);
-                alert('Failed to load order details');
+                // Join with the rest of the domain parts
+                censoredDomain = [censoredFirstPart, ...domainParts.slice(1)].join('.');
             }
+            
+            return censoredLocal + '@' + censoredDomain;
+        }
+
+        function truncateText(text, maxLength) {
+            return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+        }
+
+        function formatDate(dateString) {
+            return dateString ? new Date(dateString).toLocaleDateString() : 'N/A';
+        }
+
+        function formatPrice(price) {
+            return (parseFloat(price) || 0).toFixed(2);
+        }
+
+        function formatCustomerName(order) {
+            if (order.first_name || order.last_name) {
+                const fullName = `${order.first_name || ''} ${order.last_name || ''}`.trim();
+                return censorUsername(fullName);
+            }
+            return censorUsername(order.username) || 'Unknown Customer';
+        }
+
+        function updateRangeDisplay(elementId, start, end, total) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = total > 0 ? `${start}-${end} of ${total}` : '0';
+            }
+        }
+
+        function clearPagination(elementId) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.innerHTML = '';
+            }
+        }
+
+        function showLoadingState(tableId, colspan, message) {
+            const tbody = document.getElementById(tableId);
+            if (tbody) {
+                tbody.innerHTML = `<tr><td colspan="${colspan}" style="text-align: center; color: rgba(255,255,255,0.7);"><i class="fas fa-spinner fa-spin"></i> ${message}</td></tr>`;
+            }
+        }
+
+        function showErrorInTable(tableId, colspan, message) {
+            const tbody = document.getElementById(tableId);
+            if (tbody) {
+                tbody.innerHTML = `<tr><td colspan="${colspan}" style="text-align: center; color: #ff6b6b;"><i class="fas fa-exclamation-triangle"></i> ${message}</td></tr>`;
+            }
+        }
+
+        function showSuccessMessage(message) {
+            console.log('✅ ' + message);
+            // You can implement a toast notification system here
+            hideLoadingMessage();
+        }
+
+        function showErrorMessage(message) {
+            console.error('❌ ' + message);
+            alert(message); // Replace with better notification system
+            hideLoadingMessage();
+        }
+
+        function showLoadingMessage(message) {
+            console.log('⏳ ' + message);
+            // You can implement a loading overlay here
+        }
+
+        function hideLoadingMessage() {
+            // Hide loading overlay
         }
 
         function setupNavigation() {
@@ -1201,10 +2152,24 @@
         }
 
         function setupCategoryFilter() {
-            document.getElementById('categoryFilter').addEventListener('change', function() {
-                currentBooksPage = 1; // Reset to first page when filtering
-                displayBooks(this.value, 1);
-            });
+            const categoryFilter = document.getElementById('categoryFilter');
+            const bookSearch = document.getElementById('bookSearch');
+            
+            if (categoryFilter) {
+                categoryFilter.addEventListener('change', function() {
+                    loadBooksFromAPI(1, this.value, currentBookSearch); // Reset to page 1 when filtering
+                });
+            }
+            
+            if (bookSearch) {
+                let searchTimeout;
+                bookSearch.addEventListener('input', function() {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        loadBooksFromAPI(1, currentBookCategory, this.value);
+                    }, 300); // Debounce search
+                });
+            }
         }
 
         function setupOrderFilters() {
@@ -1213,597 +2178,18 @@
             
             if (statusFilter) {
                 statusFilter.addEventListener('change', function() {
-                    filterOrders();
+                    loadOrdersFromAPI(1, this.value, currentOrderSearch);
                 });
             }
             
             if (orderSearch) {
+                let searchTimeout;
                 orderSearch.addEventListener('input', function() {
-                    filterOrders();
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        loadOrdersFromAPI(1, currentOrderStatus, this.value);
+                    }, 300); // Debounce search
                 });
-            }
-        }
-
-        function filterOrders() {
-            if (!window.allOrders) return;
-            
-            const statusFilter = document.getElementById('statusFilter').value;
-            const searchTerm = document.getElementById('orderSearch').value.toLowerCase();
-            
-            let filteredOrders = window.allOrders;
-            
-            // Filter by status
-            if (statusFilter !== 'all') {
-                filteredOrders = filteredOrders.filter(order => order.status === statusFilter);
-            }
-            
-            // Filter by search term (search in order ID, customer name, email)
-            if (searchTerm) {
-                filteredOrders = filteredOrders.filter(order => {
-                    const customerName = `${order.first_name || ''} ${order.last_name || ''}`.trim() || order.username || '';
-                    const email = order.email || '';
-                    const orderId = order.id.toString();
-                    
-                    return customerName.toLowerCase().includes(searchTerm) ||
-                           email.toLowerCase().includes(searchTerm) ||
-                           orderId.includes(searchTerm);
-                });
-            }
-            
-            currentOrdersPage = 1; // Reset to first page when filtering
-            displayOrdersWithPagination(filteredOrders, 1);
-        }
-
-        async function updateDashboard() {
-            try {
-                // Update books number and total stock
-                document.getElementById('booksNumber').textContent = adminBooks.length;
-                const totalStock = adminBooks.reduce((sum, b) => sum + (b.stock || 0), 0);
-                document.getElementById('totalStock').textContent = totalStock;
-                
-                // Calculate book sales from completed orders
-                await updateBookSales();
-            } catch (error) {
-                console.error('Error updating dashboard:', error);
-                // Fallback values if there's an error
-                document.getElementById('booksNumber').textContent = adminBooks.length || 0;
-                document.getElementById('totalStock').textContent = 0;
-                document.getElementById('bookSells').textContent = 0;
-            }
-        }
-
-        async function updateBookSales() {
-            try {
-                console.log('📊 Calculating book sales from completed orders...');
-                
-                // Get all orders from the API
-                const orders = await api.adminListOrders();
-                
-                if (!orders || orders.length === 0) {
-                    console.log('No orders found');
-                    document.getElementById('bookSells').textContent = 0;
-                    return;
-                }
-                
-                // Filter only completed orders
-                const completedOrders = orders.filter(order => 
-                    order.status && order.status.toLowerCase() === 'completed'
-                );
-                
-                console.log(`📋 Total orders: ${orders.length}, Completed orders: ${completedOrders.length}`);
-                
-                // Count total books sold from completed orders
-                let totalBooksSold = 0;
-                
-                // For each completed order, we need to get the order details to count books
-                for (const order of completedOrders) {
-                    try {
-                        const orderDetails = await api.adminGetOrderDetails(order.id);
-                        if (orderDetails && orderDetails.items) {
-                            // Sum up the quantities of all items in this order
-                            const orderBookCount = orderDetails.items.reduce((sum, item) => 
-                                sum + (item.quantity || 0), 0
-                            );
-                            totalBooksSold += orderBookCount;
-                            console.log(`📚 Order ${order.id}: ${orderBookCount} books`);
-                        }
-                    } catch (error) {
-                        console.warn(`Failed to get details for order ${order.id}:`, error);
-                    }
-                }
-                
-                console.log(`✅ Total books sold (completed orders): ${totalBooksSold}`);
-                document.getElementById('bookSells').textContent = totalBooksSold;
-                
-            } catch (error) {
-                console.error('❌ Error calculating book sales:', error);
-                document.getElementById('bookSells').textContent = 0;
-            }
-        }
-
-        function displayBooks(category = 'all', page = 1) {
-            currentBooksPage = page;
-            const tbody = document.getElementById('booksTable');
-            let filtered = category === 'all' ? adminBooks : adminBooks.filter(b => b.category === category);
-            
-            if (!filtered || filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: rgba(255,255,255,0.5);">No books found</td></tr>';
-                document.getElementById('booksRange').textContent = '0';
-                document.getElementById('booksPagination').innerHTML = '';
-                return;
-            }
-
-            // Update range display (for API pagination, we use total count from server)
-            const startIndex = (currentBooksPage - 1) * itemsPerPage + 1;
-            const endIndex = Math.min(currentBooksPage * itemsPerPage, totalBooksItems);
-            document.getElementById('booksRange').textContent = `${startIndex}-${endIndex} of ${totalBooksItems}`;
-
-            tbody.innerHTML = filtered.map(book => `
-                <tr>
-                    <td><img src="${book.cover || ''}" alt="${book.title}" class="book-img" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 50 70%22%3E%3Crect width=%2250%22 height=%2270%22 fill=%22%23ccc%22/%3E%3C/svg%3E'"></td>
-                    <td>${book.title}</td>
-                    <td>${book.author || ''}</td>
-                    <td>${book.stock || 0}</td>
-                    <td>${book.category || ''}</td>
-                    <td>
-                        <button class="btn-change" onclick="openEditBook(${book.id})"><i class="fas fa-edit"></i></button>
-                        <button class="btn-archive" onclick="handleArchiveBook(${book.id}, false)" title="Archive"><i class="fas fa-archive"></i></button>
-                    </td>
-                </tr>
-            `).join('');
-
-            // Generate pagination
-            generatePagination('booksPagination', totalBooksPages, currentBooksPage, paginateBooks);
-        }
-
-        function displayArchivedBooks(category = 'all', page = 1) {
-            const tbody = document.getElementById('archivedBooksTable');
-            let filtered = category === 'all' ? archivedBooks : archivedBooks.filter(b => b.category === category);
-            
-            if (!filtered || filtered.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: rgba(255,255,255,0.5);">No archived books found</td></tr>';
-                document.getElementById('archivedBooksRange').textContent = '0';
-                document.getElementById('archivedBooksPagination').innerHTML = '';
-                return;
-            }
-
-            // Update range display (for API pagination, we use total count from server)
-            const startIndex = (currentArchivedBooksPage - 1) * itemsPerPage + 1;
-            const endIndex = Math.min(currentArchivedBooksPage * itemsPerPage, totalArchivedBooksItems);
-            document.getElementById('archivedBooksRange').textContent = `${startIndex}-${endIndex} of ${totalArchivedBooksItems}`;
-
-            tbody.innerHTML = filtered.map(book => `
-                <tr class="archived-item">
-                    <td><img src="${book.cover || ''}" alt="${book.title}" class="book-img" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 50 70%22%3E%3Crect width=%2250%22 height=%2270%22 fill=%22%23ccc%22/%3E%3C/svg%3E'"></td>
-                    <td>${book.title}</td>
-                    <td>${book.author || ''}</td>
-                    <td>${book.stock || 0}</td>
-                    <td>${book.category || ''}</td>
-                    <td>
-                        <button class="btn-change" onclick="handleArchiveBook(${book.id}, true)" title="Unarchive"><i class="fas fa-undo"></i></button>
-                        <span class="archived-badge">ARCHIVED</span>
-                    </td>
-                </tr>
-            `).join('');
-
-            // Generate pagination
-            generatePagination('archivedBooksPagination', totalArchivedBooksPages, currentArchivedBooksPage, paginateArchivedBooks);
-        }
-
-        async function saveBook() {
-            try {
-                const id = document.getElementById('bookId').value;
-                const payload = {
-                    title: document.getElementById('bookTitle').value,
-                    author: document.getElementById('bookAuthor').value,
-                    description: document.getElementById('bookDescription').value,
-                    category: document.getElementById('bookCategory').value,
-                    genre: document.getElementById('bookGenre').value,
-                    price: parseFloat(document.getElementById('bookPrice').value),
-                    stock_quantity: parseInt(document.getElementById('bookStock').value),
-                    cover: document.getElementById('bookCover').value
-                };
-
-                // Validate required fields
-                if (!payload.title || !payload.author || !payload.description) {
-                    alert('Please fill in all required fields (Title, Author, Description)');
-                    return;
-                }
-
-                console.log('Saving book:', { id, payload });
-
-                if (id) {
-                    await api.adminUpdateBook(parseInt(id), payload);
-                } else {
-                    await api.adminCreateBook(payload);
-                }
-                await loadBooksFromAPI();
-                bootstrap.Modal.getInstance(document.getElementById('addBookModal')).hide();
-                document.getElementById('bookForm').reset();
-                alert('Book saved successfully!');
-            } catch (e) {
-                console.error('Error saving book:', e);
-                alert('Failed to save book: ' + (e.message || e));
-            }
-        }
-
-        function openEditBook(id) {
-            const book = adminBooks.find(b => b.id === id);
-            if (!book) return;
-            document.getElementById('bookId').value = book.id;
-            document.getElementById('bookTitle').value = book.title || '';
-            document.getElementById('bookAuthor').value = book.author || '';
-            document.getElementById('bookDescription').value = book.description || '';
-            document.getElementById('bookCategory').value = book.category || 'Fiction';
-            document.getElementById('bookGenre').value = book.genre || '';
-            document.getElementById('bookPrice').value = book.price || 0;
-            document.getElementById('bookStock').value = book.stock || 0;
-            document.getElementById('bookCover').value = book.cover || '';
-            document.querySelector('#addBookModal .modal-title').textContent = 'Edit Book';
-            const modal = new bootstrap.Modal(document.getElementById('addBookModal'));
-            modal.show();
-        }
-
-        async function updateUserRole(userId, newRole) {
-            try {
-                // Note: This would require a new API endpoint to update user roles
-                // For now, we'll just show a message
-                console.log(`Updating user ${userId} role to ${newRole}`);
-                alert('Role update functionality would be implemented here');
-                // TODO: Implement API endpoint for updating user roles
-            } catch (e) {
-                console.error('Error updating user role:', e);
-                alert('Failed to update user role');
-            }
-        }
-
-        function switchToUsersSection() {
-            // Switch to the Users section
-            document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active'));
-            document.querySelector('[data-section="users"]').classList.add('active');
-            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-            document.getElementById('users-section').classList.add('active');
-        }
-
-        document.getElementById('addBookModal').addEventListener('hidden.bs.modal', function() {
-            document.getElementById('bookForm').reset();
-            document.getElementById('bookId').value = '';
-            document.querySelector('#addBookModal .modal-title').textContent = 'Add New Book';
-        });
-
-        async function showAdminApp() {
-            document.getElementById('adminLogin').style.display = 'none';
-            document.getElementById('adminApp').style.display = 'block';
-            await updateDbStatus();
-            initAdmin();
-        }
-
-        function showLogin() {
-            document.getElementById('adminApp').style.display = 'none';
-            document.getElementById('adminLogin').style.display = 'block';
-        }
-
-        async function handleAdminLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('adminEmail').value;
-            const password = document.getElementById('adminPassword').value;
-            const errorEl = document.getElementById('adminLoginError');
-            errorEl.style.display = 'none';
-            try {
-                await api.adminLogin(email, password);
-                // Check if user is admin
-                const isAdmin = await api.isAdmin();
-                if (isAdmin) {
-                    showAdminApp();
-                } else {
-                    errorEl.textContent = 'Access denied. Admin privileges required.';
-                    errorEl.style.display = 'block';
-                    api.logout(); // Log out non-admin users
-                }
-            } catch (err) {
-                errorEl.textContent = (err && err.message) ? err.message : 'Login failed';
-                errorEl.style.display = 'block';
-            }
-        }
-
-        function logoutAdmin(e) {
-            if (e) e.preventDefault();
-            api.logout();
-            showLogin();
-        }
-
-        async function updateDbStatus() {
-            const el = document.getElementById('dbStatus');
-            try {
-                const ok = await api.testConnection();
-                if (ok) {
-                    el.textContent = 'DB: connected';
-                    el.className = 'badge bg-success';
-                    return true;
-                }
-                el.textContent = 'DB: unreachable';
-                el.className = 'badge bg-danger';
-                return false;
-            } catch {
-                el.textContent = 'DB: error';
-                el.className = 'badge bg-danger';
-                return false;
-            }
-        }
-
-        // Attach login handler and decide initial view
-        document.getElementById('adminLoginForm').addEventListener('submit', handleAdminLogin);
-        
-        // Toggle genre options based on category selection
-        function setupCategoryGenreToggle() {
-            const categorySelect = document.getElementById('bookCategory');
-            const genreSelect = document.getElementById('bookGenre');
-            const fictionGenres = document.getElementById('FictionGenres');
-            const nonFictionGenres = document.getElementById('Non-FictionGenres');
-            
-            function updateGenreOptions() {
-                const selectedCategory = categorySelect.value;
-                
-                // Clear current selection
-                genreSelect.value = '';
-                
-                if (selectedCategory === 'Fiction') {
-                    // Show Fiction genres, hide Non-Fiction genres
-                    fictionGenres.style.display = 'block';
-                    nonFictionGenres.style.display = 'none';
-                    
-                    // Enable Fiction options
-                    fictionGenres.querySelectorAll('option').forEach(option => {
-                        option.disabled = false;
-                        option.style.display = 'block';
-                    });
-                    
-                    // Disable Non-Fiction options
-                    nonFictionGenres.querySelectorAll('option').forEach(option => {
-                        option.disabled = true;
-                        option.style.display = 'none';
-                    });
-                } else if (selectedCategory === 'Non - Fiction') {
-                    // Show Non-Fiction genres, hide Fiction genres
-                    nonFictionGenres.style.display = 'block';
-                    fictionGenres.style.display = 'none';
-                    
-                    // Enable Non-Fiction options
-                    nonFictionGenres.querySelectorAll('option').forEach(option => {
-                        option.disabled = false;
-                        option.style.display = 'block';
-                    });
-                    
-                    // Disable Fiction options
-                    fictionGenres.querySelectorAll('option').forEach(option => {
-                        option.disabled = true;
-                        option.style.display = 'none';
-                    });
-                }
-            }
-            
-            // Set up event listener for category changes
-            categorySelect.addEventListener('change', updateGenreOptions);
-            
-            // Initialize with default category (Fiction)
-            updateGenreOptions();
-        }
-
-        // Check if user is already logged in and is admin
-        async function checkInitialAccess() {
-            if (api.isLoggedIn()) {
-                try {
-                    const isAdmin = await api.isAdmin();
-                    if (isAdmin) {
-                        showAdminApp();
-                    } else {
-                        showLogin();
-                    }
-                } catch (error) {
-                    console.error('Error checking admin status:', error);
-                    showLogin();
-                }
-            } else {
-                showLogin();
-            }
-        }
-        
-        // Generate pagination controls
-        function generatePagination(containerId, totalPages, currentPage, onPageChange) {
-            const container = document.getElementById(containerId);
-            if (!container || totalPages <= 1) {
-                container.innerHTML = '';
-                return;
-            }
-
-            let paginationHTML = '';
-            
-            // Previous button
-            const prevDisabled = currentPage === 1 ? 'disabled' : '';
-            paginationHTML += `
-                <li class="page-item ${prevDisabled}">
-                    <a class="page-link" onclick="${prevDisabled ? '' : `${onPageChange.name}(${currentPage - 1})`}">‹</a>
-                </li>
-            `;
-
-            // Page numbers
-            const startPage = Math.max(1, currentPage - 2);
-            const endPage = Math.min(totalPages, currentPage + 2);
-
-            if (startPage > 1) {
-                paginationHTML += `
-                    <li class="page-item">
-                        <a class="page-link" onclick="${onPageChange.name}(1)">1</a>
-                    </li>
-                `;
-                if (startPage > 2) {
-                    paginationHTML += `<li class="page-item disabled"><a class="page-link">...</a></li>`;
-                }
-            }
-
-            for (let i = startPage; i <= endPage; i++) {
-                const active = i === currentPage ? 'active' : '';
-                paginationHTML += `
-                    <li class="page-item ${active}">
-                        <a class="page-link" onclick="${active ? '' : `${onPageChange.name}(${i})`}">${i}</a>
-                    </li>
-                `;
-            }
-
-            if (endPage < totalPages) {
-                if (endPage < totalPages - 1) {
-                    paginationHTML += `<li class="page-item disabled"><a class="page-link">...</a></li>`;
-                }
-                paginationHTML += `
-                    <li class="page-item">
-                        <a class="page-link" onclick="${onPageChange.name}(${totalPages})">${totalPages}</a>
-                    </li>
-                `;
-            }
-
-            // Next button
-            const nextDisabled = currentPage === totalPages ? 'disabled' : '';
-            paginationHTML += `
-                <li class="page-item ${nextDisabled}">
-                    <a class="page-link" onclick="${nextDisabled ? '' : `${onPageChange.name}(${currentPage + 1})`}">›</a>
-                </li>
-            `;
-
-            container.innerHTML = paginationHTML;
-        }
-
-        // Helper functions for pagination callbacks
-        function paginateBooks(page) {
-            currentBooksPage = page;
-            loadBooksFromAPI();
-        }
-
-        function paginateUsers(page) {
-            currentUsersPage = page;
-            loadUsersFromAPI();
-        }
-
-        function paginateOrders(page) {
-            currentOrdersPage = page;
-            loadOrdersFromAPI();
-        }
-
-        function paginateArchivedBooks(page) {
-            currentArchivedBooksPage = page;
-            loadArchivedBooksFromAPI();
-        }
-
-        function paginateArchivedUsers(page) {
-            currentArchivedUsersPage = page;
-            loadArchivedUsersFromAPI();
-        }
-
-        function paginateArchivedOrders(page) {
-            currentArchivedOrdersPage = page;
-            loadArchivedOrdersFromAPI();
-        }
-
-        // Archive functionality
-
-        async function handleArchiveBook(bookId, isUnarchive = false) {
-            try {
-                const action = isUnarchive ? 'unarchive' : 'archive';
-                const confirmMessage = isUnarchive ? 'unarchive' : 'archive';
-                
-                if (!confirm(`Are you sure you want to ${confirmMessage} this book?`)) return;
-
-                let response;
-                if (isUnarchive) {
-                    response = await api.unarchiveBook(bookId);
-                } else {
-                    response = await api.archiveBook(bookId);
-                }
-
-                if (response) {
-                    alert(`Book ${action}d successfully!`);
-                    // Reload both active and archived books
-                    await loadBooksFromAPI();
-                    await loadArchivedBooksFromAPI();
-                    
-                    // Refresh current displays
-                    displayBooks(document.getElementById('categoryFilter').value);
-                    if (document.getElementById('archived-books-section').style.display !== 'none') {
-                        displayArchivedBooks(document.getElementById('archivedBookCategoryFilter').value);
-                    }
-                } else {
-                    alert(`Failed to ${action} book`);
-                }
-            } catch (error) {
-                console.error(`Error ${action}ing book:`, error);
-                alert(`Failed to ${action} book: ${error.message}`);
-            }
-        }
-
-        async function handleArchiveUser(userId, isUnarchive = false) {
-            try {
-                const action = isUnarchive ? 'unarchive' : 'archive';
-                const confirmMessage = isUnarchive ? 'unarchive' : 'archive';
-                
-                if (!confirm(`Are you sure you want to ${confirmMessage} this user?`)) return;
-
-                let response;
-                if (isUnarchive) {
-                    response = await api.unarchiveUser(userId);
-                } else {
-                    response = await api.archiveUser(userId);
-                }
-
-                if (response) {
-                    alert(`User ${action}d successfully!`);
-                    // Reload both active and archived users
-                    await loadUsersFromAPI();
-                    await loadArchivedUsersFromAPI();
-                    
-                    // Refresh current displays
-                    displayUsers();
-                    if (document.getElementById('archived-users-section').style.display !== 'none') {
-                        displayArchivedUsers();
-                    }
-                } else {
-                    alert(`Failed to ${action} user`);
-                }
-            } catch (error) {
-                console.error(`Error ${action}ing user:`, error);
-                alert(`Failed to ${action} user: ${error.message}`);
-            }
-        }
-
-        async function handleArchiveOrder(orderId, isUnarchive = false) {
-            try {
-                const action = isUnarchive ? 'unarchive' : 'archive';
-                const confirmMessage = isUnarchive ? 'unarchive' : 'archive';
-                
-                if (!confirm(`Are you sure you want to ${confirmMessage} this order?`)) return;
-
-                let response;
-                if (isUnarchive) {
-                    response = await api.unarchiveOrder(orderId);
-                } else {
-                    response = await api.archiveOrder(orderId);
-                }
-
-                if (response) {
-                    alert(`Order ${action}d successfully!`);
-                    // Reload both active and archived orders
-                    await loadOrdersFromAPI();
-                    await loadArchivedOrdersFromAPI();
-                    
-                    // Refresh current displays
-                    displayOrdersWithPagination(allOrders);
-                    if (document.getElementById('archived-orders-section').style.display !== 'none') {
-                        displayArchivedOrders();
-                    }
-                } else {
-                    alert(`Failed to ${action} order`);
-                }
-            } catch (error) {
-                console.error(`Error ${action}ing order:`, error);
-                alert(`Failed to ${action} order: ${error.message}`);
             }
         }
 
@@ -1860,9 +2246,1128 @@
         document.getElementById('addBookModal').addEventListener('shown.bs.modal', function() {
             setupCategoryGenreToggle();
         });
+
+        // Missing function definitions
+        
+        // Category-Genre toggle functionality
+        function setupCategoryGenreToggle() {
+            const categorySelect = document.getElementById('bookCategory');
+            const genreSelect = document.getElementById('bookGenre');
+            
+            if (!categorySelect || !genreSelect) return;
+            
+            categorySelect.addEventListener('change', function() {
+                const category = this.value;
+                const fictionGenres = document.getElementById('FictionGenres');
+                const nonFictionGenres = document.getElementById('Non-FictionGenres');
+                
+                // Clear current selection
+                genreSelect.innerHTML = '<option value="" disabled selected>Select Genre</option>';
+                
+                if (category === 'Fiction') {
+                    if (fictionGenres) {
+                        genreSelect.innerHTML = fictionGenres.innerHTML;
+                    }
+                } else if (category === 'Non - Fiction') {
+                    if (nonFictionGenres) {
+                        genreSelect.innerHTML = nonFictionGenres.innerHTML;
+                    }
+                }
+            });
+        }
+
+        // Check initial access and admin authentication
+        async function checkInitialAccess() {
+            console.log('🔐 Checking admin access...');
+            
+            const token = localStorage.getItem('authToken');
+            const user = localStorage.getItem('user');
+            
+            if (!token || !user) {
+                console.log('No admin credentials found');
+                showAdminLogin();
+                return;
+            }
+            
+            try {
+                const userData = JSON.parse(user);
+                if (userData.role !== 'admin' || !userData.isAdmin) {
+                    console.log('Invalid admin credentials');
+                    showAdminLogin();
+                    return;
+                }
+                
+                // Verify token is still valid
+                const isConnected = await verifyDatabaseConnection();
+                if (isConnected) {
+                    console.log('✅ Admin access verified');
+                    showAdminApp();
+                    initAdmin();
+                } else {
+                    console.log('Database connection failed');
+                    showAdminLogin();
+                }
+            } catch (error) {
+                console.error('Error checking admin access:', error);
+                showAdminLogin();
+            }
+        }
+
+        // Show admin login form
+        function showAdminLogin() {
+            document.getElementById('adminLogin').style.display = 'block';
+            document.getElementById('adminApp').style.display = 'none';
+            
+            // Setup login form
+            const loginForm = document.getElementById('adminLoginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', handleAdminLogin);
+            }
+        }
+
+        // Show admin app
+        function showAdminApp() {
+            document.getElementById('adminLogin').style.display = 'none';
+            document.getElementById('adminApp').style.display = 'flex';
+        }
+
+        // Handle admin login
+        async function handleAdminLogin(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+            const errorDiv = document.getElementById('adminLoginError');
+            
+            try {
+                errorDiv.style.display = 'none';
+                console.log('🔐 Attempting admin login...');
+                
+                const response = await api.adminLogin(email, password);
+                
+                if (response.token) {
+                    console.log('✅ Admin login successful');
+                    showAdminApp();
+                    initAdmin();
+                } else {
+                    throw new Error('Login failed');
+                }
+            } catch (error) {
+                console.error('❌ Admin login failed:', error);
+                errorDiv.textContent = error.message || 'Invalid credentials';
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        // Logout admin
+        function logoutAdmin(e) {
+            e.preventDefault();
+            
+            if (confirm('Are you sure you want to logout?')) {
+                api.logout();
+                console.log('🚪 Admin logged out');
+                showAdminLogin();
+                
+                // Clear any intervals
+                if (dbStatusCheckInterval) {
+                    clearInterval(dbStatusCheckInterval);
+                }
+            }
+        }
+
+        // Edit book functionality
+        async function openEditBook(bookId) {
+            try {
+                console.log(`📝 Opening edit for book ID: ${bookId}`);
+                
+                const book = adminBooks.find(b => b.id === bookId);
+                if (!book) {
+                    showErrorMessage('Book not found');
+                    return;
+                }
+                
+                // Populate basic information
+                document.getElementById('bookId').value = book.id;
+                document.getElementById('bookTitle').value = book.title;
+                document.getElementById('bookAuthor').value = book.author;
+                document.getElementById('bookDescription').value = book.description;
+                document.getElementById('bookCategory').value = book.category;
+                document.getElementById('bookPrice').value = book.price;
+                document.getElementById('bookStock').value = book.stock;
+                document.getElementById('bookCover').value = book.cover;
+                
+                // Populate new inventory management fields with defaults if not present
+                document.getElementById('bookISBN').value = book.isbn || '';
+                document.getElementById('bookPublisher').value = book.publisher || '';
+                document.getElementById('bookYear').value = book.publication_year || '';
+                document.getElementById('bookStatus').value = book.status || 'active';
+                
+                // Inventory tracking fields
+                document.getElementById('bookSKU').value = book.sku || '';
+                document.getElementById('bookMinStock').value = book.min_stock !== undefined ? book.min_stock : 5;
+                document.getElementById('bookMaxStock').value = book.max_stock !== undefined ? book.max_stock : 100;
+                document.getElementById('bookReorderPoint').value = book.reorder_point !== undefined ? book.reorder_point : 10;
+                document.getElementById('bookReorderQty').value = book.reorder_quantity !== undefined ? book.reorder_quantity : 20;
+                document.getElementById('bookLocation').value = book.warehouse_location || '';
+                
+                // Pricing fields
+                document.getElementById('bookCostPrice').value = book.cost_price || '';
+                document.getElementById('bookDiscount').value = book.discount_percentage || 0;
+                
+                // Supplier fields
+                document.getElementById('bookSupplier').value = book.supplier_name || '';
+                document.getElementById('bookSupplierContact').value = book.supplier_contact || '';
+                
+                // Notes
+                document.getElementById('bookNotes').value = book.notes || '';
+                
+                // Handle image upload/URL based on existing cover
+                if (book.cover) {
+                    // Check if it's a base64 image or URL
+                    if (book.cover.startsWith('data:image/')) {
+                        // It's a base64 image
+                        document.getElementById('uploadMethodFile').checked = true;
+                        document.getElementById('fileUploadSection').style.display = 'block';
+                        document.getElementById('urlInputSection').style.display = 'none';
+                        uploadedImageData = book.cover;
+                        showImagePreview(book.cover);
+                    } else {
+                        // It's a URL
+                        document.getElementById('uploadMethodURL').checked = true;
+                        document.getElementById('fileUploadSection').style.display = 'none';
+                        document.getElementById('urlInputSection').style.display = 'block';
+                        document.getElementById('bookCover').value = book.cover;
+                        loadImagePreview(book.cover);
+                    }
+                }
+                
+                // Trigger category change to populate genres
+                const categorySelect = document.getElementById('bookCategory');
+                const changeEvent = new Event('change');
+                categorySelect.dispatchEvent(changeEvent);
+                
+                // Set genre after category is set
+                setTimeout(() => {
+                    document.getElementById('bookGenre').value = book.genre;
+                    // Trigger pricing calculations
+                    calculatePricing();
+                    // Validate stock levels
+                    validateStockLevels();
+                }, 100);
+                
+                // Update modal title
+                document.querySelector('#addBookModal .modal-title').textContent = 'Edit Book';
+                
+                // Show modal
+                const modal = new bootstrap.Modal(document.getElementById('addBookModal'));
+                modal.show();
+                
+            } catch (error) {
+                console.error('❌ Error opening edit book:', error);
+                showErrorMessage('Failed to open book for editing');
+            }
+        }
+
+        // View user orders
+        async function viewUserOrders(userId, username) {
+            try {
+                console.log(`👤 Loading orders for user ${userId} (${username})`);
+                
+                const orders = await api.adminGetUserOrders(userId);
+                
+                // Update modal title
+                document.querySelector('#userOrdersModal .modal-title').textContent = `Orders for ${username}`;
+                
+                // Populate orders table
+                const tbody = document.getElementById('userOrdersTable');
+                if (!orders || orders.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">No orders found</td></tr>';
+                } else {
+                    tbody.innerHTML = orders.map(order => `
+                        <tr>
+                            <td style="font-weight: bold;">#${order.id}</td>
+                            <td style="color: #6a9c89; font-weight: bold;">₱${formatPrice(order.total_amount)}</td>
+                            <td>
+                                <span style="padding: 4px 8px; border-radius: 4px; background: #2d4a3e; color: white; font-size: 12px;">
+                                    ${order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                                </span>
+                            </td>
+                            <td>${formatDate(order.created_at)}</td>
+                        </tr>
+                    `).join('');
+                }
+                
+                // Show modal
+                const modal = new bootstrap.Modal(document.getElementById('userOrdersModal'));
+                modal.show();
+                
+            } catch (error) {
+                console.error('❌ Error loading user orders:', error);
+                showErrorMessage('Failed to load user orders');
+            }
+        }
+
+        // View order details
+        async function viewOrderDetails(orderId) {
+            try {
+                console.log(`📋 Loading details for order ${orderId}`);
+                
+                const orderDetails = await api.adminGetOrderDetails(orderId);
+                
+                if (!orderDetails) {
+                    throw new Error('Order details not found');
+                }
+                
+                // Populate customer information
+                document.getElementById('customerName').textContent = formatCustomerName(orderDetails);
+                document.getElementById('customerEmail').textContent = orderDetails.email || 'N/A';
+                document.getElementById('customerPhone').textContent = orderDetails.phone || 'N/A';
+                document.getElementById('customerUsername').textContent = censorUsername(orderDetails.username);
+                
+                // Populate order information
+                document.getElementById('orderIdDetail').textContent = `#${orderDetails.id}`;
+                document.getElementById('orderStatus').textContent = orderDetails.status.charAt(0).toUpperCase() + orderDetails.status.slice(1);
+                document.getElementById('orderTotal').textContent = `₱${formatPrice(orderDetails.total_amount)}`;
+                document.getElementById('orderDate').textContent = formatDate(orderDetails.created_at);
+                
+                // Populate shipping address
+                const address = `${orderDetails.address || ''}, ${orderDetails.city || ''}, ${orderDetails.state || ''} ${orderDetails.zip_code || ''}`.replace(/,\s*,/g, ',').replace(/^,\s*|,\s*$/g, '');
+                document.getElementById('shippingAddress').textContent = address || 'No address provided';
+                
+                // Populate order items
+                const itemsTableBody = document.getElementById('orderItemsTable');
+                if (!orderDetails.items || orderDetails.items.length === 0) {
+                    itemsTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: rgba(255,255,255,0.5);">No items found</td></tr>';
+                } else {
+                    itemsTableBody.innerHTML = orderDetails.items.map(item => `
+                        <tr>
+                            <td><img src="${escapeHtml(item.cover || '')}" alt="${escapeHtml(item.title)}" class="book-img" style="width: 40px; height: 60px; object-fit: cover;" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 50 70%22%3E%3Crect width=%2250%22 height=%2270%22 fill=%22%23ccc%22/%3E%3C/svg%3E'"></td>
+                            <td title="${escapeHtml(item.title)}">${truncateText(escapeHtml(item.title), 25)}</td>
+                            <td title="${escapeHtml(item.author)}">${truncateText(escapeHtml(item.author), 20)}</td>
+                            <td>${escapeHtml(item.category)}</td>
+                            <td style="text-align: center; font-weight: bold;">${item.quantity}</td>
+                            <td style="color: #6a9c89; font-weight: bold;">₱${formatPrice(item.price)}</td>
+                            <td style="color: #6a9c89; font-weight: bold;">₱${formatPrice(item.price * item.quantity)}</td>
+                        </tr>
+                    `).join('');
+                }
+                
+                // Show modal
+                const modal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
+                modal.show();
+                
+            } catch (error) {
+                console.error('❌ Error loading order details:', error);
+                showErrorMessage('Failed to load order details');
+            }
+        }
+
+        // Switch to users section (used in dashboard)
+        function switchToUsersSection() {
+            // Remove active class from all menu links
+            document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active'));
+            
+            // Add active class to users link
+            const usersLink = document.querySelector('[data-section="users"]');
+            if (usersLink) {
+                usersLink.classList.add('active');
+            }
+            
+            // Hide all sections and show users section
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.getElementById('users-section').classList.add('active');
+            
+            // Load users data if not already loaded
+            loadUsersFromAPI(1);
+        }
+
+        // Pagination functions
+        function paginateBooks(page) {
+            loadBooksFromAPI(page, currentBookCategory, currentBookSearch);
+        }
+
+        function paginateUsers(page) {
+            loadUsersFromAPI(page);
+        }
+
+        function paginateOrders(page) {
+            loadOrdersFromAPI(page, currentOrderStatus, currentOrderSearch);
+        }
+
+        // Archive pagination functions
+        function paginateArchivedBooks(page) {
+            loadArchivedBooksFromAPI(page, document.getElementById('archivedBookCategoryFilter').value);
+        }
+
+        function paginateArchivedUsers(page) {
+            loadArchivedUsersFromAPI(page);
+        }
+
+        function paginateArchivedOrders(page) {
+            loadArchivedOrdersFromAPI(page, document.getElementById('archivedStatusFilter').value);
+        }
+
+        // Generate pagination HTML
+        function generatePagination(containerId, totalPages, currentPage, paginateFunction) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+            
+            let paginationHTML = '';
+            
+            // Previous button
+            paginationHTML += `
+                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="${paginateFunction.name}(${currentPage - 1})">Previous</a>
+                </li>
+            `;
+            
+            // Page numbers
+            const startPage = Math.max(1, currentPage - 2);
+            const endPage = Math.min(totalPages, currentPage + 2);
+            
+            if (startPage > 1) {
+                paginationHTML += `<li class="page-item"><a class="page-link" href="#" onclick="${paginateFunction.name}(1)">1</a></li>`;
+                if (startPage > 2) {
+                    paginationHTML += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                }
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                paginationHTML += `
+                    <li class="page-item ${i === currentPage ? 'active' : ''}">
+                        <a class="page-link" href="#" onclick="${paginateFunction.name}(${i})">${i}</a>
+                    </li>
+                `;
+            }
+            
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    paginationHTML += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                }
+                paginationHTML += `<li class="page-item"><a class="page-link" href="#" onclick="${paginateFunction.name}(${totalPages})">${totalPages}</a></li>`;
+            }
+            
+            // Next button
+            paginationHTML += `
+                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="${paginateFunction.name}(${currentPage + 1})">Next</a>
+                </li>
+            `;
+            
+            container.innerHTML = paginationHTML;
+        }
+
+        // Update dashboard statistics
+        async function updateDashboard() {
+            try {
+                // Update book statistics
+                const totalBooks = totalBooksItems;
+                const totalStock = adminBooks.reduce((sum, book) => sum + book.stock, 0);
+                
+                document.getElementById('booksNumber').textContent = totalBooks;
+                document.getElementById('totalStock').textContent = totalStock;
+                
+                // Update book sales (you might want to implement this properly)
+                await updateBookSales();
+                
+            } catch (error) {
+                console.error('❌ Error updating dashboard:', error);
+            }
+        }
+
+        // Update book sales statistics
+        async function updateBookSales() {
+            try {
+                if (!allOrders || allOrders.length === 0) {
+                    document.getElementById('bookSells').textContent = '₱0.00';
+                    return;
+                }
+
+                // Calculate sales from completed and delivered orders only
+                // These are the statuses that represent actual sales
+                const validSalesStatuses = ['completed', 'delivered', 'shipped'];
+                const salesOrders = allOrders.filter(order => 
+                    validSalesStatuses.includes(order.status?.toLowerCase())
+                );
+                
+                // Calculate total revenue from valid sales orders
+                const totalRevenue = salesOrders.reduce((sum, order) => {
+                    const amount = parseFloat(order.total_amount) || 0;
+                    return sum + amount;
+                }, 0);
+                
+                console.log(`📊 Book Sales Update:`, {
+                    totalOrders: allOrders.length,
+                    salesOrders: salesOrders.length,
+                    totalRevenue: totalRevenue,
+                    validStatuses: validSalesStatuses
+                });
+                
+                document.getElementById('bookSells').textContent = `₱${formatPrice(totalRevenue)}`;
+                
+            } catch (error) {
+                console.error('❌ Error updating book sales:', error);
+                document.getElementById('bookSells').textContent = '₱0.00';
+            }
+        }
+
+        // Display archived items functions
+        function displayArchivedBooks(category = 'all') {
+            const tbody = document.getElementById('archivedBooksTable');
+            
+            if (!archivedBooks || archivedBooks.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: rgba(255,255,255,0.5);">No archived books found</td></tr>';
+                updateRangeDisplay('archivedBooksRange', 0, 0, 0);
+                clearPagination('archivedBooksPagination');
+                return;
+            }
+
+            const startIndex = (currentArchivedBooksPage - 1) * itemsPerPage + 1;
+            const endIndex = Math.min(currentArchivedBooksPage * itemsPerPage, totalArchivedBooksItems);
+            updateRangeDisplay('archivedBooksRange', startIndex, endIndex, totalArchivedBooksItems);
+
+            tbody.innerHTML = archivedBooks.map(book => `
+                <tr>
+                    <td><img src="${escapeHtml(book.cover)}" alt="${escapeHtml(book.title)}" class="book-img" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 50 70%22%3E%3Crect width=%2250%22 height=%2270%22 fill=%22%23ccc%22/%3E%3C/svg%3E'"></td>
+                    <td title="${escapeHtml(book.title)}">${truncateText(escapeHtml(book.title), 30)}</td>
+                    <td title="${escapeHtml(book.author)}">${truncateText(escapeHtml(book.author), 20)}</td>
+                    <td><span class="stock-badge ${book.stock > 10 ? 'high' : book.stock > 0 ? 'low' : 'out'}">${book.stock}</span></td>
+                    <td>${escapeHtml(book.category)}</td>
+                    <td>
+                        <button class="btn-change" onclick="handleArchiveBook(${book.id}, true)" title="Unarchive"><i class="fas fa-undo"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+
+            generatePagination('archivedBooksPagination', totalArchivedBooksPages, currentArchivedBooksPage, paginateArchivedBooks);
+        }
+
+        function displayArchivedUsers() {
+            const tbody = document.getElementById('archivedUsersTable');
+            
+            if (!archivedUsers || archivedUsers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">No archived users found</td></tr>';
+                updateRangeDisplay('archivedUsersRange', 0, 0, 0);
+                clearPagination('archivedUsersPagination');
+                return;
+            }
+
+            const startIndex = (currentArchivedUsersPage - 1) * itemsPerPage + 1;
+            const endIndex = Math.min(currentArchivedUsersPage * itemsPerPage, totalArchivedUsersItems);
+            updateRangeDisplay('archivedUsersRange', startIndex, endIndex, totalArchivedUsersItems);
+
+            tbody.innerHTML = archivedUsers.map(user => `
+                <tr>
+                    <td>${escapeHtml(censorUsername(user.username))}</td>
+                    <td>••••••••</td>
+                    <td>User</td>
+                    <td>
+                        <button class="btn-change" onclick="handleArchiveUser(${user.id}, true)" title="Unarchive"><i class="fas fa-undo"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+
+            generatePagination('archivedUsersPagination', totalArchivedUsersPages, currentArchivedUsersPage, paginateArchivedUsers);
+        }
+
+        function displayArchivedOrders() {
+            const tbody = document.getElementById('archivedOrdersTable');
+            const orderCountEl = document.getElementById('archivedOrderCount');
+            
+            if (!archivedOrders || archivedOrders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: rgba(255,255,255,0.5);">No archived orders found</td></tr>';
+                orderCountEl.textContent = '0';
+                updateRangeDisplay('archivedOrdersRange', 0, 0, 0);
+                clearPagination('archivedOrdersPagination');
+                return;
+            }
+            
+            orderCountEl.textContent = totalArchivedOrdersItems;
+            const startIndex = (currentArchivedOrdersPage - 1) * itemsPerPage + 1;
+            const endIndex = Math.min(currentArchivedOrdersPage * itemsPerPage, totalArchivedOrdersItems);
+            updateRangeDisplay('archivedOrdersRange', startIndex, endIndex, totalArchivedOrdersItems);
+            
+            tbody.innerHTML = archivedOrders.map(order => `
+                <tr>
+                    <td style="font-weight: bold;">#${order.id}</td>
+                    <td title="${escapeHtml(formatCustomerName(order))}">${truncateText(escapeHtml(formatCustomerName(order)), 20)}</td>
+                    <td title="${escapeHtml(order.email || 'N/A')}">${truncateText(escapeHtml(order.email || 'N/A'), 25)}</td>
+                    <td style="font-weight: bold; color: #6a9c89;">₱${formatPrice(order.total_amount)}</td>
+                    <td>
+                        <span style="padding: 4px 8px; border-radius: 4px; background: #2d4a3e; color: white; font-size: 12px;">
+                            ${order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                        </span>
+                    </td>
+                    <td>${formatDate(order.created_at)}</td>
+                    <td>
+                        <button class="btn-change" onclick="handleArchiveOrder(${order.id}, true)" title="Unarchive"><i class="fas fa-undo"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+
+            generatePagination('archivedOrdersPagination', totalArchivedOrdersPages, currentArchivedOrdersPage, paginateArchivedOrders);
+        }
+
+        // Reset book form when modal is hidden
+        document.getElementById('addBookModal').addEventListener('hidden.bs.modal', function() {
+            document.getElementById('bookForm').reset();
+            document.getElementById('bookId').value = '';
+            document.querySelector('#addBookModal .modal-title').textContent = 'Add New Book';
+            // Reset calculated fields
+            document.getElementById('bookProfitMargin').value = '';
+            document.getElementById('bookFinalPrice').value = '';
+            // Reset optional inventory fields to defaults
+            document.getElementById('bookStock').value = '0';
+            document.getElementById('bookMinStock').value = '5';
+            document.getElementById('bookMaxStock').value = '100';
+            document.getElementById('bookReorderPoint').value = '10';
+            document.getElementById('bookReorderQty').value = '20';
+            document.getElementById('bookDiscount').value = '0';
+            document.getElementById('bookStatus').value = 'active';
+        });
+
+        // Auto-calculate profit margin and final price
+        function calculatePricing() {
+            const costPrice = parseFloat(document.getElementById('bookCostPrice').value) || 0;
+            const sellingPrice = parseFloat(document.getElementById('bookPrice').value) || 0;
+            const discount = parseFloat(document.getElementById('bookDiscount').value) || 0;
+            
+            // Calculate profit margin
+            if (costPrice > 0 && sellingPrice > 0) {
+                const profit = sellingPrice - costPrice;
+                const margin = (profit / costPrice) * 100;
+                document.getElementById('bookProfitMargin').value = `₱${profit.toFixed(2)} (${margin.toFixed(2)}%)`;
+            } else if (sellingPrice > 0) {
+                document.getElementById('bookProfitMargin').value = 'N/A (no cost price)';
+            } else {
+                document.getElementById('bookProfitMargin').value = '';
+            }
+            
+            // Calculate final price after discount
+            if (sellingPrice > 0) {
+                const discountAmount = (sellingPrice * discount) / 100;
+                const finalPrice = sellingPrice - discountAmount;
+                document.getElementById('bookFinalPrice').value = `₱${finalPrice.toFixed(2)}`;
+            } else {
+                document.getElementById('bookFinalPrice').value = '';
+            }
+        }
+
+        // Add event listeners for auto-calculation
+        document.getElementById('bookCostPrice').addEventListener('input', calculatePricing);
+        document.getElementById('bookPrice').addEventListener('input', calculatePricing);
+        document.getElementById('bookDiscount').addEventListener('input', calculatePricing);
+
+        // Validate stock levels
+        function validateStockLevels() {
+            const currentStock = parseInt(document.getElementById('bookStock').value) || 0;
+            const minStock = parseInt(document.getElementById('bookMinStock').value) || 0;
+            const maxStock = parseInt(document.getElementById('bookMaxStock').value) || 0;
+            const reorderPoint = parseInt(document.getElementById('bookReorderPoint').value) || 0;
+            
+            // Show warnings
+            if (currentStock < minStock) {
+                document.getElementById('bookStock').style.borderColor = '#ff6b6b';
+                document.getElementById('bookStock').title = 'Warning: Stock below minimum level!';
+            } else if (currentStock > maxStock) {
+                document.getElementById('bookStock').style.borderColor = '#ffa500';
+                document.getElementById('bookStock').title = 'Warning: Stock exceeds maximum level!';
+            } else {
+                document.getElementById('bookStock').style.borderColor = '';
+                document.getElementById('bookStock').title = '';
+            }
+            
+            if (currentStock <= reorderPoint && currentStock > 0) {
+                document.getElementById('bookStock').style.borderColor = '#ffd93d';
+                document.getElementById('bookStock').title = 'Info: Stock at or below reorder point - consider restocking';
+            }
+        }
+
+        // Add event listeners for stock validation
+        document.getElementById('bookStock').addEventListener('input', validateStockLevels);
+        document.getElementById('bookMinStock').addEventListener('input', validateStockLevels);
+        document.getElementById('bookMaxStock').addEventListener('input', validateStockLevels);
+        document.getElementById('bookReorderPoint').addEventListener('input', validateStockLevels);
+
+        // Image Upload and Preview Functionality
+        let uploadedImageData = null;
+
+        // Toggle between file upload and URL input
+        document.querySelectorAll('input[name="uploadMethod"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const fileSection = document.getElementById('fileUploadSection');
+                const urlSection = document.getElementById('urlInputSection');
+                
+                if (this.value === 'file') {
+                    fileSection.style.display = 'block';
+                    urlSection.style.display = 'none';
+                    document.getElementById('bookCover').removeAttribute('required');
+                    document.getElementById('bookCoverFile').setAttribute('required', 'required');
+                } else {
+                    fileSection.style.display = 'none';
+                    urlSection.style.display = 'block';
+                    document.getElementById('bookCoverFile').removeAttribute('required');
+                    document.getElementById('bookCover').setAttribute('required', 'required');
+                }
+            });
+        });
+
+        // Handle file selection and preview
+        document.getElementById('bookCoverFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            
+            if (!file) {
+                clearImagePreview();
+                return;
+            }
+
+            // Validate file type
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+            if (!validTypes.includes(file.type)) {
+                showErrorMessage('Please select a valid image file (JPG, PNG, WebP, or GIF)');
+                e.target.value = '';
+                clearImagePreview();
+                return;
+            }
+
+            // Validate file size (5MB max)
+            const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+            if (file.size > maxSize) {
+                showErrorMessage('Image file size must be less than 5MB');
+                e.target.value = '';
+                clearImagePreview();
+                return;
+            }
+
+            // Read and preview the image
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                uploadedImageData = e.target.result; // Store base64 data
+                showImagePreview(e.target.result);
+            };
+            reader.onerror = function() {
+                showErrorMessage('Error reading image file');
+                clearImagePreview();
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Handle URL input and preview
+        document.getElementById('bookCover').addEventListener('input', debounce(function(e) {
+            const url = e.target.value.trim();
+            
+            if (!url) {
+                clearImagePreview();
+                return;
+            }
+
+            // Simple URL validation
+            try {
+                new URL(url);
+                loadImagePreview(url);
+            } catch (error) {
+                // Invalid URL, but don't show error yet (user might still be typing)
+                clearImagePreview();
+            }
+        }, 500));
+
+        // Show image preview
+        function showImagePreview(src) {
+            const preview = document.getElementById('imagePreview');
+            const placeholder = document.getElementById('previewPlaceholder');
+            
+            preview.src = src;
+            preview.style.display = 'block';
+            placeholder.style.display = 'none';
+        }
+
+        // Load image from URL with error handling
+        function loadImagePreview(url) {
+            const preview = document.getElementById('imagePreview');
+            const placeholder = document.getElementById('previewPlaceholder');
+            const img = new Image();
+            
+            img.onload = function() {
+                showImagePreview(url);
+            };
+            
+            img.onerror = function() {
+                clearImagePreview();
+                // Silently fail - might be CORS or invalid image
+            };
+            
+            img.src = url;
+        }
+
+        // Clear image preview
+        function clearImagePreview() {
+            const preview = document.getElementById('imagePreview');
+            const placeholder = document.getElementById('previewPlaceholder');
+            
+            preview.src = '';
+            preview.style.display = 'none';
+            placeholder.style.display = 'block';
+            uploadedImageData = null;
+        }
+
+        // Debounce function for URL input
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Reset image upload section when modal is hidden
+        document.getElementById('addBookModal').addEventListener('hidden.bs.modal', function() {
+            // Reset upload method to file
+            document.getElementById('uploadMethodFile').checked = true;
+            document.getElementById('fileUploadSection').style.display = 'block';
+            document.getElementById('urlInputSection').style.display = 'none';
+            
+            // Clear file input
+            document.getElementById('bookCoverFile').value = '';
+            
+            // Clear preview
+            clearImagePreview();
+            
+            // Clear hidden data field
+            document.getElementById('bookCoverData').value = '';
+        });
         
         setupMobileMenu();
-        checkInitialAccess();
+        
+        // ==================== VOUCHER MANAGEMENT FUNCTIONS ====================
+        
+        let allVouchers = [];
+        let currentVouchersPage = 1;
+        let totalVouchersPages = 1;
+        let totalVouchersItems = 0;
+        
+        // Load vouchers from API
+        async function loadVouchersFromAPI(page = 1) {
+            try {
+                const response = await window.api.get('/vouchers', {
+                    page: page,
+                    limit: ITEMS_PER_PAGE
+                });
+                
+                if (response && response.data) {
+                    allVouchers = response.data.vouchers || [];
+                    totalVouchersItems = response.data.total || 0;
+                    totalVouchersPages = Math.ceil(totalVouchersItems / ITEMS_PER_PAGE) || 1;
+                    currentVouchersPage = page;
+                    
+                    displayVouchers();
+                    updateVouchersPagination();
+                }
+            } catch (error) {
+                console.error('Error loading vouchers:', error);
+                document.getElementById('vouchersTable').innerHTML = `
+                    <tr><td colspan="11" style="text-align: center; color: rgba(255,255,255,0.5);">Not yet implemented.</td></tr>
+                `;
+            }
+        }
+        
+        // Display vouchers in table
+        function displayVouchers() {
+            const tbody = document.getElementById('vouchersTable');
+            
+            if (!allVouchers || allVouchers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; color: rgba(255,255,255,0.5);">No vouchers found</td></tr>';
+                document.getElementById('vouchersRange').textContent = '0';
+                return;
+            }
+            
+            const vouchersHTML = allVouchers.map(voucher => {
+                const now = new Date();
+                const validFrom = new Date(voucher.validFrom);
+                const validUntil = new Date(voucher.validUntil);
+                
+                let statusBadge = '';
+                if (voucher.status === 'inactive') {
+                    statusBadge = '<span class="badge bg-secondary">Inactive</span>';
+                } else if (now < validFrom) {
+                    statusBadge = '<span class="badge bg-info">Scheduled</span>';
+                } else if (now > validUntil) {
+                    statusBadge = '<span class="badge bg-danger">Expired</span>';
+                } else if (voucher.usageLimit && voucher.usedCount >= voucher.usageLimit) {
+                    statusBadge = '<span class="badge bg-warning">Limit Reached</span>';
+                } else {
+                    statusBadge = '<span class="badge bg-success">Active</span>';
+                }
+                
+                const discountDisplay = voucher.discountType === 'percentage' 
+                    ? `${voucher.discountValue}%` 
+                    : `₱${parseFloat(voucher.discountValue).toFixed(2)}`;
+                
+                const usageDisplay = voucher.usageLimit 
+                    ? `${voucher.usedCount || 0} / ${voucher.usageLimit}`
+                    : `${voucher.usedCount || 0} / ∞`;
+                
+                return `
+                    <tr>
+                        <td><strong>${voucher.code}</strong></td>
+                        <td>${voucher.discountType === 'percentage' ? 'Percentage' : 'Fixed Amount'}</td>
+                        <td>${discountDisplay}</td>
+                        <td>₱${parseFloat(voucher.minPurchase || 0).toFixed(2)}</td>
+                        <td>${voucher.maxDiscount ? '₱' + parseFloat(voucher.maxDiscount).toFixed(2) : '-'}</td>
+                        <td>${voucher.usageLimit || 'Unlimited'}</td>
+                        <td>${voucher.usedCount || 0}</td>
+                        <td>${new Date(voucher.validFrom).toLocaleDateString()}</td>
+                        <td>${new Date(voucher.validUntil).toLocaleDateString()}</td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <button class="btn-edit" onclick="editVoucher('${voucher._id}')" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-delete" onclick="deleteVoucher('${voucher._id}', '${voucher.code}')" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            tbody.innerHTML = vouchersHTML;
+            
+            const start = (currentVouchersPage - 1) * ITEMS_PER_PAGE + 1;
+            const end = Math.min(start + allVouchers.length - 1, totalVouchersItems);
+            document.getElementById('vouchersRange').textContent = `${start}-${end} of ${totalVouchersItems}`;
+        }
+        
+        // Update vouchers pagination
+        function updateVouchersPagination() {
+            const pagination = document.getElementById('vouchersPagination');
+            if (!pagination) return;
+            
+            let paginationHTML = '';
+            
+            // Previous button
+            paginationHTML += `
+                <li class="page-item ${currentVouchersPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="loadVouchersFromAPI(${currentVouchersPage - 1}); return false;">Previous</a>
+                </li>
+            `;
+            
+            // Page numbers
+            for (let i = 1; i <= totalVouchersPages; i++) {
+                if (i === 1 || i === totalVouchersPages || (i >= currentVouchersPage - 1 && i <= currentVouchersPage + 1)) {
+                    paginationHTML += `
+                        <li class="page-item ${i === currentVouchersPage ? 'active' : ''}">
+                            <a class="page-link" href="#" onclick="loadVouchersFromAPI(${i}); return false;">${i}</a>
+                        </li>
+                    `;
+                } else if (i === currentVouchersPage - 2 || i === currentVouchersPage + 2) {
+                    paginationHTML += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                }
+            }
+            
+            // Next button
+            paginationHTML += `
+                <li class="page-item ${currentVouchersPage === totalVouchersPages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="loadVouchersFromAPI(${currentVouchersPage + 1}); return false;">Next</a>
+                </li>
+            `;
+            
+            pagination.innerHTML = paginationHTML;
+        }
+        
+        // Save voucher (add or update)
+        async function saveVoucher() {
+            const voucherId = document.getElementById('voucherId').value;
+            const code = document.getElementById('voucherCode').value.trim().toUpperCase();
+            const discountType = document.getElementById('voucherDiscountType').value;
+            const discountValue = parseFloat(document.getElementById('voucherDiscountValue').value);
+            const minPurchase = parseFloat(document.getElementById('voucherMinPurchase').value) || 0;
+            const maxDiscount = parseFloat(document.getElementById('voucherMaxDiscount').value) || null;
+            const usageLimit = parseInt(document.getElementById('voucherUsageLimit').value) || null;
+            const perUserLimit = parseInt(document.getElementById('voucherPerUserLimit').value) || 1;
+            const validFrom = document.getElementById('voucherValidFrom').value;
+            const validUntil = document.getElementById('voucherValidUntil').value;
+            const status = document.getElementById('voucherStatus').value;
+            const description = document.getElementById('voucherDescription').value.trim();
+            
+            // Validation
+            if (!code || !discountType || !discountValue || !validFrom || !validUntil) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            if (new Date(validFrom) >= new Date(validUntil)) {
+                alert('Valid Until date must be after Valid From date');
+                return;
+            }
+            
+            if (discountType === 'percentage' && (discountValue <= 0 || discountValue > 100)) {
+                alert('Percentage discount must be between 0 and 100');
+                return;
+            }
+            
+            const voucherData = {
+                code,
+                discountType,
+                discountValue,
+                minPurchase,
+                maxDiscount,
+                usageLimit,
+                perUserLimit,
+                validFrom,
+                validUntil,
+                status,
+                description
+            };
+            
+            try {
+                let response;
+                if (voucherId) {
+                    // Update existing voucher
+                    response = await window.api.put(`/vouchers/${voucherId}`, voucherData);
+                } else {
+                    // Create new voucher
+                    response = await window.api.post('/vouchers', voucherData);
+                }
+                
+                if (response && response.success) {
+                    alert(voucherId ? 'Voucher updated successfully!' : 'Voucher created successfully!');
+                    bootstrap.Modal.getInstance(document.getElementById('addVoucherModal')).hide();
+                    loadVouchersFromAPI(currentVouchersPage);
+                } else {
+                    throw new Error(response.message || 'Failed to save voucher');
+                }
+            } catch (error) {
+                console.error('Error saving voucher:', error);
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        // Edit voucher
+        async function editVoucher(voucherId) {
+            try {
+                const response = await window.api.get(`/vouchers/${voucherId}`);
+                
+                if (response && response.data) {
+                    const voucher = response.data;
+                    
+                    // Fill form
+                    document.getElementById('voucherId').value = voucher._id;
+                    document.getElementById('voucherCode').value = voucher.code;
+                    document.getElementById('voucherDiscountType').value = voucher.discountType;
+                    document.getElementById('voucherDiscountValue').value = voucher.discountValue;
+                    document.getElementById('voucherMinPurchase').value = voucher.minPurchase || 0;
+                    document.getElementById('voucherMaxDiscount').value = voucher.maxDiscount || '';
+                    document.getElementById('voucherUsageLimit').value = voucher.usageLimit || '';
+                    document.getElementById('voucherPerUserLimit').value = voucher.perUserLimit || 1;
+                    
+                    // Format dates for datetime-local input
+                    const validFrom = new Date(voucher.validFrom);
+                    const validUntil = new Date(voucher.validUntil);
+                    document.getElementById('voucherValidFrom').value = formatDateTimeLocal(validFrom);
+                    document.getElementById('voucherValidUntil').value = formatDateTimeLocal(validUntil);
+                    
+                    document.getElementById('voucherStatus').value = voucher.status;
+                    document.getElementById('voucherDescription').value = voucher.description || '';
+                    
+                    // Change modal title
+                    document.querySelector('#addVoucherModal .modal-title').textContent = 'Edit Voucher';
+                    
+                    // Show modal
+                    const modal = new bootstrap.Modal(document.getElementById('addVoucherModal'));
+                    modal.show();
+                }
+            } catch (error) {
+                console.error('Error loading voucher:', error);
+                alert('Error loading voucher details');
+            }
+        }
+        
+        // Delete voucher
+        async function deleteVoucher(voucherId, voucherCode) {
+            if (!confirm(`Are you sure you want to delete voucher "${voucherCode}"?`)) {
+                return;
+            }
+            
+            try {
+                const response = await window.api.delete(`/vouchers/${voucherId}`);
+                
+                if (response && response.success) {
+                    alert('Voucher deleted successfully!');
+                    loadVouchersFromAPI(currentVouchersPage);
+                } else {
+                    throw new Error(response.message || 'Failed to delete voucher');
+                }
+            } catch (error) {
+                console.error('Error deleting voucher:', error);
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        // Format date for datetime-local input
+        function formatDateTimeLocal(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+        
+        // Update discount value help text
+        document.getElementById('voucherDiscountType')?.addEventListener('change', function() {
+            const helpText = document.getElementById('discountValueHelp');
+            if (this.value === 'percentage') {
+                helpText.textContent = 'Enter percentage (0-100)';
+            } else if (this.value === 'fixed') {
+                helpText.textContent = 'Enter fixed amount in ₱';
+            }
+        });
+        
+        // Reset voucher form when modal is closed
+        document.getElementById('addVoucherModal')?.addEventListener('hidden.bs.modal', function() {
+            document.getElementById('voucherForm').reset();
+            document.getElementById('voucherId').value = '';
+            document.querySelector('#addVoucherModal .modal-title').textContent = 'Add New Voucher';
+        });
+        
+        // Load vouchers when voucher section is opened
+        document.querySelector('[data-section="vouchers"]')?.addEventListener('click', function() {
+            loadVouchersFromAPI(1);
+        });
+        
+        // ==================== END VOUCHER MANAGEMENT ====================
+        
+        // Wait for API client to be ready before checking access
+        document.addEventListener('DOMContentLoaded', function() {
+            // Give API client time to initialize
+            setTimeout(() => {
+                if (typeof window.api !== 'undefined' && window.api) {
+                    console.log('✅ API client ready, checking admin access...');
+                    checkInitialAccess();
+                } else {
+                    console.error('❌ API client not available after initialization');
+                    // Try again after a longer delay
+                    setTimeout(() => {
+                        if (typeof window.api !== 'undefined' && window.api) {
+                            console.log('✅ API client ready on retry, checking admin access...');
+                            checkInitialAccess();
+                        } else {
+                            console.error('❌ API client still not available, showing login form');
+                            showAdminLogin();
+                        }
+                    }, 2000);
+                }
+            }, 100);
+        });
     </script>
 </body>
 </html>

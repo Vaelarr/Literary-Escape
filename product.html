@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Literary Escape</title>
     <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/common.css">
     <link rel="icon" type="image/x-icon" href="./media/icon.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
@@ -375,6 +376,23 @@
                     <div class="search-wrapper w-100">
                         <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search" id="searchInput">
                         <button class="btn mx-0" title="search-btn" type="submit"><i class="bi bi-search"></i></button>
+                        
+                        <!-- Search Dropdown -->
+                        <div id="searchDropdown" class="search-dropdown">
+                            <div class="search-dropdown-content">
+                                <div class="search-loading" id="searchLoading">
+                                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <span class="ms-2">Searching...</span>
+                                </div>
+                                <div id="searchResultsContainer" class="search-results-container"></div>
+                                <div id="noResultsMessage" class="no-results-message">
+                                    <i class="bi bi-search"></i>
+                                    <span>No books found matching your search.</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </form>
 
@@ -537,10 +555,69 @@
 
     <!-- Footer -->
     <footer>
-        <a href="https://www.facebook.com/" class="text-decoration-none" style="color: white;"><i
-                class="fa-brands fa-facebook"></i></a>
-        <a href="https://www.instagram.com/" class="text-decoration-none" style="color: white;"><i
-                class="fa-brands fa-instagram"></i></a>
+        <div class="footer-content">
+            <div class="footer-row">
+                <div class="footer-column">
+                    <div class="footer-logo">
+                        <img src="media/icon.png" alt="Literary Escape Logo">
+                        <span>LITERARY ESCAPE</span>
+                    </div>
+                    <p class="footer-description">
+                        Your gateway to endless literary adventures. Discover, explore, and escape into the world of books with our carefully curated collection of fiction, non-fiction, and specialty titles.
+                    </p>
+                    <div class="social-links">
+                        <a href="https://www.facebook.com/" target="_blank" rel="noopener" aria-label="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="https://www.twitter.com/" target="_blank" rel="noopener" aria-label="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="https://www.youtube.com/" target="_blank" rel="noopener" aria-label="YouTube">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="fiction.html">Fiction</a></li>
+                        <li><a href="non-fiction.html">Non-Fiction</a></li>
+                        <li><a href="about-us.html">About Us</a></li>
+                        <li><a href="account.html">My Account</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h4 class="footer-title">Customer Service</h4>
+                    <ul class="footer-links">
+                        <li><a href="cart.html">Shopping Cart</a></li>
+                        <li><a href="favorites.html">My Favorites</a></li>
+                        <li><a href="checkout.html">Checkout</a></li>
+                        <li><a href="#" onclick="showInfo('Contact us at: support@literaryescape.com')">Contact Support</a></li>
+                        <li><a href="#" onclick="showInfo('Shipping: 3-5 business days')">Shipping Info</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h4 class="footer-title">Contact Info</h4>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-envelope me-2"></i>support@literaryescape.com</li>
+                        <li><i class="fas fa-phone me-2"></i>+1 (555) 123-4567</li>
+                        <li><i class="fas fa-map-marker-alt me-2"></i>123 Book Street, Reading City, RC 12345</li>
+                        <li><i class="fas fa-clock me-2"></i>Mon-Fri: 9AM-6PM</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Literary Escape. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+            </div>
+        </div>
     </footer>
     
     <script>
@@ -659,8 +736,8 @@
 
         async function handleFavoriteToggle(bookId, button) {
             if (!api.isLoggedIn()) {
-                // Redirect to login page immediately
-                window.location.href = 'account.html';
+                // Show alert instead of redirect
+                showLoginRequired();
                 return;
             }
 
@@ -688,8 +765,12 @@
                 // Update button state immediately
                 await updateFavoriteButtonState(bookId, button);
                 
-                // Update favorites count in navbar
-                await updateFavoritesCount();
+                // Update favorites count in navbar using universal system
+                if (window.navbarCounts) {
+                    await window.navbarCounts.refreshFavorites();
+                } else if (typeof updateFavoritesCount === 'function') {
+                    await updateFavoritesCount();
+                }
 
             } catch (error) {
                 console.error('Failed to update favorites:', error);
@@ -789,8 +870,8 @@
 
         async function addToCartWithQuantity(bookId, quantity) {
             if (!api.isLoggedIn()) {
-                // Redirect to login page immediately
-                window.location.href = 'account.html';
+                // Show alert instead of redirect
+                showLoginRequired();
                 return;
             }
 
@@ -814,7 +895,13 @@
                 await api.addToCart(bookId, quantity);
                 
                 dbBookDisplay.showMessage(`Added ${quantity} ${quantity === 1 ? 'copy' : 'copies'} to cart!`, 'success');
-                await dbBookDisplay.updateCartCount();
+                
+                // Update cart count using universal navbar count system
+                if (window.navbarCounts) {
+                    await window.navbarCounts.refreshCart();
+                } else {
+                    await dbBookDisplay.updateCartCount();
+                }
 
                 // Re-enable button
                 addToCartBtn.disabled = false;
@@ -961,7 +1048,7 @@
                 e.preventDefault();
                 
                 if (!api.isLoggedIn()) {
-                    alert('Please log in to submit a review');
+                    showLoginRequired();
                     return;
                 }
                 
@@ -971,7 +1058,7 @@
                 const bookId = new URLSearchParams(window.location.search).get('id');
 
                 if (!reviewerName || !rating || !reviewText) {
-                    alert('Please fill in all fields');
+                    showWarning('Please fill in all fields');
                     return;
                 }
 
@@ -1000,7 +1087,7 @@
                     const result = await response.json();
 
                     if (response.ok) {
-                        alert('Thank you for your review! It has been submitted successfully.');
+                        showSuccess('Thank you for your review! It has been submitted successfully.');
                         reviewForm.reset();
                         // Reload reviews to show the new review
                         await loadReviews(bookId);
@@ -1009,7 +1096,7 @@
                     }
                 } catch (error) {
                     console.error('Error submitting review:', error);
-                    alert('Failed to submit review: ' + error.message);
+                    showError('Failed to submit review: ' + error.message);
                 } finally {
                     // Re-enable submit button
                     const submitBtn = reviewForm.querySelector('button[type="submit"]');
@@ -1047,6 +1134,216 @@
             initializeQuantityControls();
         });
 
+        // Search Dropdown Functionality
+        let searchTimeout;
+        let currentSearchTerm = '';
+        let apiClient;
+
+        // Initialize search functionality when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            apiClient = new APIClient();
+            initializeSearchDropdown();
+        });
+
+        function initializeSearchDropdown() {
+            const searchInput = document.getElementById('searchInput');
+            const searchDropdown = document.getElementById('searchDropdown');
+
+            // Listen for input events on search bar
+            searchInput.addEventListener('input', function(e) {
+                const query = e.target.value.trim();
+                
+                if (query.length >= 2) {
+                    currentSearchTerm = query;
+                    showSearchDropdown();
+                    performSearchDropdown(query);
+                } else if (query.length === 0) {
+                    hideSearchDropdown();
+                } else {
+                    // Show dropdown but with a "type more" message
+                    currentSearchTerm = query;
+                    showSearchDropdown();
+                    showTypeMoreMessage();
+                }
+            });
+
+            // Hide dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
+                    hideSearchDropdown();
+                }
+            });
+
+            // Handle escape key to close dropdown
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    hideSearchDropdown();
+                } else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    const firstResult = searchDropdown.querySelector('.search-result-item');
+                    if (firstResult) {
+                        firstResult.focus();
+                    }
+                }
+            });
+
+            // Handle arrow key navigation in search results
+            searchDropdown.addEventListener('keydown', function(e) {
+                const resultItems = searchDropdown.querySelectorAll('.search-result-item');
+                const currentFocus = document.activeElement;
+                let currentIndex = Array.from(resultItems).indexOf(currentFocus);
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    currentIndex = currentIndex < resultItems.length - 1 ? currentIndex + 1 : 0;
+                    resultItems[currentIndex]?.focus();
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (currentIndex <= 0) {
+                        searchInput.focus();
+                    } else {
+                        resultItems[currentIndex - 1]?.focus();
+                    }
+                } else if (e.key === 'Enter' && currentFocus.classList.contains('search-result-item')) {
+                    e.preventDefault();
+                    currentFocus.click();
+                } else if (e.key === 'Escape') {
+                    hideSearchDropdown();
+                    searchInput.focus();
+                }
+            });
+
+            // Prevent form submission when dropdown is visible
+            const searchForm = searchInput.closest('form');
+            searchForm.addEventListener('submit', function(e) {
+                if (searchDropdown.classList.contains('show')) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        }
+
+        function showSearchDropdown() {
+            const dropdown = document.getElementById('searchDropdown');
+            dropdown.classList.add('show');
+        }
+
+        function hideSearchDropdown() {
+            const dropdown = document.getElementById('searchDropdown');
+            dropdown.classList.remove('show');
+            currentSearchTerm = '';
+        }
+
+        function performSearchDropdown(query) {
+            // Clear previous timeout
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+
+            // Show loading state
+            showSearchLoading();
+
+            // Debounce search requests
+            searchTimeout = setTimeout(async () => {
+                try {
+                    // Only search if the query hasn't changed
+                    if (query !== currentSearchTerm) return;
+
+                    const response = await apiClient.getBooks({ search: query });
+                    
+                    if (query !== currentSearchTerm) return; // Query changed while searching
+                    
+                    if (response && response.length > 0) {
+                        displaySearchResults(response);
+                    } else {
+                        showNoResults();
+                    }
+                } catch (error) {
+                    console.error('Search error:', error);
+                    showSearchError();
+                } finally {
+                    hideSearchLoading();
+                }
+            }, 300); // 300ms debounce delay
+        }
+
+        function showSearchLoading() {
+            document.getElementById('searchLoading').classList.add('show');
+            document.getElementById('searchResultsContainer').innerHTML = '';
+            document.getElementById('noResultsMessage').classList.remove('show');
+        }
+
+        function hideSearchLoading() {
+            document.getElementById('searchLoading').classList.remove('show');
+        }
+
+        function showNoResults() {
+            document.getElementById('noResultsMessage').classList.add('show');
+            document.getElementById('searchResultsContainer').innerHTML = '';
+        }
+
+        function showTypeMoreMessage() {
+            const container = document.getElementById('searchResultsContainer');
+            container.innerHTML = `
+                <div class="type-more-message">
+                    <i class="bi bi-keyboard"></i>
+                    <p>Type at least 2 characters to search for books...</p>
+                </div>
+            `;
+            document.getElementById('noResultsMessage').classList.remove('show');
+            hideSearchLoading();
+        }
+
+        function showSearchError() {
+            const container = document.getElementById('searchResultsContainer');
+            container.innerHTML = `
+                <div class="alert alert-danger m-2" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    Error occurred while searching. Please try again.
+                </div>
+            `;
+            document.getElementById('noResultsMessage').classList.remove('show');
+        }
+
+        function displaySearchResults(books) {
+            const container = document.getElementById('searchResultsContainer');
+            document.getElementById('noResultsMessage').classList.remove('show');
+            
+            container.innerHTML = books.map(book => createSearchResultItem(book)).join('');
+        }
+
+        function createSearchResultItem(book) {
+            const coverImage = book.cover || './media/books/default-cover.jpg';
+            const price = book.price ? `₱${parseFloat(book.price).toFixed(2)}` : 'Price not available';
+            
+            return `
+                <div class="search-result-item" onclick="goToBookDetails('${book.id}')" tabindex="0" role="button" aria-label="View details for ${escapeHtml(book.title)} by ${escapeHtml(book.author)}">
+                    <img src="${coverImage}" alt="${book.title}" onerror="this.src='./media/books/default-cover.jpg'">
+                    <div class="search-result-info">
+                        <h6 class="search-result-title">${escapeHtml(book.title)}</h6>
+                        <p class="search-result-author">by ${escapeHtml(book.author)}</p>
+                        <p class="search-result-price">${price}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function goToBookDetails(bookId) {
+            hideSearchDropdown();
+            window.location.href = `product.html?id=${bookId}`;
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
         // Handle search
         function handleSearch(event) {
             event.preventDefault();
@@ -1057,6 +1354,7 @@
         }
     </script>
 
+    <script src="js/custom-notifications.js"></script>
     <script src="js/api-client.js"></script>
     <script src="js/navbar-counts.js"></script>
     <script src="js/database-book-display.js"></script>
