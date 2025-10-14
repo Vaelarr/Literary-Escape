@@ -255,35 +255,53 @@ async function initializeDatabase(callback) {
 // Migration function to add archived column to existing tables
 async function runMigrations() {
     try {
-        console.log('Running database migrations...');
+        console.log('🔧 Running database migrations...');
         
         // Try to add archived column to users table
         try {
-            await query('ALTER TABLE users ADD COLUMN archived BOOLEAN DEFAULT 0');
-            console.log('✅ Added archived column to users table');
+            console.log('  → Attempting to add archived column to users table...');
+            await query('ALTER TABLE users ADD COLUMN archived INTEGER DEFAULT 0');
+            console.log('  ✅ Added archived column to users table');
         } catch (error) {
-            if (error.message && error.message.includes('duplicate column')) {
-                console.log('ℹ️  Users table already has archived column');
+            const errorMsg = error.message ? error.message.toLowerCase() : '';
+            if (errorMsg.includes('duplicate') || errorMsg.includes('already exists')) {
+                console.log('  ℹ️  Users table already has archived column');
             } else {
-                console.log('ℹ️  Users table migration skipped:', error.message);
+                console.warn('  ⚠️  Users table migration error:', error.message);
+                // Try to verify if column exists by querying it
+                try {
+                    await query('SELECT archived FROM users LIMIT 1');
+                    console.log('  ✅ Users.archived column verified (already exists)');
+                } catch (verifyError) {
+                    console.error('  ❌ Users.archived column does not exist and could not be added:', verifyError.message);
+                }
             }
         }
         
         // Try to add archived column to orders table
         try {
-            await query('ALTER TABLE orders ADD COLUMN archived BOOLEAN DEFAULT 0');
-            console.log('✅ Added archived column to orders table');
+            console.log('  → Attempting to add archived column to orders table...');
+            await query('ALTER TABLE orders ADD COLUMN archived INTEGER DEFAULT 0');
+            console.log('  ✅ Added archived column to orders table');
         } catch (error) {
-            if (error.message && error.message.includes('duplicate column')) {
-                console.log('ℹ️  Orders table already has archived column');
+            const errorMsg = error.message ? error.message.toLowerCase() : '';
+            if (errorMsg.includes('duplicate') || errorMsg.includes('already exists')) {
+                console.log('  ℹ️  Orders table already has archived column');
             } else {
-                console.log('ℹ️  Orders table migration skipped:', error.message);
+                console.warn('  ⚠️  Orders table migration error:', error.message);
+                // Try to verify if column exists by querying it
+                try {
+                    await query('SELECT archived FROM orders LIMIT 1');
+                    console.log('  ✅ Orders.archived column verified (already exists)');
+                } catch (verifyError) {
+                    console.error('  ❌ Orders.archived column does not exist and could not be added:', verifyError.message);
+                }
             }
         }
         
-        console.log('Database migrations completed');
+        console.log('🎉 Database migrations completed');
     } catch (error) {
-        console.error('Error running migrations:', error);
+        console.error('❌ Error running migrations:', error);
         // Don't throw - migrations are optional updates
     }
 }

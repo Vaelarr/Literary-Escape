@@ -1329,5 +1329,82 @@ app.get('/api/debug/admin-status', (req, res) => {
     });
 });
 
+// Migration endpoint (admin only) to manually trigger database migrations
+app.post('/api/admin/run-migrations', authenticateAdmin, async (req, res) => {
+    try {
+        console.log('🔧 Manual migration triggered by admin');
+        
+        // Import the database module to access query function
+        const database = require('./database-config');
+        
+        // Check if we're using Turso
+        if (database.query && typeof database.query === 'function') {
+            const results = {
+                users: { attempted: false, success: false, message: '' },
+                orders: { attempted: false, success: false, message: '' }
+            };
+            
+            // Migrate users table
+            try {
+                results.users.attempted = true;
+                await database.query('ALTER TABLE users ADD COLUMN archived INTEGER DEFAULT 0');
+                results.users.success = true;
+                results.users.message = 'Column added successfully';
+            } catch (error) {
+                const errorMsg = error.message ? error.message.toLowerCase() : '';
+                if (errorMsg.includes('duplicate') || errorMsg.includes('already exists')) {
+                    results.users.success = true;
+                    results.users.message = 'Column already exists';
+                } else {
+                    results.users.message = error.message;
+                    // Try to verify column exists
+                    try {
+                        await database.query('SELECT archived FROM users LIMIT 1');
+                        results.users.success = true;
+                        results.users.message = 'Column verified (already exists)';
+                    } catch (e) {
+                        results.users.message = `Failed: ${error.message}`;
+                    }
+                }
+            }
+            
+            // Migrate orders table
+            try {
+                results.orders.attempted = true;
+                await database.query('ALTER TABLE orders ADD COLUMN archived INTEGER DEFAULT 0');
+                results.orders.success = true;
+                results.orders.message = 'Column added successfully';
+            } catch (error) {
+                const errorMsg = error.message ? error.message.toLowerCase() : '';
+                if (errorMsg.includes('duplicate') || errorMsg.includes('already exists')) {
+                    results.orders.success = true;
+                    results.orders.message = 'Column already exists';
+                } else {
+                    results.orders.message = error.message;
+                    // Try to verify column exists
+                    try {
+                        await database.query('SELECT archived FROM orders LIMIT 1');
+                        results.orders.success = true;
+                        results.orders.message = 'Column verified (already exists)';
+                    } catch (e) {
+                        results.orders.message = `Failed: ${error.message}`;
+                    }
+                }
+            }
+            
+            res.json({
+                success: results.users.success && results.orders.success,
+                results,
+                timestamp: new Date().toISOString()
+            });
+        } else {
+            res.status(500).json({ error: 'Database query function not available' });
+        }
+    } catch (error) {
+        console.error('❌ Migration endpoint error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Export the app for Vercel
 module.exports = app;
