@@ -882,10 +882,11 @@ app.get('/api/admin/books', authenticateAdmin, (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const category = req.query.category || null;
+    const search = req.query.search || null;
     
-    console.log('Admin fetching books, page:', page, 'limit:', limit, 'category:', category);
+    console.log('Admin fetching books, page:', page, 'limit:', limit, 'category:', category, 'search:', search);
     
-    adminOperations.getAllBooks(page, limit, category, (err, result) => {
+    adminOperations.getAllBooks(page, limit, category, search, (err, result) => {
         if (err) {
             console.error('Error fetching books for admin:', err);
             return res.status(500).json({ error: err.message });

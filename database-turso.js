@@ -827,7 +827,7 @@ const adminOperations = {
     },
 
     // Get all books with pagination (non-archived)
-    getAllBooks: async (page = 1, limit = 10, category = null, callback) => {
+    getAllBooks: async (page = 1, limit = 10, category = null, search = null, callback) => {
         try {
             const offset = (page - 1) * limit;
             
@@ -839,6 +839,13 @@ const adminOperations = {
                 countQuery += ' AND category = ?';
                 dataQuery += ' AND category = ?';
                 params.push(category);
+            }
+            
+            if (search) {
+                const searchPattern = `%${search}%`;
+                countQuery += ' AND (title LIKE ? OR author LIKE ? OR description LIKE ?)';
+                dataQuery += ' AND (title LIKE ? OR author LIKE ? OR description LIKE ?)';
+                params.push(searchPattern, searchPattern, searchPattern);
             }
             
             dataQuery += ' ORDER BY id DESC LIMIT ? OFFSET ?';

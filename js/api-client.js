@@ -503,10 +503,13 @@ class APIClient {
     }
 
     // Get all items for admin (non-archived)
-    async getAllBooksForAdmin(page = 1, limit = 10, category = null) {
+    async getAllBooksForAdmin(page = 1, limit = 10, category = null, search = null) {
         let url = `/admin/books?page=${page}&limit=${limit}`;
         if (category) {
             url += `&category=${encodeURIComponent(category)}`;
+        }
+        if (search) {
+            url += `&search=${encodeURIComponent(search)}`;
         }
         return this.makeRequest(url);
     }
