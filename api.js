@@ -1151,27 +1151,10 @@ initializeDatabase((err) => {
     
     console.log('Database initialized successfully');
     
-    // Test database connection by checking if tables exist
-    const testQuery = `SELECT name FROM sqlite_master WHERE type='table' AND name='users'`;
-    const { db } = require('./database');
-    
-    db.get(testQuery, (err, row) => {
-        if (err) {
-            console.error('Database connection test failed:', err);
-            return;
-        }
-        
-        if (row) {
-            console.log('Database tables verified - users table exists');
-        } else {
-            console.log('Creating database tables...');
-        }
-        
-        // Start the server only after database is ready
-        app.listen(PORT, () => {
-            console.log(`API server running on http://localhost:${PORT}`);
-            console.log('Database connection established and ready');
-        });
+    // Start the server after database is ready
+    app.listen(PORT, () => {
+        console.log(`API server running on http://localhost:${PORT}`);
+        console.log('Database connection established and ready');
     });
 });
 
