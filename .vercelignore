@@ -1,0 +1,6 @@
+# Files to ignore when deploying to Vercel
+node_modules
+*.log
+.env.local
+.DS_Store
+README.md

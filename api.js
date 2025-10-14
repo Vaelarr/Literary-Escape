@@ -15,8 +15,8 @@ const {
 } = require('./database');
 
 const app = express();
-const PORT = 3000;
-const JWT_SECRET = 'your-secret-key-here'; // In production, use environment variable
+const PORT = process.env.PORT || 3000;
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-here'; // In production, use environment variable
 
 // Middleware
 app.use(express.json());
@@ -1329,3 +1329,6 @@ app.get('/api/debug/admin-status', (req, res) => {
         });
     });
 });
+
+// Export the app for Vercel
+module.exports = app;

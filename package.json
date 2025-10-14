@@ -7,7 +7,8 @@
     "start": "node api.js",
     "init-db": "node list.js",
     "test-db": "node -e \"const { checkDatabaseHealth } = require('./database'); checkDatabaseHealth((err, results) => { console.log('Database Health:', results); process.exit(0); });\"",
-    "dev": "nodemon api.js"
+    "dev": "nodemon api.js",
+    "vercel-build": "echo 'Build complete'"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
