@@ -765,53 +765,299 @@ const adminOperations = {
         } catch (error) {
             callback(error);
         }
+    },
+
+    // Get all books with pagination (non-archived)
+    getAllBooks: async (page = 1, limit = 10, category = null, callback) => {
+        try {
+            const offset = (page - 1) * limit;
+            
+            let countQuery = 'SELECT COUNT(*) as total FROM books WHERE archived = 0';
+            let dataQuery = 'SELECT * FROM books WHERE archived = 0';
+            let params = [];
+            
+            if (category && category !== 'all') {
+                countQuery += ' AND category = ?';
+                dataQuery += ' AND category = ?';
+                params.push(category);
+            }
+            
+            dataQuery += ' ORDER BY id DESC LIMIT ? OFFSET ?';
+            const dataParams = [...params, limit, offset];
+            
+            const [countResult, booksResult] = await Promise.all([
+                query(countQuery, params),
+                query(dataQuery, dataParams)
+            ]);
+            
+            const total = countResult.rows[0].total;
+            const totalPages = Math.ceil(total / limit);
+            
+            callback(null, {
+                books: booksResult.rows,
+                pagination: {
+                    currentPage: page,
+                    totalPages: totalPages,
+                    totalItems: total,
+                    itemsPerPage: limit
+                }
+            });
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Get all users with pagination (non-archived)
+    getAllUsers: async (page = 1, limit = 10, callback) => {
+        try {
+            const offset = (page - 1) * limit;
+            
+            const countQuery = 'SELECT COUNT(*) as total FROM users WHERE archived = 0';
+            const dataQuery = 'SELECT * FROM users WHERE archived = 0 ORDER BY id DESC LIMIT ? OFFSET ?';
+            
+            const [countResult, usersResult] = await Promise.all([
+                query(countQuery),
+                query(dataQuery, [limit, offset])
+            ]);
+            
+            const total = countResult.rows[0].total;
+            const totalPages = Math.ceil(total / limit);
+            
+            // Remove password hashes from response
+            const safeUsers = usersResult.rows.map(u => {
+                const { password_hash, ...user } = u;
+                return user;
+            });
+            
+            callback(null, {
+                users: safeUsers,
+                pagination: {
+                    currentPage: page,
+                    totalPages: totalPages,
+                    totalItems: total,
+                    itemsPerPage: limit
+                }
+            });
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Get all orders with pagination and filters (non-archived)
+    getAllOrders: async (page = 1, limit = 10, filters = {}, callback) => {
+        try {
+            const offset = (page - 1) * limit;
+            
+            let countQuery = 'SELECT COUNT(*) as total FROM orders WHERE archived = 0';
+            let dataQuery = `
+                SELECT o.*, u.email, u.first_name, u.last_name
+                FROM orders o
+                LEFT JOIN users u ON o.user_id = u.id
+                WHERE o.archived = 0
+            `;
+            let params = [];
+            
+            // Apply status filter
+            if (filters.status && filters.status !== 'all') {
+                countQuery += ' AND status = ?';
+                dataQuery += ' AND o.status = ?';
+                params.push(filters.status);
+            }
+            
+            // Apply search filter (search by order ID or customer email)
+            if (filters.search) {
+                countQuery += ' AND (id LIKE ? OR user_id IN (SELECT id FROM users WHERE email LIKE ?))';
+                dataQuery += ' AND (o.id LIKE ? OR u.email LIKE ?)';
+                const searchPattern = `%${filters.search}%`;
+                params.push(searchPattern, searchPattern);
+            }
+            
+            dataQuery += ' ORDER BY o.created_at DESC LIMIT ? OFFSET ?';
+            const dataParams = [...params, limit, offset];
+            
+            const [countResult, ordersResult] = await Promise.all([
+                query(countQuery, params),
+                query(dataQuery, dataParams)
+            ]);
+            
+            const total = countResult.rows[0].total;
+            const totalPages = Math.ceil(total / limit);
+            
+            callback(null, {
+                orders: ordersResult.rows,
+                pagination: {
+                    currentPage: page,
+                    totalPages: totalPages,
+                    totalItems: total,
+                    itemsPerPage: limit
+                }
+            });
+        } catch (error) {
+            callback(error);
+        }
     }
 };
 
 // Archive Operations
 const archiveOperations = {
-    archiveBook: async (bookId, adminId, callback) => {
+    // Archive a book
+    archiveBook: async (bookId, callback) => {
         try {
-            await query('BEGIN TRANSACTION');
-
-            // Get book data
-            const bookResult = await query('SELECT * FROM books WHERE id = ?', [bookId]);
-            const book = bookResult.rows[0];
-
-            if (!book) {
-                throw new Error('Book not found');
-            }
-
-            // Insert into archived_books
-            await query(
-                `INSERT INTO archived_books (
-                    original_id, isbn, title, author, description, category, genre,
-                    cover, price, publisher, publication_date, publication_year,
-                    pages, language, format, archived_by
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [
-                    book.id, book.isbn, book.title, book.author, book.description,
-                    book.category, book.genre, book.cover, book.price, book.publisher,
-                    book.publication_date, book.publication_year, book.pages,
-                    book.language, book.format, adminId
-                ]
-            );
-
-            // Mark book as archived
-            await query('UPDATE books SET archived = 1 WHERE id = ?', [bookId]);
-
-            await query('COMMIT');
-            callback(null, { message: 'Book archived successfully' });
+            const result = await query('UPDATE books SET archived = 1 WHERE id = ?', [bookId]);
+            callback(null, result);
         } catch (error) {
-            await query('ROLLBACK');
             callback(error);
         }
     },
 
-    getArchived: async (callback) => {
+    // Unarchive a book
+    unarchiveBook: async (bookId, callback) => {
         try {
-            const result = await query('SELECT * FROM archived_books ORDER BY archived_at DESC');
-            callback(null, result.rows);
+            const result = await query('UPDATE books SET archived = 0 WHERE id = ?', [bookId]);
+            callback(null, result);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Archive a user
+    archiveUser: async (userId, callback) => {
+        try {
+            const result = await query('UPDATE users SET archived = 1 WHERE id = ?', [userId]);
+            callback(null, result);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Unarchive a user
+    unarchiveUser: async (userId, callback) => {
+        try {
+            const result = await query('UPDATE users SET archived = 0 WHERE id = ?', [userId]);
+            callback(null, result);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Archive an order
+    archiveOrder: async (orderId, callback) => {
+        try {
+            const result = await query('UPDATE orders SET archived = 1 WHERE id = ?', [orderId]);
+            callback(null, result);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Unarchive an order
+    unarchiveOrder: async (orderId, callback) => {
+        try {
+            const result = await query('UPDATE orders SET archived = 0 WHERE id = ?', [orderId]);
+            callback(null, result);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Get archived books with pagination
+    getArchivedBooks: async (page = 1, limit = 10, callback) => {
+        try {
+            const offset = (page - 1) * limit;
+            
+            const countQuery = 'SELECT COUNT(*) as total FROM books WHERE archived = 1';
+            const dataQuery = 'SELECT * FROM books WHERE archived = 1 ORDER BY updated_at DESC LIMIT ? OFFSET ?';
+            
+            const [countResult, booksResult] = await Promise.all([
+                query(countQuery),
+                query(dataQuery, [limit, offset])
+            ]);
+            
+            const total = countResult.rows[0].total;
+            const totalPages = Math.ceil(total / limit);
+            
+            callback(null, {
+                books: booksResult.rows,
+                pagination: {
+                    currentPage: page,
+                    totalPages: totalPages,
+                    totalItems: total,
+                    itemsPerPage: limit
+                }
+            });
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Get archived users with pagination
+    getArchivedUsers: async (page = 1, limit = 10, callback) => {
+        try {
+            const offset = (page - 1) * limit;
+            
+            const countQuery = 'SELECT COUNT(*) as total FROM users WHERE archived = 1';
+            const dataQuery = 'SELECT * FROM users WHERE archived = 1 ORDER BY id DESC LIMIT ? OFFSET ?';
+            
+            const [countResult, usersResult] = await Promise.all([
+                query(countQuery),
+                query(dataQuery, [limit, offset])
+            ]);
+            
+            const total = countResult.rows[0].total;
+            const totalPages = Math.ceil(total / limit);
+            
+            // Remove password hashes
+            const safeUsers = usersResult.rows.map(u => {
+                const { password_hash, ...user } = u;
+                return user;
+            });
+            
+            callback(null, {
+                users: safeUsers,
+                pagination: {
+                    currentPage: page,
+                    totalPages: totalPages,
+                    totalItems: total,
+                    itemsPerPage: limit
+                }
+            });
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Get archived orders with pagination
+    getArchivedOrders: async (page = 1, limit = 10, callback) => {
+        try {
+            const offset = (page - 1) * limit;
+            
+            const countQuery = 'SELECT COUNT(*) as total FROM orders WHERE archived = 1';
+            const dataQuery = `
+                SELECT o.*, u.email, u.first_name, u.last_name
+                FROM orders o
+                LEFT JOIN users u ON o.user_id = u.id
+                WHERE o.archived = 1
+                ORDER BY o.created_at DESC
+                LIMIT ? OFFSET ?
+            `;
+            
+            const [countResult, ordersResult] = await Promise.all([
+                query(countQuery),
+                query(dataQuery, [limit, offset])
+            ]);
+            
+            const total = countResult.rows[0].total;
+            const totalPages = Math.ceil(total / limit);
+            
+            callback(null, {
+                orders: ordersResult.rows,
+                pagination: {
+                    currentPage: page,
+                    totalPages: totalPages,
+                    totalItems: total,
+                    itemsPerPage: limit
+                }
+            });
         } catch (error) {
             callback(error);
         }

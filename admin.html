@@ -997,21 +997,20 @@
                     throw new Error('API client not initialized');
                 }
                 
-                // Test basic API connectivity
-                const testResult = await api.testConnection();
+                // Test basic API connectivity and database connection
+                // The testConnection endpoint doesn't require authentication
+                const testResult = await Promise.race([
+                    api.testConnection(),
+                    new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error('Connection timeout')), 10000)
+                    )
+                ]);
                 
                 if (!testResult) {
                     throw new Error('API connection test failed');
                 }
 
-                // Test actual database operations
-                await Promise.race([
-                    api.adminListUsers(),
-                    new Promise((_, reject) => 
-                        setTimeout(() => reject(new Error('Connection timeout')), 10000)
-                    )
-                ]);
-
+                // Connection successful
                 dbConnectionStatus = true;
                 dbConnectionRetries = 0;
                 updateDbStatusUI(true);
