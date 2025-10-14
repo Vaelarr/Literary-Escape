@@ -215,6 +215,9 @@ async function initializeDatabase(callback) {
 
         console.log('Turso database schema initialized successfully');
         
+        // Create default admin account
+        await createDefaultAdmin();
+        
         if (callback) {
             callback(null);
         }
@@ -224,6 +227,41 @@ async function initializeDatabase(callback) {
             callback(error);
         }
         throw error;
+    }
+}
+
+// Create default admin account
+async function createDefaultAdmin() {
+    const bcrypt = require('bcrypt');
+    const adminEmail = 'admin@literaryescape.com';
+    const adminPassword = 'Admin123!';
+    const adminFirstName = 'System';
+    const adminLastName = 'Administrator';
+    
+    try {
+        // Check if admin already exists
+        const existing = await query('SELECT id FROM admins WHERE email = ?', [adminEmail]);
+        
+        if (existing.rows && existing.rows.length > 0) {
+            console.log('Administrator account already exists');
+            return;
+        }
+        
+        // Create admin account
+        const hash = await bcrypt.hash(adminPassword, 10);
+        
+        await query(
+            `INSERT INTO admins (username, email, password_hash, first_name, last_name, role)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            ['admin', adminEmail, hash, adminFirstName, adminLastName, 'admin']
+        );
+        
+        console.log('Administrator account created successfully');
+        console.log('Administrator credentials:');
+        console.log('Email:', adminEmail);
+        console.log('Password:', adminPassword);
+    } catch (error) {
+        console.error('Error creating Administrator account:', error);
     }
 }
 
