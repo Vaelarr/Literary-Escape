@@ -89,6 +89,7 @@ function initializeDatabase(callback) {
             city TEXT,
             zip_code TEXT,
             role TEXT DEFAULT 'user',
+            archived BOOLEAN DEFAULT 0,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
@@ -156,6 +157,7 @@ function initializeDatabase(callback) {
             total_amount REAL NOT NULL,
             status TEXT DEFAULT 'pending',
             shipping_address TEXT,
+            archived BOOLEAN DEFAULT 0,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id)
         )

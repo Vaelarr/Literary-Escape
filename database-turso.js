@@ -102,6 +102,7 @@ async function initializeDatabase(callback) {
                 city TEXT,
                 zip_code TEXT,
                 role TEXT DEFAULT 'user',
+                archived BOOLEAN DEFAULT 0,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
@@ -159,6 +160,7 @@ async function initializeDatabase(callback) {
                 status TEXT DEFAULT 'pending',
                 shipping_address TEXT,
                 payment_method TEXT,
+                archived BOOLEAN DEFAULT 0,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -232,6 +234,9 @@ async function initializeDatabase(callback) {
 
         console.log('Turso database schema initialized successfully');
         
+        // Run migrations to add archived column if it doesn't exist
+        await runMigrations();
+        
         // Create default admin account
         await createDefaultAdmin();
         
@@ -244,6 +249,42 @@ async function initializeDatabase(callback) {
             callback(error);
         }
         throw error;
+    }
+}
+
+// Migration function to add archived column to existing tables
+async function runMigrations() {
+    try {
+        console.log('Running database migrations...');
+        
+        // Try to add archived column to users table
+        try {
+            await query('ALTER TABLE users ADD COLUMN archived BOOLEAN DEFAULT 0');
+            console.log('✅ Added archived column to users table');
+        } catch (error) {
+            if (error.message && error.message.includes('duplicate column')) {
+                console.log('ℹ️  Users table already has archived column');
+            } else {
+                console.log('ℹ️  Users table migration skipped:', error.message);
+            }
+        }
+        
+        // Try to add archived column to orders table
+        try {
+            await query('ALTER TABLE orders ADD COLUMN archived BOOLEAN DEFAULT 0');
+            console.log('✅ Added archived column to orders table');
+        } catch (error) {
+            if (error.message && error.message.includes('duplicate column')) {
+                console.log('ℹ️  Orders table already has archived column');
+            } else {
+                console.log('ℹ️  Orders table migration skipped:', error.message);
+            }
+        }
+        
+        console.log('Database migrations completed');
+    } catch (error) {
+        console.error('Error running migrations:', error);
+        // Don't throw - migrations are optional updates
     }
 }
 
