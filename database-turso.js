@@ -124,6 +124,21 @@ async function initializeDatabase(callback) {
             )
         `);
 
+        // Create user_addresses table
+        await query(`
+            CREATE TABLE IF NOT EXISTS user_addresses (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                label TEXT NOT NULL,
+                full_address TEXT NOT NULL,
+                city TEXT NOT NULL,
+                zip_code TEXT NOT NULL,
+                is_default BOOLEAN DEFAULT 0,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )
+        `);
+
         // Create cart table
         await query(`
             CREATE TABLE IF NOT EXISTS cart (
@@ -131,6 +146,7 @@ async function initializeDatabase(callback) {
                 user_id INTEGER,
                 book_id INTEGER,
                 quantity INTEGER DEFAULT 1,
+                selected_for_checkout BOOLEAN DEFAULT 0,
                 added_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
                 FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE,
@@ -188,7 +204,8 @@ async function initializeDatabase(callback) {
                 book_id INTEGER,
                 user_id INTEGER,
                 rating INTEGER CHECK (rating >= 1 AND rating <= 5),
-                comment TEXT,
+                review_text TEXT,
+                reviewer_name TEXT,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE,
@@ -607,6 +624,104 @@ const userOperations = {
         } catch (error) {
             callback(error);
         }
+    },
+
+    // Update user profile
+    updateProfile: async (id, profileData, callback) => {
+        try {
+            await query(
+                `UPDATE users SET
+                    first_name = ?, last_name = ?, email = ?, phone = ?,
+                    address = ?, birthdate = ?, city = ?, zip_code = ?,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?`,
+                [
+                    profileData.first_name, profileData.last_name, profileData.email,
+                    profileData.phone, profileData.address, profileData.birthdate,
+                    profileData.city, profileData.zip_code, id
+                ]
+            );
+            const updated = await query('SELECT * FROM users WHERE id = ?', [id]);
+            callback(null, updated.rows[0]);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Get user addresses
+    getUserAddresses: async (userId, callback) => {
+        try {
+            const result = await query(
+                'SELECT * FROM user_addresses WHERE user_id = ? ORDER BY is_default DESC, created_at DESC',
+                [userId]
+            );
+            callback(null, result.rows);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Save user address
+    saveAddress: async (addressData, callback) => {
+        try {
+            // If setting as default, first unset all other defaults for this user
+            if (addressData.is_default) {
+                await query(
+                    'UPDATE user_addresses SET is_default = 0 WHERE user_id = ?',
+                    [addressData.user_id]
+                );
+            }
+
+            await query(
+                `INSERT INTO user_addresses (user_id, label, full_address, city, zip_code, is_default)
+                 VALUES (?, ?, ?, ?, ?, ?)`,
+                [
+                    addressData.user_id, addressData.label, addressData.full_address,
+                    addressData.city, addressData.zip_code, addressData.is_default ? 1 : 0
+                ]
+            );
+            
+            const newAddress = await query(
+                'SELECT * FROM user_addresses WHERE id = last_insert_rowid()'
+            );
+            callback(null, newAddress.rows[0]);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Set default address
+    setDefaultAddress: async (userId, addressId, callback) => {
+        try {
+            // First unset all defaults
+            await query(
+                'UPDATE user_addresses SET is_default = 0 WHERE user_id = ?',
+                [userId]
+            );
+            
+            // Then set the selected address as default
+            await query(
+                'UPDATE user_addresses SET is_default = 1 WHERE id = ? AND user_id = ?',
+                [addressId, userId]
+            );
+            
+            callback(null, { message: 'Default address updated' });
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Delete address
+    deleteAddress: async (userId, addressId, callback) => {
+        try {
+            await query(
+                'DELETE FROM user_addresses WHERE id = ? AND user_id = ?',
+                [addressId, userId]
+            );
+            callback(null, { message: 'Address deleted successfully' });
+        } catch (error) {
+            callback(error);
+        }
     }
 };
 
@@ -678,6 +793,111 @@ const cartOperations = {
         try {
             await query('DELETE FROM cart WHERE user_id = ?', [userId]);
             callback(null);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Update item quantity
+    updateQuantity: async (userId, bookId, quantity, callback) => {
+        try {
+            await query(
+                'UPDATE cart SET quantity = ? WHERE user_id = ? AND book_id = ?',
+                [quantity, userId, bookId]
+            );
+            const result = await query(
+                'SELECT * FROM cart WHERE user_id = ? AND book_id = ?',
+                [userId, bookId]
+            );
+            callback(null, result.rows[0]);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Get cart total
+    getCartTotal: async (userId, callback) => {
+        try {
+            const result = await query(
+                `SELECT SUM(c.quantity * b.price) as total
+                 FROM cart c
+                 JOIN books b ON c.book_id = b.id
+                 WHERE c.user_id = ?`,
+                [userId]
+            );
+            callback(null, result.rows[0]);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Update item selection for checkout
+    updateSelection: async (userId, bookId, selected, callback) => {
+        try {
+            await query(
+                'UPDATE cart SET selected_for_checkout = ? WHERE user_id = ? AND book_id = ?',
+                [selected ? 1 : 0, userId, bookId]
+            );
+            callback(null, { message: 'Selection updated' });
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Select all items for checkout
+    selectAllForCheckout: async (userId, callback) => {
+        try {
+            await query(
+                'UPDATE cart SET selected_for_checkout = 1 WHERE user_id = ?',
+                [userId]
+            );
+            callback(null, { message: 'All items selected' });
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Deselect all items for checkout
+    deselectAllForCheckout: async (userId, callback) => {
+        try {
+            await query(
+                'UPDATE cart SET selected_for_checkout = 0 WHERE user_id = ?',
+                [userId]
+            );
+            callback(null, { message: 'All items deselected' });
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Get only selected items for checkout
+    getSelectedItems: async (userId, callback) => {
+        try {
+            const result = await query(
+                `SELECT c.*, b.title, b.author, b.price, b.cover, b.stock_quantity
+                 FROM cart c
+                 JOIN books b ON c.book_id = b.id
+                 WHERE c.user_id = ? AND c.selected_for_checkout = 1
+                 ORDER BY c.added_at DESC`,
+                [userId]
+            );
+            callback(null, result.rows);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Get selected items total
+    getSelectedTotal: async (userId, callback) => {
+        try {
+            const result = await query(
+                `SELECT SUM(c.quantity * b.price) as total, COUNT(c.id) as count
+                 FROM cart c
+                 JOIN books b ON c.book_id = b.id
+                 WHERE c.user_id = ? AND c.selected_for_checkout = 1`,
+                [userId]
+            );
+            callback(null, result.rows[0]);
         } catch (error) {
             callback(error);
         }
@@ -800,6 +1020,82 @@ const orderOperations = {
             }
 
             callback(null, order);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Get detailed order information for admin (includes customer details and ordered books)
+    getAdminOrderDetails: async (orderId, callback) => {
+        try {
+            const orderResult = await query(
+                `SELECT o.*, u.username, u.email, u.first_name, u.last_name, u.phone, u.address
+                 FROM orders o
+                 LEFT JOIN users u ON o.user_id = u.id
+                 WHERE o.id = ?`,
+                [orderId]
+            );
+
+            const itemsResult = await query(
+                `SELECT oi.*, b.title, b.author, b.cover, b.category, b.genre
+                 FROM order_items oi
+                 JOIN books b ON oi.book_id = b.id
+                 WHERE oi.order_id = ?`,
+                [orderId]
+            );
+
+            const order = orderResult.rows[0];
+            if (order) {
+                order.items = itemsResult.rows;
+            }
+
+            callback(null, order);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Update order
+    updateOrder: async (orderId, fields, callback) => {
+        try {
+            const updates = [];
+            const values = [];
+            
+            if (typeof fields.status !== 'undefined') {
+                updates.push('status = ?');
+                values.push(fields.status);
+            }
+            if (typeof fields.shipping_address !== 'undefined') {
+                updates.push('shipping_address = ?');
+                values.push(fields.shipping_address);
+            }
+            
+            if (updates.length === 0) {
+                return callback(null, { message: 'No fields to update' });
+            }
+            
+            values.push(orderId);
+            
+            await query(
+                `UPDATE orders SET ${updates.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+                values
+            );
+            
+            const updated = await query('SELECT * FROM orders WHERE id = ?', [orderId]);
+            callback(null, updated.rows[0]);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Delete order
+    deleteOrder: async (orderId, callback) => {
+        try {
+            // Delete order items first
+            await query('DELETE FROM order_items WHERE order_id = ?', [orderId]);
+            // Then delete the order
+            await query('DELETE FROM orders WHERE id = ?', [orderId]);
+            callback(null, { message: 'Order deleted successfully' });
         } catch (error) {
             callback(error);
         }
@@ -963,6 +1259,27 @@ const adminOperations = {
         }
     },
 
+    // Register new admin (alias for create)
+    register: async (adminData, callback) => {
+        try {
+            const result = await query(
+                `INSERT INTO admins (username, email, password_hash, first_name, last_name, phone)
+                 VALUES (?, ?, ?, ?, ?, ?)`,
+                [
+                    adminData.username, adminData.email, adminData.password_hash,
+                    adminData.first_name, adminData.last_name, adminData.phone
+                ]
+            );
+            callback(null, { id: result.lastInsertRowid, message: 'Admin registered successfully' });
+        } catch (error) {
+            if (error.message && error.message.includes('UNIQUE constraint failed')) {
+                callback(new Error('Admin with this email or username already exists'));
+            } else {
+                callback(error);
+            }
+        }
+    },
+
     getByEmail: async (email, callback) => {
         try {
             const result = await query('SELECT * FROM admins WHERE email = ?', [email]);
@@ -976,6 +1293,63 @@ const adminOperations = {
         try {
             const result = await query('SELECT * FROM admins WHERE id = ?', [id]);
             callback(null, result.rows[0]);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Update admin profile
+    updateProfile: async (id, profileData, callback) => {
+        try {
+            await query(
+                `UPDATE admins SET
+                    first_name = ?, last_name = ?, email = ?, phone = ?,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?`,
+                [
+                    profileData.first_name, profileData.last_name, profileData.email,
+                    profileData.phone, id
+                ]
+            );
+            const updated = await query('SELECT * FROM admins WHERE id = ?', [id]);
+            callback(null, updated.rows[0]);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Update admin password
+    updatePassword: async (adminId, passwordHash, callback) => {
+        try {
+            await query(
+                'UPDATE admins SET password_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+                [passwordHash, adminId]
+            );
+            callback(null, { message: 'Admin password updated successfully' });
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Get all admins
+    getAll: async (callback) => {
+        try {
+            const result = await query(
+                `SELECT id, username, email, first_name, last_name, created_at
+                 FROM admins
+                 ORDER BY created_at DESC`
+            );
+            callback(null, result.rows);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Delete admin
+    deleteAdmin: async (id, callback) => {
+        try {
+            await query('DELETE FROM admins WHERE id = ?', [id]);
+            callback(null, { message: 'Admin deleted successfully' });
         } catch (error) {
             callback(error);
         }
