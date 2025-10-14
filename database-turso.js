@@ -1,3 +1,6 @@
+// Load environment variables
+require('dotenv').config();
+
 const { createClient } = require('@libsql/client');
 
 // Turso Database Configuration
@@ -830,3 +833,17 @@ module.exports = {
     archiveOperations,
     checkDatabaseHealth
 };
+
+// Run initialization if this file is run directly
+if (require.main === module) {
+    console.log('Running database initialization...');
+    initializeDatabase((err) => {
+        if (err) {
+            console.error('Failed to initialize database:', err);
+            process.exit(1);
+        } else {
+            console.log('Database initialization complete!');
+            process.exit(0);
+        }
+    });
+}
