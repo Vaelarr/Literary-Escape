@@ -487,37 +487,37 @@ const bookOperations = {
                     format, weight, dimensions, stock_quantity, sku, cost_price,
                     status, min_stock, max_stock, reorder_point, reorder_quantity,
                     warehouse_location, discount_percentage, supplier_name, supplier_contact, notes
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
-                    book.isbn || `978-0-000-${Math.floor(Math.random() * 90000) + 10000}-0`,
-                    book.title,
-                    book.author,
-                    book.description || null,
-                    book.category || 'Fiction',
-                    book.genre || 'General',
-                    book.cover || null,
-                    book.price || 0,
-                    book.publisher || 'Unknown Publisher',
-                    book.publication_date || null,
-                    book.publication_year || null,
-                    book.pages || 300,
-                    book.language || 'English',
-                    book.format || 'Paperback',
-                    book.weight || 0.3,
-                    book.dimensions || '5.5 x 8.0 x 1.0 inches',
-                    book.stock_quantity !== undefined ? book.stock_quantity : 1,
-                    book.sku || null,
-                    book.cost_price || 0,
-                    book.status || 'active',
-                    book.min_stock || 5,
-                    book.max_stock || 100,
-                    book.reorder_point || 10,
-                    book.reorder_quantity || 20,
-                    book.warehouse_location || null,
-                    book.discount_percentage || 0,
-                    book.supplier_name || null,
-                    book.supplier_contact || null,
-                    book.notes || null
+                    book.isbn || null,  // 1
+                    book.title,  // 2
+                    book.author,  // 3
+                    book.description || null,  // 4
+                    book.category || 'Fiction',  // 5
+                    book.genre || 'General',  // 6
+                    book.cover || null,  // 7
+                    book.price || 0,  // 8
+                    book.publisher || null,  // 9
+                    book.publication_date || null,  // 10
+                    book.publication_year || null,  // 11
+                    book.pages || null,  // 12
+                    book.language || 'English',  // 13
+                    book.format || 'Paperback',  // 14
+                    book.weight || null,  // 15
+                    book.dimensions || null,  // 16
+                    book.stock_quantity !== undefined ? book.stock_quantity : 0,  // 17
+                    book.sku || null,  // 18
+                    book.cost_price || 0,  // 19
+                    book.status || 'active',  // 20
+                    book.min_stock || 5,  // 21
+                    book.max_stock || 100,  // 22
+                    book.reorder_point || 10,  // 23
+                    book.reorder_quantity || 20,  // 24
+                    book.warehouse_location || null,  // 25
+                    book.discount_percentage || 0,  // 26
+                    book.supplier_name || null,  // 27
+                    book.supplier_contact || null,  // 28
+                    book.notes || null  // 29
                 ]
             );
             
