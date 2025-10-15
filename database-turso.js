@@ -748,7 +748,7 @@ const cartOperations = {
     getByUser: async (userId, callback) => {
         try {
             const result = await query(
-                `SELECT c.*, b.title, b.author, b.price, b.cover
+                `SELECT c.*, b.title, b.author, b.price, b.cover, b.stock_quantity
                  FROM cart c
                  JOIN books b ON c.book_id = b.id
                  WHERE c.user_id = ?`,
@@ -904,6 +904,12 @@ const cartOperations = {
     }
 };
 
+// Add aliases to match database.js method names
+cartOperations.addItem = cartOperations.add;
+cartOperations.getCartItems = cartOperations.getByUser;
+cartOperations.removeItem = cartOperations.remove;
+cartOperations.clearCart = cartOperations.clear;
+
 // Favorites Operations
 const favoritesOperations = {
     add: async (userId, bookId, callback) => {
@@ -949,6 +955,11 @@ const favoritesOperations = {
         }
     }
 };
+
+// Add aliases to match database.js method names
+favoritesOperations.addFavorite = favoritesOperations.add;
+favoritesOperations.getFavorites = favoritesOperations.getByUser;
+favoritesOperations.removeFavorite = favoritesOperations.remove;
 
 // Order Operations
 const orderOperations = {
@@ -1101,6 +1112,44 @@ const orderOperations = {
         }
     }
 };
+
+// Add compatibility methods to match database.js API
+orderOperations.createOrder = async (userId, totalAmount, shippingAddress, callback) => {
+    try {
+        const result = await query(
+            `INSERT INTO orders (user_id, total_amount, shipping_address)
+             VALUES (?, ?, ?)`,
+            [userId, totalAmount, shippingAddress]
+        );
+        
+        // Create a context object with lastID to match SQLite's behavior
+        const context = {
+            lastID: result.lastInsertRowid
+        };
+        
+        callback.call(context, null);
+    } catch (error) {
+        callback(error);
+    }
+};
+
+orderOperations.addOrderItems = async (orderId, items, callback) => {
+    try {
+        for (const item of items) {
+            await query(
+                `INSERT INTO order_items (order_id, book_id, quantity, price)
+                 VALUES (?, ?, ?, ?)`,
+                [orderId, item.book_id, item.quantity, item.price]
+            );
+        }
+        callback(null);
+    } catch (error) {
+        callback(error);
+    }
+};
+
+orderOperations.getUserOrders = orderOperations.getByUser;
+orderOperations.getOrderDetails = orderOperations.getById;
 
 // Reviews Operations
 const reviewsOperations = {
