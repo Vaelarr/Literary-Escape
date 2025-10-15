@@ -882,10 +882,11 @@ app.get('/api/admin/books', authenticateAdmin, (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const category = req.query.category || null;
+    const search = req.query.search || null;
     
-    console.log('Admin fetching books, page:', page, 'limit:', limit, 'category:', category);
+    console.log('Admin fetching books, page:', page, 'limit:', limit, 'category:', category, 'search:', search);
     
-    adminOperations.getAllBooks(page, limit, category, (err, result) => {
+    adminOperations.getAllBooks(page, limit, category, search, (err, result) => {
         if (err) {
             console.error('Error fetching books for admin:', err);
             return res.status(500).json({ error: err.message });
@@ -995,18 +996,19 @@ app.get('/api/user/profile', authenticateToken, (req, res) => {
 // Admin user management endpoints (require admin authentication)
 app.get('/api/users', authenticateAdmin, (req, res) => {
     console.log('Admin requesting all users');
-    userOperations.getAll((err, users) => {
+    
+    // Use the admin operations method with pagination
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    
+    adminOperations.getAllUsers(page, limit, (err, result) => {
         if (err) {
             console.error('Error getting users:', err);
             return res.status(500).json({ error: err.message });
         }
-        console.log('Returning', users.length, 'users');
-        // Remove password hashes from response
-        const safeUsers = users.map(u => {
-            const { password_hash, ...user } = u;
-            return user;
-        });
-        res.json(safeUsers);
+        
+        console.log('Returning users:', result);
+        res.json(result);
     });
 });
 
@@ -1223,6 +1225,42 @@ function validatePasswordServer(password) {
 // Add a test endpoint to verify database connectivity (public)
 app.get('/api/test-db', async (req, res) => {
     try {
+        // Auto-run migrations on first connection test
+        const database = require('./database-config');
+        
+        // Run migrations if using Turso (has query function)
+        if (database.query && typeof database.query === 'function') {
+            try {
+                console.log('🔧 Auto-running migrations on test-db call...');
+                
+                // Try to add archived column to users table
+                try {
+                    await database.query('ALTER TABLE users ADD COLUMN archived INTEGER DEFAULT 0');
+                    console.log('  ✅ Added archived column to users table');
+                } catch (error) {
+                    const errorMsg = error.message ? error.message.toLowerCase() : '';
+                    if (errorMsg.includes('duplicate') || errorMsg.includes('already exists')) {
+                        console.log('  ℹ️  Users.archived already exists');
+                    }
+                }
+                
+                // Try to add archived column to orders table
+                try {
+                    await database.query('ALTER TABLE orders ADD COLUMN archived INTEGER DEFAULT 0');
+                    console.log('  ✅ Added archived column to orders table');
+                } catch (error) {
+                    const errorMsg = error.message ? error.message.toLowerCase() : '';
+                    if (errorMsg.includes('duplicate') || errorMsg.includes('already exists')) {
+                        console.log('  ℹ️  Orders.archived already exists');
+                    }
+                }
+                
+                console.log('🎉 Auto-migration completed');
+            } catch (migrationError) {
+                console.error('⚠️  Auto-migration error (continuing anyway):', migrationError.message);
+            }
+        }
+        
         // Test with a simple query that works across all database types
         const testResult = await new Promise((resolve, reject) => {
             bookOperations.getAll((err, books) => {
@@ -1326,6 +1364,83 @@ app.get('/api/debug/admin-status', (req, res) => {
             timestamp: new Date().toISOString()
         });
     });
+});
+
+// Migration endpoint (admin only) to manually trigger database migrations
+app.post('/api/admin/run-migrations', authenticateAdmin, async (req, res) => {
+    try {
+        console.log('🔧 Manual migration triggered by admin');
+        
+        // Import the database module to access query function
+        const database = require('./database-config');
+        
+        // Check if we're using Turso
+        if (database.query && typeof database.query === 'function') {
+            const results = {
+                users: { attempted: false, success: false, message: '' },
+                orders: { attempted: false, success: false, message: '' }
+            };
+            
+            // Migrate users table
+            try {
+                results.users.attempted = true;
+                await database.query('ALTER TABLE users ADD COLUMN archived INTEGER DEFAULT 0');
+                results.users.success = true;
+                results.users.message = 'Column added successfully';
+            } catch (error) {
+                const errorMsg = error.message ? error.message.toLowerCase() : '';
+                if (errorMsg.includes('duplicate') || errorMsg.includes('already exists')) {
+                    results.users.success = true;
+                    results.users.message = 'Column already exists';
+                } else {
+                    results.users.message = error.message;
+                    // Try to verify column exists
+                    try {
+                        await database.query('SELECT archived FROM users LIMIT 1');
+                        results.users.success = true;
+                        results.users.message = 'Column verified (already exists)';
+                    } catch (e) {
+                        results.users.message = `Failed: ${error.message}`;
+                    }
+                }
+            }
+            
+            // Migrate orders table
+            try {
+                results.orders.attempted = true;
+                await database.query('ALTER TABLE orders ADD COLUMN archived INTEGER DEFAULT 0');
+                results.orders.success = true;
+                results.orders.message = 'Column added successfully';
+            } catch (error) {
+                const errorMsg = error.message ? error.message.toLowerCase() : '';
+                if (errorMsg.includes('duplicate') || errorMsg.includes('already exists')) {
+                    results.orders.success = true;
+                    results.orders.message = 'Column already exists';
+                } else {
+                    results.orders.message = error.message;
+                    // Try to verify column exists
+                    try {
+                        await database.query('SELECT archived FROM orders LIMIT 1');
+                        results.orders.success = true;
+                        results.orders.message = 'Column verified (already exists)';
+                    } catch (e) {
+                        results.orders.message = `Failed: ${error.message}`;
+                    }
+                }
+            }
+            
+            res.json({
+                success: results.users.success && results.orders.success,
+                results,
+                timestamp: new Date().toISOString()
+            });
+        } else {
+            res.status(500).json({ error: 'Database query function not available' });
+        }
+    } catch (error) {
+        console.error('❌ Migration endpoint error:', error);
+        res.status(500).json({ error: error.message });
+    }
 });
 
 // Export the app for Vercel
