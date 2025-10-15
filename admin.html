@@ -496,7 +496,10 @@
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Genre <span class="text-danger">*</span></label>
                                 <select class="form-select" id="bookGenre" aria-label="Genre" required>
-                                <span id="Non-FictionGenres" style="display: none;">
+                                    <option value="" disabled selected>Select Genre</option>
+                                </select>
+                                <!-- Hidden genre templates -->
+                                <div id="Non-FictionGenres" style="display: none;">
                                     <option value="" style="color: gray;" disabled selected>Select Genre</option>
                                     <option value="True Crime">True Crime</option>
                                     <option value="Politics">Politics</option>
@@ -507,8 +510,8 @@
                                     <option value="Philosophy">Philosophy</option>
                                     <option value="Religion">Religion</option>
                                     <option value="Health & Wellness">Health & Wellness</option>
-                                </span>
-                                <span id="FictionGenres">
+                                </div>
+                                <div id="FictionGenres" style="display: none;">
                                     <option value="" style="color: gray;" disabled selected>Select Genre</option>
                                     <option value="Science Fiction">Science Fiction</option>
                                     <option value="Mystery">Mystery</option>
@@ -516,8 +519,7 @@
                                     <option value="Magic Realism">Magic Realism</option>
                                     <option value="Crime">Crime</option>
                                     <option value="Dystopian">Dystopian</option>
-                                </span>
-                                </select>
+                                </div>
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Status <span class="text-danger">*</span></label>
@@ -2256,7 +2258,11 @@
             
             if (!categorySelect || !genreSelect) return;
             
-            categorySelect.addEventListener('change', function() {
+            // Remove any existing event listeners by cloning and replacing
+            const newCategorySelect = categorySelect.cloneNode(true);
+            categorySelect.parentNode.replaceChild(newCategorySelect, categorySelect);
+            
+            newCategorySelect.addEventListener('change', function() {
                 const category = this.value;
                 const fictionGenres = document.getElementById('FictionGenres');
                 const nonFictionGenres = document.getElementById('Non-FictionGenres');
@@ -2274,6 +2280,11 @@
                     }
                 }
             });
+            
+            // Trigger change event if category is already selected
+            if (newCategorySelect.value) {
+                newCategorySelect.dispatchEvent(new Event('change'));
+            }
         }
 
         // Check initial access and admin authentication
