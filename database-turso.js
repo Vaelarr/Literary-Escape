@@ -477,26 +477,118 @@ const bookOperations = {
         }
     },
 
+    // Alias for create - matches API endpoint expectations
+    add: async (book, callback) => {
+        try {
+            const result = await query(
+                `INSERT INTO books (
+                    isbn, title, author, description, category, genre, cover, price,
+                    publisher, publication_date, publication_year, pages, language,
+                    format, weight, dimensions, stock_quantity, sku, cost_price,
+                    status, min_stock, max_stock, reorder_point, reorder_quantity,
+                    warehouse_location, discount_percentage, supplier_name, supplier_contact, notes
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [
+                    book.isbn || `978-0-000-${Math.floor(Math.random() * 90000) + 10000}-0`,
+                    book.title,
+                    book.author,
+                    book.description || null,
+                    book.category || 'Fiction',
+                    book.genre || 'General',
+                    book.cover || null,
+                    book.price || 0,
+                    book.publisher || 'Unknown Publisher',
+                    book.publication_date || null,
+                    book.publication_year || null,
+                    book.pages || 300,
+                    book.language || 'English',
+                    book.format || 'Paperback',
+                    book.weight || 0.3,
+                    book.dimensions || '5.5 x 8.0 x 1.0 inches',
+                    book.stock_quantity !== undefined ? book.stock_quantity : 1,
+                    book.sku || null,
+                    book.cost_price || 0,
+                    book.status || 'active',
+                    book.min_stock || 5,
+                    book.max_stock || 100,
+                    book.reorder_point || 10,
+                    book.reorder_quantity || 20,
+                    book.warehouse_location || null,
+                    book.discount_percentage || 0,
+                    book.supplier_name || null,
+                    book.supplier_contact || null,
+                    book.notes || null
+                ]
+            );
+            
+            // Call callback with context that has lastID property (matches SQLite interface)
+            const context = { lastID: Number(result.lastInsertRowid) };
+            callback.call(context, null);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
     update: async (id, bookData, callback) => {
         try {
+            // First get the existing book to preserve values not being updated
+            const existingResult = await query('SELECT * FROM books WHERE id = ?', [id]);
+            const existingBook = existingResult.rows[0];
+            
+            if (!existingBook) {
+                return callback(new Error('Book not found'));
+            }
+            
             await query(
                 `UPDATE books SET
                     isbn = ?, title = ?, author = ?, description = ?,
                     category = ?, genre = ?, cover = ?, price = ?,
                     publisher = ?, publication_date = ?, publication_year = ?,
                     pages = ?, language = ?, format = ?, weight = ?,
-                    dimensions = ?, stock_quantity = ?, updated_at = CURRENT_TIMESTAMP
+                    dimensions = ?, stock_quantity = ?, 
+                    status = ?, sku = ?, min_stock = ?, max_stock = ?,
+                    reorder_point = ?, reorder_quantity = ?, warehouse_location = ?,
+                    cost_price = ?, discount_percentage = ?, 
+                    supplier_name = ?, supplier_contact = ?, notes = ?,
+                    updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?`,
                 [
-                    bookData.isbn, bookData.title, bookData.author, bookData.description,
-                    bookData.category, bookData.genre, bookData.cover, bookData.price,
-                    bookData.publisher, bookData.publication_date, bookData.publication_year,
-                    bookData.pages, bookData.language, bookData.format, bookData.weight,
-                    bookData.dimensions, bookData.stock_quantity, id
+                    bookData.isbn !== undefined ? bookData.isbn : existingBook.isbn,
+                    bookData.title !== undefined ? bookData.title : existingBook.title,
+                    bookData.author !== undefined ? bookData.author : existingBook.author,
+                    bookData.description !== undefined ? bookData.description : existingBook.description,
+                    bookData.category !== undefined ? bookData.category : existingBook.category,
+                    bookData.genre !== undefined ? bookData.genre : existingBook.genre,
+                    bookData.cover !== undefined ? bookData.cover : existingBook.cover,
+                    bookData.price !== undefined ? bookData.price : existingBook.price,
+                    bookData.publisher !== undefined ? bookData.publisher : existingBook.publisher,
+                    bookData.publication_date !== undefined ? bookData.publication_date : existingBook.publication_date,
+                    bookData.publication_year !== undefined ? bookData.publication_year : existingBook.publication_year,
+                    bookData.pages !== undefined ? bookData.pages : existingBook.pages,
+                    bookData.language !== undefined ? bookData.language : existingBook.language,
+                    bookData.format !== undefined ? bookData.format : existingBook.format,
+                    bookData.weight !== undefined ? bookData.weight : existingBook.weight,
+                    bookData.dimensions !== undefined ? bookData.dimensions : existingBook.dimensions,
+                    bookData.stock_quantity !== undefined ? bookData.stock_quantity : existingBook.stock_quantity,
+                    bookData.status !== undefined ? bookData.status : existingBook.status,
+                    bookData.sku !== undefined ? bookData.sku : existingBook.sku,
+                    bookData.min_stock !== undefined ? bookData.min_stock : existingBook.min_stock,
+                    bookData.max_stock !== undefined ? bookData.max_stock : existingBook.max_stock,
+                    bookData.reorder_point !== undefined ? bookData.reorder_point : existingBook.reorder_point,
+                    bookData.reorder_quantity !== undefined ? bookData.reorder_quantity : existingBook.reorder_quantity,
+                    bookData.warehouse_location !== undefined ? bookData.warehouse_location : existingBook.warehouse_location,
+                    bookData.cost_price !== undefined ? bookData.cost_price : existingBook.cost_price,
+                    bookData.discount_percentage !== undefined ? bookData.discount_percentage : existingBook.discount_percentage,
+                    bookData.supplier_name !== undefined ? bookData.supplier_name : existingBook.supplier_name,
+                    bookData.supplier_contact !== undefined ? bookData.supplier_contact : existingBook.supplier_contact,
+                    bookData.notes !== undefined ? bookData.notes : existingBook.notes,
+                    id
                 ]
             );
-            const updated = await query('SELECT * FROM books WHERE id = ?', [id]);
-            callback(null, updated.rows[0]);
+            
+            // Call callback with context that has changes property
+            const context = { changes: 1 };
+            callback.call(context, null);
         } catch (error) {
             callback(error);
         }
