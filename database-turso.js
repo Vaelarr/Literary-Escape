@@ -130,7 +130,8 @@ async function initializeDatabase(callback) {
                 user_id INTEGER,
                 book_id INTEGER,
                 quantity INTEGER DEFAULT 1,
-                added_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                selected_for_checkout INTEGER DEFAULT 1,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
                 FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE,
                 UNIQUE(user_id, book_id)
@@ -143,7 +144,7 @@ async function initializeDatabase(callback) {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER,
                 book_id INTEGER,
-                added_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
                 FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE,
                 UNIQUE(user_id, book_id)
@@ -229,6 +230,28 @@ async function initializeDatabase(callback) {
         await query('CREATE INDEX IF NOT EXISTS idx_favorites_user_id ON favorites(user_id)');
         await query('CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id)');
         await query('CREATE INDEX IF NOT EXISTS idx_reviews_book_id ON reviews(book_id)');
+
+        // Migration: Add missing columns to existing tables
+        try {
+            // Try to add selected_for_checkout column - will fail silently if already exists
+            console.log('Checking cart table for selected_for_checkout column...');
+            try {
+                await query(`ALTER TABLE cart ADD COLUMN selected_for_checkout INTEGER DEFAULT 1`);
+                console.log('✅ Added selected_for_checkout column to cart table');
+            } catch (alterError) {
+                // Column likely already exists - this is fine
+                if (alterError.message.includes('duplicate column') || 
+                    alterError.message.includes('already exists') ||
+                    alterError.message.includes('Duplicate column name')) {
+                    console.log('✅ selected_for_checkout column already exists');
+                } else {
+                    console.warn('Note: Could not add selected_for_checkout column:', alterError.message);
+                }
+            }
+        } catch (error) {
+            console.warn('Migration warning:', error.message);
+            // Continue - these are non-critical migrations
+        }
 
         console.log('Turso database schema initialized successfully');
         
@@ -497,13 +520,14 @@ const userOperations = {
 
 // Cart Operations
 const cartOperations = {
-    add: async (userId, bookId, quantity, callback) => {
+    // Add item to cart (matches API expectation)
+    addItem: async (userId, bookId, quantity, callback) => {
         try {
             await query(
                 `INSERT INTO cart (user_id, book_id, quantity)
                  VALUES (?, ?, ?)
                  ON CONFLICT(user_id, book_id) DO UPDATE SET quantity = quantity + ?`,
-                [userId, bookId, quantity, quantity]
+                [userId, bookId, quantity || 1, quantity || 1]
             );
             const result = await query(
                 'SELECT * FROM cart WHERE user_id = ? AND book_id = ?',
@@ -515,22 +539,30 @@ const cartOperations = {
         }
     },
 
-    getByUser: async (userId, callback) => {
+    // Get user's cart items (matches API expectation)
+    getCartItems: async (userId, callback) => {
         try {
+            console.log(`[Turso] Getting cart items for user ${userId}`);
             const result = await query(
-                `SELECT c.*, b.title, b.author, b.price, b.cover
+                `SELECT c.id, c.user_id, c.book_id, c.quantity, 
+                        COALESCE(c.selected_for_checkout, 1) as selected_for_checkout,
+                        b.title, b.author, b.price, b.cover, b.stock_quantity
                  FROM cart c
                  JOIN books b ON c.book_id = b.id
-                 WHERE c.user_id = ?`,
+                 WHERE c.user_id = ?
+                 ORDER BY c.id DESC`,
                 [userId]
             );
+            console.log(`[Turso] Found ${result.rows.length} cart items`);
             callback(null, result.rows);
         } catch (error) {
+            console.error(`[Turso] Error getting cart items:`, error);
             callback(error);
         }
     },
 
-    update: async (userId, bookId, quantity, callback) => {
+    // Update item quantity (matches API expectation)
+    updateQuantity: async (userId, bookId, quantity, callback) => {
         try {
             await query(
                 `UPDATE cart SET quantity = ?
@@ -547,7 +579,8 @@ const cartOperations = {
         }
     },
 
-    remove: async (userId, bookId, callback) => {
+    // Remove item from cart (matches API expectation)
+    removeItem: async (userId, bookId, callback) => {
         try {
             await query(
                 'DELETE FROM cart WHERE user_id = ? AND book_id = ?',
@@ -559,10 +592,107 @@ const cartOperations = {
         }
     },
 
-    clear: async (userId, callback) => {
+    // Clear user's cart (matches API expectation)
+    clearCart: async (userId, callback) => {
         try {
             await query('DELETE FROM cart WHERE user_id = ?', [userId]);
             callback(null);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Get cart total
+    getCartTotal: async (userId, callback) => {
+        try {
+            const result = await query(
+                `SELECT SUM(c.quantity * b.price) as total
+                 FROM cart c
+                 JOIN books b ON c.book_id = b.id
+                 WHERE c.user_id = ?`,
+                [userId]
+            );
+            callback(null, result.rows[0]);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Update item selection for checkout
+    updateSelection: async (userId, bookId, selected, callback) => {
+        try {
+            await query(
+                `UPDATE cart SET selected_for_checkout = ?
+                 WHERE user_id = ? AND book_id = ?`,
+                [selected ? 1 : 0, userId, bookId]
+            );
+            callback(null);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Select all items for checkout
+    selectAllForCheckout: async (userId, callback) => {
+        try {
+            await query(
+                `UPDATE cart SET selected_for_checkout = 1
+                 WHERE user_id = ?`,
+                [userId]
+            );
+            callback(null);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Deselect all items for checkout
+    deselectAllForCheckout: async (userId, callback) => {
+        try {
+            await query(
+                `UPDATE cart SET selected_for_checkout = 0
+                 WHERE user_id = ?`,
+                [userId]
+            );
+            callback(null);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Get only selected items for checkout
+    getSelectedItems: async (userId, callback) => {
+        try {
+            console.log(`[Turso] Getting selected cart items for user ${userId}`);
+            const result = await query(
+                `SELECT c.id, c.user_id, c.book_id, c.quantity,
+                        COALESCE(c.selected_for_checkout, 1) as selected_for_checkout,
+                        b.title, b.author, b.price, b.cover, b.stock_quantity
+                 FROM cart c
+                 JOIN books b ON c.book_id = b.id
+                 WHERE c.user_id = ? AND COALESCE(c.selected_for_checkout, 1) = 1
+                 ORDER BY c.id DESC`,
+                [userId]
+            );
+            console.log(`[Turso] Found ${result.rows.length} selected cart items`);
+            callback(null, result.rows);
+        } catch (error) {
+            console.error(`[Turso] Error getting selected items:`, error);
+            callback(error);
+        }
+    },
+
+    // Get selected items total
+    getSelectedTotal: async (userId, callback) => {
+        try {
+            const result = await query(
+                `SELECT SUM(c.quantity * b.price) as total, COUNT(c.id) as count
+                 FROM cart c
+                 JOIN books b ON c.book_id = b.id
+                 WHERE c.user_id = ? AND COALESCE(c.selected_for_checkout, 1) = 1`,
+                [userId]
+            );
+            callback(null, result.rows[0]);
         } catch (error) {
             callback(error);
         }
@@ -571,8 +701,10 @@ const cartOperations = {
 
 // Favorites Operations
 const favoritesOperations = {
-    add: async (userId, bookId, callback) => {
+    // Add to favorites (matches API expectation)
+    addFavorite: async (userId, bookId, callback) => {
         try {
+            console.log(`[Turso] Adding book ${bookId} to favorites for user ${userId}`);
             await query(
                 `INSERT OR IGNORE INTO favorites (user_id, book_id) VALUES (?, ?)`,
                 [userId, bookId]
@@ -581,34 +713,58 @@ const favoritesOperations = {
                 'SELECT * FROM favorites WHERE user_id = ? AND book_id = ?',
                 [userId, bookId]
             );
+            console.log(`[Turso] Favorite added successfully:`, result.rows[0]);
             callback(null, result.rows[0]);
         } catch (error) {
+            console.error(`[Turso] Error adding favorite:`, error);
             callback(error);
         }
     },
 
-    getByUser: async (userId, callback) => {
+    // Get user's favorites (matches API expectation)
+    getFavorites: async (userId, callback) => {
         try {
+            console.log(`[Turso] Getting favorites for user ${userId}`);
             const result = await query(
-                `SELECT f.*, b.title, b.author, b.price, b.cover, b.description
+                `SELECT f.*, b.title, b.author, b.price, b.cover, b.description, b.rating
                  FROM favorites f
                  JOIN books b ON f.book_id = b.id
-                 WHERE f.user_id = ?`,
+                 WHERE f.user_id = ?
+                 ORDER BY f.id DESC`,
                 [userId]
             );
+            console.log(`[Turso] Found ${result.rows.length} favorites`);
             callback(null, result.rows);
         } catch (error) {
+            console.error(`[Turso] Error getting favorites:`, error);
             callback(error);
         }
     },
 
-    remove: async (userId, bookId, callback) => {
+    // Remove from favorites (matches API expectation)
+    removeFavorite: async (userId, bookId, callback) => {
         try {
-            await query(
+            console.log(`[Turso] Removing book ${bookId} from favorites for user ${userId}`);
+            const deleteResult = await query(
                 'DELETE FROM favorites WHERE user_id = ? AND book_id = ?',
                 [userId, bookId]
             );
+            console.log(`[Turso] Favorite removed successfully, rows affected:`, deleteResult.rowsAffected);
             callback(null);
+        } catch (error) {
+            console.error(`[Turso] Error removing favorite:`, error);
+            callback(error);
+        }
+    },
+
+    // Check if book is in favorites
+    isFavorite: async (userId, bookId, callback) => {
+        try {
+            const result = await query(
+                `SELECT COUNT(*) as count FROM favorites WHERE user_id = ? AND book_id = ?`,
+                [userId, bookId]
+            );
+            callback(null, result.rows[0].count > 0);
         } catch (error) {
             callback(error);
         }
