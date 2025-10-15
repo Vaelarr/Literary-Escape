@@ -160,7 +160,7 @@ async function initializeDatabase(callback) {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER,
                 book_id INTEGER,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                added_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
                 FOREIGN KEY (book_id) REFERENCES books(id) ON DELETE CASCADE,
                 UNIQUE(user_id, book_id)
@@ -955,11 +955,27 @@ const favoritesOperations = {
         try {
             console.log(`[Turso] Getting favorites for user ${userId}`);
             const result = await query(
-                `SELECT f.*, b.title, b.author, b.price, b.cover, b.description, b.rating
+                `SELECT 
+                    b.id,
+                    b.isbn,
+                    b.title, 
+                    b.author, 
+                    b.price, 
+                    b.cover, 
+                    b.description, 
+                    b.rating,
+                    b.category,
+                    b.genre,
+                    b.publisher,
+                    b.publication_date,
+                    b.pages,
+                    b.language,
+                    b.format,
+                    f.added_at
                  FROM favorites f
                  JOIN books b ON f.book_id = b.id
                  WHERE f.user_id = ?
-                 ORDER BY f.id DESC`,
+                 ORDER BY f.added_at DESC`,
                 [userId]
             );
             console.log(`[Turso] Found ${result.rows.length} favorites`);
