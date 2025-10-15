@@ -100,6 +100,16 @@ class APIClient {
         try {
             console.log(`Making API request to: ${endpoint}`);
             const response = await fetch(url, config);
+            
+            // Check if response is HTML (error page) instead of JSON
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('text/html')) {
+                console.error('Received HTML response instead of JSON - likely a server error');
+                const htmlText = await response.text();
+                console.error('HTML response preview:', htmlText.substring(0, 200));
+                throw new Error('Server returned an error page. Please check server logs.');
+            }
+            
             const data = await response.json();
             
             if (!response.ok) {
@@ -111,6 +121,12 @@ class APIClient {
             return data;
         } catch (error) {
             console.error('API request failed:', error);
+            
+            // Provide more specific error messages
+            if (error.message.includes('JSON')) {
+                throw new Error('Server error: Unable to process response. Please try again or contact support.');
+            }
+            
             throw error;
         }
     }

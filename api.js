@@ -330,7 +330,8 @@ app.post('/api/admin/login', async (req, res) => {
                     email: admin.email,
                     first_name: admin.first_name,
                     last_name: admin.last_name,
-                    role: 'admin'
+                    role: 'admin',
+                    isAdmin: true
                 } 
             });
         });

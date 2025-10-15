@@ -1657,6 +1657,22 @@
 
                 const id = document.getElementById('bookId').value;
                 
+                // Check if user is logged in and has valid token
+                if (!api.isLoggedIn()) {
+                    showErrorMessage('Session expired. Please login again.');
+                    setTimeout(() => {
+                        window.location.href = 'admin.html';
+                    }, 2000);
+                    return;
+                }
+                
+                // Verify current user is admin
+                const currentUser = api.getCurrentUser();
+                if (!currentUser || currentUser.role !== 'admin') {
+                    showErrorMessage('Admin access required');
+                    return;
+                }
+                
                 // Get cover image data
                 let coverData = '';
                 const uploadMethod = document.querySelector('input[name="uploadMethod"]:checked').value;
@@ -2302,8 +2318,9 @@
             
             try {
                 const userData = JSON.parse(user);
-                if (userData.role !== 'admin' || !userData.isAdmin) {
-                    console.log('Invalid admin credentials');
+                // Accept if role is admin (backwards compatible with old sessions)
+                if (userData.role !== 'admin') {
+                    console.log('Invalid admin credentials - not an admin role');
                     showAdminLogin();
                     return;
                 }
