@@ -70,40 +70,249 @@
 
         <!-- Dashboard Section -->
         <div id="dashboard-section" class="content-section active">
-            <h2 class="section-title">Statistics</h2>
-            <div class="stats-container">
-                <div class="stat-card">
-                    <h3>Books Number</h3>
-                    <div class="value" id="booksNumber">0</div>
+            <!-- Overview Statistics -->
+            <h2 class="section-title">
+                <i class="fas fa-chart-line me-2"></i>Dashboard Overview
+                <span style="font-size: 0.8rem; font-weight: normal; color: rgba(255,255,255,0.6); margin-left: 15px;">
+                    Last updated: <span id="lastUpdated">Just now</span>
+                </span>
+            </h2>
+            
+            <!-- Key Metrics -->
+            <div class="stats-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <h3 style="font-size: 0.9rem; opacity: 0.9;">Total Books</h3>
+                            <div class="value" id="booksNumber" style="font-size: 2.5rem; font-weight: bold;">0</div>
+                            <p style="font-size: 0.8rem; margin-top: 5px; opacity: 0.8;"><span id="activeBooksCount">0</span> active</p>
+                        </div>
+                        <i class="fas fa-book" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <h3>Total Stock</h3>
-                    <div class="value" id="totalStock">0</div>
+                
+                <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <h3 style="font-size: 0.9rem; opacity: 0.9;">Total Stock</h3>
+                            <div class="value" id="totalStock" style="font-size: 2.5rem; font-weight: bold;">0</div>
+                            <p style="font-size: 0.8rem; margin-top: 5px; opacity: 0.8;">units available</p>
+                        </div>
+                        <i class="fas fa-boxes" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <h3>Book Sells</h3>
-                    <div class="value" id="bookSells">0</div>
+                
+                <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <h3 style="font-size: 0.9rem; opacity: 0.9;">Total Orders</h3>
+                            <div class="value" id="totalOrders" style="font-size: 2.5rem; font-weight: bold;">0</div>
+                            <p style="font-size: 0.8rem; margin-top: 5px; opacity: 0.8;"><span id="pendingOrders">0</span> pending</p>
+                        </div>
+                        <i class="fas fa-shopping-cart" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                    </div>
+                </div>
+                
+                <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <h3 style="font-size: 0.9rem; opacity: 0.9;">Revenue</h3>
+                            <div class="value" id="totalRevenue" style="font-size: 2.5rem; font-weight: bold;">₱0</div>
+                            <p style="font-size: 0.8rem; margin-top: 5px; opacity: 0.8;">all time sales</p>
+                        </div>
+                        <i class="fas fa-dollar-sign" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                    </div>
+                </div>
+                
+                <div class="stat-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <h3 style="font-size: 0.9rem; opacity: 0.9;">Registered Users</h3>
+                            <div class="value" id="totalUsers" style="font-size: 2.5rem; font-weight: bold;">0</div>
+                            <p style="font-size: 0.8rem; margin-top: 5px; opacity: 0.8;">customer accounts</p>
+                        </div>
+                        <i class="fas fa-users" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                    </div>
+                </div>
+                
+                <div class="stat-card" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); color: #333;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <h3 style="font-size: 0.9rem; opacity: 0.9;">Low Stock Alert</h3>
+                            <div class="value" id="lowStockCount" style="font-size: 2.5rem; font-weight: bold; color: #d63031;">0</div>
+                            <p style="font-size: 0.8rem; margin-top: 5px; opacity: 0.8;">items need reorder</p>
+                        </div>
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                    </div>
                 </div>
             </div>
 
-            <h2 class="section-title">User Accounts</h2>
-            <div class="content-card">
-                <div class="table-container scrollable-content">
-                    <table class="custom-table">
-                        <thead>
-                            <tr>
-                                <th>Username</th>
-                                <th>Password</th>
-                                <th>Role</th>
-                                <th>Archive</th>
-                            </tr>
-                        </thead>
-                        <tbody id="userAccountsTable">
-                            <tr>
-                                <td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">Loading users...</td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <!-- Sales & Inventory Analytics -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+                <!-- Category Distribution -->
+                <div class="content-card">
+                    <h3 class="section-title" style="font-size: 1.2rem; margin-bottom: 15px;">
+                        <i class="fas fa-chart-pie me-2"></i>Books by Category
+                    </h3>
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span style="color: rgba(255,255,255,0.8);">Fiction</span>
+                                <span id="fictionCount" style="font-weight: bold;">0</span>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div id="fictionBar" style="background: linear-gradient(90deg, #667eea, #764ba2); height: 100%; width: 0%; transition: width 0.3s;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span style="color: rgba(255,255,255,0.8);">Non-Fiction</span>
+                                <span id="nonFictionCount" style="font-weight: bold;">0</span>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div id="nonFictionBar" style="background: linear-gradient(90deg, #f093fb, #f5576c); height: 100%; width: 0%; transition: width 0.3s;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Status Distribution -->
+                <div class="content-card">
+                    <h3 class="section-title" style="font-size: 1.2rem; margin-bottom: 15px;">
+                        <i class="fas fa-tasks me-2"></i>Orders by Status
+                    </h3>
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span style="color: rgba(255,255,255,0.8);">Pending</span>
+                                <span id="pendingOrdersCount" style="font-weight: bold; color: #ffeaa7;">0</span>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div id="pendingBar" style="background: #ffeaa7; height: 100%; width: 0%; transition: width 0.3s;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span style="color: rgba(255,255,255,0.8);">Processing</span>
+                                <span id="processingOrdersCount" style="font-weight: bold; color: #74b9ff;">0</span>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div id="processingBar" style="background: #74b9ff; height: 100%; width: 0%; transition: width 0.3s;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span style="color: rgba(255,255,255,0.8);">Completed</span>
+                                <span id="completedOrdersCount" style="font-weight: bold; color: #00b894;">0</span>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div id="completedBar" style="background: #00b894; height: 100%; width: 0%; transition: width 0.3s;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Books & Recent Activity -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+                <!-- Top Selling Books -->
+                <div class="content-card">
+                    <h3 class="section-title" style="font-size: 1.2rem; margin-bottom: 15px;">
+                        <i class="fas fa-trophy me-2"></i>Top Selling Books
+                    </h3>
+                    <div class="table-container" style="max-height: 300px; overflow-y: auto;">
+                        <table class="custom-table" style="font-size: 0.9rem;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">#</th>
+                                    <th>Title</th>
+                                    <th style="text-align: right;">Sold</th>
+                                </tr>
+                            </thead>
+                            <tbody id="topBooksTable">
+                                <tr>
+                                    <td colspan="3" style="text-align: center; color: rgba(255,255,255,0.5);">No sales data</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Inventory Alerts -->
+                <div class="content-card">
+                    <h3 class="section-title" style="font-size: 1.2rem; margin-bottom: 15px;">
+                        <i class="fas fa-bell me-2"></i>Inventory Alerts
+                    </h3>
+                    <div class="table-container" style="max-height: 300px; overflow-y: auto;">
+                        <table class="custom-table" style="font-size: 0.9rem;">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th style="text-align: right;">Stock</th>
+                                    <th style="text-align: center;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lowStockTable">
+                                <tr>
+                                    <td colspan="3" style="text-align: center; color: rgba(255,255,255,0.5);">All stock levels are healthy</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats Grid -->
+            <h3 class="section-title" style="font-size: 1.2rem; margin-bottom: 15px;">
+                <i class="fas fa-info-circle me-2"></i>Additional Metrics
+            </h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                <div class="content-card" style="padding: 15px;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="background: rgba(102, 126, 234, 0.2); padding: 12px; border-radius: 8px;">
+                            <i class="fas fa-percentage" style="font-size: 1.5rem; color: #667eea;"></i>
+                        </div>
+                        <div>
+                            <p style="font-size: 0.85rem; color: rgba(255,255,255,0.6); margin: 0;">Avg. Book Price</p>
+                            <p style="font-size: 1.3rem; font-weight: bold; margin: 0;" id="avgBookPrice">₱0.00</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="content-card" style="padding: 15px;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="background: rgba(240, 147, 251, 0.2); padding: 12px; border-radius: 8px;">
+                            <i class="fas fa-chart-line" style="font-size: 1.5rem; color: #f093fb;"></i>
+                        </div>
+                        <div>
+                            <p style="font-size: 0.85rem; color: rgba(255,255,255,0.6); margin: 0;">Avg. Order Value</p>
+                            <p style="font-size: 1.3rem; font-weight: bold; margin: 0;" id="avgOrderValue">₱0.00</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="content-card" style="padding: 15px;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="background: rgba(67, 233, 123, 0.2); padding: 12px; border-radius: 8px;">
+                            <i class="fas fa-warehouse" style="font-size: 1.5rem; color: #43e97b;"></i>
+                        </div>
+                        <div>
+                            <p style="font-size: 0.85rem; color: rgba(255,255,255,0.6); margin: 0;">Inventory Value</p>
+                            <p style="font-size: 1.3rem; font-weight: bold; margin: 0;" id="inventoryValue">₱0.00</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="content-card" style="padding: 15px;">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div style="background: rgba(250, 112, 154, 0.2); padding: 12px; border-radius: 8px;">
+                            <i class="fas fa-star" style="font-size: 1.5rem; color: #fa709a;"></i>
+                        </div>
+                        <div>
+                            <p style="font-size: 0.85rem; color: rgba(255,255,255,0.6); margin: 0;">Unique Genres</p>
+                            <p style="font-size: 1.3rem; font-weight: bold; margin: 0;" id="uniqueGenres">0</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2701,24 +2910,184 @@
         }
 
         // Update dashboard statistics
+        // Update dashboard statistics
         async function updateDashboard() {
             try {
-                // Update book statistics
-                const totalBooks = totalBooksItems;
-                const totalStock = adminBooks.reduce((sum, book) => sum + book.stock, 0);
+                console.log('📊 Updating dashboard statistics...');
+                
+                // Update last updated time
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                document.getElementById('lastUpdated').textContent = timeStr;
+                
+                // === Basic Metrics ===
+                const totalBooks = totalBooksItems || 0;
+                const activeBooks = adminBooks.filter(b => b.status === 'active').length;
+                const totalStock = adminBooks.reduce((sum, book) => sum + (parseInt(book.stock) || 0), 0);
                 
                 document.getElementById('booksNumber').textContent = totalBooks;
-                document.getElementById('totalStock').textContent = totalStock;
+                document.getElementById('activeBooksCount').textContent = activeBooks;
+                document.getElementById('totalStock').textContent = totalStock.toLocaleString();
                 
-                // Update book sales (you might want to implement this properly)
-                await updateBookSales();
+                // === Order Statistics ===
+                const totalOrdersCount = totalOrdersItems || 0;
+                const pendingOrdersCount = allOrders.filter(o => o.status === 'pending').length;
+                const processingOrdersCount = allOrders.filter(o => o.status === 'processing').length;
+                const completedOrdersCount = allOrders.filter(o => o.status === 'completed').length;
+                
+                document.getElementById('totalOrders').textContent = totalOrdersCount;
+                document.getElementById('pendingOrders').textContent = pendingOrdersCount;
+                document.getElementById('pendingOrdersCount').textContent = pendingOrdersCount;
+                document.getElementById('processingOrdersCount').textContent = processingOrdersCount;
+                document.getElementById('completedOrdersCount').textContent = completedOrdersCount;
+                
+                // Update order status bars
+                if (totalOrdersCount > 0) {
+                    document.getElementById('pendingBar').style.width = ((pendingOrdersCount / totalOrdersCount) * 100) + '%';
+                    document.getElementById('processingBar').style.width = ((processingOrdersCount / totalOrdersCount) * 100) + '%';
+                    document.getElementById('completedBar').style.width = ((completedOrdersCount / totalOrdersCount) * 100) + '%';
+                }
+                
+                // === Revenue Calculation ===
+                const validSalesStatuses = ['completed', 'shipped', 'delivered'];
+                const salesOrders = allOrders.filter(order => 
+                    validSalesStatuses.includes(order.status?.toLowerCase())
+                );
+                
+                const totalRevenue = salesOrders.reduce((sum, order) => {
+                    const amount = parseFloat(order.total_amount) || 0;
+                    return sum + amount;
+                }, 0);
+                
+                document.getElementById('totalRevenue').textContent = '₱' + totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                
+                // === User Statistics ===
+                const totalUsersCount = totalUsersItems || 0;
+                document.getElementById('totalUsers').textContent = totalUsersCount;
+                
+                // === Low Stock Alert ===
+                const lowStockBooks = adminBooks.filter(book => {
+                    const stock = parseInt(book.stock) || 0;
+                    const minStock = parseInt(book.min_stock) || 5;
+                    return stock <= minStock && stock >= 0;
+                });
+                
+                document.getElementById('lowStockCount').textContent = lowStockBooks.length;
+                
+                // Update low stock table
+                updateLowStockTable(lowStockBooks);
+                
+                // === Category Distribution ===
+                const fictionBooks = adminBooks.filter(b => b.category === 'Fiction').length;
+                const nonFictionBooks = adminBooks.filter(b => b.category === 'Non - Fiction' || b.category === 'Non-Fiction').length;
+                
+                document.getElementById('fictionCount').textContent = fictionBooks;
+                document.getElementById('nonFictionCount').textContent = nonFictionBooks;
+                
+                // Update category bars
+                if (totalBooks > 0) {
+                    document.getElementById('fictionBar').style.width = ((fictionBooks / totalBooks) * 100) + '%';
+                    document.getElementById('nonFictionBar').style.width = ((nonFictionBooks / totalBooks) * 100) + '%';
+                }
+                
+                // === Average Metrics ===
+                const avgBookPrice = totalBooks > 0 
+                    ? adminBooks.reduce((sum, book) => sum + (parseFloat(book.price) || 0), 0) / totalBooks
+                    : 0;
+                
+                const avgOrderValue = salesOrders.length > 0
+                    ? totalRevenue / salesOrders.length
+                    : 0;
+                
+                document.getElementById('avgBookPrice').textContent = '₱' + avgBookPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                document.getElementById('avgOrderValue').textContent = '₱' + avgOrderValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                
+                // === Inventory Value ===
+                const inventoryValue = adminBooks.reduce((sum, book) => {
+                    const stock = parseInt(book.stock) || 0;
+                    const price = parseFloat(book.price) || 0;
+                    return sum + (stock * price);
+                }, 0);
+                
+                document.getElementById('inventoryValue').textContent = '₱' + inventoryValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                
+                // === Unique Genres ===
+                const uniqueGenresSet = new Set(adminBooks.map(b => b.genre).filter(g => g));
+                document.getElementById('uniqueGenres').textContent = uniqueGenresSet.size;
+                
+                // === Top Selling Books ===
+                await updateTopSellingBooks();
+                
+                console.log('✅ Dashboard updated successfully');
                 
             } catch (error) {
                 console.error('❌ Error updating dashboard:', error);
             }
         }
+        
+        // Update low stock table
+        function updateLowStockTable(lowStockBooks) {
+            const tbody = document.getElementById('lowStockTable');
+            
+            if (!lowStockBooks || lowStockBooks.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: rgba(255,255,255,0.5);">All stock levels are healthy</td></tr>';
+                return;
+            }
+            
+            // Sort by stock level (lowest first)
+            const sortedBooks = lowStockBooks.sort((a, b) => (parseInt(a.stock) || 0) - (parseInt(b.stock) || 0));
+            
+            tbody.innerHTML = sortedBooks.slice(0, 5).map(book => {
+                const stock = parseInt(book.stock) || 0;
+                const minStock = parseInt(book.min_stock) || 5;
+                const status = stock === 0 ? 'Out of Stock' : stock <= minStock / 2 ? 'Critical' : 'Low';
+                const statusColor = stock === 0 ? '#d63031' : stock <= minStock / 2 ? '#e17055' : '#fdcb6e';
+                
+                return `
+                    <tr>
+                        <td>${escapeHtml(truncateText(book.title, 30))}</td>
+                        <td style="text-align: right; color: ${statusColor}; font-weight: bold;">${stock}</td>
+                        <td style="text-align: center;">
+                            <span style="background: ${statusColor}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">
+                                ${status}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        // Update top selling books
+        async function updateTopSellingBooks() {
+            try {
+                const tbody = document.getElementById('topBooksTable');
+                
+                // Calculate book sales from order items
+                const bookSales = {};
+                
+                allOrders.forEach(order => {
+                    if (order.status === 'completed' || order.status === 'shipped' || order.status === 'delivered') {
+                        // Note: This is a simplified version. In a real app, you'd need order_items data
+                        // For now, we'll just show placeholder data
+                    }
+                });
+                
+                // Since we don't have order_items in the current structure, show a message
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: rgba(255,255,255,0.5); padding: 20px;">
+                            <i class="fas fa-chart-bar" style="font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.3;"></i>
+                            Sales analytics require order items data
+                        </td>
+                    </tr>
+                `;
+                
+            } catch (error) {
+                console.error('Error updating top selling books:', error);
+            }
+        }
 
-        // Update book sales statistics
+        // Update book sales statistics (legacy function - kept for compatibility)
         async function updateBookSales() {
             try {
                 if (!allOrders || allOrders.length === 0) {
