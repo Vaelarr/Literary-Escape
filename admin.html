@@ -80,69 +80,69 @@
             
             <!-- Key Metrics -->
             <div class="stats-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
-                <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="stat-card" style="background: linear-gradient(135deg, rgba(74, 107, 90, 0.4) 0%, rgba(106, 156, 137, 0.4) 100%); border-color: rgba(106, 156, 137, 0.5);">
                     <div style="display: flex; justify-content: space-between; align-items: start;">
-                        <div>
-                            <h3 style="font-size: 0.9rem; opacity: 0.9;">Total Books</h3>
-                            <div class="value" id="booksNumber" style="font-size: 2.5rem; font-weight: bold;">0</div>
-                            <p style="font-size: 0.8rem; margin-top: 5px; opacity: 0.8;"><span id="activeBooksCount">0</span> active</p>
+                        <div style="text-align: left;">
+                            <h3 style="font-size: 0.85rem; opacity: 0.95; margin-bottom: 8px;">Total Books</h3>
+                            <div class="value" id="booksNumber" style="font-size: 2.2rem; font-weight: bold; margin: 5px 0;">0</div>
+                            <p style="font-size: 0.75rem; margin-top: 5px; opacity: 0.8; color: #b8e6d5;"><span id="activeBooksCount">0</span> active</p>
                         </div>
-                        <i class="fas fa-book" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                        <i class="fas fa-book" style="font-size: 2.2rem; opacity: 0.25;"></i>
                     </div>
                 </div>
                 
-                <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="stat-card" style="background: linear-gradient(135deg, rgba(106, 156, 137, 0.35) 0%, rgba(122, 155, 138, 0.35) 100%); border-color: rgba(122, 155, 138, 0.5);">
                     <div style="display: flex; justify-content: space-between; align-items: start;">
-                        <div>
-                            <h3 style="font-size: 0.9rem; opacity: 0.9;">Total Stock</h3>
-                            <div class="value" id="totalStock" style="font-size: 2.5rem; font-weight: bold;">0</div>
-                            <p style="font-size: 0.8rem; margin-top: 5px; opacity: 0.8;">units available</p>
+                        <div style="text-align: left;">
+                            <h3 style="font-size: 0.85rem; opacity: 0.95; margin-bottom: 8px;">Total Stock</h3>
+                            <div class="value" id="totalStock" style="font-size: 2.2rem; font-weight: bold; margin: 5px 0;">0</div>
+                            <p style="font-size: 0.75rem; margin-top: 5px; opacity: 0.8; color: #b8e6d5;">units available</p>
                         </div>
-                        <i class="fas fa-boxes" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                        <i class="fas fa-boxes" style="font-size: 2.2rem; opacity: 0.25;"></i>
                     </div>
                 </div>
                 
-                <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <div class="stat-card" style="background: linear-gradient(135deg, rgba(45, 74, 62, 0.5) 0%, rgba(74, 107, 90, 0.5) 100%); border-color: rgba(74, 107, 90, 0.6);">
                     <div style="display: flex; justify-content: space-between; align-items: start;">
-                        <div>
-                            <h3 style="font-size: 0.9rem; opacity: 0.9;">Total Orders</h3>
-                            <div class="value" id="totalOrders" style="font-size: 2.5rem; font-weight: bold;">0</div>
-                            <p style="font-size: 0.8rem; margin-top: 5px; opacity: 0.8;"><span id="pendingOrders">0</span> pending</p>
+                        <div style="text-align: left;">
+                            <h3 style="font-size: 0.85rem; opacity: 0.95; margin-bottom: 8px;">Total Orders</h3>
+                            <div class="value" id="totalOrders" style="font-size: 2.2rem; font-weight: bold; margin: 5px 0;">0</div>
+                            <p style="font-size: 0.75rem; margin-top: 5px; opacity: 0.8; color: #ffeaa7;"><span id="pendingOrders">0</span> pending</p>
                         </div>
-                        <i class="fas fa-shopping-cart" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                        <i class="fas fa-shopping-cart" style="font-size: 2.2rem; opacity: 0.25;"></i>
                     </div>
                 </div>
                 
-                <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                <div class="stat-card" style="background: linear-gradient(135deg, rgba(26, 51, 41, 0.6) 0%, rgba(45, 74, 62, 0.6) 100%); border-color: rgba(106, 156, 137, 0.5);">
                     <div style="display: flex; justify-content: space-between; align-items: start;">
-                        <div>
-                            <h3 style="font-size: 0.9rem; opacity: 0.9;">Revenue</h3>
-                            <div class="value" id="totalRevenue" style="font-size: 2.5rem; font-weight: bold;">₱0</div>
-                            <p style="font-size: 0.8rem; margin-top: 5px; opacity: 0.8;">all time sales</p>
+                        <div style="text-align: left;">
+                            <h3 style="font-size: 0.85rem; opacity: 0.95; margin-bottom: 8px;">Revenue</h3>
+                            <div class="value" id="totalRevenue" style="font-size: 2.2rem; font-weight: bold; margin: 5px 0;">₱0</div>
+                            <p style="font-size: 0.75rem; margin-top: 5px; opacity: 0.8; color: #b8e6d5;">all time sales</p>
                         </div>
-                        <i class="fas fa-dollar-sign" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                        <i class="fas fa-dollar-sign" style="font-size: 2.2rem; opacity: 0.25;"></i>
                     </div>
                 </div>
                 
-                <div class="stat-card" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                <div class="stat-card" style="background: linear-gradient(135deg, rgba(74, 107, 90, 0.45) 0%, rgba(106, 156, 137, 0.45) 100%); border-color: rgba(122, 155, 138, 0.5);">
                     <div style="display: flex; justify-content: space-between; align-items: start;">
-                        <div>
-                            <h3 style="font-size: 0.9rem; opacity: 0.9;">Registered Users</h3>
-                            <div class="value" id="totalUsers" style="font-size: 2.5rem; font-weight: bold;">0</div>
-                            <p style="font-size: 0.8rem; margin-top: 5px; opacity: 0.8;">customer accounts</p>
+                        <div style="text-align: left;">
+                            <h3 style="font-size: 0.85rem; opacity: 0.95; margin-bottom: 8px;">Registered Users</h3>
+                            <div class="value" id="totalUsers" style="font-size: 2.2rem; font-weight: bold; margin: 5px 0;">0</div>
+                            <p style="font-size: 0.75rem; margin-top: 5px; opacity: 0.8; color: #b8e6d5;">customer accounts</p>
                         </div>
-                        <i class="fas fa-users" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                        <i class="fas fa-users" style="font-size: 2.2rem; opacity: 0.25;"></i>
                     </div>
                 </div>
                 
-                <div class="stat-card" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); color: #333;">
+                <div class="stat-card" style="background: linear-gradient(135deg, rgba(214, 48, 49, 0.25) 0%, rgba(225, 112, 85, 0.25) 100%); border-color: rgba(214, 48, 49, 0.4);">
                     <div style="display: flex; justify-content: space-between; align-items: start;">
-                        <div>
-                            <h3 style="font-size: 0.9rem; opacity: 0.9;">Low Stock Alert</h3>
-                            <div class="value" id="lowStockCount" style="font-size: 2.5rem; font-weight: bold; color: #d63031;">0</div>
-                            <p style="font-size: 0.8rem; margin-top: 5px; opacity: 0.8;">items need reorder</p>
+                        <div style="text-align: left;">
+                            <h3 style="font-size: 0.85rem; opacity: 0.95; margin-bottom: 8px;">Low Stock Alert</h3>
+                            <div class="value" id="lowStockCount" style="font-size: 2.2rem; font-weight: bold; margin: 5px 0; color: #ff6b6b;">0</div>
+                            <p style="font-size: 0.75rem; margin-top: 5px; opacity: 0.8; color: #ffeaa7;">items need reorder</p>
                         </div>
-                        <i class="fas fa-exclamation-triangle" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2.2rem; opacity: 0.25; color: #ff6b6b;"></i>
                     </div>
                 </div>
             </div>
@@ -151,26 +151,26 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
                 <!-- Category Distribution -->
                 <div class="content-card">
-                    <h3 class="section-title" style="font-size: 1.2rem; margin-bottom: 15px;">
+                    <h3 class="section-title" style="font-size: 1.1rem; margin-bottom: 20px;">
                         <i class="fas fa-chart-pie me-2"></i>Books by Category
                     </h3>
-                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div style="display: flex; flex-direction: column; gap: 18px;">
                         <div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                <span style="color: rgba(255,255,255,0.8);">Fiction</span>
-                                <span id="fictionCount" style="font-weight: bold;">0</span>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="color: rgba(255,255,255,0.85); font-size: 0.95rem;">Fiction</span>
+                                <span id="fictionCount" style="font-weight: bold; color: #6a9c89;">0</span>
                             </div>
-                            <div style="background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; overflow: hidden;">
-                                <div id="fictionBar" style="background: linear-gradient(90deg, #667eea, #764ba2); height: 100%; width: 0%; transition: width 0.3s;"></div>
+                            <div style="background: rgba(255,255,255,0.1); height: 10px; border-radius: 5px; overflow: hidden;">
+                                <div id="fictionBar" style="background: linear-gradient(90deg, #6a9c89, #4a6b5a); height: 100%; width: 0%; transition: width 0.5s ease;"></div>
                             </div>
                         </div>
                         <div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                <span style="color: rgba(255,255,255,0.8);">Non-Fiction</span>
-                                <span id="nonFictionCount" style="font-weight: bold;">0</span>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="color: rgba(255,255,255,0.85); font-size: 0.95rem;">Non-Fiction</span>
+                                <span id="nonFictionCount" style="font-weight: bold; color: #7a9b8a;">0</span>
                             </div>
-                            <div style="background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; overflow: hidden;">
-                                <div id="nonFictionBar" style="background: linear-gradient(90deg, #f093fb, #f5576c); height: 100%; width: 0%; transition: width 0.3s;"></div>
+                            <div style="background: rgba(255,255,255,0.1); height: 10px; border-radius: 5px; overflow: hidden;">
+                                <div id="nonFictionBar" style="background: linear-gradient(90deg, #7a9b8a, #5d7c6d); height: 100%; width: 0%; transition: width 0.5s ease;"></div>
                             </div>
                         </div>
                     </div>
@@ -178,35 +178,41 @@
 
                 <!-- Order Status Distribution -->
                 <div class="content-card">
-                    <h3 class="section-title" style="font-size: 1.2rem; margin-bottom: 15px;">
+                    <h3 class="section-title" style="font-size: 1.1rem; margin-bottom: 20px;">
                         <i class="fas fa-tasks me-2"></i>Orders by Status
                     </h3>
-                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div style="display: flex; flex-direction: column; gap: 18px;">
                         <div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                <span style="color: rgba(255,255,255,0.8);">Pending</span>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="color: rgba(255,255,255,0.85); font-size: 0.95rem;">
+                                    <i class="fas fa-clock" style="font-size: 0.8rem; margin-right: 5px; color: #ffeaa7;"></i>Pending
+                                </span>
                                 <span id="pendingOrdersCount" style="font-weight: bold; color: #ffeaa7;">0</span>
                             </div>
-                            <div style="background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; overflow: hidden;">
-                                <div id="pendingBar" style="background: #ffeaa7; height: 100%; width: 0%; transition: width 0.3s;"></div>
+                            <div style="background: rgba(255,255,255,0.1); height: 10px; border-radius: 5px; overflow: hidden;">
+                                <div id="pendingBar" style="background: #ffeaa7; height: 100%; width: 0%; transition: width 0.5s ease;"></div>
                             </div>
                         </div>
                         <div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                <span style="color: rgba(255,255,255,0.8);">Processing</span>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="color: rgba(255,255,255,0.85); font-size: 0.95rem;">
+                                    <i class="fas fa-cog fa-spin" style="font-size: 0.8rem; margin-right: 5px; color: #74b9ff;"></i>Processing
+                                </span>
                                 <span id="processingOrdersCount" style="font-weight: bold; color: #74b9ff;">0</span>
                             </div>
-                            <div style="background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; overflow: hidden;">
-                                <div id="processingBar" style="background: #74b9ff; height: 100%; width: 0%; transition: width 0.3s;"></div>
+                            <div style="background: rgba(255,255,255,0.1); height: 10px; border-radius: 5px; overflow: hidden;">
+                                <div id="processingBar" style="background: #74b9ff; height: 100%; width: 0%; transition: width 0.5s ease;"></div>
                             </div>
                         </div>
                         <div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                <span style="color: rgba(255,255,255,0.8);">Completed</span>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="color: rgba(255,255,255,0.85); font-size: 0.95rem;">
+                                    <i class="fas fa-check-circle" style="font-size: 0.8rem; margin-right: 5px; color: #00b894;"></i>Completed
+                                </span>
                                 <span id="completedOrdersCount" style="font-weight: bold; color: #00b894;">0</span>
                             </div>
-                            <div style="background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; overflow: hidden;">
-                                <div id="completedBar" style="background: #00b894; height: 100%; width: 0%; transition: width 0.3s;"></div>
+                            <div style="background: rgba(255,255,255,0.1); height: 10px; border-radius: 5px; overflow: hidden;">
+                                <div id="completedBar" style="background: #00b894; height: 100%; width: 0%; transition: width 0.5s ease;"></div>
                             </div>
                         </div>
                     </div>
@@ -217,8 +223,8 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
                 <!-- Top Selling Books -->
                 <div class="content-card">
-                    <h3 class="section-title" style="font-size: 1.2rem; margin-bottom: 15px;">
-                        <i class="fas fa-trophy me-2"></i>Top Selling Books
+                    <h3 class="section-title" style="font-size: 1.1rem; margin-bottom: 15px;">
+                        <i class="fas fa-trophy me-2" style="color: #ffd700;"></i>Top Selling Books
                     </h3>
                     <div class="table-container" style="max-height: 300px; overflow-y: auto;">
                         <table class="custom-table" style="font-size: 0.9rem;">
@@ -231,7 +237,10 @@
                             </thead>
                             <tbody id="topBooksTable">
                                 <tr>
-                                    <td colspan="3" style="text-align: center; color: rgba(255,255,255,0.5);">No sales data</td>
+                                    <td colspan="3" style="text-align: center; color: rgba(255,255,255,0.5); padding: 30px;">
+                                        <i class="fas fa-chart-bar" style="font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.3;"></i>
+                                        Loading sales data...
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -240,8 +249,8 @@
 
                 <!-- Inventory Alerts -->
                 <div class="content-card">
-                    <h3 class="section-title" style="font-size: 1.2rem; margin-bottom: 15px;">
-                        <i class="fas fa-bell me-2"></i>Inventory Alerts
+                    <h3 class="section-title" style="font-size: 1.1rem; margin-bottom: 15px;">
+                        <i class="fas fa-bell me-2" style="color: #ff6b6b;"></i>Inventory Alerts
                     </h3>
                     <div class="table-container" style="max-height: 300px; overflow-y: auto;">
                         <table class="custom-table" style="font-size: 0.9rem;">
@@ -254,7 +263,10 @@
                             </thead>
                             <tbody id="lowStockTable">
                                 <tr>
-                                    <td colspan="3" style="text-align: center; color: rgba(255,255,255,0.5);">All stock levels are healthy</td>
+                                    <td colspan="3" style="text-align: center; color: rgba(255,255,255,0.5); padding: 30px;">
+                                        <i class="fas fa-check-circle" style="font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.3; color: #00b894;"></i>
+                                        All stock levels are healthy
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -263,54 +275,54 @@
             </div>
 
             <!-- Quick Stats Grid -->
-            <h3 class="section-title" style="font-size: 1.2rem; margin-bottom: 15px;">
+            <h3 class="section-title" style="font-size: 1.1rem; margin-bottom: 15px;">
                 <i class="fas fa-info-circle me-2"></i>Additional Metrics
             </h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                <div class="content-card" style="padding: 15px;">
+                <div class="content-card" style="padding: 18px;">
                     <div style="display: flex; align-items: center; gap: 15px;">
-                        <div style="background: rgba(102, 126, 234, 0.2); padding: 12px; border-radius: 8px;">
-                            <i class="fas fa-percentage" style="font-size: 1.5rem; color: #667eea;"></i>
+                        <div style="background: rgba(106, 156, 137, 0.25); padding: 14px; border-radius: 10px; border: 1px solid rgba(106, 156, 137, 0.3);">
+                            <i class="fas fa-tags" style="font-size: 1.6rem; color: #6a9c89;"></i>
                         </div>
                         <div>
-                            <p style="font-size: 0.85rem; color: rgba(255,255,255,0.6); margin: 0;">Avg. Book Price</p>
-                            <p style="font-size: 1.3rem; font-weight: bold; margin: 0;" id="avgBookPrice">₱0.00</p>
+                            <p style="font-size: 0.8rem; color: rgba(255,255,255,0.65); margin: 0;">Avg. Book Price</p>
+                            <p style="font-size: 1.4rem; font-weight: bold; margin: 3px 0 0 0;" id="avgBookPrice">₱0.00</p>
                         </div>
                     </div>
                 </div>
                 
-                <div class="content-card" style="padding: 15px;">
+                <div class="content-card" style="padding: 18px;">
                     <div style="display: flex; align-items: center; gap: 15px;">
-                        <div style="background: rgba(240, 147, 251, 0.2); padding: 12px; border-radius: 8px;">
-                            <i class="fas fa-chart-line" style="font-size: 1.5rem; color: #f093fb;"></i>
+                        <div style="background: rgba(122, 155, 138, 0.25); padding: 14px; border-radius: 10px; border: 1px solid rgba(122, 155, 138, 0.3);">
+                            <i class="fas fa-chart-line" style="font-size: 1.6rem; color: #7a9b8a;"></i>
                         </div>
                         <div>
-                            <p style="font-size: 0.85rem; color: rgba(255,255,255,0.6); margin: 0;">Avg. Order Value</p>
-                            <p style="font-size: 1.3rem; font-weight: bold; margin: 0;" id="avgOrderValue">₱0.00</p>
+                            <p style="font-size: 0.8rem; color: rgba(255,255,255,0.65); margin: 0;">Avg. Order Value</p>
+                            <p style="font-size: 1.4rem; font-weight: bold; margin: 3px 0 0 0;" id="avgOrderValue">₱0.00</p>
                         </div>
                     </div>
                 </div>
                 
-                <div class="content-card" style="padding: 15px;">
+                <div class="content-card" style="padding: 18px;">
                     <div style="display: flex; align-items: center; gap: 15px;">
-                        <div style="background: rgba(67, 233, 123, 0.2); padding: 12px; border-radius: 8px;">
-                            <i class="fas fa-warehouse" style="font-size: 1.5rem; color: #43e97b;"></i>
+                        <div style="background: rgba(74, 107, 90, 0.25); padding: 14px; border-radius: 10px; border: 1px solid rgba(74, 107, 90, 0.3);">
+                            <i class="fas fa-warehouse" style="font-size: 1.6rem; color: #4a6b5a;"></i>
                         </div>
                         <div>
-                            <p style="font-size: 0.85rem; color: rgba(255,255,255,0.6); margin: 0;">Inventory Value</p>
-                            <p style="font-size: 1.3rem; font-weight: bold; margin: 0;" id="inventoryValue">₱0.00</p>
+                            <p style="font-size: 0.8rem; color: rgba(255,255,255,0.65); margin: 0;">Inventory Value</p>
+                            <p style="font-size: 1.4rem; font-weight: bold; margin: 3px 0 0 0;" id="inventoryValue">₱0.00</p>
                         </div>
                     </div>
                 </div>
                 
-                <div class="content-card" style="padding: 15px;">
+                <div class="content-card" style="padding: 18px;">
                     <div style="display: flex; align-items: center; gap: 15px;">
-                        <div style="background: rgba(250, 112, 154, 0.2); padding: 12px; border-radius: 8px;">
-                            <i class="fas fa-star" style="font-size: 1.5rem; color: #fa709a;"></i>
+                        <div style="background: rgba(106, 156, 137, 0.25); padding: 14px; border-radius: 10px; border: 1px solid rgba(106, 156, 137, 0.3);">
+                            <i class="fas fa-star" style="font-size: 1.6rem; color: #ffd700;"></i>
                         </div>
                         <div>
-                            <p style="font-size: 0.85rem; color: rgba(255,255,255,0.6); margin: 0;">Unique Genres</p>
-                            <p style="font-size: 1.3rem; font-weight: bold; margin: 0;" id="uniqueGenres">0</p>
+                            <p style="font-size: 0.8rem; color: rgba(255,255,255,0.65); margin: 0;">Unique Genres</p>
+                            <p style="font-size: 1.4rem; font-weight: bold; margin: 3px 0 0 0;" id="uniqueGenres">0</p>
                         </div>
                     </div>
                 </div>
