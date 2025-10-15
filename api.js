@@ -22,7 +22,9 @@ const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-here'; // In production, use environment variable
 
 // Middleware
-app.use(express.json());
+// Increase payload size limit to handle base64 encoded images (10MB limit)
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(express.static(path.join(__dirname)));
 
 // Authentication middleware
