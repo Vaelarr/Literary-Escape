@@ -1018,6 +1018,94 @@ const favoritesOperations = {
 
 // Order Operations
 const orderOperations = {
+    // Create new order (simplified signature to match database.js)
+    createOrder: async (userId, totalAmount, shippingAddress, callback) => {
+        try {
+            const orderResult = await query(
+                `INSERT INTO orders (user_id, total_amount, shipping_address)
+                 VALUES (?, ?, ?)`,
+                [userId, totalAmount, shippingAddress]
+            );
+
+            // Call callback with context that has lastID property
+            const context = { lastID: Number(orderResult.lastInsertRowid) };
+            callback.call(context, null);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Add order items
+    addOrderItems: async (orderId, items, callback) => {
+        try {
+            for (const item of items) {
+                await query(
+                    `INSERT INTO order_items (order_id, book_id, quantity, price)
+                     VALUES (?, ?, ?, ?)`,
+                    [orderId, item.book_id, item.quantity, item.price]
+                );
+            }
+            callback(null);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Get user's orders
+    getUserOrders: async (userId, callback) => {
+        try {
+            const result = await query(
+                `SELECT * FROM orders 
+                 WHERE user_id = ? 
+                 ORDER BY created_at DESC`,
+                [userId]
+            );
+            callback(null, result.rows);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Get order details with items
+    getOrderDetails: async (orderId, callback) => {
+        try {
+            const orderResult = await query('SELECT * FROM orders WHERE id = ?', [orderId]);
+            const order = orderResult.rows[0];
+            
+            if (!order) {
+                return callback(null, null);
+            }
+
+            const itemsResult = await query(
+                `SELECT oi.*, b.title, b.author, b.cover
+                 FROM order_items oi
+                 JOIN books b ON oi.book_id = b.id
+                 WHERE oi.order_id = ?`,
+                [orderId]
+            );
+
+            callback(null, { ...order, items: itemsResult.rows });
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Get all orders (for admin)
+    getAllOrders: async (callback) => {
+        try {
+            const result = await query(
+                `SELECT o.*, u.username, u.email, u.first_name, u.last_name
+                 FROM orders o
+                 LEFT JOIN users u ON o.user_id = u.id
+                 ORDER BY o.created_at DESC`
+            );
+            callback(null, result.rows);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Legacy create method (kept for backwards compatibility)
     create: async (orderData, callback) => {
         try {
             // Begin transaction (Turso supports transactions)
