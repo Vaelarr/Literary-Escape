@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Literary Escape</title>
     <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/common.css">
     <link rel="icon" type="image/x-icon" href="./media/icon.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
@@ -14,18 +15,19 @@
 
     <style>
         /* Base layout fixes */
-        html, body {
+        html,
+        body {
             height: 100%;
             margin: 0;
             padding: 0;
             overflow-x: hidden;
         }
-        
+
         .main-content {
             min-height: calc(100vh - 160px);
             padding: 100px 0 40px 0;
         }
-        
+
         /* Navbar improvements */
         .navbar {
             z-index: 1030;
@@ -34,46 +36,45 @@
             background: rgba(22, 66, 60, 0.95) !important;
             box-shadow: 0 2px 20px rgba(22, 66, 60, 0.3);
         }
-        
+
         .navbar.fixed-top {
             position: fixed !important;
             top: 0;
             left: 0;
             right: 0;
         }
-        
+
         /* Navbar text styling */
         .navbar .nav-link {
             color: #ffffff !important;
             font-weight: 500;
             transition: all 0.3s ease;
         }
-        
+
         .navbar .nav-link:hover {
             color: rgba(51, 189, 170, 0.95) !important;
             transform: translateY(-1px);
         }
-        
+
         .navbar .dropdown-toggle {
             color: #ffffff !important;
         }
-        
+
         .navbar .icon-link {
             color: #ffffff !important;
             text-decoration: none;
             transition: all 0.3s ease;
             display: inline-block;
         }
-        
+
         .navbar .icon-link:hover {
             color: rgba(51, 189, 170, 0.95) !important;
             transform: scale(1.1);
         }
-        
+
         .navbar .icon-link i {
             color: #ffffff !important;
         }
-
     </style>
 
 </head>
@@ -125,9 +126,10 @@
                 <!-- Search Bar -->
                 <form class="d-flex mx-3" onsubmit="handleSearch(event)">
                     <div class="search-wrapper w-100">
-                        <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search" id="searchInput">
+                        <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search"
+                            id="searchInput">
                         <button class="btn mx-0" title="search-btn" type="submit"><i class="bi bi-search"></i></button>
-                        
+
                         <!-- Search Dropdown -->
                         <div class="search-dropdown" id="searchDropdown">
                             <!-- Loading indicator -->
@@ -137,11 +139,11 @@
                                 </div>
                                 <span class="loading-text">Searching...</span>
                             </div>
-                            
+
                             <!-- Search results container -->
                             <div class="search-results-container" id="searchResultsContainer">
                             </div>
-                            
+
                             <!-- No results message -->
                             <div class="no-results-message" id="noResultsMessage">
                                 <i class="bi bi-search"></i>
@@ -165,7 +167,6 @@
                         <a href="account.html" class="icon-link" id="profileIcon" title="Account">
                             <i class="fa-solid fa-user"></i>
                         </a>
-                        <!-- Profile Dropdown (hidden by default) -->
                         <div class="profile-dropdown" id="profileDropdown">
                             <div class="profile-dropdown-header">
                                 <div class="user-name" id="dropdownUserName">User Name</div>
@@ -265,7 +266,8 @@
                         <span>LITERARY ESCAPE</span>
                     </div>
                     <p class="footer-description">
-                        Your gateway to endless literary adventures. Discover, explore, and escape into the world of books with our carefully curated collection of fiction, non-fiction, and specialty titles.
+                        Your gateway to endless literary adventures. Discover, explore, and escape into the world of
+                        books with our carefully curated collection of fiction, non-fiction, and specialty titles.
                     </p>
                     <div class="social-links">
                         <a href="https://www.facebook.com/" target="_blank" rel="noopener" aria-label="Facebook">
@@ -282,7 +284,7 @@
                         </a>
                     </div>
                 </div>
-                
+
                 <div class="footer-column">
                     <h4 class="footer-title">Quick Links</h4>
                     <ul class="footer-links">
@@ -293,18 +295,19 @@
                         <li><a href="account.html">My Account</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="footer-column">
                     <h4 class="footer-title">Customer Service</h4>
                     <ul class="footer-links">
                         <li><a href="cart.html">Shopping Cart</a></li>
                         <li><a href="favorites.html">My Favorites</a></li>
                         <li><a href="checkout.html">Checkout</a></li>
-                        <li><a href="#" onclick="showInfo('Contact us at: support@literaryescape.com')">Contact Support</a></li>
+                        <li><a href="#" onclick="showInfo('Contact us at: support@literaryescape.com')">Contact
+                                Support</a></li>
                         <li><a href="#" onclick="showInfo('Shipping: 3-5 business days')">Shipping Info</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="footer-column">
                     <h4 class="footer-title">Contact Info</h4>
                     <ul class="footer-links">
@@ -315,9 +318,10 @@
                     </ul>
                 </div>
             </div>
-            
+
             <div class="footer-bottom">
-                <p>&copy; 2024 Literary Escape. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+                <p>&copy; 2024 Literary Escape. All rights reserved. | <a href="#">Privacy Policy</a> | <a
+                        href="#">Terms of Service</a></p>
             </div>
         </div>
     </footer>
@@ -327,7 +331,7 @@
     <script src="js/database-book-display.js"></script>
     <script>
         // Initialize cart count regardless of login status
-        document.addEventListener('DOMContentLoaded', async function() {
+        document.addEventListener('DOMContentLoaded', async function () {
             try {
                 if (typeof dbBookDisplay !== 'undefined' && dbBookDisplay && typeof dbBookDisplay.updateCartCount === 'function') {
                     await dbBookDisplay.updateCartCount();
@@ -378,7 +382,7 @@
         let apiClient;
 
         // Initialize search functionality when page loads
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             apiClient = new APIClient();
             initializeSearchDropdown();
         });
@@ -388,9 +392,9 @@
             const searchDropdown = document.getElementById('searchDropdown');
 
             // Listen for input events on search bar
-            searchInput.addEventListener('input', function(e) {
+            searchInput.addEventListener('input', function (e) {
                 const query = e.target.value.trim();
-                
+
                 if (query.length >= 2) {
                     currentSearchTerm = query;
                     showSearchDropdown();
@@ -406,14 +410,14 @@
             });
 
             // Hide dropdown when clicking outside
-            document.addEventListener('click', function(e) {
+            document.addEventListener('click', function (e) {
                 if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
                     hideSearchDropdown();
                 }
             });
 
             // Handle escape key to close dropdown
-            searchInput.addEventListener('keydown', function(e) {
+            searchInput.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape') {
                     hideSearchDropdown();
                 } else if (e.key === 'ArrowDown') {
@@ -426,7 +430,7 @@
             });
 
             // Handle arrow key navigation in search results
-            searchDropdown.addEventListener('keydown', function(e) {
+            searchDropdown.addEventListener('keydown', function (e) {
                 const resultItems = searchDropdown.querySelectorAll('.search-result-item');
                 const currentFocus = document.activeElement;
                 let currentIndex = Array.from(resultItems).indexOf(currentFocus);
@@ -453,7 +457,7 @@
 
             // Prevent form submission when dropdown is visible
             const searchForm = searchInput.closest('form');
-            searchForm.addEventListener('submit', function(e) {
+            searchForm.addEventListener('submit', function (e) {
                 if (searchDropdown.classList.contains('show')) {
                     e.preventDefault();
                     return false;
@@ -488,9 +492,9 @@
                     if (query !== currentSearchTerm) return;
 
                     const response = await apiClient.getBooks({ search: query });
-                    
+
                     if (query !== currentSearchTerm) return; // Query changed while searching
-                    
+
                     if (response && response.length > 0) {
                         displaySearchResults(response);
                     } else {
@@ -546,14 +550,14 @@
         function displaySearchResults(books) {
             const container = document.getElementById('searchResultsContainer');
             document.getElementById('noResultsMessage').classList.remove('show');
-            
+
             container.innerHTML = books.map(book => createSearchResultItem(book)).join('');
         }
 
         function createSearchResultItem(book) {
             const coverImage = book.cover || './media/books/default-cover.jpg';
             const price = book.price ? `₱${parseFloat(book.price).toFixed(2)}` : 'Price not available';
-            
+
             return `
                 <div class="search-result-item" onclick="goToBookDetails('${book.id}')" tabindex="0" role="button" aria-label="View details for ${escapeHtml(book.title)} by ${escapeHtml(book.author)}">
                     <img src="${coverImage}" alt="${book.title}" onerror="this.src='./media/books/default-cover.jpg'">
@@ -579,13 +583,13 @@
                 '"': '&quot;',
                 "'": '&#039;'
             };
-            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+            return text.replace(/[&<>"']/g, function (m) { return map[m]; });
         }
     </script>
     <script src="js/custom-notifications.js"></script>
     <script src="js/api-client.js"></script>
-    <script src="js/navbar-profile.js"></script>
     <script src="js/navbar-counts.js"></script>
+    <script src="js/navbar-profile.js"></script>
     <script src="js/database-book-display.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
