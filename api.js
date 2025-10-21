@@ -125,6 +125,19 @@ app.get('/api/books/:id', (req, res) => {
 app.post('/api/books', authenticateAdmin, (req, res) => {
     const book = req.body;
     
+    console.log('📚 POST /api/books - Received book data:', {
+        title: book.title,
+        author: book.author,
+        category: book.category,
+        genre: book.genre,
+        price: book.price,
+        stock_quantity: book.stock_quantity,
+        status: book.status,
+        discount_percentage: book.discount_percentage,
+        publisher: book.publisher,
+        hasCover: !!book.cover
+    });
+    
     // Validate required fields
     if (!book.title || !book.author) {
         return res.status(400).json({ error: 'Title and author are required' });
@@ -134,19 +147,19 @@ app.post('/api/books', authenticateAdmin, (req, res) => {
     const bookData = {
         ...book,
         price: book.price || 0,
-        stock_quantity: book.stock_quantity || 1,
+        stock_quantity: book.stock_quantity !== undefined ? book.stock_quantity : 1,
         category: book.category || 'Fiction',
         genre: book.genre || 'General'
     };
     
-    console.log('Creating book:', bookData);
+    console.log('📝 Creating book with processed data');
     
     bookOperations.add(bookData, function(err) {
         if (err) {
-            console.error('Error creating book:', err);
+            console.error('❌ Error creating book:', err);
             return res.status(500).json({ error: err.message });
         }
-        console.log('Book created with ID:', this.lastID);
+        console.log('✅ Book created with ID:', this.lastID);
         res.status(201).json({ id: this.lastID, message: 'Book created' });
     });
 });
@@ -159,14 +172,25 @@ app.put('/api/books/:id', authenticateAdmin, (req, res) => {
         return res.status(400).json({ error: 'Invalid book ID' });
     }
     
-    console.log('Updating book ID:', bookId, 'with data:', book);
+    console.log('📚 PUT /api/books/:id - Updating book:', {
+        id: bookId,
+        title: book.title,
+        author: book.author,
+        category: book.category,
+        genre: book.genre,
+        price: book.price,
+        stock_quantity: book.stock_quantity,
+        status: book.status,
+        discount_percentage: book.discount_percentage,
+        fieldsProvided: Object.keys(book).length
+    });
     
     bookOperations.update(bookId, book, function(err) {
         if (err) {
-            console.error('Error updating book:', err);
+            console.error('❌ Error updating book:', err);
             return res.status(500).json({ error: err.message });
         }
-        console.log('Book updated, changes:', this.changes);
+        console.log('✅ Book updated, changes:', this.changes);
         res.json({ message: 'Book updated', changes: this.changes });
     });
 });

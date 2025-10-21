@@ -726,8 +726,8 @@
                 document.querySelector('.dimensions').textContent = book.dimensions || 'Unknown';
                 document.querySelector('.isbn').textContent = book.isbn || 'Unknown';
 
-                // Rating
-                displayRating(book.rating || 0);
+                // Rating - Load from reviews table
+                await loadAndDisplayRating(bookId);
 
                 // Stock status
                 displayStockStatus(book.stock_quantity || 0);
@@ -954,7 +954,29 @@
             }
         }
 
-        function displayRating(rating) {
+        async function loadAndDisplayRating(bookId) {
+            try {
+                // Fetch average rating from reviews
+                const response = await fetch(`/api/reviews/${bookId}/average`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch rating');
+                }
+                
+                const ratingData = await response.json();
+                // Use the average rating or default to 0.0 if no reviews exist
+                const averageRating = ratingData.average || 0.0;
+                const reviewCount = ratingData.count || 0;
+                
+                displayRating(averageRating, reviewCount);
+            } catch (error) {
+                console.error('Error loading rating:', error);
+                // Default to 0.0 if there's an error
+                displayRating(0.0, 0);
+            }
+        }
+
+        function displayRating(rating, reviewCount = 0) {
             const starsContainer = document.querySelector('.rating-stars');
             const ratingValue = document.querySelector('.rating-value');
 
@@ -979,7 +1001,7 @@
             }
 
             starsContainer.innerHTML = starsHTML;
-            ratingValue.textContent = `(${rating.toFixed(1)}/5.0)`;
+            ratingValue.textContent = `(${rating.toFixed(1)}/5.0) - ${reviewCount} review${reviewCount !== 1 ? 's' : ''}`;
         }
 
         function displayStockStatus(stockQuantity) {
@@ -1125,8 +1147,9 @@
                     if (response.ok) {
                         showSuccess('Thank you for your review! It has been submitted successfully.');
                         reviewForm.reset();
-                        // Reload reviews to show the new review
+                        // Reload reviews and rating to show the new review and updated average
                         await loadReviews(bookId);
+                        await loadAndDisplayRating(bookId);
                     } else {
                         throw new Error(result.error || 'Failed to submit review');
                     }

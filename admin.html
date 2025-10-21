@@ -273,60 +273,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Quick Stats Grid -->
-            <h3 class="section-title" style="font-size: 1.1rem; margin-bottom: 15px;">
-                <i class="fas fa-info-circle me-2"></i>Additional Metrics
-            </h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                <div class="content-card" style="padding: 18px;">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <div style="background: rgba(106, 156, 137, 0.25); padding: 14px; border-radius: 10px; border: 1px solid rgba(106, 156, 137, 0.3);">
-                            <i class="fas fa-tags" style="font-size: 1.6rem; color: #6a9c89;"></i>
-                        </div>
-                        <div>
-                            <p style="font-size: 0.8rem; color: rgba(255,255,255,0.65); margin: 0;">Avg. Book Price</p>
-                            <p style="font-size: 1.4rem; font-weight: bold; margin: 3px 0 0 0;" id="avgBookPrice">₱0.00</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="content-card" style="padding: 18px;">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <div style="background: rgba(122, 155, 138, 0.25); padding: 14px; border-radius: 10px; border: 1px solid rgba(122, 155, 138, 0.3);">
-                            <i class="fas fa-chart-line" style="font-size: 1.6rem; color: #7a9b8a;"></i>
-                        </div>
-                        <div>
-                            <p style="font-size: 0.8rem; color: rgba(255,255,255,0.65); margin: 0;">Avg. Order Value</p>
-                            <p style="font-size: 1.4rem; font-weight: bold; margin: 3px 0 0 0;" id="avgOrderValue">₱0.00</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="content-card" style="padding: 18px;">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <div style="background: rgba(74, 107, 90, 0.25); padding: 14px; border-radius: 10px; border: 1px solid rgba(74, 107, 90, 0.3);">
-                            <i class="fas fa-warehouse" style="font-size: 1.6rem; color: #4a6b5a;"></i>
-                        </div>
-                        <div>
-                            <p style="font-size: 0.8rem; color: rgba(255,255,255,0.65); margin: 0;">Inventory Value</p>
-                            <p style="font-size: 1.4rem; font-weight: bold; margin: 3px 0 0 0;" id="inventoryValue">₱0.00</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="content-card" style="padding: 18px;">
-                    <div style="display: flex; align-items: center; gap: 15px;">
-                        <div style="background: rgba(106, 156, 137, 0.25); padding: 14px; border-radius: 10px; border: 1px solid rgba(106, 156, 137, 0.3);">
-                            <i class="fas fa-star" style="font-size: 1.6rem; color: #ffd700;"></i>
-                        </div>
-                        <div>
-                            <p style="font-size: 0.8rem; color: rgba(255,255,255,0.65); margin: 0;">Unique Genres</p>
-                            <p style="font-size: 1.4rem; font-weight: bold; margin: 3px 0 0 0;" id="uniqueGenres">0</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- Books Management Section -->
@@ -674,14 +620,9 @@
                         <!-- Basic Information Section -->
                         <h6 class="text-white mb-3 pb-2 border-bottom"><i class="fas fa-book me-2"></i>Basic Information</h6>
                         <div class="row">
-                            <div class="col-md-8 mb-3">
+                            <div class="col-md-12 mb-3">
                                 <label class="form-label">Title <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="bookTitle" aria-label="Title" placeholder="Enter book title" required>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">ISBN</label>
-                                <input type="text" class="form-control" id="bookISBN" aria-label="ISBN" placeholder="978-0-xxx-xxxxx-x" pattern="[0-9\-]{10,17}">
-                                <small class="text-muted">Optional: ISBN-10 or ISBN-13</small>
                             </div>
                         </div>
                         <div class="row">
@@ -689,13 +630,9 @@
                                 <label class="form-label">Author <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="bookAuthor" aria-label="Author" placeholder="Author name" required>
                             </div>
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-6 mb-3">
                                 <label class="form-label">Publisher</label>
                                 <input type="text" class="form-control" id="bookPublisher" aria-label="Publisher" placeholder="Publisher name">
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label class="form-label">Publication Year</label>
-                                <input type="number" class="form-control" id="bookYear" aria-label="Publication Year" placeholder="YYYY" min="1000" max="2999">
                             </div>
                         </div>
                         <div class="mb-3">
@@ -753,55 +690,13 @@
                             </div>
                         </div>
 
-                        <!-- Inventory Management Section -->
-                        <h6 class="text-white mb-3 pb-2 border-bottom mt-4"><i class="fas fa-boxes me-2"></i>Inventory Management</h6>
+                        <!-- Inventory & Pricing Section -->
+                        <h6 class="text-white mb-3 pb-2 border-bottom mt-4"><i class="fas fa-boxes me-2"></i>Inventory & Pricing</h6>
                         <div class="row">
-                            <div class="col-md-3 mb-3">
-                                <label class="form-label">SKU (Stock Keeping Unit)</label>
-                                <input type="text" class="form-control" id="bookSKU" aria-label="SKU" placeholder="e.g., BK-FIC-001">
-                                <small class="text-muted">Unique identifier</small>
-                            </div>
-                            <div class="col-md-3 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label class="form-label">Current Stock <span class="text-danger">*</span></label>
                                 <input type="number" class="form-control" id="bookStock" aria-label="Stock Quantity" min="0" value="0" required>
                                 <small class="text-muted">Available quantity</small>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label class="form-label">Minimum Stock Level</label>
-                                <input type="number" class="form-control" id="bookMinStock" aria-label="Minimum Stock" min="0" value="5" placeholder="5">
-                                <small class="text-muted">Reorder alert threshold</small>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <label class="form-label">Maximum Stock Level</label>
-                                <input type="number" class="form-control" id="bookMaxStock" aria-label="Maximum Stock" min="0" value="100" placeholder="100">
-                                <small class="text-muted">Maximum capacity</small>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Reorder Point</label>
-                                <input type="number" class="form-control" id="bookReorderPoint" aria-label="Reorder Point" min="0" value="10" placeholder="10">
-                                <small class="text-muted">When to reorder</small>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Reorder Quantity</label>
-                                <input type="number" class="form-control" id="bookReorderQty" aria-label="Reorder Quantity" min="1" value="20" placeholder="20">
-                                <small class="text-muted">How many to reorder</small>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Warehouse Location</label>
-                                <input type="text" class="form-control" id="bookLocation" aria-label="Location" placeholder="e.g., Shelf A-12">
-                                <small class="text-muted">Storage location</small>
-                            </div>
-                        </div>
-
-                        <!-- Pricing Section -->
-                        <h6 class="text-white mb-3 pb-2 border-bottom mt-4"><i class="fas fa-money-bill-wave me-2"></i>Pricing & Costs</h6>
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Cost Price (₱)</label>
-                                <input type="number" class="form-control" id="bookCostPrice" aria-label="Cost Price" step="0.01" min="0" placeholder="0.00">
-                                <small class="text-muted">Purchase/wholesale cost</small>
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Selling Price (₱) <span class="text-danger">*</span></label>
@@ -809,68 +704,24 @@
                                 <small class="text-muted">Retail price</small>
                             </div>
                             <div class="col-md-4 mb-3">
-                                <label class="form-label">Profit Margin</label>
-                                <input type="text" class="form-control" id="bookProfitMargin" aria-label="Profit Margin" readonly style="background-color: #2a2a2a; cursor: not-allowed;">
-                                <small class="text-muted">Auto-calculated</small>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Discount Percentage (%)</label>
+                                <label class="form-label">Discount (%)</label>
                                 <input type="number" class="form-control" id="bookDiscount" aria-label="Discount" step="0.01" min="0" max="100" value="0" placeholder="0.00">
-                                <small class="text-muted">Current discount</small>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Final Price After Discount</label>
-                                <input type="text" class="form-control" id="bookFinalPrice" aria-label="Final Price" readonly style="background-color: #2a2a2a; cursor: not-allowed;">
-                                <small class="text-muted">Auto-calculated</small>
-                            </div>
-                        </div>
-
-                        <!-- Supplier Information Section -->
-                        <h6 class="text-white mb-3 pb-2 border-bottom mt-4"><i class="fas fa-truck me-2"></i>Supplier Information</h6>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Supplier Name</label>
-                                <input type="text" class="form-control" id="bookSupplier" aria-label="Supplier" placeholder="Supplier/Vendor name">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Supplier Contact</label>
-                                <input type="text" class="form-control" id="bookSupplierContact" aria-label="Supplier Contact" placeholder="Phone or email">
+                                <small class="text-muted">Optional discount</small>
                             </div>
                         </div>
 
                         <!-- Product Media Section -->
-                        <h6 class="text-white mb-3 pb-2 border-bottom mt-4"><i class="fas fa-image me-2"></i>Product Media</h6>
+                        <h6 class="text-white mb-3 pb-2 border-bottom mt-4"><i class="fas fa-image me-2"></i>Book Cover Image</h6>
                         
-                        <!-- Image Upload Options -->
-                        <div class="mb-3">
-                            <label class="form-label">Cover Image Upload Method</label>
-                            <div class="btn-group w-100" role="group">
-                                <input type="radio" class="btn-check" name="uploadMethod" id="uploadMethodFile" value="file" checked>
-                                <label class="btn btn-outline-light" for="uploadMethodFile">
-                                    <i class="fas fa-upload me-2"></i>Upload File
-                                </label>
-                                <input type="radio" class="btn-check" name="uploadMethod" id="uploadMethodURL" value="url">
-                                <label class="btn btn-outline-light" for="uploadMethodURL">
-                                    <i class="fas fa-link me-2"></i>Use URL
-                                </label>
-                            </div>
-                        </div>
-
                         <!-- File Upload Section -->
-                        <div class="mb-3" id="fileUploadSection">
+                        <div class="mb-3">
                             <label class="form-label">Upload Cover Image <span class="text-danger">*</span></label>
                             <input type="file" class="form-control" id="bookCoverFile" accept="image/*" aria-label="Cover Image File">
-                            <small class="text-muted">Accepted formats: JPG, PNG, WebP, GIF (Max 5MB). Images will be automatically compressed to optimize storage.</small>
+                            <small class="text-muted">Accepted formats: JPG, PNG, WebP, GIF (Max 5MB)</small>
                         </div>
 
-                        <!-- URL Input Section -->
-                        <div class="mb-3" id="urlInputSection" style="display: none;">
-                            <label class="form-label">Cover Image URL <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="bookCover" aria-label="Cover Image URL" placeholder="https://...">
-                            <small class="text-muted">Full URL to book cover image</small>
-                        </div>
+                        <!-- Image URL Input (hidden by default, for backend compatibility) -->
+                        <input type="hidden" id="bookCover" value="">
 
                         <!-- Image Preview -->
                         <div class="mb-3">
@@ -884,13 +735,8 @@
                             </div>
                         </div>
 
-                        <!-- Hidden field to store the final cover path/URL -->
+                        <!-- Hidden field to store the final cover data -->
                         <input type="hidden" id="bookCoverData" aria-label="Book Cover Data">
-
-                        <div class="mb-3">
-                            <label class="form-label">Additional Notes</label>
-                            <textarea class="form-control" id="bookNotes" rows="2" aria-label="Notes" placeholder="Internal notes (edition info, condition, special handling, etc.)"></textarea>
-                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -1912,42 +1758,31 @@
                     return;
                 }
                 
-                // Get cover image data
+                // Get cover image data from file upload
                 let coverData = '';
-                const uploadMethod = document.querySelector('input[name="uploadMethod"]:checked').value;
                 
-                if (uploadMethod === 'file') {
-                    // Use uploaded file data
-                    if (uploadedImageData) {
-                        // Check compressed image size
-                        const sizeInBytes = (uploadedImageData.length * 3) / 4;
-                        const sizeInMB = sizeInBytes / (1024 * 1024);
-                        
-                        // Warn if payload might be too large
-                        if (sizeInMB > 8) {
-                            showErrorMessage('Compressed image is still too large. Please use a smaller image or try using an image URL instead.');
-                            return;
-                        }
-                        
-                        coverData = uploadedImageData; // Base64 encoded image
-                    } else if (document.getElementById('bookCoverFile').files.length > 0) {
-                        // If file just selected but not yet processed
-                        showErrorMessage('Please wait for the image to finish processing');
-                        return;
-                    } else {
-                        showErrorMessage('Please select an image file');
+                if (uploadedImageData) {
+                    // Check compressed image size
+                    const sizeInBytes = (uploadedImageData.length * 3) / 4;
+                    const sizeInMB = sizeInBytes / (1024 * 1024);
+                    
+                    // Warn if payload might be too large
+                    if (sizeInMB > 8) {
+                        showErrorMessage('Compressed image is still too large. Please use a smaller image.');
                         return;
                     }
+                    
+                    coverData = uploadedImageData; // Base64 encoded image
+                } else if (document.getElementById('bookCoverFile').files.length > 0) {
+                    // If file just selected but not yet processed
+                    showErrorMessage('Please wait for the image to finish processing');
+                    return;
                 } else {
-                    // Use URL
-                    coverData = document.getElementById('bookCover').value.trim();
-                    if (!coverData) {
-                        showErrorMessage('Please provide a cover image URL');
-                        return;
-                    }
+                    showErrorMessage('Please select an image file');
+                    return;
                 }
                 
-                // Build payload with all inventory management fields
+                // Build payload with only essential fields
                 const payload = {
                     title: document.getElementById('bookTitle').value.trim(),
                     author: document.getElementById('bookAuthor').value.trim(),
@@ -1956,37 +1791,20 @@
                     genre: document.getElementById('bookGenre').value,
                     price: parseFloat(document.getElementById('bookPrice').value),
                     stock_quantity: parseInt(document.getElementById('bookStock').value),
-                    cover: coverData, // Use the cover data (either base64 or URL)
-                    
-                    // New inventory management fields (optional)
-                    isbn: document.getElementById('bookISBN').value.trim() || null,
+                    cover: coverData, // Base64 encoded image
                     publisher: document.getElementById('bookPublisher').value.trim() || null,
-                    publication_year: document.getElementById('bookYear').value ? parseInt(document.getElementById('bookYear').value) : null,
                     status: document.getElementById('bookStatus').value || 'active',
-                    
-                    // Inventory tracking
-                    sku: document.getElementById('bookSKU').value.trim() || null,
-                    min_stock: parseInt(document.getElementById('bookMinStock').value) || 5,
-                    max_stock: parseInt(document.getElementById('bookMaxStock').value) || 100,
-                    reorder_point: parseInt(document.getElementById('bookReorderPoint').value) || 10,
-                    reorder_quantity: parseInt(document.getElementById('bookReorderQty').value) || 20,
-                    warehouse_location: document.getElementById('bookLocation').value.trim() || null,
-                    
-                    // Pricing
-                    cost_price: parseFloat(document.getElementById('bookCostPrice').value) || 0,
-                    discount_percentage: parseFloat(document.getElementById('bookDiscount').value) || 0,
-                    
-                    // Supplier
-                    supplier_name: document.getElementById('bookSupplier').value.trim() || null,
-                    supplier_contact: document.getElementById('bookSupplierContact').value.trim() || null,
-                    
-                    // Notes
-                    notes: document.getElementById('bookNotes').value.trim() || null
+                    discount_percentage: parseFloat(document.getElementById('bookDiscount').value) || 0
                 };
 
                 // Enhanced validation
                 if (!payload.title || !payload.author || !payload.description) {
                     showErrorMessage('Please fill in all required fields (Title, Author, Description)');
+                    return;
+                }
+
+                if (!payload.category || !payload.genre) {
+                    showErrorMessage('Please select both Category and Genre');
                     return;
                 }
 
@@ -2000,34 +1818,9 @@
                     return;
                 }
                 
-                if (payload.cost_price < 0) {
-                    showErrorMessage('Cost price cannot be negative');
-                    return;
-                }
-                
                 if (payload.discount_percentage < 0 || payload.discount_percentage > 100) {
                     showErrorMessage('Discount percentage must be between 0 and 100');
                     return;
-                }
-                
-                // Validate stock levels
-                if (payload.min_stock > payload.max_stock) {
-                    showErrorMessage('Minimum stock cannot be greater than maximum stock');
-                    return;
-                }
-                
-                if (payload.reorder_point > payload.max_stock) {
-                    showErrorMessage('Reorder point cannot be greater than maximum stock');
-                    return;
-                }
-                
-                // Warn about low stock
-                if (payload.stock_quantity < payload.min_stock) {
-                    console.warn('⚠️ Stock quantity is below minimum stock level');
-                }
-                
-                if (payload.stock_quantity <= payload.reorder_point) {
-                    console.warn('⚠️ Stock quantity is at or below reorder point');
                 }
 
                 showLoadingMessage('Saving book...');
@@ -2046,14 +1839,8 @@
                     bootstrap.Modal.getInstance(document.getElementById('addBookModal')).hide();
                     document.getElementById('bookForm').reset();
                     
-                    // Show appropriate success message with inventory alerts
-                    let successMsg = `Book ${id ? 'updated' : 'created'} successfully!`;
-                    if (payload.stock_quantity < payload.min_stock) {
-                        successMsg += ' ⚠️ Stock is below minimum level.';
-                    } else if (payload.stock_quantity <= payload.reorder_point) {
-                        successMsg += ' ⚠️ Stock is at or below reorder point.';
-                    }
-                    
+                    // Show success message
+                    const successMsg = `Book ${id ? 'updated' : 'created'} successfully!`;
                     showSuccessMessage(successMsg);
                 } else {
                     throw new Error('Failed to save book');
@@ -2663,59 +2450,23 @@
                     return;
                 }
                 
-                // Populate basic information
+                // Populate all fields
                 document.getElementById('bookId').value = book.id;
                 document.getElementById('bookTitle').value = book.title;
                 document.getElementById('bookAuthor').value = book.author;
                 document.getElementById('bookDescription').value = book.description;
                 document.getElementById('bookCategory').value = book.category;
+                document.getElementById('bookGenre').value = book.genre;
                 document.getElementById('bookPrice').value = book.price;
-                document.getElementById('bookStock').value = book.stock;
-                document.getElementById('bookCover').value = book.cover;
-                
-                // Populate new inventory management fields with defaults if not present
-                document.getElementById('bookISBN').value = book.isbn || '';
+                document.getElementById('bookStock').value = book.stock || book.stock_quantity || 0;
                 document.getElementById('bookPublisher').value = book.publisher || '';
-                document.getElementById('bookYear').value = book.publication_year || '';
                 document.getElementById('bookStatus').value = book.status || 'active';
-                
-                // Inventory tracking fields
-                document.getElementById('bookSKU').value = book.sku || '';
-                document.getElementById('bookMinStock').value = book.min_stock !== undefined ? book.min_stock : 5;
-                document.getElementById('bookMaxStock').value = book.max_stock !== undefined ? book.max_stock : 100;
-                document.getElementById('bookReorderPoint').value = book.reorder_point !== undefined ? book.reorder_point : 10;
-                document.getElementById('bookReorderQty').value = book.reorder_quantity !== undefined ? book.reorder_quantity : 20;
-                document.getElementById('bookLocation').value = book.warehouse_location || '';
-                
-                // Pricing fields
-                document.getElementById('bookCostPrice').value = book.cost_price || '';
                 document.getElementById('bookDiscount').value = book.discount_percentage || 0;
                 
-                // Supplier fields
-                document.getElementById('bookSupplier').value = book.supplier_name || '';
-                document.getElementById('bookSupplierContact').value = book.supplier_contact || '';
-                
-                // Notes
-                document.getElementById('bookNotes').value = book.notes || '';
-                
-                // Handle image upload/URL based on existing cover
+                // Handle image preview for existing cover
                 if (book.cover) {
-                    // Check if it's a base64 image or URL
-                    if (book.cover.startsWith('data:image/')) {
-                        // It's a base64 image
-                        document.getElementById('uploadMethodFile').checked = true;
-                        document.getElementById('fileUploadSection').style.display = 'block';
-                        document.getElementById('urlInputSection').style.display = 'none';
-                        uploadedImageData = book.cover;
-                        showImagePreview(book.cover);
-                    } else {
-                        // It's a URL
-                        document.getElementById('uploadMethodURL').checked = true;
-                        document.getElementById('fileUploadSection').style.display = 'none';
-                        document.getElementById('urlInputSection').style.display = 'block';
-                        document.getElementById('bookCover').value = book.cover;
-                        loadImagePreview(book.cover);
-                    }
+                    uploadedImageData = book.cover;
+                    showImagePreview(book.cover);
                 }
                 
                 // Trigger category change to populate genres
@@ -2726,10 +2477,6 @@
                 // Set genre after category is set
                 setTimeout(() => {
                     document.getElementById('bookGenre').value = book.genre;
-                    // Trigger pricing calculations
-                    calculatePricing();
-                    // Validate stock levels
-                    validateStockLevels();
                 }, 100);
                 
                 // Update modal title
@@ -2952,31 +2699,69 @@
                 
                 // === Basic Metrics ===
                 const totalBooks = totalBooksItems || 0;
-                const activeBooks = adminBooks.filter(b => b.status === 'active').length;
+                const activeBooks = adminBooks.filter(b => b.status?.toLowerCase() === 'active').length;
                 const totalStock = adminBooks.reduce((sum, book) => sum + (parseInt(book.stock) || 0), 0);
                 
                 document.getElementById('booksNumber').textContent = totalBooks;
                 document.getElementById('activeBooksCount').textContent = activeBooks;
                 document.getElementById('totalStock').textContent = totalStock.toLocaleString();
                 
+                console.log('📚 Book Statistics:', {
+                    total: totalBooks,
+                    active: activeBooks,
+                    totalStock: totalStock
+                });
+                
                 // === Order Statistics ===
+                // Use totalOrdersItems for the actual total count across all pages
                 const totalOrdersCount = totalOrdersItems || 0;
-                const pendingOrdersCount = allOrders.filter(o => o.status === 'pending').length;
-                const processingOrdersCount = allOrders.filter(o => o.status === 'processing').length;
-                const completedOrdersCount = allOrders.filter(o => o.status === 'completed').length;
                 
+                // For status counts, we need to consider that allOrders only contains current page
+                // So we'll display the counts from the current page with a note that it's from the visible data
+                const pendingOrdersCount = allOrders.filter(o => o.status?.toLowerCase() === 'pending').length;
+                const processingOrdersCount = allOrders.filter(o => o.status?.toLowerCase() === 'processing').length;
+                const completedOrdersCount = allOrders.filter(o => o.status?.toLowerCase() === 'completed').length;
+                const shippedOrdersCount = allOrders.filter(o => o.status?.toLowerCase() === 'shipped').length;
+                const deliveredOrdersCount = allOrders.filter(o => o.status?.toLowerCase() === 'delivered').length;
+                const cancelledOrdersCount = allOrders.filter(o => o.status?.toLowerCase() === 'cancelled').length;
+                
+                // Update total orders display
                 document.getElementById('totalOrders').textContent = totalOrdersCount;
-                document.getElementById('pendingOrders').textContent = pendingOrdersCount;
-                document.getElementById('pendingOrdersCount').textContent = pendingOrdersCount;
-                document.getElementById('processingOrdersCount').textContent = processingOrdersCount;
-                document.getElementById('completedOrdersCount').textContent = completedOrdersCount;
                 
-                // Update order status bars
-                if (totalOrdersCount > 0) {
-                    document.getElementById('pendingBar').style.width = ((pendingOrdersCount / totalOrdersCount) * 100) + '%';
-                    document.getElementById('processingBar').style.width = ((processingOrdersCount / totalOrdersCount) * 100) + '%';
-                    document.getElementById('completedBar').style.width = ((completedOrdersCount / totalOrdersCount) * 100) + '%';
+                // Update pending orders (shown in main card)
+                document.getElementById('pendingOrders').textContent = pendingOrdersCount;
+                
+                // Update order status distribution (if elements exist)
+                const pendingCountEl = document.getElementById('pendingOrdersCount');
+                const processingCountEl = document.getElementById('processingOrdersCount');
+                const completedCountEl = document.getElementById('completedOrdersCount');
+                
+                if (pendingCountEl) pendingCountEl.textContent = pendingOrdersCount;
+                if (processingCountEl) processingCountEl.textContent = processingOrdersCount;
+                if (completedCountEl) completedCountEl.textContent = completedOrdersCount;
+                
+                // Update order status bars (based on visible orders in current page)
+                const visibleOrdersCount = allOrders.length;
+                if (visibleOrdersCount > 0) {
+                    const pendingBar = document.getElementById('pendingBar');
+                    const processingBar = document.getElementById('processingBar');
+                    const completedBar = document.getElementById('completedBar');
+                    
+                    if (pendingBar) pendingBar.style.width = ((pendingOrdersCount / visibleOrdersCount) * 100) + '%';
+                    if (processingBar) processingBar.style.width = ((processingOrdersCount / visibleOrdersCount) * 100) + '%';
+                    if (completedBar) completedBar.style.width = ((completedOrdersCount / visibleOrdersCount) * 100) + '%';
                 }
+                
+                console.log('📊 Order Statistics:', {
+                    total: totalOrdersCount,
+                    visible: visibleOrdersCount,
+                    pending: pendingOrdersCount,
+                    processing: processingOrdersCount,
+                    completed: completedOrdersCount,
+                    shipped: shippedOrdersCount,
+                    delivered: deliveredOrdersCount,
+                    cancelled: cancelledOrdersCount
+                });
                 
                 // === Revenue Calculation ===
                 const validSalesStatuses = ['completed', 'shipped', 'delivered'];
@@ -2991,9 +2776,19 @@
                 
                 document.getElementById('totalRevenue').textContent = '₱' + totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 
+                console.log('💰 Revenue Statistics:', {
+                    salesOrders: salesOrders.length,
+                    totalRevenue: totalRevenue,
+                    validStatuses: validSalesStatuses
+                });
+                
                 // === User Statistics ===
                 const totalUsersCount = totalUsersItems || 0;
                 document.getElementById('totalUsers').textContent = totalUsersCount;
+                
+                console.log('👥 User Statistics:', {
+                    total: totalUsersCount
+                });
                 
                 // === Low Stock Alert ===
                 const lowStockBooks = adminBooks.filter(book => {
@@ -3004,46 +2799,40 @@
                 
                 document.getElementById('lowStockCount').textContent = lowStockBooks.length;
                 
+                console.log('⚠️ Low Stock Alert:', {
+                    lowStockCount: lowStockBooks.length,
+                    books: lowStockBooks.map(b => ({ title: b.title, stock: b.stock, minStock: b.min_stock }))
+                });
+                
                 // Update low stock table
                 updateLowStockTable(lowStockBooks);
                 
                 // === Category Distribution ===
-                const fictionBooks = adminBooks.filter(b => b.category === 'Fiction').length;
-                const nonFictionBooks = adminBooks.filter(b => b.category === 'Non - Fiction' || b.category === 'Non-Fiction').length;
+                const fictionBooks = adminBooks.filter(b => b.category?.toLowerCase() === 'fiction').length;
+                const nonFictionBooks = adminBooks.filter(b => {
+                    const cat = b.category?.toLowerCase();
+                    return cat === 'non - fiction' || cat === 'non-fiction';
+                }).length;
                 
-                document.getElementById('fictionCount').textContent = fictionBooks;
-                document.getElementById('nonFictionCount').textContent = nonFictionBooks;
+                const fictionCountEl = document.getElementById('fictionCount');
+                const nonFictionCountEl = document.getElementById('nonFictionCount');
+                const fictionBarEl = document.getElementById('fictionBar');
+                const nonFictionBarEl = document.getElementById('nonFictionBar');
+                
+                if (fictionCountEl) fictionCountEl.textContent = fictionBooks;
+                if (nonFictionCountEl) nonFictionCountEl.textContent = nonFictionBooks;
                 
                 // Update category bars
                 if (totalBooks > 0) {
-                    document.getElementById('fictionBar').style.width = ((fictionBooks / totalBooks) * 100) + '%';
-                    document.getElementById('nonFictionBar').style.width = ((nonFictionBooks / totalBooks) * 100) + '%';
+                    if (fictionBarEl) fictionBarEl.style.width = ((fictionBooks / totalBooks) * 100) + '%';
+                    if (nonFictionBarEl) nonFictionBarEl.style.width = ((nonFictionBooks / totalBooks) * 100) + '%';
                 }
                 
-                // === Average Metrics ===
-                const avgBookPrice = totalBooks > 0 
-                    ? adminBooks.reduce((sum, book) => sum + (parseFloat(book.price) || 0), 0) / totalBooks
-                    : 0;
-                
-                const avgOrderValue = salesOrders.length > 0
-                    ? totalRevenue / salesOrders.length
-                    : 0;
-                
-                document.getElementById('avgBookPrice').textContent = '₱' + avgBookPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                document.getElementById('avgOrderValue').textContent = '₱' + avgOrderValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                
-                // === Inventory Value ===
-                const inventoryValue = adminBooks.reduce((sum, book) => {
-                    const stock = parseInt(book.stock) || 0;
-                    const price = parseFloat(book.price) || 0;
-                    return sum + (stock * price);
-                }, 0);
-                
-                document.getElementById('inventoryValue').textContent = '₱' + inventoryValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                
-                // === Unique Genres ===
-                const uniqueGenresSet = new Set(adminBooks.map(b => b.genre).filter(g => g));
-                document.getElementById('uniqueGenres').textContent = uniqueGenresSet.size;
+                console.log('📖 Category Distribution:', {
+                    fiction: fictionBooks,
+                    nonFiction: nonFictionBooks,
+                    total: totalBooks
+                });
                 
                 // === Top Selling Books ===
                 await updateTopSellingBooks();
@@ -3265,104 +3054,14 @@
             document.getElementById('bookForm').reset();
             document.getElementById('bookId').value = '';
             document.querySelector('#addBookModal .modal-title').textContent = 'Add New Book';
-            // Reset calculated fields
-            document.getElementById('bookProfitMargin').value = '';
-            document.getElementById('bookFinalPrice').value = '';
-            // Reset optional inventory fields to defaults
+            // Reset fields to defaults
             document.getElementById('bookStock').value = '0';
-            document.getElementById('bookMinStock').value = '5';
-            document.getElementById('bookMaxStock').value = '100';
-            document.getElementById('bookReorderPoint').value = '10';
-            document.getElementById('bookReorderQty').value = '20';
             document.getElementById('bookDiscount').value = '0';
             document.getElementById('bookStatus').value = 'active';
         });
 
-        // Auto-calculate profit margin and final price
-        function calculatePricing() {
-            const costPrice = parseFloat(document.getElementById('bookCostPrice').value) || 0;
-            const sellingPrice = parseFloat(document.getElementById('bookPrice').value) || 0;
-            const discount = parseFloat(document.getElementById('bookDiscount').value) || 0;
-            
-            // Calculate profit margin
-            if (costPrice > 0 && sellingPrice > 0) {
-                const profit = sellingPrice - costPrice;
-                const margin = (profit / costPrice) * 100;
-                document.getElementById('bookProfitMargin').value = `₱${profit.toFixed(2)} (${margin.toFixed(2)}%)`;
-            } else if (sellingPrice > 0) {
-                document.getElementById('bookProfitMargin').value = 'N/A (no cost price)';
-            } else {
-                document.getElementById('bookProfitMargin').value = '';
-            }
-            
-            // Calculate final price after discount
-            if (sellingPrice > 0) {
-                const discountAmount = (sellingPrice * discount) / 100;
-                const finalPrice = sellingPrice - discountAmount;
-                document.getElementById('bookFinalPrice').value = `₱${finalPrice.toFixed(2)}`;
-            } else {
-                document.getElementById('bookFinalPrice').value = '';
-            }
-        }
-
-        // Add event listeners for auto-calculation
-        document.getElementById('bookCostPrice').addEventListener('input', calculatePricing);
-        document.getElementById('bookPrice').addEventListener('input', calculatePricing);
-        document.getElementById('bookDiscount').addEventListener('input', calculatePricing);
-
-        // Validate stock levels
-        function validateStockLevels() {
-            const currentStock = parseInt(document.getElementById('bookStock').value) || 0;
-            const minStock = parseInt(document.getElementById('bookMinStock').value) || 0;
-            const maxStock = parseInt(document.getElementById('bookMaxStock').value) || 0;
-            const reorderPoint = parseInt(document.getElementById('bookReorderPoint').value) || 0;
-            
-            // Show warnings
-            if (currentStock < minStock) {
-                document.getElementById('bookStock').style.borderColor = '#ff6b6b';
-                document.getElementById('bookStock').title = 'Warning: Stock below minimum level!';
-            } else if (currentStock > maxStock) {
-                document.getElementById('bookStock').style.borderColor = '#ffa500';
-                document.getElementById('bookStock').title = 'Warning: Stock exceeds maximum level!';
-            } else {
-                document.getElementById('bookStock').style.borderColor = '';
-                document.getElementById('bookStock').title = '';
-            }
-            
-            if (currentStock <= reorderPoint && currentStock > 0) {
-                document.getElementById('bookStock').style.borderColor = '#ffd93d';
-                document.getElementById('bookStock').title = 'Info: Stock at or below reorder point - consider restocking';
-            }
-        }
-
-        // Add event listeners for stock validation
-        document.getElementById('bookStock').addEventListener('input', validateStockLevels);
-        document.getElementById('bookMinStock').addEventListener('input', validateStockLevels);
-        document.getElementById('bookMaxStock').addEventListener('input', validateStockLevels);
-        document.getElementById('bookReorderPoint').addEventListener('input', validateStockLevels);
-
         // Image Upload and Preview Functionality
         let uploadedImageData = null;
-
-        // Toggle between file upload and URL input
-        document.querySelectorAll('input[name="uploadMethod"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                const fileSection = document.getElementById('fileUploadSection');
-                const urlSection = document.getElementById('urlInputSection');
-                
-                if (this.value === 'file') {
-                    fileSection.style.display = 'block';
-                    urlSection.style.display = 'none';
-                    document.getElementById('bookCover').removeAttribute('required');
-                    document.getElementById('bookCoverFile').setAttribute('required', 'required');
-                } else {
-                    fileSection.style.display = 'none';
-                    urlSection.style.display = 'block';
-                    document.getElementById('bookCoverFile').removeAttribute('required');
-                    document.getElementById('bookCover').setAttribute('required', 'required');
-                }
-            });
-        });
 
         // Handle file selection and preview
         document.getElementById('bookCoverFile').addEventListener('change', function(e) {
@@ -3460,25 +3159,6 @@
             img.src = dataUrl;
         }
 
-        // Handle URL input and preview
-        document.getElementById('bookCover').addEventListener('input', debounce(function(e) {
-            const url = e.target.value.trim();
-            
-            if (!url) {
-                clearImagePreview();
-                return;
-            }
-
-            // Simple URL validation
-            try {
-                new URL(url);
-                loadImagePreview(url);
-            } catch (error) {
-                // Invalid URL, but don't show error yet (user might still be typing)
-                clearImagePreview();
-            }
-        }, 500));
-
         // Show image preview
         function showImagePreview(src) {
             const preview = document.getElementById('imagePreview');
@@ -3487,24 +3167,6 @@
             preview.src = src;
             preview.style.display = 'block';
             placeholder.style.display = 'none';
-        }
-
-        // Load image from URL with error handling
-        function loadImagePreview(url) {
-            const preview = document.getElementById('imagePreview');
-            const placeholder = document.getElementById('previewPlaceholder');
-            const img = new Image();
-            
-            img.onload = function() {
-                showImagePreview(url);
-            };
-            
-            img.onerror = function() {
-                clearImagePreview();
-                // Silently fail - might be CORS or invalid image
-            };
-            
-            img.src = url;
         }
 
         // Clear image preview
@@ -3518,26 +3180,8 @@
             uploadedImageData = null;
         }
 
-        // Debounce function for URL input
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
-
         // Reset image upload section when modal is hidden
         document.getElementById('addBookModal').addEventListener('hidden.bs.modal', function() {
-            // Reset upload method to file
-            document.getElementById('uploadMethodFile').checked = true;
-            document.getElementById('fileUploadSection').style.display = 'block';
-            document.getElementById('urlInputSection').style.display = 'none';
-            
             // Clear file input
             document.getElementById('bookCoverFile').value = '';
             

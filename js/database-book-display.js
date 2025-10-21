@@ -168,7 +168,9 @@ class DatabaseBookDisplay {
         const bookImage = book.cover || book.image_url || 'media/placeholder.jpg';
         const bookId = book.id || Math.random().toString(36).substr(2, 9);
         const bookGenre = book.genre || book.category || 'Fiction';
-        const bookRating = book.rating || book.average_rating || (Math.random() * 2 + 3).toFixed(1);
+        // Use average_rating from reviews, default to 0.0 if no reviews
+        const bookRating = book.average_rating !== undefined ? parseFloat(book.average_rating).toFixed(1) : '0.0';
+        const reviewCount = book.review_count || 0;
         const originalPrice = book.original_price || (parseFloat(bookPrice) * 1.2).toFixed(2);
         const isOnSale = book.is_on_sale || Math.random() > 0.8;
         
@@ -216,7 +218,7 @@ class DatabaseBookDisplay {
                         
                         <div class="book-rating">
                             <div class="stars">${starsHTML}</div>
-                            <span class="rating-text">${bookRating}</span>
+                            <span class="rating-text">${bookRating} ${reviewCount > 0 ? `(${reviewCount})` : '(No reviews)'}</span>
                         </div>
                         
                         <div class="book-price-section">

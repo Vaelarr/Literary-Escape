@@ -47,11 +47,10 @@ async function initializeDatabase(callback) {
     console.log('Initializing Turso database schema...');
     
     try {
-        // Create books table
+        // Create books table (optimized - only essential fields)
         await query(`
             CREATE TABLE IF NOT EXISTS books (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                isbn TEXT,
                 title TEXT NOT NULL,
                 author TEXT NOT NULL,
                 description TEXT,
@@ -60,27 +59,9 @@ async function initializeDatabase(callback) {
                 cover TEXT,
                 price REAL,
                 publisher TEXT,
-                publication_date DATE,
-                publication_year INTEGER,
-                pages INTEGER,
-                language TEXT DEFAULT 'English',
-                format TEXT DEFAULT 'Paperback',
-                weight REAL,
-                dimensions TEXT,
-                rating REAL DEFAULT 0,
                 stock_quantity INTEGER DEFAULT 0,
                 status TEXT DEFAULT 'active',
-                sku TEXT,
-                min_stock INTEGER DEFAULT 5,
-                max_stock INTEGER DEFAULT 100,
-                reorder_point INTEGER DEFAULT 10,
-                reorder_quantity INTEGER DEFAULT 20,
-                warehouse_location TEXT,
-                cost_price REAL DEFAULT 0,
                 discount_percentage REAL DEFAULT 0,
-                supplier_name TEXT,
-                supplier_contact TEXT,
-                notes TEXT,
                 archived BOOLEAN DEFAULT 0,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -405,12 +386,40 @@ async function createDefaultAdmin() {
 
 // Book Operations
 const bookOperations = {
+    // Helper function to add average rating to books
+    addRatingsToBooks: async (books) => {
+        if (!Array.isArray(books)) {
+            // Single book
+            const ratingResult = await query(
+                `SELECT COALESCE(AVG(rating), 0.0) as average, COUNT(*) as count
+                 FROM reviews WHERE book_id = ?`,
+                [books.id]
+            );
+            books.average_rating = ratingResult.rows[0]?.average || 0.0;
+            books.review_count = ratingResult.rows[0]?.count || 0;
+            return books;
+        }
+        
+        // Multiple books
+        for (const book of books) {
+            const ratingResult = await query(
+                `SELECT COALESCE(AVG(rating), 0.0) as average, COUNT(*) as count
+                 FROM reviews WHERE book_id = ?`,
+                [book.id]
+            );
+            book.average_rating = ratingResult.rows[0]?.average || 0.0;
+            book.review_count = ratingResult.rows[0]?.count || 0;
+        }
+        return books;
+    },
+
     getAll: async (callback) => {
         try {
             const result = await query(
                 'SELECT * FROM books WHERE archived = 0 ORDER BY created_at DESC'
             );
-            callback(null, result.rows);
+            const booksWithRatings = await bookOperations.addRatingsToBooks(result.rows);
+            callback(null, booksWithRatings);
         } catch (error) {
             callback(error);
         }
@@ -419,7 +428,12 @@ const bookOperations = {
     getById: async (id, callback) => {
         try {
             const result = await query('SELECT * FROM books WHERE id = ?', [id]);
-            callback(null, result.rows[0]);
+            if (result.rows[0]) {
+                const bookWithRating = await bookOperations.addRatingsToBooks(result.rows[0]);
+                callback(null, bookWithRating);
+            } else {
+                callback(null, null);
+            }
         } catch (error) {
             callback(error);
         }
@@ -431,7 +445,8 @@ const bookOperations = {
                 'SELECT * FROM books WHERE category = ? AND archived = 0',
                 [category]
             );
-            callback(null, result.rows);
+            const booksWithRatings = await bookOperations.addRatingsToBooks(result.rows);
+            callback(null, booksWithRatings);
         } catch (error) {
             callback(error);
         }
@@ -443,7 +458,8 @@ const bookOperations = {
                 'SELECT * FROM books WHERE genre = ? AND archived = 0',
                 [genre]
             );
-            callback(null, result.rows);
+            const booksWithRatings = await bookOperations.addRatingsToBooks(result.rows);
+            callback(null, booksWithRatings);
         } catch (error) {
             callback(error);
         }
@@ -457,7 +473,8 @@ const bookOperations = {
                  AND archived = 0`,
                 [`%${searchTerm}%`, `%${searchTerm}%`, `%${searchTerm}%`]
             );
-            callback(null, result.rows);
+            const booksWithRatings = await bookOperations.addRatingsToBooks(result.rows);
+            callback(null, booksWithRatings);
         } catch (error) {
             callback(error);
         }
@@ -467,12 +484,10 @@ const bookOperations = {
         try {
             const result = await query(
                 `INSERT INTO books (
-                    isbn, title, author, description, category, genre, cover, price,
-                    publisher, publication_date, publication_year, pages, language,
-                    format, weight, dimensions, stock_quantity, sku, cost_price
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    title, author, description, category, genre, cover, price,
+                    publisher, stock_quantity, status, discount_percentage
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
-                    bookData.isbn || null,
                     bookData.title,
                     bookData.author,
                     bookData.description || null,
@@ -481,16 +496,9 @@ const bookOperations = {
                     bookData.cover || null,
                     bookData.price || null,
                     bookData.publisher || null,
-                    bookData.publication_date || null,
-                    bookData.publication_year || null,
-                    bookData.pages || null,
-                    bookData.language || 'English',
-                    bookData.format || 'Paperback',
-                    bookData.weight || null,
-                    bookData.dimensions || null,
                     bookData.stock_quantity || 0,
-                    bookData.sku || null,
-                    bookData.cost_price || 0
+                    bookData.status || 'active',
+                    bookData.discount_percentage || 0
                 ]
             );
             const newBook = await query('SELECT * FROM books WHERE id = ?', [result.lastInsertRowid]);
@@ -503,46 +511,37 @@ const bookOperations = {
     // Alias for create - matches API endpoint expectations
     add: async (book, callback) => {
         try {
+            console.log('📝 Adding book to Turso database:', {
+                title: book.title,
+                author: book.author,
+                price: book.price,
+                stock: book.stock_quantity,
+                category: book.category,
+                genre: book.genre,
+                status: book.status
+            });
+            
             const result = await query(
                 `INSERT INTO books (
-                    isbn, title, author, description, category, genre, cover, price,
-                    publisher, publication_date, publication_year, pages, language,
-                    format, weight, dimensions, stock_quantity, sku, cost_price,
-                    status, min_stock, max_stock, reorder_point, reorder_quantity,
-                    warehouse_location, discount_percentage, supplier_name, supplier_contact, notes
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                    title, author, description, category, genre, cover, price,
+                    publisher, stock_quantity, status, discount_percentage
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
-                    book.isbn || null,  // 1
-                    book.title,  // 2
-                    book.author,  // 3
-                    book.description || null,  // 4
-                    book.category || 'Fiction',  // 5
-                    book.genre || 'General',  // 6
-                    book.cover || null,  // 7
-                    book.price || 0,  // 8
-                    book.publisher || null,  // 9
-                    book.publication_date || null,  // 10
-                    book.publication_year || null,  // 11
-                    book.pages || null,  // 12
-                    book.language || 'English',  // 13
-                    book.format || 'Paperback',  // 14
-                    book.weight || null,  // 15
-                    book.dimensions || null,  // 16
-                    book.stock_quantity !== undefined ? book.stock_quantity : 0,  // 17
-                    book.sku || null,  // 18
-                    book.cost_price || 0,  // 19
-                    book.status || 'active',  // 20
-                    book.min_stock || 5,  // 21
-                    book.max_stock || 100,  // 22
-                    book.reorder_point || 10,  // 23
-                    book.reorder_quantity || 20,  // 24
-                    book.warehouse_location || null,  // 25
-                    book.discount_percentage || 0,  // 26
-                    book.supplier_name || null,  // 27
-                    book.supplier_contact || null,  // 28
-                    book.notes || null  // 29
+                    book.title,  // 1
+                    book.author,  // 2
+                    book.description || null,  // 3
+                    book.category || 'Fiction',  // 4
+                    book.genre || 'General',  // 5
+                    book.cover || null,  // 6
+                    book.price || 0,  // 7
+                    book.publisher || null,  // 8
+                    book.stock_quantity !== undefined ? book.stock_quantity : 0,  // 9
+                    book.status || 'active',  // 10
+                    book.discount_percentage !== undefined ? book.discount_percentage : 0  // 11
                 ]
             );
+            
+            console.log('✅ Book added successfully with ID:', result.lastInsertRowid);
             
             // Call callback with context that has lastID property (matches SQLite interface)
             const context = { lastID: Number(result.lastInsertRowid) };
@@ -554,29 +553,41 @@ const bookOperations = {
 
     update: async (id, bookData, callback) => {
         try {
+            console.log('📝 Updating book in Turso database:', {
+                id: id,
+                title: bookData.title,
+                author: bookData.author,
+                price: bookData.price,
+                stock: bookData.stock_quantity,
+                category: bookData.category,
+                genre: bookData.genre,
+                status: bookData.status
+            });
+            
             // First get the existing book to preserve values not being updated
             const existingResult = await query('SELECT * FROM books WHERE id = ?', [id]);
             const existingBook = existingResult.rows[0];
             
             if (!existingBook) {
+                console.error('❌ Book not found for update:', id);
                 return callback(new Error('Book not found'));
             }
             
-            await query(
+            console.log('📚 Existing book data:', {
+                title: existingBook.title,
+                stock: existingBook.stock_quantity,
+                status: existingBook.status
+            });
+            
+            const result = await query(
                 `UPDATE books SET
-                    isbn = ?, title = ?, author = ?, description = ?,
+                    title = ?, author = ?, description = ?,
                     category = ?, genre = ?, cover = ?, price = ?,
-                    publisher = ?, publication_date = ?, publication_year = ?,
-                    pages = ?, language = ?, format = ?, weight = ?,
-                    dimensions = ?, stock_quantity = ?, 
-                    status = ?, sku = ?, min_stock = ?, max_stock = ?,
-                    reorder_point = ?, reorder_quantity = ?, warehouse_location = ?,
-                    cost_price = ?, discount_percentage = ?, 
-                    supplier_name = ?, supplier_contact = ?, notes = ?,
+                    publisher = ?, stock_quantity = ?, 
+                    status = ?, discount_percentage = ?,
                     updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?`,
                 [
-                    bookData.isbn !== undefined ? bookData.isbn : existingBook.isbn,
                     bookData.title !== undefined ? bookData.title : existingBook.title,
                     bookData.author !== undefined ? bookData.author : existingBook.author,
                     bookData.description !== undefined ? bookData.description : existingBook.description,
@@ -585,32 +596,17 @@ const bookOperations = {
                     bookData.cover !== undefined ? bookData.cover : existingBook.cover,
                     bookData.price !== undefined ? bookData.price : existingBook.price,
                     bookData.publisher !== undefined ? bookData.publisher : existingBook.publisher,
-                    bookData.publication_date !== undefined ? bookData.publication_date : existingBook.publication_date,
-                    bookData.publication_year !== undefined ? bookData.publication_year : existingBook.publication_year,
-                    bookData.pages !== undefined ? bookData.pages : existingBook.pages,
-                    bookData.language !== undefined ? bookData.language : existingBook.language,
-                    bookData.format !== undefined ? bookData.format : existingBook.format,
-                    bookData.weight !== undefined ? bookData.weight : existingBook.weight,
-                    bookData.dimensions !== undefined ? bookData.dimensions : existingBook.dimensions,
                     bookData.stock_quantity !== undefined ? bookData.stock_quantity : existingBook.stock_quantity,
                     bookData.status !== undefined ? bookData.status : existingBook.status,
-                    bookData.sku !== undefined ? bookData.sku : existingBook.sku,
-                    bookData.min_stock !== undefined ? bookData.min_stock : existingBook.min_stock,
-                    bookData.max_stock !== undefined ? bookData.max_stock : existingBook.max_stock,
-                    bookData.reorder_point !== undefined ? bookData.reorder_point : existingBook.reorder_point,
-                    bookData.reorder_quantity !== undefined ? bookData.reorder_quantity : existingBook.reorder_quantity,
-                    bookData.warehouse_location !== undefined ? bookData.warehouse_location : existingBook.warehouse_location,
-                    bookData.cost_price !== undefined ? bookData.cost_price : existingBook.cost_price,
                     bookData.discount_percentage !== undefined ? bookData.discount_percentage : existingBook.discount_percentage,
-                    bookData.supplier_name !== undefined ? bookData.supplier_name : existingBook.supplier_name,
-                    bookData.supplier_contact !== undefined ? bookData.supplier_contact : existingBook.supplier_contact,
-                    bookData.notes !== undefined ? bookData.notes : existingBook.notes,
                     id
                 ]
             );
             
+            console.log('✅ Book updated successfully. Rows affected:', result.rowsAffected);
+            
             // Call callback with context that has changes property
-            const context = { changes: 1 };
+            const context = { changes: result.rowsAffected || 1 };
             callback.call(context, null);
         } catch (error) {
             callback(error);
@@ -1072,20 +1068,17 @@ const favoritesOperations = {
             const result = await query(
                 `SELECT 
                     b.id,
-                    b.isbn,
                     b.title, 
                     b.author, 
                     b.price, 
                     b.cover, 
                     b.description, 
-                    b.rating,
                     b.category,
                     b.genre,
                     b.publisher,
-                    b.publication_date,
-                    b.pages,
-                    b.language,
-                    b.format,
+                    b.stock_quantity,
+                    b.status,
+                    b.discount_percentage,
                     f.added_at
                  FROM favorites f
                  JOIN books b ON f.book_id = b.id
@@ -1497,12 +1490,17 @@ const reviewsOperations = {
     getAverageRating: async (bookId, callback) => {
         try {
             const result = await query(
-                `SELECT AVG(rating) as average, COUNT(*) as count
+                `SELECT COALESCE(AVG(rating), 0.0) as average, COUNT(*) as count
                  FROM reviews
                  WHERE book_id = ?`,
                 [bookId]
             );
-            callback(null, result.rows[0]);
+            const ratingData = result.rows[0];
+            // Ensure average is 0.0 if no reviews exist
+            callback(null, {
+                average: ratingData.average || 0.0,
+                count: ratingData.count || 0
+            });
         } catch (error) {
             callback(error);
         }
