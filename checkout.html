@@ -128,20 +128,232 @@
         .checkout-items::-webkit-scrollbar-thumb:hover {
             background: #1a4f47;
         }
+        
+        /* Payment details styling */
+        .payment-details {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #16423C;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Receipt Modal Styling */
+        .receipt-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .receipt-modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .receipt-container {
+            background-color: white;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.4s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .receipt-header {
+            background: linear-gradient(135deg, #16423C 0%, #1a4f47 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px 12px 0 0;
+            text-align: center;
+        }
+        
+        .receipt-header h2 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .receipt-header .success-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+            color: #4CAF50;
+        }
+        
+        .receipt-body {
+            padding: 30px;
+        }
+        
+        .receipt-section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px dashed #e9ecef;
+        }
+        
+        .receipt-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .receipt-section h5 {
+            color: #16423C;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .receipt-info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .receipt-info-label {
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        .receipt-info-value {
+            color: #212529;
+            font-weight: 600;
+            text-align: right;
+        }
+        
+        .receipt-items-list {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .receipt-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .receipt-item:last-child {
+            border-bottom: none;
+        }
+        
+        .receipt-item-details {
+            flex: 1;
+        }
+        
+        .receipt-item-title {
+            font-weight: 600;
+            color: #212529;
+            margin-bottom: 3px;
+        }
+        
+        .receipt-item-meta {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        
+        .receipt-item-price {
+            font-weight: 600;
+            color: #16423C;
+            margin-left: 15px;
+        }
+        
+        .receipt-totals {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .receipt-total-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .receipt-total-row.grand-total {
+            font-size: 18px;
+            font-weight: 700;
+            color: #16423C;
+            padding-top: 10px;
+            border-top: 2px solid #dee2e6;
+            margin-top: 10px;
+        }
+        
+        .receipt-footer {
+            text-align: center;
+            padding: 20px 30px 30px;
+            border-top: 2px solid #e9ecef;
+        }
+        
+        .receipt-footer .btn {
+            margin: 5px;
+        }
+        
+        .receipt-thank-you {
+            background: linear-gradient(135deg, #16423C 0%, #1a4f47 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        @media print {
+            .receipt-modal {
+                display: block;
+                background-color: white;
+            }
+            
+            .receipt-footer .btn,
+            .receipt-footer .no-print {
+                display: none;
+            }
+        }
     </style>
 
 </head>
 
 <body>
-
-    <!-- <audio id="bgMusic" loop>
-        <source src="./media/Frédéric Chopin_ Nocturne in E-Flat Major, Op. 9, No. 2.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio> -->
-
-    <!-- <button id="audioControl" class="audio-control" title="Audio Control">
-        <i class="fas fa-volume-mute"></i>
-    </button> -->
 
     <nav class="navbar navbar-expand-lg navbar-light bg-custom fixed-top" id="navbar">
         <div class="container-fluid">
@@ -272,26 +484,81 @@
                             <h4>Payment Method</h4>
                         </div>
                         <div class="card-body">
-                            <div class="form-check mb-2">
+                            <div class="form-check mb-3">
                                 <input class="form-check-input" type="radio" name="paymentMethod" id="codPayment" value="cod" checked>
                                 <label class="form-check-label" for="codPayment">
                                     <i class="fas fa-money-bill-wave me-2"></i>Cash on Delivery
                                     <small class="text-muted d-block">Pay when your order arrives</small>
                                 </label>
                             </div>
-                            <div class="form-check mb-2">
+                            
+                            <div class="form-check mb-3">
                                 <input class="form-check-input" type="radio" name="paymentMethod" id="gcashPayment" value="gcash">
                                 <label class="form-check-label" for="gcashPayment">
                                     <i class="fas fa-mobile-alt me-2"></i>GCash/Maya App
                                     <small class="text-muted d-block">Pay using your mobile wallet</small>
                                 </label>
                             </div>
-                            <div class="form-check mb-2">
+                            <!-- GCash Payment Details -->
+                            <div id="gcashDetails" class="payment-details d-none ms-4 mb-3">
+                                <div class="alert alert-info">
+                                    <strong>Mobile Wallet Payment Instructions:</strong>
+                                    <ol class="mb-0 mt-2">
+                                        <li>Open your GCash or Maya app</li>
+                                        <li>Select "Send Money" or "Pay Bills"</li>
+                                        <li>Enter your reference number after placing order</li>
+                                        <li>Take a screenshot of your payment confirmation</li>
+                                    </ol>
+                                </div>
+                            </div>
+                            
+                            <div class="form-check mb-3">
                                 <input class="form-check-input" type="radio" name="paymentMethod" id="cardPayment" value="card">
                                 <label class="form-check-label" for="cardPayment">
                                     <i class="fas fa-credit-card me-2"></i>Credit/Debit Card
                                     <small class="text-muted d-block">Pay with Visa, Mastercard, or other cards</small>
                                 </label>
+                            </div>
+                            <!-- Card Payment Details -->
+                            <div id="cardDetails" class="payment-details d-none ms-4 mb-3">
+                                <div class="mb-2">
+                                    <label for="cardNumber" class="form-label">Card Number</label>
+                                    <input type="text" class="form-control" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-2">
+                                        <label for="cardExpiry" class="form-label">Expiry Date</label>
+                                        <input type="text" class="form-control" id="cardExpiry" placeholder="MM/YY" maxlength="5">
+                                    </div>
+                                    <div class="col-md-6 mb-2">
+                                        <label for="cardCVV" class="form-label">CVV</label>
+                                        <input type="text" class="form-control" id="cardCVV" placeholder="123" maxlength="3">
+                                    </div>
+                                </div>
+                                <div class="mb-2">
+                                    <label for="cardName" class="form-label">Cardholder Name</label>
+                                    <input type="text" class="form-control" id="cardName" placeholder="Name on card">
+                                </div>
+                            </div>
+                            
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="bankTransfer" value="bank">
+                                <label class="form-check-label" for="bankTransfer">
+                                    <i class="fas fa-university me-2"></i>Bank Transfer
+                                    <small class="text-muted d-block">Direct bank transfer</small>
+                                </label>
+                            </div>
+                            <!-- Bank Transfer Details -->
+                            <div id="bankDetails" class="payment-details d-none ms-4 mb-3">
+                                <div class="alert alert-info">
+                                    <strong>Bank Transfer Instructions:</strong>
+                                    <ul class="mb-0 mt-2">
+                                        <li><strong>Bank:</strong> Philippine National Bank</li>
+                                        <li><strong>Account Name:</strong> Literary Escape Inc.</li>
+                                        <li><strong>Account Number:</strong> 1234-5678-9012</li>
+                                        <li>Please include your order number in the reference</li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -395,6 +662,123 @@
 
     </section>
 
+    <!-- Receipt Modal -->
+    <div id="receiptModal" class="receipt-modal">
+        <div class="receipt-container">
+            <div class="receipt-header">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h2>Order Successful!</h2>
+                <p class="mb-0">Thank you for your purchase</p>
+            </div>
+            
+            <div class="receipt-body">
+                <div class="receipt-thank-you">
+                    <h4 class="mb-2"><i class="fas fa-heart me-2"></i>Thank You for Your Order!</h4>
+                    <p class="mb-0">Your order has been successfully placed and is being processed.</p>
+                </div>
+                
+                <!-- Order Information -->
+                <div class="receipt-section">
+                    <h5><i class="fas fa-info-circle me-2"></i>Order Information</h5>
+                    <div class="receipt-info-row">
+                        <span class="receipt-info-label">Order Number:</span>
+                        <span class="receipt-info-value" id="receiptOrderNumber">-</span>
+                    </div>
+                    <div class="receipt-info-row">
+                        <span class="receipt-info-label">Order Date:</span>
+                        <span class="receipt-info-value" id="receiptOrderDate">-</span>
+                    </div>
+                    <div class="receipt-info-row">
+                        <span class="receipt-info-label">Payment Method:</span>
+                        <span class="receipt-info-value" id="receiptPaymentMethod">-</span>
+                    </div>
+                    <div class="receipt-info-row">
+                        <span class="receipt-info-label">Delivery Courier:</span>
+                        <span class="receipt-info-value" id="receiptCourier">-</span>
+                    </div>
+                </div>
+                
+                <!-- Shipping Address -->
+                <div class="receipt-section">
+                    <h5><i class="fas fa-shipping-fast me-2"></i>Shipping Address</h5>
+                    <div class="receipt-info-row">
+                        <span class="receipt-info-label">Recipient:</span>
+                        <span class="receipt-info-value" id="receiptRecipient">-</span>
+                    </div>
+                    <div class="receipt-info-row">
+                        <span class="receipt-info-label">Address:</span>
+                        <span class="receipt-info-value" id="receiptAddress">-</span>
+                    </div>
+                    <div class="receipt-info-row">
+                        <span class="receipt-info-label">City:</span>
+                        <span class="receipt-info-value" id="receiptCity">-</span>
+                    </div>
+                    <div class="receipt-info-row">
+                        <span class="receipt-info-label">Zip Code:</span>
+                        <span class="receipt-info-value" id="receiptZip">-</span>
+                    </div>
+                </div>
+                
+                <!-- Order Items -->
+                <div class="receipt-section">
+                    <h5><i class="fas fa-box-open me-2"></i>Order Items</h5>
+                    <div class="receipt-items-list" id="receiptItemsList">
+                        <!-- Items will be populated here -->
+                    </div>
+                </div>
+                
+                <!-- Order Summary -->
+                <div class="receipt-section">
+                    <h5><i class="fas fa-calculator me-2"></i>Order Summary</h5>
+                    <div class="receipt-totals">
+                        <div class="receipt-total-row">
+                            <span>Subtotal:</span>
+                            <span id="receiptSubtotal">₱0.00</span>
+                        </div>
+                        <div class="receipt-total-row">
+                            <span>Shipping Fee:</span>
+                            <span id="receiptShipping">₱0.00</span>
+                        </div>
+                        <div class="receipt-total-row" id="receiptDiscountRow" style="display: none; color: #28a745;">
+                            <span>Discount:</span>
+                            <span id="receiptDiscount">-₱0.00</span>
+                        </div>
+                        <div class="receipt-total-row grand-total">
+                            <span>Total Amount:</span>
+                            <span id="receiptTotal">₱0.00</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Additional Notes -->
+                <div class="receipt-section">
+                    <div class="alert alert-info mb-0">
+                        <strong><i class="fas fa-info-circle me-2"></i>What's Next?</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>You will receive an order confirmation email shortly</li>
+                            <li>Track your order status in your account dashboard</li>
+                            <li>Estimated delivery: <span id="receiptEstimatedDelivery">3-5 business days</span></li>
+                            <li>Contact support if you have any questions</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="receipt-footer">
+                <button class="btn btn-primary btn-lg" onclick="printReceipt()">
+                    <i class="fas fa-print me-2"></i>Print Receipt
+                </button>
+                <button class="btn btn-success btn-lg" onclick="goToDashboard()">
+                    <i class="fas fa-home me-2"></i>Go to Dashboard
+                </button>
+                <button class="btn btn-outline-secondary btn-lg" onclick="closeReceipt()">
+                    <i class="fas fa-times me-2"></i>Close
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer style="margin-top: 30px;">
@@ -528,6 +912,79 @@
             paymentRadios.forEach(radio => {
                 radio.addEventListener('change', handlePaymentMethodChange);
             });
+            
+            // Initialize card number formatting
+            const cardNumber = document.getElementById('cardNumber');
+            if (cardNumber) {
+                cardNumber.addEventListener('input', formatCardNumber);
+            }
+            
+            // Initialize expiry date formatting
+            const cardExpiry = document.getElementById('cardExpiry');
+            if (cardExpiry) {
+                cardExpiry.addEventListener('input', formatExpiryDate);
+            }
+            
+            // Initialize CVV validation
+            const cardCVV = document.getElementById('cardCVV');
+            if (cardCVV) {
+                cardCVV.addEventListener('input', function(e) {
+                    e.target.value = e.target.value.replace(/\D/g, '').slice(0, 3);
+                });
+            }
+        }
+        
+        function formatCardNumber(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+            e.target.value = value.slice(0, 19);
+        }
+        
+        function formatExpiryDate(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = value.slice(0, 2) + '/' + value.slice(2, 4);
+            }
+            e.target.value = value;
+        }
+        
+        function validateCardDetails() {
+            const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+            const cardExpiry = document.getElementById('cardExpiry').value;
+            const cardCVV = document.getElementById('cardCVV').value;
+            const cardName = document.getElementById('cardName').value.trim();
+            
+            if (!cardNumber || cardNumber.length < 13) {
+                showWarning('Please enter a valid card number');
+                return false;
+            }
+            
+            if (!cardExpiry || !/^\d{2}\/\d{2}$/.test(cardExpiry)) {
+                showWarning('Please enter a valid expiry date (MM/YY)');
+                return false;
+            }
+            
+            // Check if card is not expired
+            const [month, year] = cardExpiry.split('/').map(num => parseInt(num));
+            const currentYear = new Date().getFullYear() % 100;
+            const currentMonth = new Date().getMonth() + 1;
+            
+            if (year < currentYear || (year === currentYear && month < currentMonth)) {
+                showWarning('Card has expired');
+                return false;
+            }
+            
+            if (!cardCVV || cardCVV.length < 3) {
+                showWarning('Please enter a valid CVV');
+                return false;
+            }
+            
+            if (!cardName) {
+                showWarning('Please enter the cardholder name');
+                return false;
+            }
+            
+            return true;
         }
 
         // Initialize courier selection functionality
@@ -561,8 +1018,23 @@
             const methodNames = {
                 'cod': 'Cash on Delivery',
                 'gcash': 'GCash/Maya App',
-                'card': 'Credit/Debit Card'
+                'card': 'Credit/Debit Card',
+                'bank': 'Bank Transfer'
             };
+            
+            // Hide all payment details
+            document.getElementById('gcashDetails').classList.add('d-none');
+            document.getElementById('cardDetails').classList.add('d-none');
+            document.getElementById('bankDetails').classList.add('d-none');
+            
+            // Show relevant payment details
+            if (selectedMethod === 'gcash') {
+                document.getElementById('gcashDetails').classList.remove('d-none');
+            } else if (selectedMethod === 'card') {
+                document.getElementById('cardDetails').classList.remove('d-none');
+            } else if (selectedMethod === 'bank') {
+                document.getElementById('bankDetails').classList.remove('d-none');
+            }
             
             document.getElementById('selectedPaymentMethod').textContent = methodNames[selectedMethod];
             console.log('Payment method changed to:', methodNames[selectedMethod]);
@@ -987,6 +1459,16 @@
                     return;
                 }
 
+                // Collect payment method
+                const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'cod';
+                
+                // Validate payment details if card is selected
+                if (paymentMethod === 'card') {
+                    if (!validateCardDetails()) {
+                        return;
+                    }
+                }
+
                 // Prepare shipping address
                 const shippingAddress = selectedAddress ? {
                     label: selectedAddress.label,
@@ -1003,8 +1485,6 @@
 
                 showInfo('Processing your order...');
 
-                // Collect payment method
-                const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'cod';
                 // Collect courier
                 const courierRadio = document.querySelector('input[name="courier"]:checked');
                 const courier = courierRadio ? { code: courierRadio.value, fee: parseInt(courierRadio.dataset.fee) } : { code: 'jnt', fee: currentShippingFee };
@@ -1021,19 +1501,26 @@
                 const totalAmount = parseFloat(totalText) || 0;
                 const totals = { subtotal: subtotalAmount, shipping: currentShippingFee, discount: voucherDiscount, total: totalAmount };
 
+                // Prepare payment details if card payment
+                let paymentDetails = null;
+                if (paymentMethod === 'card') {
+                    paymentDetails = {
+                        cardNumber: document.getElementById('cardNumber').value.replace(/\s/g, '').slice(-4), // Only last 4 digits
+                        cardName: document.getElementById('cardName').value.trim()
+                    };
+                }
+
                 // Create order via API with full payload
                 console.log('🛒 Creating order with payload:', { shippingAddress, paymentMethod, courier, discounts, totals });
                 console.log('📦 Cart items for order:', cartItems.length, 'items');
                 
-                const result = await api.createOrder({ shippingAddress, paymentMethod, courier, discounts, totals });
+                const result = await api.createOrder({ shippingAddress, paymentMethod, courier, discounts, totals, paymentDetails });
                 console.log('✅ Order creation result:', result);
                 
                 showSuccess('Order created successfully!');
                 
-                // Redirect to success page or account dashboard
-                setTimeout(() => {
-                    window.location.href = 'account-dashboard.html#orders';
-                }, 2000);
+                // Display receipt
+                displayReceipt(result, shippingAddress, paymentMethod, courier, totals);
 
             } catch (error) {
                 console.error('❌ Order creation error:', error);
@@ -1054,6 +1541,98 @@
                     showError(`Failed to create order: ${error.message || 'Unknown error'}`);
                 }
             }
+        }
+        
+        function displayReceipt(orderResult, shippingAddress, paymentMethod, courier, totals) {
+            // Populate receipt with order details
+            const orderNumber = orderResult.order_id || orderResult.orderId || 'N/A';
+            const orderDate = new Date().toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            const paymentMethodNames = {
+                'cod': 'Cash on Delivery',
+                'gcash': 'GCash/Maya App',
+                'card': 'Credit/Debit Card',
+                'bank': 'Bank Transfer'
+            };
+            
+            const courierNames = {
+                'jnt': 'J&T Express',
+                'lbc': 'LBC Express',
+                'ninja': 'Ninja Van',
+                'flash': 'Flash Express'
+            };
+            
+            const deliveryTimes = {
+                'jnt': '2-3 business days',
+                'lbc': '1-2 business days',
+                'ninja': '2-4 business days',
+                'flash': '3-5 business days'
+            };
+            
+            // Set order information
+            document.getElementById('receiptOrderNumber').textContent = orderNumber;
+            document.getElementById('receiptOrderDate').textContent = orderDate;
+            document.getElementById('receiptPaymentMethod').textContent = paymentMethodNames[paymentMethod] || paymentMethod;
+            document.getElementById('receiptCourier').textContent = courierNames[courier.code] || courier.code;
+            document.getElementById('receiptEstimatedDelivery').textContent = deliveryTimes[courier.code] || '3-5 business days';
+            
+            // Set shipping address
+            document.getElementById('receiptRecipient').textContent = shippingAddress.label;
+            document.getElementById('receiptAddress').textContent = shippingAddress.full_address;
+            document.getElementById('receiptCity').textContent = shippingAddress.city;
+            document.getElementById('receiptZip').textContent = shippingAddress.zip_code;
+            
+            // Set order items
+            const itemsList = document.getElementById('receiptItemsList');
+            itemsList.innerHTML = cartItems.map(item => `
+                <div class="receipt-item">
+                    <div class="receipt-item-details">
+                        <div class="receipt-item-title">${item.title}</div>
+                        <div class="receipt-item-meta">by ${item.author} | Qty: ${item.quantity} × ₱${item.price.toFixed(2)}</div>
+                    </div>
+                    <div class="receipt-item-price">₱${(item.price * item.quantity).toFixed(2)}</div>
+                </div>
+            `).join('');
+            
+            // Set totals
+            document.getElementById('receiptSubtotal').textContent = `₱${totals.subtotal.toFixed(2)}`;
+            document.getElementById('receiptShipping').textContent = `₱${totals.shipping.toFixed(2)}`;
+            
+            if (totals.discount > 0) {
+                document.getElementById('receiptDiscountRow').style.display = 'flex';
+                document.getElementById('receiptDiscount').textContent = `-₱${totals.discount.toFixed(2)}`;
+            } else {
+                document.getElementById('receiptDiscountRow').style.display = 'none';
+            }
+            
+            document.getElementById('receiptTotal').textContent = `₱${totals.total.toFixed(2)}`;
+            
+            // Show the receipt modal
+            document.getElementById('receiptModal').classList.add('show');
+        }
+        
+        function printReceipt() {
+            window.print();
+        }
+        
+        function goToDashboard() {
+            window.location.href = 'account-dashboard.html#orders';
+        }
+        
+        function closeReceipt() {
+            const modal = document.getElementById('receiptModal');
+            modal.classList.remove('show');
+            
+            // Redirect to dashboard after closing
+            setTimeout(() => {
+                window.location.href = 'account-dashboard.html#orders';
+            }, 300);
         }
 
         // Ensure DOM is loaded before attaching event listener
