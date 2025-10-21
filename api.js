@@ -501,14 +501,6 @@ app.post('/api/reviews', authenticateToken, (req, res) => {
     });
 });
 
-// Get user's reviews
-app.get('/api/user/reviews', authenticateToken, (req, res) => {
-    reviewsOperations.getByUserId(req.user.userId, (err, reviews) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(reviews);
-    });
-});
-
 // Update a review
 app.put('/api/reviews/:reviewId', authenticateToken, (req, res) => {
     const { rating, reviewText } = req.body;

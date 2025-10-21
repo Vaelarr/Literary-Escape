@@ -1308,6 +1308,54 @@
             }
         }
 
+        // Refresh all data without page reload - for use after CRUD operations
+        async function refreshAllData() {
+            try {
+                console.log('🔄 Refreshing all admin data...');
+                
+                // Get currently active section to ensure we refresh the right data
+                const activeSection = document.querySelector('.content-section.active');
+                const sectionId = activeSection ? activeSection.id : 'dashboard-section';
+                
+                // Always refresh dashboard statistics
+                await updateDashboard();
+                
+                // Refresh the active section's data
+                switch (sectionId) {
+                    case 'books-section':
+                        await loadBooksFromAPI(currentBooksPage, currentBookCategory, currentBookSearch);
+                        break;
+                    case 'users-section':
+                        await loadUsersFromAPI(currentUsersPage);
+                        break;
+                    case 'orders-section':
+                        await loadOrdersFromAPI(currentOrdersPage, currentOrderStatus, currentOrderSearch);
+                        break;
+                    case 'archived-books-section':
+                        await loadArchivedBooksFromAPI(currentArchivedBooksPage, document.getElementById('archivedBookCategoryFilter')?.value || 'all');
+                        break;
+                    case 'archived-users-section':
+                        await loadArchivedUsersFromAPI(currentArchivedUsersPage);
+                        break;
+                    case 'archived-orders-section':
+                        await loadArchivedOrdersFromAPI(currentArchivedOrdersPage, document.getElementById('archivedStatusFilter')?.value || 'all');
+                        break;
+                    case 'vouchers-section':
+                        await loadVouchersFromAPI(currentVouchersPage);
+                        break;
+                    case 'dashboard-section':
+                    default:
+                        // Refresh dashboard user list
+                        await loadDashboardUsers();
+                        break;
+                }
+                
+                console.log('✅ All data refreshed successfully');
+            } catch (error) {
+                console.error('❌ Error refreshing data:', error);
+            }
+        }
+
         async function loadBooksFromAPI(page = currentBooksPage, category = currentBookCategory, search = currentBookSearch) {
             try {
                 console.log(`📚 Loading books - Page: ${page}, Category: ${category}, Search: ${search}`);
@@ -1835,9 +1883,12 @@
                 }
 
                 if (result) {
-                    await loadBooksFromAPI(currentBooksPage, currentBookCategory, currentBookSearch);
+                    // Close modal and reset form
                     bootstrap.Modal.getInstance(document.getElementById('addBookModal')).hide();
                     document.getElementById('bookForm').reset();
+                    
+                    // Refresh all data including dashboard
+                    await refreshAllData();
                     
                     // Show success message
                     const successMsg = `Book ${id ? 'updated' : 'created'} successfully!`;
@@ -1859,8 +1910,8 @@
                 const result = await api.adminUpdateOrder(orderId, { status });
                 
                 if (result) {
-                    await loadOrdersFromAPI(currentOrdersPage, currentOrderStatus, currentOrderSearch);
-                    await updateBookSales(); // Refresh dashboard statistics
+                    // Refresh all data including dashboard statistics
+                    await refreshAllData();
                     showSuccessMessage('Order status updated successfully');
                 } else {
                     throw new Error('Failed to update order status');
@@ -1883,8 +1934,8 @@
                 const result = await api.adminUpdateUserRole(userId, newRole);
                 
                 if (result) {
-                    await loadDashboardUsers();
-                    await loadUsersFromAPI(currentUsersPage);
+                    // Refresh all data
+                    await refreshAllData();
                     showSuccessMessage('User role updated successfully');
                 } else {
                     throw new Error('Failed to update user role');
@@ -1918,10 +1969,10 @@
                 if (result) {
                     showSuccessMessage(`Book ${action}d successfully!`);
                     
-                    // Reload appropriate data
-                    await loadBooksFromAPI(currentBooksPage, currentBookCategory, currentBookSearch);
+                    // Refresh all data including dashboard
+                    await refreshAllData();
                     
-                    // If we're viewing archived books, reload that too
+                    // If we're viewing archived books, make sure to reload that as well
                     const archivedSection = document.getElementById('archived-books-section');
                     if (archivedSection && archivedSection.classList.contains('active')) {
                         await loadArchivedBooksFromAPI(currentArchivedBooksPage);
@@ -1954,11 +2005,10 @@
                 if (result) {
                     showSuccessMessage(`User ${action}d successfully!`);
                     
-                    // Reload appropriate data
-                    await loadUsersFromAPI(currentUsersPage);
-                    await loadDashboardUsers();
+                    // Refresh all data including dashboard
+                    await refreshAllData();
                     
-                    // If we're viewing archived users, reload that too
+                    // If we're viewing archived users, make sure to reload that as well
                     const archivedSection = document.getElementById('archived-users-section');
                     if (archivedSection && archivedSection.classList.contains('active')) {
                         await loadArchivedUsersFromAPI(currentArchivedUsersPage);
@@ -1991,10 +2041,10 @@
                 if (result) {
                     showSuccessMessage(`Order ${action}d successfully!`);
                     
-                    // Reload appropriate data
-                    await loadOrdersFromAPI(currentOrdersPage, currentOrderStatus, currentOrderSearch);
+                    // Refresh all data including dashboard
+                    await refreshAllData();
                     
-                    // If we're viewing archived orders, reload that too
+                    // If we're viewing archived orders, make sure to reload that as well
                     const archivedSection = document.getElementById('archived-orders-section');
                     if (archivedSection && archivedSection.classList.contains('active')) {
                         await loadArchivedOrdersFromAPI(currentArchivedOrdersPage);
@@ -2347,32 +2397,40 @@
             const user = localStorage.getItem('user');
             
             if (!token || !user) {
-                console.log('No admin credentials found');
+                console.log('❌ No auth token or user found, showing login');
                 showAdminLogin();
                 return;
             }
             
             try {
+                // Parse user data
                 const userData = JSON.parse(user);
-                // Accept if role is admin (backwards compatible with old sessions)
+                console.log('👤 User data:', userData);
+                
+                // Verify user is admin
                 if (userData.role !== 'admin') {
-                    console.log('Invalid admin credentials - not an admin role');
+                    console.log('⛔ User is not admin, clearing session');
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('user');
                     showAdminLogin();
                     return;
                 }
                 
-                // Verify token is still valid
+                // Verify token is still valid by checking database connection
+                // The token will be sent with API calls automatically
                 const isConnected = await verifyDatabaseConnection();
                 if (isConnected) {
-                    console.log('✅ Admin access verified');
+                    console.log('✅ Admin session is valid, showing admin panel');
                     showAdminApp();
                     initAdmin();
                 } else {
-                    console.log('Database connection failed');
+                    console.log('❌ Database connection failed, showing login');
                     showAdminLogin();
                 }
             } catch (error) {
-                console.error('Error checking admin access:', error);
+                console.error('❌ Error checking admin access:', error);
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('user');
                 showAdminLogin();
             }
         }
@@ -3397,15 +3455,17 @@
                 }
                 
                 if (response && response.success) {
-                    alert(voucherId ? 'Voucher updated successfully!' : 'Voucher created successfully!');
+                    showSuccessMessage(voucherId ? 'Voucher updated successfully!' : 'Voucher created successfully!');
                     bootstrap.Modal.getInstance(document.getElementById('addVoucherModal')).hide();
-                    loadVouchersFromAPI(currentVouchersPage);
+                    
+                    // Refresh all data
+                    await refreshAllData();
                 } else {
                     throw new Error(response.message || 'Failed to save voucher');
                 }
             } catch (error) {
                 console.error('Error saving voucher:', error);
-                alert('Error: ' + error.message);
+                showErrorMessage('Error: ' + error.message);
             }
         }
         
@@ -3459,14 +3519,16 @@
                 const response = await api.adminDeleteVoucher(voucherId);
                 
                 if (response && response.success) {
-                    alert('Voucher deleted successfully!');
-                    loadVouchersFromAPI(currentVouchersPage);
+                    showSuccessMessage('Voucher deleted successfully!');
+                    
+                    // Refresh all data
+                    await refreshAllData();
                 } else {
                     throw new Error(response.message || 'Failed to delete voucher');
                 }
             } catch (error) {
                 console.error('Error deleting voucher:', error);
-                alert('Error: ' + error.message);
+                showErrorMessage('Error: ' + error.message);
             }
         }
         
