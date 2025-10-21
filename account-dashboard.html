@@ -14,18 +14,19 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         /* Base layout fixes */
-        html, body {
+        html,
+        body {
             height: 100%;
             margin: 0;
             padding: 0;
             overflow-x: hidden;
         }
-        
+
         .main-content {
             min-height: calc(100vh - 160px);
             padding: 100px 0 40px 0;
         }
-        
+
         /* Navbar improvements */
         .navbar {
             z-index: 1030;
@@ -34,70 +35,70 @@
             background: rgba(22, 66, 60, 0.95) !important;
             box-shadow: 0 2px 20px rgba(22, 66, 60, 0.3);
         }
-        
+
         .navbar.fixed-top {
             position: fixed !important;
             top: 0;
             left: 0;
             right: 0;
         }
-        
+
         /* Navbar text styling */
         .navbar .nav-link {
             color: #ffffff !important;
             font-weight: 500;
             transition: all 0.3s ease;
         }
-        
+
         .navbar .nav-link:hover {
-            color: rgba(51, 189, 170, 0.95)!important;
+            color: rgba(51, 189, 170, 0.95) !important;
             transform: translateY(-1px);
         }
-        
+
         .navbar .dropdown-toggle {
             color: #ffffff !important;
         }
-        
+
         .navbar .icon-link {
             color: #ffffff !important;
             text-decoration: none;
             transition: all 0.3s ease;
             display: inline-block;
         }
-        
+
         .navbar .icon-link:hover {
             color: rgba(51, 189, 170, 0.95) !important;
             transform: scale(1.1);
         }
-        
+
         .navbar .icon-link i {
             color: #ffffff !important;
         }
-        
+
         .account-sidebar {
             background-color: #f8f9fa;
             border-radius: 10px;
             padding: 20px;
             height: fit-content;
         }
-        
+
         .account-content {
             background-color: white;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             padding: 30px;
         }
-        
+
         .nav-pills .nav-link {
             color: #16423C;
             border-radius: 8px;
             margin-bottom: 5px;
         }
-        
+
         .nav-pills .nav-link.active {
             background-color: #16423C;
         }
-        
+
         .profile-avatar {
             width: 100px;
             height: 100px;
@@ -111,7 +112,7 @@
             font-weight: bold;
             margin: 0 auto 20px;
         }
-        
+
         .order-card {
             border: 1px solid #e9ecef;
             border-radius: 8px;
@@ -119,16 +120,16 @@
             margin-bottom: 15px;
             transition: box-shadow 0.3s ease;
         }
-        
+
         .order-card:hover {
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
-        
+
         .status-badge {
             font-size: 0.85rem;
             padding: 5px 12px;
         }
-        
+
         .address-card {
             border: 2px solid #e9ecef;
             border-radius: 8px;
@@ -137,11 +138,11 @@
             cursor: pointer;
             transition: border-color 0.3s ease;
         }
-        
+
         .address-card:hover {
             border-color: #16423C;
         }
-        
+
         .address-card.default {
             border-color: #16423C;
             background-color: #f8f9fa;
@@ -234,7 +235,7 @@
 
         .stats-card {
             border: none;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease;
         }
 
@@ -299,9 +300,10 @@
                 <!-- Search Bar -->
                 <form class="d-flex mx-3" onsubmit="handleSearch(event)">
                     <div class="search-wrapper w-100">
-                        <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search" id="searchInput">
+                        <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search"
+                            id="searchInput">
                         <button class="btn mx-0" title="search-btn" type="submit"><i class="bi bi-search"></i></button>
-                        
+
                         <!-- Search Dropdown -->
                         <div class="search-dropdown" id="searchDropdown">
                             <!-- Loading indicator -->
@@ -311,11 +313,11 @@
                                 </div>
                                 <span class="loading-text">Searching...</span>
                             </div>
-                            
+
                             <!-- Search results container -->
                             <div class="search-results-container" id="searchResultsContainer">
                             </div>
-                            
+
                             <!-- No results message -->
                             <div class="no-results-message" id="noResultsMessage">
                                 <i class="bi bi-search"></i>
@@ -335,7 +337,31 @@
                         <i class="fa-solid fa-cart-shopping"></i>
                         <span id="cart-count" class="cart-count">0</span>
                     </a>
-                    <a href="account.html" class="icon-link" title="Account"><i class="fa-solid fa-user"></i></a>
+                    <div class="profile-dropdown-wrapper">
+                        <a href="account.html" class="icon-link" id="profileIcon" title="Account">
+                            <i class="fa-solid fa-user"></i>
+                        </a>
+                        <div class="profile-dropdown" id="profileDropdown">
+                            <div class="profile-dropdown-header">
+                                <div class="user-name" id="dropdownUserName">User Name</div>
+                                <div class="user-email" id="dropdownUserEmail">user@email.com</div>
+                            </div>
+                            <ul class="profile-dropdown-menu">
+                                <li>
+                                    <a href="account-dashboard.html">
+                                        <i class="fa-solid fa-dashboard"></i>
+                                        <span>Dashboard</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <button class="logout-btn" id="navbarLogoutBtn">
+                                        <i class="fa-solid fa-sign-out-alt"></i>
+                                        <span>Logout</span>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -350,7 +376,7 @@
                         <!-- User initials will be inserted here -->
                     </div>
                     <h5 class="text-center mb-3" id="userName">Loading...</h5>
-                    
+
                     <ul class="nav nav-pills flex-column">
                         <li class="nav-item">
                             <a class="nav-link active" href="#profile" data-section="profile">
@@ -437,7 +463,8 @@
                                     </div>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary" style="background-color: #16423C; border-color: #16423C;">
+                            <button type="submit" class="btn btn-primary"
+                                style="background-color: #16423C; border-color: #16423C;">
                                 Update Profile
                             </button>
                         </form>
@@ -460,7 +487,8 @@
                     <div class="account-section d-none" id="addresses-section">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h3 style="color: #16423C;">Saved Addresses</h3>
-                            <button class="btn btn-primary" style="background-color: #16423C; border-color: #16423C;" data-bs-toggle="modal" data-bs-target="#addressModal">
+                            <button class="btn btn-primary" style="background-color: #16423C; border-color: #16423C;"
+                                data-bs-toggle="modal" data-bs-target="#addressModal">
                                 <i class="fas fa-plus me-2"></i>Add New Address
                             </button>
                         </div>
@@ -472,7 +500,7 @@
                     <!-- Security Section -->
                     <div class="account-section d-none" id="security-section">
                         <h3 class="mb-4" style="color: #16423C;">Security Settings</h3>
-                        
+
                         <!-- Change Password -->
                         <div class="card mb-4">
                             <div class="card-header">
@@ -490,11 +518,15 @@
                                         <div class="password-requirements mt-2">
                                             <small class="text-muted">Password must contain:</small>
                                             <div class="requirements-list">
-                                                <small class="requirement" id="length-req-security">• At least 8 characters</small>
-                                                <small class="requirement" id="uppercase-req-security">• One uppercase letter</small>
-                                                <small class="requirement" id="lowercase-req-security">• One lowercase letter</small>
+                                                <small class="requirement" id="length-req-security">• At least 8
+                                                    characters</small>
+                                                <small class="requirement" id="uppercase-req-security">• One uppercase
+                                                    letter</small>
+                                                <small class="requirement" id="lowercase-req-security">• One lowercase
+                                                    letter</small>
                                                 <small class="requirement" id="number-req-security">• One number</small>
-                                                <small class="requirement" id="special-req-security">• One special character</small>
+                                                <small class="requirement" id="special-req-security">• One special
+                                                    character</small>
                                             </div>
                                         </div>
                                     </div>
@@ -503,7 +535,8 @@
                                         <input type="password" class="form-control" id="confirmNewPassword" required>
                                         <div class="password-match-feedback-security mt-1"></div>
                                     </div>
-                                    <button type="submit" class="btn btn-primary" style="background-color: #16423C; border-color: #16423C;">
+                                    <button type="submit" class="btn btn-primary"
+                                        style="background-color: #16423C; border-color: #16423C;">
                                         Change Password
                                     </button>
                                 </form>
@@ -543,7 +576,7 @@
                     <!-- Reviews Section -->
                     <div class="account-section d-none" id="reviews-section">
                         <h3 class="mb-4" style="color: #16423C;">My Reviews</h3>
-                        
+
                         <!-- Reviews Stats -->
                         <div class="row mb-4">
                             <div class="col-md-4">
@@ -585,7 +618,8 @@
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <input type="text" class="form-control" id="reviewSearch" placeholder="Search reviews by book title...">
+                                <input type="text" class="form-control" id="reviewSearch"
+                                    placeholder="Search reviews by book title...">
                             </div>
                         </div>
 
@@ -603,8 +637,10 @@
                         <div class="text-center py-5 d-none" id="noReviews">
                             <i class="fas fa-star fa-3x text-muted mb-3"></i>
                             <h5 class="text-muted">No Reviews Yet</h5>
-                            <p class="text-muted">You haven't written any reviews yet. Start exploring books and share your thoughts!</p>
-                            <a href="index.html" class="btn btn-primary" style="background-color: #16423C; border-color: #16423C;">
+                            <p class="text-muted">You haven't written any reviews yet. Start exploring books and share
+                                your thoughts!</p>
+                            <a href="index.html" class="btn btn-primary"
+                                style="background-color: #16423C; border-color: #16423C;">
                                 Browse Books
                             </a>
                         </div>
@@ -662,7 +698,8 @@
             </div>
         </div>
         <!-- Edit Review Modal -->
-        <div class="modal fade" id="editReviewModal" tabindex="-1" aria-labelledby="editReviewModalLabel" aria-hidden="true">
+        <div class="modal fade" id="editReviewModal" tabindex="-1" aria-labelledby="editReviewModalLabel"
+            aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -675,7 +712,8 @@
                             <div class="mb-3">
                                 <label class="form-label">Book</label>
                                 <div class="d-flex align-items-center">
-                                    <img id="editBookCover" src="" alt="Book Cover" style="width: 50px; height: 75px; object-fit: cover;" class="me-3">
+                                    <img id="editBookCover" src="" alt="Book Cover"
+                                        style="width: 50px; height: 75px; object-fit: cover;" class="me-3">
                                     <div>
                                         <h6 class="mb-0" id="editBookTitle"></h6>
                                         <small class="text-muted" id="editBookAuthor"></small>
@@ -695,13 +733,15 @@
                             </div>
                             <div class="mb-3">
                                 <label for="editReviewText" class="form-label">Review</label>
-                                <textarea class="form-control" id="editReviewText" rows="4" placeholder="Update your thoughts about this book..." required></textarea>
+                                <textarea class="form-control" id="editReviewText" rows="4"
+                                    placeholder="Update your thoughts about this book..." required></textarea>
                             </div>
                         </form>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary" id="saveReviewChanges" style="background-color: #16423C; border-color: #16423C;">
+                        <button type="button" class="btn btn-primary" id="saveReviewChanges"
+                            style="background-color: #16423C; border-color: #16423C;">
                             Save Changes
                         </button>
                     </div>
@@ -722,7 +762,8 @@
                     <form id="addressForm">
                         <div class="mb-3">
                             <label for="addressLabel" class="form-label">Address Label</label>
-                            <input type="text" class="form-control" id="addressLabel" placeholder="e.g., Home, Work" required>
+                            <input type="text" class="form-control" id="addressLabel" placeholder="e.g., Home, Work"
+                                required>
                         </div>
                         <div class="mb-3">
                             <label for="fullAddress" class="form-label">Full Address</label>
@@ -752,7 +793,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" style="background-color: #16423C; border-color: #16423C;" id="saveAddressBtn">
+                    <button type="button" class="btn btn-primary"
+                        style="background-color: #16423C; border-color: #16423C;" id="saveAddressBtn">
                         Save Address
                     </button>
                 </div>
@@ -770,7 +812,8 @@
                         <span>LITERARY ESCAPE</span>
                     </div>
                     <p class="footer-description">
-                        Your gateway to endless literary adventures. Discover, explore, and escape into the world of books with our carefully curated collection of fiction, non-fiction, and specialty titles.
+                        Your gateway to endless literary adventures. Discover, explore, and escape into the world of
+                        books with our carefully curated collection of fiction, non-fiction, and specialty titles.
                     </p>
                     <div class="social-links">
                         <a href="https://www.facebook.com/" target="_blank" rel="noopener" aria-label="Facebook">
@@ -787,7 +830,7 @@
                         </a>
                     </div>
                 </div>
-                
+
                 <div class="footer-column">
                     <h4 class="footer-title">Quick Links</h4>
                     <ul class="footer-links">
@@ -798,18 +841,19 @@
                         <li><a href="account.html">My Account</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="footer-column">
                     <h4 class="footer-title">Customer Service</h4>
                     <ul class="footer-links">
                         <li><a href="cart.html">Shopping Cart</a></li>
                         <li><a href="favorites.html">My Favorites</a></li>
                         <li><a href="checkout.html">Checkout</a></li>
-                        <li><a href="#" onclick="showInfo('Contact us at: support@literaryescape.com')">Contact Support</a></li>
+                        <li><a href="#" onclick="showInfo('Contact us at: support@literaryescape.com')">Contact
+                                Support</a></li>
                         <li><a href="#" onclick="showInfo('Shipping: 3-5 business days')">Shipping Info</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="footer-column">
                     <h4 class="footer-title">Contact Info</h4>
                     <ul class="footer-links">
@@ -820,9 +864,10 @@
                     </ul>
                 </div>
             </div>
-            
+
             <div class="footer-bottom">
-                <p>&copy; 2024 Literary Escape. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+                <p>&copy; 2024 Literary Escape. All rights reserved. | <a href="#">Privacy Policy</a> | <a
+                        href="#">Terms of Service</a></p>
             </div>
         </div>
     </footer>
@@ -879,7 +924,7 @@
 
             // Load user profile
             await loadUserProfile();
-            
+
             // Load user data
             await loadUserOrders();
             await loadUserAddresses();
@@ -892,7 +937,7 @@
         async function loadUserProfile() {
             try {
                 const profile = await api.getUserProfile();
-                
+
                 // Populate form fields
                 document.getElementById('firstName').value = profile.first_name || '';
                 document.getElementById('lastName').value = profile.last_name || '';
@@ -920,14 +965,14 @@
                 displayOrders();
             } catch (error) {
                 console.error('Failed to load orders:', error);
-                document.getElementById('ordersContainer').innerHTML = 
+                document.getElementById('ordersContainer').innerHTML =
                     '<div class="text-center py-5"><p class="text-muted">Failed to load orders</p></div>';
             }
         }
 
         function displayOrders() {
             const container = document.getElementById('ordersContainer');
-            
+
             if (userOrders.length === 0) {
                 container.innerHTML = `
                     <div class="text-center py-5">
@@ -1043,14 +1088,14 @@
                 displayAddresses();
             } catch (error) {
                 console.error('Failed to load addresses:', error);
-                document.getElementById('addressesContainer').innerHTML = 
+                document.getElementById('addressesContainer').innerHTML =
                     '<div class="text-center py-3"><p class="text-muted">Failed to load addresses</p></div>';
             }
         }
 
         function displayAddresses() {
             const container = document.getElementById('addressesContainer');
-            
+
             if (userAddresses.length === 0) {
                 container.innerHTML = `
                     <div class="text-center py-5">
@@ -1091,7 +1136,7 @@
         function setupEventListeners() {
             // Navigation
             document.querySelectorAll('[data-section]').forEach(link => {
-                link.addEventListener('click', function(e) {
+                link.addEventListener('click', function (e) {
                     e.preventDefault();
                     const section = this.dataset.section;
                     switchSection(section);
@@ -1099,24 +1144,24 @@
             });
 
             // Profile form
-            document.getElementById('profileForm').addEventListener('submit', async function(e) {
+            document.getElementById('profileForm').addEventListener('submit', async function (e) {
                 e.preventDefault();
                 await updateProfile();
             });
 
             // Password change form
-            document.getElementById('passwordChangeForm').addEventListener('submit', async function(e) {
+            document.getElementById('passwordChangeForm').addEventListener('submit', async function (e) {
                 e.preventDefault();
                 await changePassword();
             });
 
             // Address form
-            document.getElementById('saveAddressBtn').addEventListener('click', async function() {
+            document.getElementById('saveAddressBtn').addEventListener('click', async function () {
                 await saveAddress();
             });
 
             // Logout
-            document.getElementById('logoutLink').addEventListener('click', function(e) {
+            document.getElementById('logoutLink').addEventListener('click', function (e) {
                 e.preventDefault();
                 if (confirm('Are you sure you want to logout?')) {
                     api.logout();
@@ -1141,7 +1186,7 @@
 
             // Show selected section
             document.getElementById(`${sectionName}-section`).classList.remove('d-none');
-            
+
             // Add active class to selected nav link
             document.querySelector(`[data-section="${sectionName}"]`).classList.add('active');
 
@@ -1166,7 +1211,7 @@
 
                 await api.updateUserProfile(formData);
                 dbBookDisplay.showMessage('Profile updated successfully!', 'success');
-                
+
                 // Update sidebar name if name changed
                 const newUsername = `${formData.first_name} ${formData.last_name}`;
                 document.getElementById('userName').textContent = newUsername;
@@ -1197,7 +1242,7 @@
 
                 await api.changePassword(currentPassword, newPassword);
                 dbBookDisplay.showMessage('Password changed successfully!', 'success');
-                
+
                 // Clear form
                 document.getElementById('passwordChangeForm').reset();
 
@@ -1223,11 +1268,11 @@
 
                 await api.saveUserAddress(addressData);
                 dbBookDisplay.showMessage('Address saved successfully!', 'success');
-                
+
                 // Close modal and reload addresses
                 bootstrap.Modal.getInstance(document.getElementById('addressModal')).hide();
                 await loadUserAddresses();
-                
+
                 // Clear form
                 document.getElementById('addressForm').reset();
 
@@ -1267,13 +1312,13 @@
             const passwordInput = document.getElementById(passwordId);
             const confirmPasswordInput = document.getElementById(confirmPasswordId);
 
-            passwordInput?.addEventListener('input', function() {
+            passwordInput?.addEventListener('input', function () {
                 const password = this.value;
                 updatePasswordRequirements(password, suffix);
                 checkPasswordMatch(suffix);
             });
 
-            confirmPasswordInput?.addEventListener('input', function() {
+            confirmPasswordInput?.addEventListener('input', function () {
                 checkPasswordMatch(suffix);
             });
 
@@ -1319,13 +1364,13 @@
 
         function validatePassword(password) {
             const errors = [];
-            
+
             if (password.length < 8) errors.push('at least 8 characters');
             if (!/[A-Z]/.test(password)) errors.push('one uppercase letter');
             if (!/[a-z]/.test(password)) errors.push('one lowercase letter');
             if (!/\d/.test(password)) errors.push('one number');
             if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) errors.push('one special character');
-            
+
             return {
                 isValid: errors.length === 0,
                 errors: errors
@@ -1363,14 +1408,14 @@
 
         function displayReviews() {
             const container = document.getElementById('reviewsContainer');
-            
+
             if (filteredReviews.length === 0) {
                 showNoReviews();
                 return;
             }
 
             document.getElementById('noReviews').classList.add('d-none');
-            
+
             const reviewsHTML = filteredReviews.map(review => `
                 <div class="review-card">
                     <div class="review-book-info">
@@ -1395,8 +1440,8 @@
                     <div class="review-meta">
                         <span>
                             Reviewed on ${new Date(review.created_at).toLocaleDateString()}
-                            ${review.updated_at !== review.created_at ? 
-                                `(Updated ${new Date(review.updated_at).toLocaleDateString()})` : ''}
+                            ${review.updated_at !== review.created_at ?
+                    `(Updated ${new Date(review.updated_at).toLocaleDateString()})` : ''}
                         </span>
                         <div class="review-actions">
                             <button class="btn btn-outline-primary btn-sm" onclick="editReview(${review.id})">
@@ -1430,9 +1475,9 @@
 
         function updateReviewStats() {
             const totalReviews = userReviews.length;
-            const averageRating = totalReviews > 0 ? 
+            const averageRating = totalReviews > 0 ?
                 (userReviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews).toFixed(1) : 0;
-            const mostRecentReview = totalReviews > 0 ? 
+            const mostRecentReview = totalReviews > 0 ?
                 new Date(userReviews[0].created_at).toLocaleDateString() : '-';
 
             document.getElementById('totalReviews').textContent = totalReviews;
@@ -1451,8 +1496,8 @@
 
             filteredReviews = userReviews.filter(review => {
                 const matchesFilter = filterValue === 'all' || review.rating == filterValue;
-                const matchesSearch = review.title.toLowerCase().includes(searchValue) || 
-                                    review.author.toLowerCase().includes(searchValue);
+                const matchesSearch = review.title.toLowerCase().includes(searchValue) ||
+                    review.author.toLowerCase().includes(searchValue);
                 return matchesFilter && matchesSearch;
             });
 
@@ -1481,7 +1526,7 @@
         function setStarRating(containerId, rating) {
             const container = document.getElementById(containerId);
             const stars = container.querySelectorAll('i');
-            
+
             stars.forEach((star, index) => {
                 star.classList.remove('active');
                 if (index < rating) {
@@ -1516,10 +1561,10 @@
                 if (response.ok) {
                     // Close modal
                     bootstrap.Modal.getInstance(document.getElementById('editReviewModal')).hide();
-                    
+
                     // Reload reviews
                     await loadUserReviews();
-                    
+
                     showSuccess('Review updated successfully!');
                 } else {
                     const error = await response.json();
@@ -1559,10 +1604,10 @@
         }
 
         // Initialize star rating for edit modal
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const editStarRating = document.getElementById('editStarRating');
             if (editStarRating) {
-                editStarRating.addEventListener('click', function(e) {
+                editStarRating.addEventListener('click', function (e) {
                     if (e.target.classList.contains('fa-star')) {
                         const rating = parseInt(e.target.dataset.rating);
                         document.getElementById('editRating').value = rating;
@@ -1574,7 +1619,7 @@
             // Add event listeners for filters
             document.getElementById('reviewFilter').addEventListener('change', filterReviews);
             document.getElementById('reviewSearch').addEventListener('input', filterReviews);
-            
+
             // Add event listener for save button
             document.getElementById('saveReviewChanges').addEventListener('click', saveReviewChanges);
         });
@@ -1594,7 +1639,7 @@
         let apiClient;
 
         // Initialize search functionality when page loads
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             apiClient = new APIClient();
             initializeSearchDropdown();
         });
@@ -1604,9 +1649,9 @@
             const searchDropdown = document.getElementById('searchDropdown');
 
             // Listen for input events on search bar
-            searchInput.addEventListener('input', function(e) {
+            searchInput.addEventListener('input', function (e) {
                 const query = e.target.value.trim();
-                
+
                 if (query.length >= 2) {
                     currentSearchTerm = query;
                     showSearchDropdown();
@@ -1622,14 +1667,14 @@
             });
 
             // Hide dropdown when clicking outside
-            document.addEventListener('click', function(e) {
+            document.addEventListener('click', function (e) {
                 if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
                     hideSearchDropdown();
                 }
             });
 
             // Handle escape key to close dropdown
-            searchInput.addEventListener('keydown', function(e) {
+            searchInput.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape') {
                     hideSearchDropdown();
                 } else if (e.key === 'ArrowDown') {
@@ -1642,7 +1687,7 @@
             });
 
             // Handle arrow key navigation in search results
-            searchDropdown.addEventListener('keydown', function(e) {
+            searchDropdown.addEventListener('keydown', function (e) {
                 const resultItems = searchDropdown.querySelectorAll('.search-result-item');
                 const currentFocus = document.activeElement;
                 let currentIndex = Array.from(resultItems).indexOf(currentFocus);
@@ -1669,7 +1714,7 @@
 
             // Prevent form submission when dropdown is visible
             const searchForm = searchInput.closest('form');
-            searchForm.addEventListener('submit', function(e) {
+            searchForm.addEventListener('submit', function (e) {
                 if (searchDropdown.classList.contains('show')) {
                     e.preventDefault();
                     return false;
@@ -1704,9 +1749,9 @@
                     if (query !== currentSearchTerm) return;
 
                     const response = await apiClient.getBooks({ search: query });
-                    
+
                     if (query !== currentSearchTerm) return; // Query changed while searching
-                    
+
                     if (response && response.length > 0) {
                         displaySearchResults(response);
                     } else {
@@ -1762,14 +1807,14 @@
         function displaySearchResults(books) {
             const container = document.getElementById('searchResultsContainer');
             document.getElementById('noResultsMessage').classList.remove('show');
-            
+
             container.innerHTML = books.map(book => createSearchResultItem(book)).join('');
         }
 
         function createSearchResultItem(book) {
             const coverImage = book.cover || './media/books/default-cover.jpg';
             const price = book.price ? `₱${parseFloat(book.price).toFixed(2)}` : 'Price not available';
-            
+
             return `
                 <div class="search-result-item" onclick="goToBookDetails('${book.id}')" tabindex="0" role="button" aria-label="View details for ${escapeHtml(book.title)} by ${escapeHtml(book.author)}">
                     <img src="${coverImage}" alt="${book.title}" onerror="this.src='./media/books/default-cover.jpg'">
@@ -1795,13 +1840,14 @@
                 '"': '&quot;',
                 "'": '&#039;'
             };
-            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+            return text.replace(/[&<>"']/g, function (m) { return map[m]; });
         }
     </script>
 
     <script src="js/custom-notifications.js"></script>
     <script src="js/api-client.js"></script>
     <script src="js/navbar-counts.js"></script>
+    <script src="js/navbar-profile.js"></script>
     <script src="js/database-book-display.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

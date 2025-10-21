@@ -15,18 +15,19 @@
     <link rel="stylesheet" href="./css/common.css">
     <style>
         /* Base layout fixes */
-        html, body {
+        html,
+        body {
             height: 100%;
             margin: 0;
             padding: 0;
             overflow-x: hidden;
         }
-        
+
         .main-content {
             min-height: calc(100vh - 160px);
             padding: 100px 0 40px 0;
         }
-        
+
         /* Navbar improvements */
         .navbar {
             z-index: 1030;
@@ -35,46 +36,46 @@
             background: rgba(22, 66, 60, 0.95) !important;
             box-shadow: 0 2px 20px rgba(22, 66, 60, 0.3);
         }
-        
+
         .navbar.fixed-top {
             position: fixed !important;
             top: 0;
             left: 0;
             right: 0;
         }
-        
+
         /* Navbar text styling */
         .navbar .nav-link {
             color: #ffffff !important;
             font-weight: 500;
             transition: all 0.3s ease;
         }
-        
+
         .navbar .nav-link:hover {
             color: rgba(51, 189, 170, 0.95) !important;
             transform: translateY(-1px);
         }
-        
+
         .navbar .dropdown-toggle {
             color: #ffffff !important;
         }
-        
+
         .navbar .icon-link {
             color: #ffffff !important;
             text-decoration: none;
             transition: all 0.3s ease;
             display: inline-block;
         }
-        
+
         .navbar .icon-link:hover {
             color: rgba(51, 189, 170, 0.95) !important;
             transform: scale(1.1);
         }
-        
+
         .navbar .icon-link i {
             color: #ffffff !important;
         }
-        
+
         /* Enhanced Login Required Card */
         .login-required-card {
             margin: 2rem auto;
@@ -85,7 +86,7 @@
             overflow: hidden;
             position: relative;
         }
-        
+
         .login-required-card::before {
             content: '';
             position: absolute;
@@ -95,24 +96,24 @@
             height: 6px;
             background: linear-gradient(90deg, #16423C 0%, #33bdaa 50%, #16423C 100%);
         }
-        
+
         .login-card-inner {
             padding: 3rem 2rem;
             text-align: center;
         }
-        
+
         .login-icon-wrapper {
             position: relative;
             display: inline-block;
             margin-bottom: 2rem;
         }
-        
+
         .login-icon-wrapper .fas.fa-cart-shopping {
             font-size: 4rem;
             color: #16423C;
             opacity: 0.3;
         }
-        
+
         .lock-overlay {
             position: absolute;
             top: 50%;
@@ -124,25 +125,25 @@
             border-radius: 50%;
             box-shadow: 0 8px 25px rgba(22, 66, 60, 0.3);
         }
-        
+
         .lock-overlay .fas.fa-lock {
             font-size: 1.2rem;
         }
-        
+
         .login-required-card h3 {
             color: #16423C;
             font-weight: 700;
             font-size: 1.8rem;
             margin-bottom: 1rem;
         }
-        
+
         .login-required-card p {
             color: #6c757d;
             font-size: 1.1rem;
             line-height: 1.6;
             margin-bottom: 2rem;
         }
-        
+
         .login-benefits {
             display: flex;
             flex-direction: column;
@@ -153,7 +154,7 @@
             border-radius: 16px;
             border-left: 4px solid #16423C;
         }
-        
+
         .benefit-item {
             display: flex;
             align-items: center;
@@ -161,13 +162,13 @@
             font-size: 0.95rem;
             color: #495057;
         }
-        
+
         .benefit-item i {
             color: #16423C;
             width: 20px;
             text-align: center;
         }
-        
+
         .login-actions {
             display: flex;
             gap: 1rem;
@@ -175,7 +176,7 @@
             margin: 2rem 0;
             flex-wrap: wrap;
         }
-        
+
         .btn-primary-custom {
             background: linear-gradient(135deg, #16423C 0%, #1a4f47 100%);
             border: none;
@@ -191,7 +192,7 @@
             display: inline-flex;
             align-items: center;
         }
-        
+
         .btn-primary-custom::before {
             content: '';
             position: absolute;
@@ -199,21 +200,21 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
             transition: left 0.5s;
         }
-        
+
         .btn-primary-custom:hover {
             background: linear-gradient(135deg, #1a4f47 0%, #2a5f57 100%);
             transform: translateY(-3px);
             box-shadow: 0 8px 25px rgba(22, 66, 60, 0.4);
             color: white;
         }
-        
+
         .btn-primary-custom:hover::before {
             left: 100%;
         }
-        
+
         .btn-outline-custom {
             background: transparent;
             border: 2px solid #16423C;
@@ -226,52 +227,52 @@
             display: inline-flex;
             align-items: center;
         }
-        
+
         .btn-outline-custom:hover {
             background: #16423C;
             color: white;
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(22, 66, 60, 0.25);
         }
-        
+
         .login-footer-text {
             margin-top: 2rem;
             font-size: 0.9rem;
             color: #6c757d;
         }
-        
+
         .login-footer-text a {
             color: #16423C;
             text-decoration: none;
             font-weight: 500;
         }
-        
+
         .login-footer-text a:hover {
             color: #33bdaa;
             text-decoration: underline;
         }
-        
+
         /* Responsive adjustments for login card */
         @media (max-width: 768px) {
             .login-card-inner {
                 padding: 2rem 1.5rem;
             }
-            
+
             .login-benefits {
                 padding: 1rem;
             }
-            
+
             .login-actions {
                 flex-direction: column;
                 align-items: center;
             }
-            
+
             .login-actions .btn {
                 width: 100%;
                 max-width: 280px;
             }
         }
-        
+
         /* Layout adjustments when order summary is hidden */
         .cart-full-width .col-lg-8 {
             max-width: 100% !important;
@@ -318,9 +319,10 @@
                 <!-- Search Bar -->
                 <form class="d-flex mx-3" onsubmit="handleSearch(event)">
                     <div class="search-wrapper w-100">
-                        <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search" id="searchInput">
+                        <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search"
+                            id="searchInput">
                         <button class="btn mx-0" title="search-btn" type="submit"><i class="bi bi-search"></i></button>
-                        
+
                         <!-- Search Dropdown -->
                         <div class="search-dropdown" id="searchDropdown">
                             <!-- Loading indicator -->
@@ -330,11 +332,11 @@
                                 </div>
                                 <span class="loading-text">Searching...</span>
                             </div>
-                            
+
                             <!-- Search results container -->
                             <div class="search-results-container" id="searchResultsContainer">
                             </div>
-                            
+
                             <!-- No results message -->
                             <div class="no-results-message" id="noResultsMessage">
                                 <i class="bi bi-search"></i>
@@ -354,7 +356,31 @@
                         <i class="fa-solid fa-cart-shopping"></i>
                         <span id="cart-count" class="cart-count">0</span>
                     </a>
-                    <a href="account.html" class="icon-link" title="Account"><i class="fa-solid fa-user"></i></a>
+                    <div class="profile-dropdown-wrapper">
+                        <a href="account.html" class="icon-link" id="profileIcon" title="Account">
+                            <i class="fa-solid fa-user"></i>
+                        </a>
+                        <div class="profile-dropdown" id="profileDropdown">
+                            <div class="profile-dropdown-header">
+                                <div class="user-name" id="dropdownUserName">User Name</div>
+                                <div class="user-email" id="dropdownUserEmail">user@email.com</div>
+                            </div>
+                            <ul class="profile-dropdown-menu">
+                                <li>
+                                    <a href="account-dashboard.html">
+                                        <i class="fa-solid fa-dashboard"></i>
+                                        <span>Dashboard</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <button class="logout-btn" id="navbarLogoutBtn">
+                                        <i class="fa-solid fa-sign-out-alt"></i>
+                                        <span>Logout</span>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -366,9 +392,11 @@
             <div class="row mt-4" id="cartRow">
                 <div class="col-lg-8">
                     <!-- Selection Controls -->
-                    <div class="d-flex justify-content-between align-items-center mb-3" id="selectionControls" style="display: none;">
+                    <div class="d-flex justify-content-between align-items-center mb-3" id="selectionControls"
+                        style="display: none;">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()">
+                            <input class="form-check-input" type="checkbox" id="selectAllCheckbox"
+                                onchange="toggleSelectAll()">
                             <label class="form-check-label fw-bold" for="selectAllCheckbox">
                                 Select All Items
                             </label>
@@ -382,7 +410,7 @@
                             </button>
                         </div>
                     </div>
-                    
+
                     <!-- Cart Items Container -->
                     <div id="cartItems">
                         <!-- Cart items will be dynamically loaded here -->
@@ -394,7 +422,8 @@
                             <h4 class="card-title">Order Summary</h4>
                             <div class="mb-3">
                                 <small class="text-muted">
-                                    <span id="selectedItemsCount">0</span> of <span id="totalItemsCount">0</span> items selected
+                                    <span id="selectedItemsCount">0</span> of <span id="totalItemsCount">0</span> items
+                                    selected
                                 </small>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
@@ -435,7 +464,8 @@
                         <span>LITERARY ESCAPE</span>
                     </div>
                     <p class="footer-description">
-                        Your gateway to endless literary adventures. Discover, explore, and escape into the world of books with our carefully curated collection of fiction, non-fiction, and specialty titles.
+                        Your gateway to endless literary adventures. Discover, explore, and escape into the world of
+                        books with our carefully curated collection of fiction, non-fiction, and specialty titles.
                     </p>
                     <div class="social-links">
                         <a href="https://www.facebook.com/" target="_blank" rel="noopener" aria-label="Facebook">
@@ -452,7 +482,7 @@
                         </a>
                     </div>
                 </div>
-                
+
                 <div class="footer-column">
                     <h4 class="footer-title">Quick Links</h4>
                     <ul class="footer-links">
@@ -463,18 +493,19 @@
                         <li><a href="account.html">My Account</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="footer-column">
                     <h4 class="footer-title">Customer Service</h4>
                     <ul class="footer-links">
                         <li><a href="cart.html">Shopping Cart</a></li>
                         <li><a href="favorites.html">My Favorites</a></li>
                         <li><a href="checkout.html">Checkout</a></li>
-                        <li><a href="#" onclick="showInfo('Contact us at: support@literaryescape.com')">Contact Support</a></li>
+                        <li><a href="#" onclick="showInfo('Contact us at: support@literaryescape.com')">Contact
+                                Support</a></li>
                         <li><a href="#" onclick="showInfo('Shipping: 3-5 business days')">Shipping Info</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="footer-column">
                     <h4 class="footer-title">Contact Info</h4>
                     <ul class="footer-links">
@@ -485,9 +516,10 @@
                     </ul>
                 </div>
             </div>
-            
+
             <div class="footer-bottom">
-                <p>&copy; 2024 Literary Escape. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+                <p>&copy; 2024 Literary Escape. All rights reserved. | <a href="#">Privacy Policy</a> | <a
+                        href="#">Terms of Service</a></p>
             </div>
         </div>
     </footer>
@@ -499,7 +531,7 @@
         document.addEventListener('DOMContentLoaded', async function () {
             updateNavAuth();
             updateNavbarAccountLink();
-            
+
             // Check if user is logged in
             if (!api.isLoggedIn()) {
                 displayLoginRequired();
@@ -508,7 +540,7 @@
 
             // Load cart items
             await loadCartItems();
-            
+
             if (typeof updateCartCount === 'function') updateCartCount();
         });
 
@@ -579,19 +611,19 @@
                     </div>
                 </div>
             `;
-            
+
             // Hide order summary section when not logged in
             const orderSummarySection = document.getElementById('orderSummarySection');
             if (orderSummarySection) {
                 orderSummarySection.style.display = 'none';
             }
-            
+
             // Make cart items take full width when order summary is hidden
             const cartRow = document.getElementById('cartRow');
             if (cartRow) {
                 cartRow.classList.add('cart-full-width');
             }
-            
+
             // Hide checkout button
             document.getElementById('checkout-btn-cart').disabled = true;
             document.getElementById('checkout-btn-cart').textContent = 'Login Required';
@@ -599,19 +631,19 @@
 
         async function loadCartItems() {
             const cartContainer = document.getElementById('cartItems');
-            
+
             // Show order summary section when user is logged in
             const orderSummarySection = document.getElementById('orderSummarySection');
             if (orderSummarySection) {
                 orderSummarySection.style.display = 'block';
             }
-            
+
             // Remove full-width class when order summary is shown
             const cartRow = document.getElementById('cartRow');
             if (cartRow) {
                 cartRow.classList.remove('cart-full-width');
             }
-            
+
             try {
                 // Show loading state
                 cartContainer.innerHTML = `
@@ -645,7 +677,7 @@
         function displayCartItems() {
             const cartContainer = document.getElementById('cartItems');
             const selectionControls = document.getElementById('selectionControls');
-            
+
             if (!cartItems || cartItems.length === 0) {
                 cartContainer.innerHTML = `
                     <div class="text-center py-5">
@@ -721,7 +753,7 @@
             `).join('');
 
             cartContainer.innerHTML = cartHTML;
-            
+
             // Update selection after rendering
             updateSelection();
         }
@@ -729,21 +761,21 @@
         async function updateQuantity(index, change) {
             const item = cartItems[index];
             const newQuantity = item.quantity + change;
-            
+
             if (newQuantity < 1 || newQuantity > 10) {
                 return;
             }
 
             try {
                 await api.updateCartItem(item.book_id, newQuantity);
-                
+
                 // Update local data
                 cartItems[index].quantity = newQuantity;
-                
+
                 // Refresh display
                 displayCartItems();
                 updateCartSummary();
-                
+
                 // Update cart count in navbar using universal system
                 if (window.navbarCounts) {
                     await window.navbarCounts.refreshCart();
@@ -766,14 +798,14 @@
 
             try {
                 await api.removeFromCart(bookId);
-                
+
                 // Remove from local data
                 cartItems = cartItems.filter(item => item.book_id !== bookId);
-                
+
                 // Refresh display
                 displayCartItems();
                 updateCartSummary();
-                
+
                 // Update cart count in navbar using universal system
                 if (window.navbarCounts) {
                     await window.navbarCounts.refreshCart();
@@ -838,16 +870,16 @@
                 // Update selection in database
                 const response = await api.updateCartSelection(bookId, isSelected);
                 console.log('Selection updated:', response);
-                
+
                 // Update local state and UI
                 const item = cartItems.find(item => item.book_id === bookId);
                 if (item) {
                     item.selected_for_checkout = isSelected ? 1 : 0;
                 }
-                
+
                 updateSelection();
                 updateSelectedItemsSummary();
-                
+
             } catch (error) {
                 console.error('Error updating selection:', error);
                 // Revert checkbox if API call failed
@@ -860,9 +892,9 @@
             const checkboxes = document.querySelectorAll('.cart-item-checkbox');
             const checkedBoxes = document.querySelectorAll('.cart-item-checkbox:checked');
             const selectAllCheckbox = document.getElementById('selectAllCheckbox');
-            
+
             if (!selectAllCheckbox) return; // Guard against missing element
-            
+
             // Update select all checkbox state
             if (checkedBoxes.length === 0) {
                 selectAllCheckbox.indeterminate = false;
@@ -874,7 +906,7 @@
                 selectAllCheckbox.indeterminate = true;
                 selectAllCheckbox.checked = false;
             }
-            
+
             // Update visual feedback for items
             checkboxes.forEach(checkbox => {
                 const cartItem = checkbox.closest('.cart-item');
@@ -890,7 +922,7 @@
                     }
                 }
             });
-            
+
             // Update cart summary for selected items only
             updateSelectedItemsSummary();
         }
@@ -898,7 +930,7 @@
         function toggleSelectAll() {
             const selectAllCheckbox = document.getElementById('selectAllCheckbox');
             const itemCheckboxes = document.querySelectorAll('.cart-item-checkbox');
-            
+
             // Update all checkboxes to match the select all state
             itemCheckboxes.forEach(async (checkbox) => {
                 if (checkbox.checked !== selectAllCheckbox.checked) {
@@ -907,7 +939,7 @@
                     await handleItemSelection(parseInt(checkbox.value), selectAllCheckbox.checked);
                 }
             });
-            
+
             updateSelection();
         }
 
@@ -915,25 +947,25 @@
             try {
                 // Update all items in database
                 await api.selectAllForCheckout();
-                
+
                 // Update local state
                 cartItems.forEach(item => {
                     item.selected_for_checkout = 1;
                 });
-                
+
                 // Update UI
                 const itemCheckboxes = document.querySelectorAll('.cart-item-checkbox');
                 const selectAllCheckbox = document.getElementById('selectAllCheckbox');
-                
+
                 itemCheckboxes.forEach(checkbox => {
                     checkbox.checked = true;
                 });
                 selectAllCheckbox.checked = true;
                 selectAllCheckbox.indeterminate = false;
-                
+
                 updateSelection();
                 updateSelectedItemsSummary();
-                
+
             } catch (error) {
                 console.error('Error selecting all items:', error);
             }
@@ -943,25 +975,25 @@
             try {
                 // Update all items in database
                 await api.deselectAllForCheckout();
-                
+
                 // Update local state
                 cartItems.forEach(item => {
                     item.selected_for_checkout = 0;
                 });
-                
+
                 // Update UI
                 const itemCheckboxes = document.querySelectorAll('.cart-item-checkbox');
                 const selectAllCheckbox = document.getElementById('selectAllCheckbox');
-                
+
                 itemCheckboxes.forEach(checkbox => {
                     checkbox.checked = false;
                 });
                 selectAllCheckbox.checked = false;
                 selectAllCheckbox.indeterminate = false;
-                
+
                 updateSelection();
                 updateSelectedItemsSummary();
-                
+
             } catch (error) {
                 console.error('Error deselecting all items:', error);
             }
@@ -970,7 +1002,7 @@
         function updateSelectedItemsSummary() {
             const checkedBoxes = document.querySelectorAll('.cart-item-checkbox:checked');
             const totalCheckboxes = document.querySelectorAll('.cart-item-checkbox');
-            
+
             // Get selected items
             const selectedItems = [];
             checkedBoxes.forEach(checkbox => {
@@ -980,22 +1012,22 @@
                     selectedItems.push(item);
                 }
             });
-            
+
             // Calculate totals for selected items
             const subtotal = selectedItems.reduce((total, item) => total + (item.quantity * parseFloat(item.price)), 0);
             const shipping = selectedItems.length > 0 ? 50 : 0;
             const total = subtotal + shipping;
-            
+
             // Update display
             document.getElementById('subtotal').textContent = `₱${subtotal.toFixed(2)}`;
             document.getElementById('total').textContent = `₱${total.toFixed(2)}`;
             document.getElementById('selectedItemsCount').textContent = selectedItems.length;
             document.getElementById('totalItemsCount').textContent = cartItems.length;
-            
+
             // Update checkout button
             const checkoutBtn = document.getElementById('checkout-btn-cart');
             const checkoutHint = document.getElementById('checkoutHint');
-            
+
             if (selectedItems.length === 0) {
                 checkoutBtn.disabled = true;
                 checkoutBtn.innerHTML = '<i class="fas fa-shopping-cart me-2"></i>Checkout Selected Items';
@@ -1012,7 +1044,7 @@
             try {
                 // Get selected items from database
                 const selectedItems = await api.getSelectedCartItems();
-                
+
                 if (selectedItems.length === 0) {
                     if (typeof dbBookDisplay !== 'undefined' && dbBookDisplay.showMessage) {
                         dbBookDisplay.showMessage('Please select at least one item to checkout', 'warning');
@@ -1024,7 +1056,7 @@
 
                 // Redirect to checkout page - the checkout page will load selected items from database
                 window.location.href = 'checkout.html';
-                
+
             } catch (error) {
                 console.error('Error proceeding to checkout:', error);
                 showError('Failed to proceed to checkout. Please try again.');
@@ -1053,7 +1085,7 @@
         let apiClient;
 
         // Initialize search functionality when page loads
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             apiClient = new APIClient();
             initializeSearchDropdown();
         });
@@ -1063,9 +1095,9 @@
             const searchDropdown = document.getElementById('searchDropdown');
 
             // Listen for input events on search bar
-            searchInput.addEventListener('input', function(e) {
+            searchInput.addEventListener('input', function (e) {
                 const query = e.target.value.trim();
-                
+
                 if (query.length >= 2) {
                     currentSearchTerm = query;
                     showSearchDropdown();
@@ -1081,14 +1113,14 @@
             });
 
             // Hide dropdown when clicking outside
-            document.addEventListener('click', function(e) {
+            document.addEventListener('click', function (e) {
                 if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
                     hideSearchDropdown();
                 }
             });
 
             // Handle escape key to close dropdown
-            searchInput.addEventListener('keydown', function(e) {
+            searchInput.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape') {
                     hideSearchDropdown();
                 } else if (e.key === 'ArrowDown') {
@@ -1101,7 +1133,7 @@
             });
 
             // Handle arrow key navigation in search results
-            searchDropdown.addEventListener('keydown', function(e) {
+            searchDropdown.addEventListener('keydown', function (e) {
                 const resultItems = searchDropdown.querySelectorAll('.search-result-item');
                 const currentFocus = document.activeElement;
                 let currentIndex = Array.from(resultItems).indexOf(currentFocus);
@@ -1128,7 +1160,7 @@
 
             // Prevent form submission when dropdown is visible
             const searchForm = searchInput.closest('form');
-            searchForm.addEventListener('submit', function(e) {
+            searchForm.addEventListener('submit', function (e) {
                 if (searchDropdown.classList.contains('show')) {
                     e.preventDefault();
                     return false;
@@ -1163,9 +1195,9 @@
                     if (query !== currentSearchTerm) return;
 
                     const response = await apiClient.getBooks({ search: query });
-                    
+
                     if (query !== currentSearchTerm) return; // Query changed while searching
-                    
+
                     if (response && response.length > 0) {
                         displaySearchResults(response);
                     } else {
@@ -1221,14 +1253,14 @@
         function displaySearchResults(books) {
             const container = document.getElementById('searchResultsContainer');
             document.getElementById('noResultsMessage').classList.remove('show');
-            
+
             container.innerHTML = books.map(book => createSearchResultItem(book)).join('');
         }
 
         function createSearchResultItem(book) {
             const coverImage = book.cover || './media/books/default-cover.jpg';
             const price = book.price ? `₱${parseFloat(book.price).toFixed(2)}` : 'Price not available';
-            
+
             return `
                 <div class="search-result-item" onclick="goToBookDetails('${book.id}')" tabindex="0" role="button" aria-label="View details for ${escapeHtml(book.title)} by ${escapeHtml(book.author)}">
                     <img src="${coverImage}" alt="${book.title}" onerror="this.src='./media/books/default-cover.jpg'">
@@ -1254,12 +1286,13 @@
                 '"': '&quot;',
                 "'": '&#039;'
             };
-            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+            return text.replace(/[&<>"']/g, function (m) { return map[m]; });
         }
     </script>
     <script src="js/custom-notifications.js"></script>
     <script src="js/api-client.js"></script>
     <script src="js/navbar-counts.js"></script>
+    <script src="js/navbar-profile.js"></script>
     <script src="js/database-book-display.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

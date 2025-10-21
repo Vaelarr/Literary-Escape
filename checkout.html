@@ -15,18 +15,19 @@
 
     <style>
         /* Base layout fixes */
-        html, body {
+        html,
+        body {
             height: 100%;
             margin: 0;
             padding: 0;
             overflow-x: hidden;
         }
-        
+
         .main-content {
             min-height: calc(100vh - 160px);
             padding: 100px 0 40px 0;
         }
-        
+
         /* Navbar improvements */
         .navbar {
             z-index: 1030;
@@ -35,72 +36,46 @@
             background: rgba(22, 66, 60, 0.95) !important;
             box-shadow: 0 2px 20px rgba(22, 66, 60, 0.3);
         }
-        
+
         .navbar.fixed-top {
             position: fixed !important;
             top: 0;
             left: 0;
             right: 0;
         }
-        
+
         /* Navbar text styling */
         .navbar .nav-link {
             color: #ffffff !important;
             font-weight: 500;
             transition: all 0.3s ease;
         }
-        
+
         .navbar .nav-link:hover {
-            color: rgba(51, 189, 170, 0.95)!important;
+            color: rgba(51, 189, 170, 0.95) !important;
             transform: translateY(-1px);
         }
-        
+
         .navbar .dropdown-toggle {
             color: #ffffff !important;
         }
-        
+
         .navbar .icon-link {
             color: #ffffff !important;
             text-decoration: none;
             transition: all 0.3s ease;
             display: inline-block;
         }
-        
+
         .navbar .icon-link:hover {
             color: rgba(51, 189, 170, 0.95) !important;
             transform: scale(1.1);
         }
-        
+
         .navbar .icon-link i {
             color: #ffffff !important;
         }
-        
-        /* Audio control positioning */
-        .audio-control {
-            position: fixed;
-            top: 90px;
-            right: 20px;
-            z-index: 1040;
-            background: linear-gradient(135deg, #16423C 0%, #1a4f47 100%);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(22, 66, 60, 0.3);
-        }
-        
-        .audio-control:hover {
-            background: linear-gradient(135deg, #1a4f47 0%, #2a5f57 100%);
-            transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(22, 66, 60, 0.4);
-        }
-        
+
         /* Checkout specific styles */
         .checkout-items {
             max-height: 400px;
@@ -110,25 +85,25 @@
             padding: 15px;
             background-color: #f8f9fa;
         }
-        
+
         .checkout-items::-webkit-scrollbar {
             width: 6px;
         }
-        
+
         .checkout-items::-webkit-scrollbar-track {
             background: #f1f1f1;
             border-radius: 3px;
         }
-        
+
         .checkout-items::-webkit-scrollbar-thumb {
             background: #16423C;
             border-radius: 3px;
         }
-        
+
         .checkout-items::-webkit-scrollbar-thumb:hover {
             background: #1a4f47;
         }
-        
+
         /* Payment details styling */
         .payment-details {
             background-color: #f8f9fa;
@@ -137,18 +112,19 @@
             border-left: 3px solid #16423C;
             animation: slideDown 0.3s ease;
         }
-        
+
         @keyframes slideDown {
             from {
                 opacity: 0;
                 transform: translateY(-10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
-        
+
         /* Receipt Modal Styling */
         .receipt-modal {
             display: none;
@@ -161,13 +137,13 @@
             background-color: rgba(0, 0, 0, 0.5);
             animation: fadeIn 0.3s ease;
         }
-        
+
         .receipt-modal.show {
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        
+
         .receipt-container {
             background-color: white;
             border-radius: 12px;
@@ -178,23 +154,29 @@
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
             animation: slideUp 0.4s ease;
         }
-        
+
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
-        
+
         @keyframes slideUp {
             from {
                 opacity: 0;
                 transform: translateY(50px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
-        
+
         .receipt-header {
             background: linear-gradient(135deg, #16423C 0%, #1a4f47 100%);
             color: white;
@@ -202,34 +184,34 @@
             border-radius: 12px 12px 0 0;
             text-align: center;
         }
-        
+
         .receipt-header h2 {
             margin: 0;
             font-size: 28px;
             font-weight: 600;
         }
-        
+
         .receipt-header .success-icon {
             font-size: 60px;
             margin-bottom: 15px;
             color: #4CAF50;
         }
-        
+
         .receipt-body {
             padding: 30px;
         }
-        
+
         .receipt-section {
             margin-bottom: 25px;
             padding-bottom: 20px;
             border-bottom: 2px dashed #e9ecef;
         }
-        
+
         .receipt-section:last-child {
             border-bottom: none;
             margin-bottom: 0;
         }
-        
+
         .receipt-section h5 {
             color: #16423C;
             font-weight: 600;
@@ -238,31 +220,31 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        
+
         .receipt-info-row {
             display: flex;
             justify-content: space-between;
             margin-bottom: 10px;
             font-size: 14px;
         }
-        
+
         .receipt-info-label {
             color: #6c757d;
             font-weight: 500;
         }
-        
+
         .receipt-info-value {
             color: #212529;
             font-weight: 600;
             text-align: right;
         }
-        
+
         .receipt-items-list {
             background-color: #f8f9fa;
             padding: 15px;
             border-radius: 8px;
         }
-        
+
         .receipt-item {
             display: flex;
             justify-content: space-between;
@@ -270,46 +252,46 @@
             padding: 10px 0;
             border-bottom: 1px solid #dee2e6;
         }
-        
+
         .receipt-item:last-child {
             border-bottom: none;
         }
-        
+
         .receipt-item-details {
             flex: 1;
         }
-        
+
         .receipt-item-title {
             font-weight: 600;
             color: #212529;
             margin-bottom: 3px;
         }
-        
+
         .receipt-item-meta {
             font-size: 12px;
             color: #6c757d;
         }
-        
+
         .receipt-item-price {
             font-weight: 600;
             color: #16423C;
             margin-left: 15px;
         }
-        
+
         .receipt-totals {
             background-color: #f8f9fa;
             padding: 20px;
             border-radius: 8px;
             margin-top: 20px;
         }
-        
+
         .receipt-total-row {
             display: flex;
             justify-content: space-between;
             margin-bottom: 10px;
             font-size: 14px;
         }
-        
+
         .receipt-total-row.grand-total {
             font-size: 18px;
             font-weight: 700;
@@ -318,17 +300,17 @@
             border-top: 2px solid #dee2e6;
             margin-top: 10px;
         }
-        
+
         .receipt-footer {
             text-align: center;
             padding: 20px 30px 30px;
             border-top: 2px solid #e9ecef;
         }
-        
+
         .receipt-footer .btn {
             margin: 5px;
         }
-        
+
         .receipt-thank-you {
             background: linear-gradient(135deg, #16423C 0%, #1a4f47 100%);
             color: white;
@@ -337,13 +319,13 @@
             margin-bottom: 20px;
             text-align: center;
         }
-        
+
         @media print {
             .receipt-modal {
                 display: block;
                 background-color: white;
             }
-            
+
             .receipt-footer .btn,
             .receipt-footer .no-print {
                 display: none;
@@ -391,9 +373,10 @@
                 <!-- Search Bar -->
                 <form class="d-flex mx-3" onsubmit="handleSearch(event)">
                     <div class="search-wrapper w-100">
-                        <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search" id="searchInput">
+                        <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search"
+                            id="searchInput">
                         <button class="btn mx-0" title="search-btn" type="submit"><i class="bi bi-search"></i></button>
-                        
+
                         <!-- Search Dropdown -->
                         <div class="search-dropdown" id="searchDropdown">
                             <!-- Loading indicator -->
@@ -403,11 +386,11 @@
                                 </div>
                                 <span class="loading-text">Searching...</span>
                             </div>
-                            
+
                             <!-- Search results container -->
                             <div class="search-results-container" id="searchResultsContainer">
                             </div>
-                            
+
                             <!-- No results message -->
                             <div class="no-results-message" id="noResultsMessage">
                                 <i class="bi bi-search"></i>
@@ -427,7 +410,31 @@
                         <i class="fa-solid fa-cart-shopping"></i>
                         <span id="cart-count" class="cart-count">0</span>
                     </a>
-                    <a href="account.html" class="icon-link" title="Account"><i class="fa-solid fa-user"></i></a>
+                    <div class="profile-dropdown-wrapper">
+                        <a href="account.html" class="icon-link" id="profileIcon" title="Account">
+                            <i class="fa-solid fa-user"></i>
+                        </a>
+                        <div class="profile-dropdown" id="profileDropdown">
+                            <div class="profile-dropdown-header">
+                                <div class="user-name" id="dropdownUserName">User Name</div>
+                                <div class="user-email" id="dropdownUserEmail">user@email.com</div>
+                            </div>
+                            <ul class="profile-dropdown-menu">
+                                <li>
+                                    <a href="account-dashboard.html">
+                                        <i class="fa-solid fa-dashboard"></i>
+                                        <span>Dashboard</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <button class="logout-btn" id="navbarLogoutBtn">
+                                        <i class="fa-solid fa-sign-out-alt"></i>
+                                        <span>Logout</span>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -451,7 +458,8 @@
                                     </div>
                                     <div class="col-md-2">
                                         <label for="middleInitial" class="form-label">M.I.</label>
-                                        <input type="text" class="form-control" id="middleInitial" maxlength="2" placeholder="M.">
+                                        <input type="text" class="form-control" id="middleInitial" maxlength="2"
+                                            placeholder="M.">
                                     </div>
                                     <div class="col-md-5">
                                         <label for="lastName" class="form-label">Last Name</label>
@@ -485,15 +493,17 @@
                         </div>
                         <div class="card-body">
                             <div class="form-check mb-3">
-                                <input class="form-check-input" type="radio" name="paymentMethod" id="codPayment" value="cod" checked>
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="codPayment"
+                                    value="cod" checked>
                                 <label class="form-check-label" for="codPayment">
                                     <i class="fas fa-money-bill-wave me-2"></i>Cash on Delivery
                                     <small class="text-muted d-block">Pay when your order arrives</small>
                                 </label>
                             </div>
-                            
+
                             <div class="form-check mb-3">
-                                <input class="form-check-input" type="radio" name="paymentMethod" id="gcashPayment" value="gcash">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="gcashPayment"
+                                    value="gcash">
                                 <label class="form-check-label" for="gcashPayment">
                                     <i class="fas fa-mobile-alt me-2"></i>GCash/Maya App
                                     <small class="text-muted d-block">Pay using your mobile wallet</small>
@@ -511,9 +521,10 @@
                                     </ol>
                                 </div>
                             </div>
-                            
+
                             <div class="form-check mb-3">
-                                <input class="form-check-input" type="radio" name="paymentMethod" id="cardPayment" value="card">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="cardPayment"
+                                    value="card">
                                 <label class="form-check-label" for="cardPayment">
                                     <i class="fas fa-credit-card me-2"></i>Credit/Debit Card
                                     <small class="text-muted d-block">Pay with Visa, Mastercard, or other cards</small>
@@ -523,16 +534,19 @@
                             <div id="cardDetails" class="payment-details d-none ms-4 mb-3">
                                 <div class="mb-2">
                                     <label for="cardNumber" class="form-label">Card Number</label>
-                                    <input type="text" class="form-control" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
+                                    <input type="text" class="form-control" id="cardNumber"
+                                        placeholder="1234 5678 9012 3456" maxlength="19">
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6 mb-2">
                                         <label for="cardExpiry" class="form-label">Expiry Date</label>
-                                        <input type="text" class="form-control" id="cardExpiry" placeholder="MM/YY" maxlength="5">
+                                        <input type="text" class="form-control" id="cardExpiry" placeholder="MM/YY"
+                                            maxlength="5">
                                     </div>
                                     <div class="col-md-6 mb-2">
                                         <label for="cardCVV" class="form-label">CVV</label>
-                                        <input type="text" class="form-control" id="cardCVV" placeholder="123" maxlength="3">
+                                        <input type="text" class="form-control" id="cardCVV" placeholder="123"
+                                            maxlength="3">
                                     </div>
                                 </div>
                                 <div class="mb-2">
@@ -540,9 +554,10 @@
                                     <input type="text" class="form-control" id="cardName" placeholder="Name on card">
                                 </div>
                             </div>
-                            
+
                             <div class="form-check mb-3">
-                                <input class="form-check-input" type="radio" name="paymentMethod" id="bankTransfer" value="bank">
+                                <input class="form-check-input" type="radio" name="paymentMethod" id="bankTransfer"
+                                    value="bank">
                                 <label class="form-check-label" for="bankTransfer">
                                     <i class="fas fa-university me-2"></i>Bank Transfer
                                     <small class="text-muted d-block">Direct bank transfer</small>
@@ -570,28 +585,32 @@
                         </div>
                         <div class="card-body">
                             <div class="form-check mb-2">
-                                <input class="form-check-input" type="radio" name="courier" id="jntCourier" value="jnt" data-fee="50" checked>
+                                <input class="form-check-input" type="radio" name="courier" id="jntCourier" value="jnt"
+                                    data-fee="50" checked>
                                 <label class="form-check-label" for="jntCourier">
                                     <strong>J&T Express</strong> <span class="text-success">₱50.00</span>
                                     <small class="text-muted d-block">2-3 business days delivery</small>
                                 </label>
                             </div>
                             <div class="form-check mb-2">
-                                <input class="form-check-input" type="radio" name="courier" id="lbcCourier" value="lbc" data-fee="75">
+                                <input class="form-check-input" type="radio" name="courier" id="lbcCourier" value="lbc"
+                                    data-fee="75">
                                 <label class="form-check-label" for="lbcCourier">
                                     <strong>LBC Express</strong> <span class="text-success">₱75.00</span>
                                     <small class="text-muted d-block">1-2 business days delivery</small>
                                 </label>
                             </div>
                             <div class="form-check mb-2">
-                                <input class="form-check-input" type="radio" name="courier" id="ninjaCourier" value="ninja" data-fee="60">
+                                <input class="form-check-input" type="radio" name="courier" id="ninjaCourier"
+                                    value="ninja" data-fee="60">
                                 <label class="form-check-label" for="ninjaCourier">
                                     <strong>Ninja Van</strong> <span class="text-success">₱60.00</span>
                                     <small class="text-muted d-block">2-4 business days delivery</small>
                                 </label>
                             </div>
                             <div class="form-check mb-2">
-                                <input class="form-check-input" type="radio" name="courier" id="flashCourier" value="flash" data-fee="45">
+                                <input class="form-check-input" type="radio" name="courier" id="flashCourier"
+                                    value="flash" data-fee="45">
                                 <label class="form-check-label" for="flashCourier">
                                     <strong>Flash Express</strong> <span class="text-success">₱45.00</span>
                                     <small class="text-muted d-block">3-5 business days delivery</small>
@@ -608,11 +627,15 @@
                         <div class="card-body">
                             <!-- Voucher Code Input -->
                             <div class="mb-3">
-                                <label for="voucherCode" class="form-label">Voucher Code <small class="text-muted">(Optional)</small></label>
+                                <label for="voucherCode" class="form-label">Voucher Code <small
+                                        class="text-muted">(Optional)</small></label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="voucherCode" placeholder="Enter voucher code (optional)">
-                                    <button class="btn btn-outline-primary" type="button" id="applyVoucher">Apply</button>
-                                    <button class="btn btn-outline-danger d-none" type="button" id="removeVoucher">Remove</button>
+                                    <input type="text" class="form-control" id="voucherCode"
+                                        placeholder="Enter voucher code (optional)">
+                                    <button class="btn btn-outline-primary" type="button"
+                                        id="applyVoucher">Apply</button>
+                                    <button class="btn btn-outline-danger d-none" type="button"
+                                        id="removeVoucher">Remove</button>
                                 </div>
                                 <div id="voucherStatus" class="mt-1"></div>
                             </div>
@@ -635,7 +658,8 @@
                                 <span>Shipping (<span id="courierName">J&T Express</span>):</span>
                                 <span id="shippingFee">₱50.00</span>
                             </div>
-                            <div id="voucherDiscountRow" class="d-flex justify-content-between mb-2 text-success d-none">
+                            <div id="voucherDiscountRow"
+                                class="d-flex justify-content-between mb-2 text-success d-none">
                                 <span>Voucher Discount:</span>
                                 <span id="voucherDiscount">-₱0.00</span>
                             </div>
@@ -649,15 +673,15 @@
                                     Payment Method: <span id="selectedPaymentMethod">Cash on Delivery</span>
                                 </small>
                             </div>
-                            </div>
-                            <button type="button" id="checkout-btn-cart" class="btn btn-success w-100">
-                                <i class="fas fa-shopping-cart me-2"></i>
-                                Proceed to Payment
-                            </button>
                         </div>
+                        <button type="button" id="checkout-btn-cart" class="btn btn-success w-100">
+                            <i class="fas fa-shopping-cart me-2"></i>
+                            Proceed to Payment
+                        </button>
                     </div>
                 </div>
             </div>
+        </div>
         </div>
 
     </section>
@@ -672,13 +696,13 @@
                 <h2>Order Successful!</h2>
                 <p class="mb-0">Thank you for your purchase</p>
             </div>
-            
+
             <div class="receipt-body">
                 <div class="receipt-thank-you">
                     <h4 class="mb-2"><i class="fas fa-heart me-2"></i>Thank You for Your Order!</h4>
                     <p class="mb-0">Your order has been successfully placed and is being processed.</p>
                 </div>
-                
+
                 <!-- Order Information -->
                 <div class="receipt-section">
                     <h5><i class="fas fa-info-circle me-2"></i>Order Information</h5>
@@ -699,7 +723,7 @@
                         <span class="receipt-info-value" id="receiptCourier">-</span>
                     </div>
                 </div>
-                
+
                 <!-- Shipping Address -->
                 <div class="receipt-section">
                     <h5><i class="fas fa-shipping-fast me-2"></i>Shipping Address</h5>
@@ -720,7 +744,7 @@
                         <span class="receipt-info-value" id="receiptZip">-</span>
                     </div>
                 </div>
-                
+
                 <!-- Order Items -->
                 <div class="receipt-section">
                     <h5><i class="fas fa-box-open me-2"></i>Order Items</h5>
@@ -728,7 +752,7 @@
                         <!-- Items will be populated here -->
                     </div>
                 </div>
-                
+
                 <!-- Order Summary -->
                 <div class="receipt-section">
                     <h5><i class="fas fa-calculator me-2"></i>Order Summary</h5>
@@ -751,7 +775,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Additional Notes -->
                 <div class="receipt-section">
                     <div class="alert alert-info mb-0">
@@ -765,7 +789,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="receipt-footer">
                 <button class="btn btn-primary btn-lg" onclick="printReceipt()">
                     <i class="fas fa-print me-2"></i>Print Receipt
@@ -790,7 +814,8 @@
                         <span>LITERARY ESCAPE</span>
                     </div>
                     <p class="footer-description">
-                        Your gateway to endless literary adventures. Discover, explore, and escape into the world of books with our carefully curated collection of fiction, non-fiction, and specialty titles.
+                        Your gateway to endless literary adventures. Discover, explore, and escape into the world of
+                        books with our carefully curated collection of fiction, non-fiction, and specialty titles.
                     </p>
                     <div class="social-links">
                         <a href="https://www.facebook.com/" target="_blank" rel="noopener" aria-label="Facebook">
@@ -807,7 +832,7 @@
                         </a>
                     </div>
                 </div>
-                
+
                 <div class="footer-column">
                     <h4 class="footer-title">Quick Links</h4>
                     <ul class="footer-links">
@@ -818,18 +843,19 @@
                         <li><a href="account.html">My Account</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="footer-column">
                     <h4 class="footer-title">Customer Service</h4>
                     <ul class="footer-links">
                         <li><a href="cart.html">Shopping Cart</a></li>
                         <li><a href="favorites.html">My Favorites</a></li>
                         <li><a href="checkout.html">Checkout</a></li>
-                        <li><a href="#" onclick="showInfo('Contact us at: support@literaryescape.com')">Contact Support</a></li>
+                        <li><a href="#" onclick="showInfo('Contact us at: support@literaryescape.com')">Contact
+                                Support</a></li>
                         <li><a href="#" onclick="showInfo('Shipping: 3-5 business days')">Shipping Info</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="footer-column">
                     <h4 class="footer-title">Contact Info</h4>
                     <ul class="footer-links">
@@ -840,9 +866,10 @@
                     </ul>
                 </div>
             </div>
-            
+
             <div class="footer-bottom">
-                <p>&copy; 2024 Literary Escape. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+                <p>&copy; 2024 Literary Escape. All rights reserved. | <a href="#">Privacy Policy</a> | <a
+                        href="#">Terms of Service</a></p>
             </div>
         </div>
     </footer>
@@ -866,21 +893,21 @@
             try {
                 // Load user's saved addresses
                 await loadUserAddresses();
-                
+
                 // Auto-fill user information from profile
                 await populateUserInfo();
-                
+
                 // Load cart items from database
                 await loadCartItems();
-                
+
                 // Initialize payment, courier, and discount features
                 initializePaymentMethods();
                 initializeCourierSelection();
                 initializeDiscounts();
-                
+
                 // Display order summary
                 displayOrderSummary();
-                
+
             } catch (error) {
                 console.error('Failed to initialize checkout:', error);
                 showError('Failed to load checkout data');
@@ -892,7 +919,7 @@
             console.log('🔍 Current cartItems:', cartItems);
             console.log('🔍 Items container content:', document.getElementById('checkoutItemsContainer').innerHTML);
         }
-        
+
         // Add debug button in development
         if (window.location.hostname === 'localhost') {
             window.debugCheckout = debugCheckout;
@@ -912,34 +939,34 @@
             paymentRadios.forEach(radio => {
                 radio.addEventListener('change', handlePaymentMethodChange);
             });
-            
+
             // Initialize card number formatting
             const cardNumber = document.getElementById('cardNumber');
             if (cardNumber) {
                 cardNumber.addEventListener('input', formatCardNumber);
             }
-            
+
             // Initialize expiry date formatting
             const cardExpiry = document.getElementById('cardExpiry');
             if (cardExpiry) {
                 cardExpiry.addEventListener('input', formatExpiryDate);
             }
-            
+
             // Initialize CVV validation
             const cardCVV = document.getElementById('cardCVV');
             if (cardCVV) {
-                cardCVV.addEventListener('input', function(e) {
+                cardCVV.addEventListener('input', function (e) {
                     e.target.value = e.target.value.replace(/\D/g, '').slice(0, 3);
                 });
             }
         }
-        
+
         function formatCardNumber(e) {
             let value = e.target.value.replace(/\D/g, '');
             value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
             e.target.value = value.slice(0, 19);
         }
-        
+
         function formatExpiryDate(e) {
             let value = e.target.value.replace(/\D/g, '');
             if (value.length >= 2) {
@@ -947,43 +974,43 @@
             }
             e.target.value = value;
         }
-        
+
         function validateCardDetails() {
             const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
             const cardExpiry = document.getElementById('cardExpiry').value;
             const cardCVV = document.getElementById('cardCVV').value;
             const cardName = document.getElementById('cardName').value.trim();
-            
+
             if (!cardNumber || cardNumber.length < 13) {
                 showWarning('Please enter a valid card number');
                 return false;
             }
-            
+
             if (!cardExpiry || !/^\d{2}\/\d{2}$/.test(cardExpiry)) {
                 showWarning('Please enter a valid expiry date (MM/YY)');
                 return false;
             }
-            
+
             // Check if card is not expired
             const [month, year] = cardExpiry.split('/').map(num => parseInt(num));
             const currentYear = new Date().getFullYear() % 100;
             const currentMonth = new Date().getMonth() + 1;
-            
+
             if (year < currentYear || (year === currentYear && month < currentMonth)) {
                 showWarning('Card has expired');
                 return false;
             }
-            
+
             if (!cardCVV || cardCVV.length < 3) {
                 showWarning('Please enter a valid CVV');
                 return false;
             }
-            
+
             if (!cardName) {
                 showWarning('Please enter the cardholder name');
                 return false;
             }
-            
+
             return true;
         }
 
@@ -1001,11 +1028,11 @@
             const applyVoucherBtn = document.getElementById('applyVoucher');
             const removeVoucherBtn = document.getElementById('removeVoucher');
             const voucherInput = document.getElementById('voucherCode');
-            
+
             applyVoucherBtn.addEventListener('click', handleVoucherApplication);
             removeVoucherBtn.addEventListener('click', handleVoucherRemoval);
-            
-            voucherInput.addEventListener('keypress', function(e) {
+
+            voucherInput.addEventListener('keypress', function (e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     handleVoucherApplication();
@@ -1021,12 +1048,12 @@
                 'card': 'Credit/Debit Card',
                 'bank': 'Bank Transfer'
             };
-            
+
             // Hide all payment details
             document.getElementById('gcashDetails').classList.add('d-none');
             document.getElementById('cardDetails').classList.add('d-none');
             document.getElementById('bankDetails').classList.add('d-none');
-            
+
             // Show relevant payment details
             if (selectedMethod === 'gcash') {
                 document.getElementById('gcashDetails').classList.remove('d-none');
@@ -1035,7 +1062,7 @@
             } else if (selectedMethod === 'bank') {
                 document.getElementById('bankDetails').classList.remove('d-none');
             }
-            
+
             document.getElementById('selectedPaymentMethod').textContent = methodNames[selectedMethod];
             console.log('Payment method changed to:', methodNames[selectedMethod]);
         }
@@ -1045,15 +1072,15 @@
             const courierFee = parseInt(selectedCourier.dataset.fee);
             const courierLabels = {
                 'jnt': 'J&T Express',
-                'lbc': 'LBC Express', 
+                'lbc': 'LBC Express',
                 'ninja': 'Ninja Van',
                 'flash': 'Flash Express'
             };
-            
+
             currentShippingFee = courierFee;
             document.getElementById('courierName').textContent = courierLabels[selectedCourier.value];
             document.getElementById('shippingFee').textContent = `₱${courierFee}.00`;
-            
+
             updateOrderTotal();
             console.log('Courier changed to:', courierLabels[selectedCourier.value], 'Fee:', courierFee);
         }
@@ -1061,28 +1088,28 @@
         async function handleVoucherApplication() {
             const voucherCode = document.getElementById('voucherCode').value.trim();
             const statusDiv = document.getElementById('voucherStatus');
-            
+
             if (!voucherCode) {
                 statusDiv.innerHTML = '<small class="text-danger">Please enter a voucher code</small>';
                 return;
             }
-            
+
             try {
                 const voucher = await validateVoucher(voucherCode);
-                
+
                 if (voucher.valid) {
                     // Check minimum order requirement
                     const subtotalElement = document.getElementById('subtotal');
                     const subtotalText = subtotalElement.textContent.replace('₱', '').replace(',', '');
                     const subtotalAmount = parseFloat(subtotalText) || 0;
-                    
+
                     if (voucher.minOrder && subtotalAmount < voucher.minOrder) {
                         statusDiv.innerHTML = `<small class="text-danger">Minimum order of ₱${voucher.minOrder} required</small>`;
                         return;
                     }
-                    
+
                     appliedVoucher = voucher;
-                    
+
                     // Calculate discount based on voucher type
                     if (voucher.type === 'freeshipping') {
                         voucherDiscount = currentShippingFee;
@@ -1091,16 +1118,16 @@
                     } else {
                         voucherDiscount = voucher.discountAmount;
                     }
-                    
+
                     document.getElementById('voucherDiscountRow').classList.remove('d-none');
                     document.getElementById('voucherDiscount').textContent = `-₱${voucherDiscount}.00`;
                     statusDiv.innerHTML = `<small class="text-success">✓ ${voucher.description}</small>`;
-                    
+
                     // Show remove button, hide apply button
                     document.getElementById('applyVoucher').classList.add('d-none');
                     document.getElementById('removeVoucher').classList.remove('d-none');
                     document.getElementById('voucherCode').disabled = true;
-                    
+
                     updateOrderTotal();
                 } else {
                     statusDiv.innerHTML = `<small class="text-danger">${voucher.message || 'Invalid voucher code'}</small>`;
@@ -1126,21 +1153,21 @@
             // Reset voucher state
             appliedVoucher = null;
             voucherDiscount = 0;
-            
+
             // Hide voucher discount row
             document.getElementById('voucherDiscountRow').classList.add('d-none');
             document.getElementById('voucherDiscount').textContent = '-₱0.00';
-            
+
             // Reset input and buttons
             document.getElementById('voucherCode').value = '';
             document.getElementById('voucherCode').disabled = false;
             document.getElementById('voucherStatus').innerHTML = '';
             document.getElementById('applyVoucher').classList.remove('d-none');
             document.getElementById('removeVoucher').classList.add('d-none');
-            
+
             // Update totals
             updateOrderTotal();
-            
+
             console.log('Voucher removed');
         }
 
@@ -1148,7 +1175,7 @@
             const subtotalElement = document.getElementById('subtotal');
             const subtotalText = subtotalElement.textContent.replace('₱', '').replace(',', '');
             const subtotalAmount = parseFloat(subtotalText) || 0;
-            
+
             const total = subtotalAmount + currentShippingFee - voucherDiscount;
             document.getElementById('total').textContent = `₱${total.toFixed(2)}`;
         }
@@ -1192,14 +1219,14 @@
                         <hr>
                     </div>
                 `;
-                
+
                 shippingSection.insertAdjacentHTML('afterbegin', savedAddressesHtml);
-                
+
                 // Add event listeners for address selection
                 document.querySelectorAll('input[name="savedAddress"]').forEach(radio => {
                     radio.addEventListener('change', handleAddressSelection);
                 });
-                
+
                 // Set default address if available
                 const defaultAddress = userAddresses.find(addr => addr.is_default);
                 if (defaultAddress) {
@@ -1212,7 +1239,7 @@
 
         function handleAddressSelection(event) {
             const addressId = event.target.value;
-            
+
             if (addressId === 'new') {
                 selectedAddress = null;
                 clearAddressForm();
@@ -1254,7 +1281,7 @@
                 // Get full user profile from database
                 const userProfile = await api.getUserProfile();
                 console.log('User profile loaded:', userProfile);
-                
+
                 if (userProfile) {
                     // Auto-fill name fields if they exist in the profile
                     if (userProfile.first_name) {
@@ -1263,7 +1290,7 @@
                     if (userProfile.last_name) {
                         document.getElementById('lastName').value = userProfile.last_name;
                     }
-                    
+
                     // Auto-fill address information if available
                     if (userProfile.address) {
                         document.getElementById('address').value = userProfile.address;
@@ -1274,12 +1301,12 @@
                     if (userProfile.zip_code) {
                         document.getElementById('zip').value = userProfile.zip_code;
                     }
-                    
+
                     // Set default country if not specified
                     if (!document.getElementById('country').value) {
                         document.getElementById('country').value = 'Philippines';
                     }
-                    
+
                     console.log('✅ User information auto-filled');
                 }
             } catch (error) {
@@ -1303,18 +1330,18 @@
                 cartItems = await api.getSelectedCartItems();
                 console.log('✅ Loaded selected items from database:', cartItems.length, 'items');
                 console.log('Selected items:', cartItems);
-                
+
                 // If no items are selected, try to select all cart items automatically
                 if (cartItems.length === 0) {
                     console.log('⚠️ No items selected, attempting to select all cart items...');
-                    
+
                     try {
                         // Select all items in cart for checkout
                         await api.selectAllForCheckout();
                         // Reload selected items
                         cartItems = await api.getSelectedCartItems();
                         console.log('✅ Auto-selected items:', cartItems.length, 'items');
-                        
+
                         if (cartItems.length === 0) {
                             showWarning('Your cart is empty. Redirecting to cart page.');
                             setTimeout(() => {
@@ -1343,19 +1370,19 @@
             const orderItemsContainer = document.getElementById('checkoutItemsContainer');
             const subtotalElement = document.getElementById('subtotal');
             const totalElement = document.getElementById('total');
-            
+
             if (!orderItemsContainer) return;
-            
+
             let subtotal = 0;
             let html = '';
-            
+
             // Display message about selected items
             html += `<div class="alert alert-info mb-3"><small><i class="fas fa-check-circle me-1"></i> Showing ${cartItems.length} selected item(s) for checkout</small></div>`;
-            
+
             cartItems.forEach((item, index) => {
                 const itemTotal = item.price * item.quantity;
                 subtotal += itemTotal;
-                
+
                 html += `
                     <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
                         <div class="d-flex align-items-center">
@@ -1377,10 +1404,10 @@
                     </div>
                 `;
             });
-            
+
             orderItemsContainer.innerHTML = html;
             subtotalElement.textContent = `₱${subtotal.toFixed(2)}`;
-            
+
             // Update total using the new calculation system
             updateOrderTotal();
         }
@@ -1409,12 +1436,12 @@
                 accountIcon.title = 'Login or Sign Up';
             }
         }
-        
+
         async function updateQuantity(index, change) {
             try {
                 const item = cartItems[index];
                 const newQuantity = item.quantity + change;
-                
+
                 if (newQuantity <= 0) {
                     // Remove item from cart
                     await api.removeFromCart(item.book_id);
@@ -1424,11 +1451,11 @@
                     await api.updateCartItem(item.book_id, newQuantity);
                     item.quantity = newQuantity;
                 }
-                
+
                 // Refresh display
                 displayOrderSummary();
                 updateCartCount();
-                
+
                 // Redirect if cart becomes empty
                 if (cartItems.length === 0) {
                     showInfo('Your cart is now empty');
@@ -1436,7 +1463,7 @@
                         window.location.href = 'cart.html';
                     }, 2000);
                 }
-                
+
             } catch (error) {
                 console.error('Failed to update quantity:', error);
                 showError('Failed to update quantity');
@@ -1461,7 +1488,7 @@
 
                 // Collect payment method
                 const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'cod';
-                
+
                 // Validate payment details if card is selected
                 if (paymentMethod === 'card') {
                     if (!validateCardDetails()) {
@@ -1513,19 +1540,19 @@
                 // Create order via API with full payload
                 console.log('🛒 Creating order with payload:', { shippingAddress, paymentMethod, courier, discounts, totals });
                 console.log('📦 Cart items for order:', cartItems.length, 'items');
-                
+
                 const result = await api.createOrder({ shippingAddress, paymentMethod, courier, discounts, totals, paymentDetails });
                 console.log('✅ Order creation result:', result);
-                
+
                 showSuccess('Order created successfully!');
-                
+
                 // Display receipt
                 displayReceipt(result, shippingAddress, paymentMethod, courier, totals);
 
             } catch (error) {
                 console.error('❌ Order creation error:', error);
                 console.error('Error details:', error.message);
-                
+
                 // More specific error handling
                 if (error.message && error.message.includes('Cart is empty')) {
                     showWarning('No items in cart. Please add items before checkout.');
@@ -1542,52 +1569,52 @@
                 }
             }
         }
-        
+
         function displayReceipt(orderResult, shippingAddress, paymentMethod, courier, totals) {
             // Populate receipt with order details
             const orderNumber = orderResult.order_id || orderResult.orderId || 'N/A';
-            const orderDate = new Date().toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'long', 
+            const orderDate = new Date().toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
                 day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit'
             });
-            
+
             const paymentMethodNames = {
                 'cod': 'Cash on Delivery',
                 'gcash': 'GCash/Maya App',
                 'card': 'Credit/Debit Card',
                 'bank': 'Bank Transfer'
             };
-            
+
             const courierNames = {
                 'jnt': 'J&T Express',
                 'lbc': 'LBC Express',
                 'ninja': 'Ninja Van',
                 'flash': 'Flash Express'
             };
-            
+
             const deliveryTimes = {
                 'jnt': '2-3 business days',
                 'lbc': '1-2 business days',
                 'ninja': '2-4 business days',
                 'flash': '3-5 business days'
             };
-            
+
             // Set order information
             document.getElementById('receiptOrderNumber').textContent = orderNumber;
             document.getElementById('receiptOrderDate').textContent = orderDate;
             document.getElementById('receiptPaymentMethod').textContent = paymentMethodNames[paymentMethod] || paymentMethod;
             document.getElementById('receiptCourier').textContent = courierNames[courier.code] || courier.code;
             document.getElementById('receiptEstimatedDelivery').textContent = deliveryTimes[courier.code] || '3-5 business days';
-            
+
             // Set shipping address
             document.getElementById('receiptRecipient').textContent = shippingAddress.label;
             document.getElementById('receiptAddress').textContent = shippingAddress.full_address;
             document.getElementById('receiptCity').textContent = shippingAddress.city;
             document.getElementById('receiptZip').textContent = shippingAddress.zip_code;
-            
+
             // Set order items
             const itemsList = document.getElementById('receiptItemsList');
             itemsList.innerHTML = cartItems.map(item => `
@@ -1599,36 +1626,36 @@
                     <div class="receipt-item-price">₱${(item.price * item.quantity).toFixed(2)}</div>
                 </div>
             `).join('');
-            
+
             // Set totals
             document.getElementById('receiptSubtotal').textContent = `₱${totals.subtotal.toFixed(2)}`;
             document.getElementById('receiptShipping').textContent = `₱${totals.shipping.toFixed(2)}`;
-            
+
             if (totals.discount > 0) {
                 document.getElementById('receiptDiscountRow').style.display = 'flex';
                 document.getElementById('receiptDiscount').textContent = `-₱${totals.discount.toFixed(2)}`;
             } else {
                 document.getElementById('receiptDiscountRow').style.display = 'none';
             }
-            
+
             document.getElementById('receiptTotal').textContent = `₱${totals.total.toFixed(2)}`;
-            
+
             // Show the receipt modal
             document.getElementById('receiptModal').classList.add('show');
         }
-        
+
         function printReceipt() {
             window.print();
         }
-        
+
         function goToDashboard() {
             window.location.href = 'account-dashboard.html#orders';
         }
-        
+
         function closeReceipt() {
             const modal = document.getElementById('receiptModal');
             modal.classList.remove('show');
-            
+
             // Redirect to dashboard after closing
             setTimeout(() => {
                 window.location.href = 'account-dashboard.html#orders';
@@ -1658,7 +1685,7 @@
         let apiClient;
 
         // Initialize search functionality when page loads
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             apiClient = new APIClient();
             initializeSearchDropdown();
         });
@@ -1668,9 +1695,9 @@
             const searchDropdown = document.getElementById('searchDropdown');
 
             // Listen for input events on search bar
-            searchInput.addEventListener('input', function(e) {
+            searchInput.addEventListener('input', function (e) {
                 const query = e.target.value.trim();
-                
+
                 if (query.length >= 2) {
                     currentSearchTerm = query;
                     showSearchDropdown();
@@ -1686,14 +1713,14 @@
             });
 
             // Hide dropdown when clicking outside
-            document.addEventListener('click', function(e) {
+            document.addEventListener('click', function (e) {
                 if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
                     hideSearchDropdown();
                 }
             });
 
             // Handle escape key to close dropdown
-            searchInput.addEventListener('keydown', function(e) {
+            searchInput.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape') {
                     hideSearchDropdown();
                 } else if (e.key === 'ArrowDown') {
@@ -1706,7 +1733,7 @@
             });
 
             // Handle arrow key navigation in search results
-            searchDropdown.addEventListener('keydown', function(e) {
+            searchDropdown.addEventListener('keydown', function (e) {
                 const resultItems = searchDropdown.querySelectorAll('.search-result-item');
                 const currentFocus = document.activeElement;
                 let currentIndex = Array.from(resultItems).indexOf(currentFocus);
@@ -1733,7 +1760,7 @@
 
             // Prevent form submission when dropdown is visible
             const searchForm = searchInput.closest('form');
-            searchForm.addEventListener('submit', function(e) {
+            searchForm.addEventListener('submit', function (e) {
                 if (searchDropdown.classList.contains('show')) {
                     e.preventDefault();
                     return false;
@@ -1768,9 +1795,9 @@
                     if (query !== currentSearchTerm) return;
 
                     const response = await apiClient.getBooks({ search: query });
-                    
+
                     if (query !== currentSearchTerm) return; // Query changed while searching
-                    
+
                     if (response && response.length > 0) {
                         displaySearchResults(response);
                     } else {
@@ -1826,14 +1853,14 @@
         function displaySearchResults(books) {
             const container = document.getElementById('searchResultsContainer');
             document.getElementById('noResultsMessage').classList.remove('show');
-            
+
             container.innerHTML = books.map(book => createSearchResultItem(book)).join('');
         }
 
         function createSearchResultItem(book) {
             const coverImage = book.cover || './media/books/default-cover.jpg';
             const price = book.price ? `₱${parseFloat(book.price).toFixed(2)}` : 'Price not available';
-            
+
             return `
                 <div class="search-result-item" onclick="goToBookDetails('${book.id}')" tabindex="0" role="button" aria-label="View details for ${escapeHtml(book.title)} by ${escapeHtml(book.author)}">
                     <img src="${coverImage}" alt="${book.title}" onerror="this.src='./media/books/default-cover.jpg'">
@@ -1859,13 +1886,14 @@
                 '"': '&quot;',
                 "'": '&#039;'
             };
-            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+            return text.replace(/[&<>"']/g, function (m) { return map[m]; });
         }
     </script>
     <script src="js/custom-notifications.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/api-client.js"></script>
     <script src="js/navbar-counts.js"></script>
+    <script src="js/navbar-profile.js"></script>
     <script src="js/database-book-display.js"></script>
 </body>
 

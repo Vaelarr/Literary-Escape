@@ -290,7 +290,7 @@
             overflow: hidden;
             position: relative;
         }
-        
+
         .loading-spinner::before {
             content: '';
             position: absolute;
@@ -301,34 +301,37 @@
             background: linear-gradient(90deg, #16423C 0%, #33bdaa 50%, #16423C 100%);
             animation: loading-gradient 2s ease-in-out infinite;
         }
-        
+
         @keyframes loading-gradient {
-            0%, 100% {
+
+            0%,
+            100% {
                 background-position: 0% 50%;
             }
+
             50% {
                 background-position: 100% 50%;
             }
         }
-        
+
         .loading-card-inner {
             padding: 3rem 2rem;
             text-align: center;
         }
-        
+
         .loading-icon-wrapper {
             margin-bottom: 2rem;
             position: relative;
             display: inline-block;
         }
-        
+
         .spinner-border {
             color: #16423C !important;
             width: 3.5rem;
             height: 3.5rem;
             border-width: 0.35rem;
         }
-        
+
         .loading-spinner h3 {
             color: #16423C;
             font-weight: 700;
@@ -336,39 +339,44 @@
             margin-bottom: 1rem;
             margin-top: 0;
         }
-        
+
         .loading-spinner p {
             color: #6c757d;
             font-size: 1.05rem;
             line-height: 1.6;
             margin-bottom: 0;
         }
-        
+
         /* Loading animation pulse effect */
         .loading-icon-wrapper {
             animation: loading-pulse 1.5s ease-in-out infinite;
         }
-        
+
         @keyframes loading-pulse {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: scale(1);
             }
+
             50% {
                 transform: scale(1.05);
             }
         }
-        
+
         /* Responsive adjustments for loading card */
         @media (max-width: 768px) {
             .loading-card-inner {
                 padding: 2rem 1.5rem;
             }
-            
+
             .spinner-border {
                 width: 3rem;
                 height: 3rem;
             }
-        }        /* Enhanced Login Required Card */
+        }
+
+        /* Enhanced Login Required Card */
         .login-required-card {
             margin: 2rem auto;
             max-width: 600px;
@@ -958,7 +966,31 @@
                         <i class="fa-solid fa-cart-shopping"></i>
                         <span id="cart-count" class="cart-count">0</span>
                     </a>
-                    <a href="account.html" class="icon-link" title="Account"><i class="fa-solid fa-user"></i></a>
+                    <div class="profile-dropdown-wrapper">
+                        <a href="account.html" class="icon-link" id="profileIcon" title="Account">
+                            <i class="fa-solid fa-user"></i>
+                        </a>
+                        <div class="profile-dropdown" id="profileDropdown">
+                            <div class="profile-dropdown-header">
+                                <div class="user-name" id="dropdownUserName">User Name</div>
+                                <div class="user-email" id="dropdownUserEmail">user@email.com</div>
+                            </div>
+                            <ul class="profile-dropdown-menu">
+                                <li>
+                                    <a href="account-dashboard.html">
+                                        <i class="fa-solid fa-dashboard"></i>
+                                        <span>Dashboard</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <button class="logout-btn" id="navbarLogoutBtn">
+                                        <i class="fa-solid fa-sign-out-alt"></i>
+                                        <span>Logout</span>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1705,6 +1737,7 @@
     <!-- Load external scripts first -->
     <script src="js/api-client.js"></script>
     <script src="js/navbar-counts.js"></script>
+    <script src="js/navbar-profile.js"></script>
     <script src="js/custom-notifications.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 

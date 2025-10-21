@@ -244,6 +244,100 @@ html, body {
     color: #495057;
 }
 
+/* Profile Dropdown Modal */
+.profile-dropdown-wrapper {
+    position: relative;
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    min-width: 200px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 1050;
+    overflow: hidden;
+}
+
+.profile-dropdown.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.profile-dropdown-header {
+    padding: 15px;
+    background: linear-gradient(135deg, #16423C 0%, #1a4f47 100%);
+    color: white;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.profile-dropdown-header .user-name {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.profile-dropdown-header .user-email {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.profile-dropdown-menu {
+    list-style: none;
+    padding: 8px 0;
+    margin: 0;
+}
+
+.profile-dropdown-menu li {
+    margin: 0;
+}
+
+.profile-dropdown-menu a,
+.profile-dropdown-menu button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 15px;
+    color: #2c3e50;
+    text-decoration: none;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    text-align: left;
+}
+
+.profile-dropdown-menu a:hover,
+.profile-dropdown-menu button:hover {
+    background: #f8f9fa;
+    color: #16423C;
+}
+
+.profile-dropdown-menu i {
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+}
+
+.profile-dropdown-menu .logout-btn {
+    color: #dc3545;
+    border-top: 1px solid #e9ecef;
+}
+
+.profile-dropdown-menu .logout-btn:hover {
+    background: #fff5f5;
+    color: #c82333;
+}
+
 /* Progress Bar */
 .notification-progress {
     position: absolute;

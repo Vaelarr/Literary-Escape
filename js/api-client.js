@@ -173,6 +173,7 @@ class APIClient {
             this.token = response.token;
             localStorage.setItem('authToken', response.token);
             localStorage.setItem('user', JSON.stringify(response.user));
+            localStorage.setItem('loginTimestamp', Date.now().toString());
             console.log('Token stored successfully:', this.token ? 'Present' : 'Missing');
         } else {
             console.warn('No token in login response');
@@ -206,6 +207,7 @@ class APIClient {
         this.token = null;
         localStorage.removeItem('authToken');
         localStorage.removeItem('user');
+        localStorage.removeItem('loginTimestamp');
     }
 
     // Book methods - these don't require authentication for viewing

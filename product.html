@@ -14,18 +14,19 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         /* Base layout fixes */
-        html, body {
+        html,
+        body {
             height: 100%;
             margin: 0;
             padding: 0;
             overflow-x: hidden;
         }
-        
+
         .main-content {
             min-height: calc(100vh - 160px);
             padding: 100px 0 40px 0;
         }
-        
+
         /* Navbar improvements */
         .navbar {
             z-index: 1030;
@@ -34,46 +35,46 @@
             background: rgba(22, 66, 60, 0.95) !important;
             box-shadow: 0 2px 20px rgba(22, 66, 60, 0.3);
         }
-        
+
         .navbar.fixed-top {
             position: fixed !important;
             top: 0;
             left: 0;
             right: 0;
         }
-        
+
         /* Navbar text styling */
         .navbar .nav-link {
             color: #ffffff !important;
             font-weight: 500;
             transition: all 0.3s ease;
         }
-        
+
         .navbar .nav-link:hover {
             color: rgba(51, 189, 170, 0.95) !important;
             transform: translateY(-1px);
         }
-        
+
         .navbar .dropdown-toggle {
             color: #ffffff !important;
         }
-        
+
         .navbar .icon-link {
             color: #ffffff !important;
             text-decoration: none;
             transition: all 0.3s ease;
             display: inline-block;
         }
-        
+
         .navbar .icon-link:hover {
             color: rgba(51, 189, 170, 0.95) !important;
             transform: scale(1.1);
         }
-        
+
         .navbar .icon-link i {
             color: #ffffff !important;
         }
-        
+
         #product-show {
             margin-top: 100px;
             padding: 20px;
@@ -177,12 +178,12 @@
                 margin-bottom: 0.5rem;
             }
         }
-        
+
         /* Reviews Section Styles */
         #reviews-section {
             background-color: #f8f9fa;
         }
-        
+
         .review-card {
             background: white;
             border-radius: 8px;
@@ -191,46 +192,46 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
         }
-        
+
         .review-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
         }
-        
+
         .review-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
         }
-        
+
         .reviewer-name {
             font-weight: bold;
             color: #16423C;
         }
-        
+
         .review-date {
             color: #6c757d;
             font-size: 0.9rem;
         }
-        
+
         .review-stars {
             color: #ffc107;
             margin-bottom: 10px;
         }
-        
+
         .review-text {
             color: #495057;
             line-height: 1.6;
         }
-        
+
         .review-form-container {
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             position: relative;
         }
-        
+
         .login-overlay {
             position: absolute;
             top: 0;
@@ -247,18 +248,18 @@
             backdrop-filter: blur(2px);
             -webkit-backdrop-filter: blur(2px);
         }
-        
+
         .login-overlay h4 {
             color: #16423C;
             margin-bottom: 15px;
         }
-        
+
         .login-overlay p {
             color: #6c757d;
             text-align: center;
             margin-bottom: 20px;
         }
-        
+
         .login-overlay .btn {
             background: linear-gradient(135deg, #16423C 0%, #1a4f47 100%);
             border: none;
@@ -268,58 +269,58 @@
             text-decoration: none;
             transition: all 0.3s ease;
         }
-        
+
         .login-overlay .btn:hover {
             background: linear-gradient(135deg, #1a4f47 0%, #2a5f57 100%);
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(22, 66, 60, 0.3);
         }
-        
+
         /* Mobile Responsiveness */
         @media (max-width: 768px) {
             #reviews-section {
                 padding: 30px 0;
             }
-            
+
             .review-card {
                 padding: 15px;
                 margin-bottom: 15px;
             }
-            
+
             .review-header {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 5px;
             }
-            
+
             .reviewer-name {
                 font-size: 1rem;
             }
-            
+
             .review-date {
                 font-size: 0.8rem;
             }
-            
+
             #review-form .row {
                 margin: 0;
             }
-            
+
             #review-form .col-md-6 {
                 padding: 0;
                 margin-bottom: 15px;
             }
         }
-        
+
         @media (max-width: 576px) {
             #reviews-section .container {
                 padding: 0 15px;
             }
-            
+
             .review-card {
                 padding: 12px;
                 border-radius: 6px;
             }
-            
+
             .review-form-container .card-body {
                 padding: 15px;
             }
@@ -328,12 +329,12 @@
 </head>
 
 <body>
-<!-- 
+    <!-- 
     <audio id="bgMusic" loop>
         <source src="./media/Frédéric Chopin_ Nocturne in E-Flat Major, Op. 9, No. 2.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio> -->
-<!-- 
+    <!-- 
     <button id="audioControl" class="audio-control" title="Audio Control">
         <i class="fas fa-volume-mute"></i>
     </button> -->
@@ -374,9 +375,10 @@
                 <!-- Search Bar -->
                 <form class="d-flex mx-3" onsubmit="handleSearch(event)">
                     <div class="search-wrapper w-100">
-                        <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search" id="searchInput">
+                        <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search"
+                            id="searchInput">
                         <button class="btn mx-0" title="search-btn" type="submit"><i class="bi bi-search"></i></button>
-                        
+
                         <!-- Search Dropdown -->
                         <div id="searchDropdown" class="search-dropdown">
                             <div class="search-dropdown-content">
@@ -406,7 +408,31 @@
                         <i class="fa-solid fa-cart-shopping"></i>
                         <span id="cart-count" class="cart-count">0</span>
                     </a>
-                    <a href="account.html" class="icon-link" title="Account"><i class="fa-solid fa-user"></i></a>
+                    <div class="profile-dropdown-wrapper">
+                        <a href="account.html" class="icon-link" id="profileIcon" title="Account">
+                            <i class="fa-solid fa-user"></i>
+                        </a>
+                        <div class="profile-dropdown" id="profileDropdown">
+                            <div class="profile-dropdown-header">
+                                <div class="user-name" id="dropdownUserName">User Name</div>
+                                <div class="user-email" id="dropdownUserEmail">user@email.com</div>
+                            </div>
+                            <ul class="profile-dropdown-menu">
+                                <li>
+                                    <a href="account-dashboard.html">
+                                        <i class="fa-solid fa-dashboard"></i>
+                                        <span>Dashboard</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <button class="logout-btn" id="navbarLogoutBtn">
+                                        <i class="fa-solid fa-sign-out-alt"></i>
+                                        <span>Logout</span>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -425,22 +451,25 @@
                         <h3 class="title"></h3>
                         <p class="author"></p>
                         <p class="description"></p>
-                        
+
                         <!-- Enhanced Book Details -->
                         <div class="book-details mt-4">
                             <div class="row">
                                 <div class="col-md-6">
                                     <p class="detail-item"><strong>Category:</strong> <span class="category"></span></p>
                                     <p class="detail-item"><strong>Genre:</strong> <span class="genre"></span></p>
-                                    <p class="detail-item"><strong>Publisher:</strong> <span class="publisher"></span></p>
-                                    <p class="detail-item"><strong>Publication Date:</strong> <span class="publication-date"></span></p>
+                                    <p class="detail-item"><strong>Publisher:</strong> <span class="publisher"></span>
+                                    </p>
+                                    <p class="detail-item"><strong>Publication Date:</strong> <span
+                                            class="publication-date"></span></p>
                                     <p class="detail-item"><strong>Pages:</strong> <span class="pages"></span></p>
                                 </div>
                                 <div class="col-md-6">
                                     <p class="detail-item"><strong>Language:</strong> <span class="language"></span></p>
                                     <p class="detail-item"><strong>Format:</strong> <span class="format"></span></p>
                                     <p class="detail-item"><strong>Weight:</strong> <span class="weight"></span></p>
-                                    <p class="detail-item"><strong>Dimensions:</strong> <span class="dimensions"></span></p>
+                                    <p class="detail-item"><strong>Dimensions:</strong> <span class="dimensions"></span>
+                                    </p>
                                     <p class="detail-item"><strong>ISBN:</strong> <span class="isbn"></span></p>
                                 </div>
                             </div>
@@ -461,16 +490,19 @@
                         </div>
 
                         <p class="price mb-4"></p>
-                        
+
                         <!-- Quantity Control -->
                         <div class="quantity-section mb-4">
                             <label for="quantity" class="form-label"><strong>Quantity:</strong></label>
                             <div class="quantity-controls d-flex align-items-center">
-                                <button type="button" class="btn btn-outline-secondary quantity-btn" id="decrease-qty" title="Decrease Quantity" disabled>
+                                <button type="button" class="btn btn-outline-secondary quantity-btn" id="decrease-qty"
+                                    title="Decrease Quantity" disabled>
                                     <i class="fas fa-minus"></i>
                                 </button>
-                                <input type="number" id="quantity" class="form-control quantity-input" value="1" min="1" max="10">
-                                <button type="button" class="btn btn-outline-secondary quantity-btn" id="increase-qty" title="Increase Quantity">
+                                <input type="number" id="quantity" class="form-control quantity-input" value="1" min="1"
+                                    max="10">
+                                <button type="button" class="btn btn-outline-secondary quantity-btn" id="increase-qty"
+                                    title="Increase Quantity">
                                     <i class="fas fa-plus"></i>
                                 </button>
                             </div>
@@ -500,12 +532,12 @@
                     <h3 class="text-center mb-4">Customer Reviews</h3>
                 </div>
             </div>
-            
+
             <!-- Reviews Container -->
             <div class="row" id="reviews-container">
                 <!-- Reviews will be loaded here -->
             </div>
-            
+
             <!-- Add Review Form -->
             <div class="row mt-5">
                 <div class="col-12">
@@ -534,16 +566,17 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="review-text" class="form-label">Your Review</label>
-                                    <textarea class="form-control" id="review-text" rows="4" 
-                                              placeholder="Share your thoughts about this book..." required></textarea>
+                                    <textarea class="form-control" id="review-text" rows="4"
+                                        placeholder="Share your thoughts about this book..." required></textarea>
                                 </div>
                                 <button type="submit" class="btn btn-primary">Submit Review</button>
                             </form>
-                            
+
                             <!-- Login Overlay (hidden by default) -->
                             <div class="login-overlay" id="login-overlay" style="display: none;">
                                 <h4>Login Required</h4>
-                                <p>You need to be logged in to write a review.<br>Join our community to share your thoughts!</p>
+                                <p>You need to be logged in to write a review.<br>Join our community to share your
+                                    thoughts!</p>
                                 <a href="account.html" class="btn">Login to Review</a>
                             </div>
                         </div>
@@ -563,7 +596,8 @@
                         <span>LITERARY ESCAPE</span>
                     </div>
                     <p class="footer-description">
-                        Your gateway to endless literary adventures. Discover, explore, and escape into the world of books with our carefully curated collection of fiction, non-fiction, and specialty titles.
+                        Your gateway to endless literary adventures. Discover, explore, and escape into the world of
+                        books with our carefully curated collection of fiction, non-fiction, and specialty titles.
                     </p>
                     <div class="social-links">
                         <a href="https://www.facebook.com/" target="_blank" rel="noopener" aria-label="Facebook">
@@ -580,7 +614,7 @@
                         </a>
                     </div>
                 </div>
-                
+
                 <div class="footer-column">
                     <h4 class="footer-title">Quick Links</h4>
                     <ul class="footer-links">
@@ -591,18 +625,19 @@
                         <li><a href="account.html">My Account</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="footer-column">
                     <h4 class="footer-title">Customer Service</h4>
                     <ul class="footer-links">
                         <li><a href="cart.html">Shopping Cart</a></li>
                         <li><a href="favorites.html">My Favorites</a></li>
                         <li><a href="checkout.html">Checkout</a></li>
-                        <li><a href="#" onclick="showInfo('Contact us at: support@literaryescape.com')">Contact Support</a></li>
+                        <li><a href="#" onclick="showInfo('Contact us at: support@literaryescape.com')">Contact
+                                Support</a></li>
                         <li><a href="#" onclick="showInfo('Shipping: 3-5 business days')">Shipping Info</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="footer-column">
                     <h4 class="footer-title">Contact Info</h4>
                     <ul class="footer-links">
@@ -613,13 +648,14 @@
                     </ul>
                 </div>
             </div>
-            
+
             <div class="footer-bottom">
-                <p>&copy; 2024 Literary Escape. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+                <p>&copy; 2024 Literary Escape. All rights reserved. | <a href="#">Privacy Policy</a> | <a
+                        href="#">Terms of Service</a></p>
             </div>
         </div>
     </footer>
-    
+
     <script>
         let currentBook = null;
         let maxStock = 10;
@@ -652,9 +688,9 @@
         async function loadBookDetails(bookId) {
             try {
                 const book = await dbBookDisplay.getBookById(bookId);
-                
+
                 if (!book) {
-                    document.querySelector('.content').innerHTML = 
+                    document.querySelector('.content').innerHTML =
                         '<div class="alert alert-danger">Book not found</div>';
                     return;
                 }
@@ -670,19 +706,19 @@
                     // Fallback for regular image if dbBookDisplay is not available
                     bookContainer.innerHTML = `<img src="${book.cover || 'media/placeholder.jpg'}" alt="${book.title}" class="img-fluid" style="max-width: 300px;">`;
                 }
-                
+
                 // Populate all book details
                 document.querySelector('.title').textContent = book.title;
                 document.querySelector('.author').textContent = `by ${book.author}`;
                 document.querySelector('.description').textContent = book.description || 'No description available.';
-                
+
                 // Basic details
                 document.querySelector('.category').textContent = book.category || 'Unknown';
                 document.querySelector('.genre').textContent = book.genre || 'Unknown';
                 document.querySelector('.publisher').textContent = book.publisher || 'Unknown Publisher';
                 document.querySelector('.publication-date').textContent = formatDate(book.publication_date) || 'Unknown';
                 document.querySelector('.pages').textContent = book.pages ? `${book.pages} pages` : 'Unknown';
-                
+
                 // Additional details
                 document.querySelector('.language').textContent = book.language || 'English';
                 document.querySelector('.format').textContent = book.format || 'Paperback';
@@ -702,7 +738,7 @@
                 // Update quantity control max value
                 const quantityInput = document.getElementById('quantity');
                 quantityInput.max = Math.min(maxStock, 10);
-                
+
                 // Setup action buttons with consistent notifications
                 const addToCartBtn = document.querySelector('.add-to-cart-btn');
                 const favoriteBtn = document.querySelector('.favorite-btn');
@@ -729,7 +765,7 @@
 
             } catch (error) {
                 console.error('Failed to load book details:', error);
-                document.querySelector('.content').innerHTML = 
+                document.querySelector('.content').innerHTML =
                     '<div class="alert alert-danger">Failed to load book details. Please try again later.</div>';
             }
         }
@@ -764,7 +800,7 @@
 
                 // Update button state immediately
                 await updateFavoriteButtonState(bookId, button);
-                
+
                 // Update favorites count in navbar using universal system
                 if (window.navbarCounts) {
                     await window.navbarCounts.refreshFavorites();
@@ -775,7 +811,7 @@
             } catch (error) {
                 console.error('Failed to update favorites:', error);
                 dbBookDisplay.showMessage('Failed to update favorites. Please try again.', 'error');
-                
+
                 // Re-enable button on error
                 button.disabled = false;
                 button.innerHTML = originalText;
@@ -842,14 +878,14 @@
             quantityInput.addEventListener('input', () => {
                 let value = parseInt(quantityInput.value);
                 const maxAllowed = Math.min(maxStock, 10);
-                
+
                 if (isNaN(value) || value < 1) {
                     quantityInput.value = 1;
                 } else if (value > maxAllowed) {
                     quantityInput.value = maxAllowed;
                     dbBookDisplay.showMessage(`Maximum ${maxAllowed} items allowed`, 'warning');
                 }
-                
+
                 updateQuantityButtons();
             });
 
@@ -893,9 +929,9 @@
                 addToCartBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Adding...';
 
                 await api.addToCart(bookId, quantity);
-                
+
                 dbBookDisplay.showMessage(`Added ${quantity} ${quantity === 1 ? 'copy' : 'copies'} to cart!`, 'success');
-                
+
                 // Update cart count using universal navbar count system
                 if (window.navbarCounts) {
                     await window.navbarCounts.refreshCart();
@@ -910,7 +946,7 @@
             } catch (error) {
                 console.error('Failed to add to cart:', error);
                 dbBookDisplay.showMessage('Failed to add to cart. Please try again.', 'error');
-                
+
                 // Re-enable button on error
                 const addToCartBtn = document.querySelector('.add-to-cart-btn');
                 addToCartBtn.disabled = false;
@@ -921,34 +957,34 @@
         function displayRating(rating) {
             const starsContainer = document.querySelector('.rating-stars');
             const ratingValue = document.querySelector('.rating-value');
-            
+
             const fullStars = Math.floor(rating);
             const hasHalfStar = rating % 1 >= 0.5;
             let starsHTML = '';
-            
+
             // Full stars
             for (let i = 0; i < fullStars; i++) {
                 starsHTML += '<i class="fas fa-star text-warning"></i>';
             }
-            
+
             // Half star
             if (hasHalfStar) {
                 starsHTML += '<i class="fas fa-star-half-alt text-warning"></i>';
             }
-            
+
             // Empty stars
             const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
             for (let i = 0; i < emptyStars; i++) {
                 starsHTML += '<i class="far fa-star text-warning"></i>';
             }
-            
+
             starsContainer.innerHTML = starsHTML;
             ratingValue.textContent = `(${rating.toFixed(1)}/5.0)`;
         }
 
         function displayStockStatus(stockQuantity) {
             const stockIndicator = document.querySelector('.stock-indicator');
-            
+
             if (stockQuantity > 10) {
                 stockIndicator.innerHTML = '<span class="badge bg-success">In Stock</span>';
             } else if (stockQuantity > 0) {
@@ -960,7 +996,7 @@
 
         function formatDate(dateString) {
             if (!dateString) return null;
-            
+
             try {
                 const date = new Date(dateString);
                 return date.toLocaleDateString('en-US', {
@@ -978,23 +1014,23 @@
             try {
                 // Fetch reviews from the API
                 const response = await fetch(`/api/reviews/${bookId}`);
-                
+
                 if (!response.ok) {
                     throw new Error('Failed to fetch reviews');
                 }
-                
+
                 const reviews = await response.json();
                 displayReviews(reviews);
             } catch (error) {
                 console.error('Error loading reviews:', error);
-                document.getElementById('reviews-container').innerHTML = 
+                document.getElementById('reviews-container').innerHTML =
                     '<div class="col-12"><p class="text-center text-muted">Unable to load reviews at this time.</p></div>';
             }
         }
 
         function displayReviews(reviews) {
             const container = document.getElementById('reviews-container');
-            
+
             if (!reviews || reviews.length === 0) {
                 container.innerHTML = '<div class="col-12"><p class="text-center text-muted">No reviews yet. Be the first to review this book!</p></div>';
                 return;
@@ -1023,7 +1059,7 @@
         async function initializeReviewForm() {
             const reviewForm = document.getElementById('review-form');
             const loginOverlay = document.getElementById('login-overlay');
-            
+
             // Check if user is logged in
             if (!api.isLoggedIn()) {
                 // Show login overlay
@@ -1032,7 +1068,7 @@
             } else {
                 // Hide login overlay
                 loginOverlay.style.display = 'none';
-                
+
                 // Pre-fill reviewer name with user's name if available from API
                 try {
                     const userProfile = await api.getUserProfile();
@@ -1043,15 +1079,15 @@
                     console.log('Could not load user profile for reviewer name');
                 }
             }
-            
-            reviewForm.addEventListener('submit', async function(e) {
+
+            reviewForm.addEventListener('submit', async function (e) {
                 e.preventDefault();
-                
+
                 if (!api.isLoggedIn()) {
                     showLoginRequired();
                     return;
                 }
-                
+
                 const reviewerName = document.getElementById('reviewer-name').value;
                 const rating = parseInt(document.getElementById('review-rating').value);
                 const reviewText = document.getElementById('review-text').value;
@@ -1068,7 +1104,7 @@
                     const originalText = submitBtn.textContent;
                     submitBtn.disabled = true;
                     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
-                    
+
                     // Submit review to API
                     const response = await fetch('/api/reviews', {
                         method: 'POST',
@@ -1116,20 +1152,20 @@
                 await loadReviews(bookId);
                 initializeReviewForm();
             } else {
-                document.querySelector('.content').innerHTML = 
+                document.querySelector('.content').innerHTML =
                     '<div class="alert alert-danger">No book ID provided</div>';
             }
-            
+
             // Initialize cart count and other UI elements
             await dbBookDisplay.updateCartCount();
             await updateFavoritesCount();
             updateNavbarAccountLink();
             setupQuantityControls();
-            
+
             if (window.navbarCounts) {
                 await window.navbarCounts.init();
             }
-            
+
             // Initialize quantity controls
             initializeQuantityControls();
         });
@@ -1140,7 +1176,7 @@
         let apiClient;
 
         // Initialize search functionality when page loads
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             apiClient = new APIClient();
             initializeSearchDropdown();
         });
@@ -1150,9 +1186,9 @@
             const searchDropdown = document.getElementById('searchDropdown');
 
             // Listen for input events on search bar
-            searchInput.addEventListener('input', function(e) {
+            searchInput.addEventListener('input', function (e) {
                 const query = e.target.value.trim();
-                
+
                 if (query.length >= 2) {
                     currentSearchTerm = query;
                     showSearchDropdown();
@@ -1168,14 +1204,14 @@
             });
 
             // Hide dropdown when clicking outside
-            document.addEventListener('click', function(e) {
+            document.addEventListener('click', function (e) {
                 if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
                     hideSearchDropdown();
                 }
             });
 
             // Handle escape key to close dropdown
-            searchInput.addEventListener('keydown', function(e) {
+            searchInput.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape') {
                     hideSearchDropdown();
                 } else if (e.key === 'ArrowDown') {
@@ -1188,7 +1224,7 @@
             });
 
             // Handle arrow key navigation in search results
-            searchDropdown.addEventListener('keydown', function(e) {
+            searchDropdown.addEventListener('keydown', function (e) {
                 const resultItems = searchDropdown.querySelectorAll('.search-result-item');
                 const currentFocus = document.activeElement;
                 let currentIndex = Array.from(resultItems).indexOf(currentFocus);
@@ -1215,7 +1251,7 @@
 
             // Prevent form submission when dropdown is visible
             const searchForm = searchInput.closest('form');
-            searchForm.addEventListener('submit', function(e) {
+            searchForm.addEventListener('submit', function (e) {
                 if (searchDropdown.classList.contains('show')) {
                     e.preventDefault();
                     return false;
@@ -1250,9 +1286,9 @@
                     if (query !== currentSearchTerm) return;
 
                     const response = await apiClient.getBooks({ search: query });
-                    
+
                     if (query !== currentSearchTerm) return; // Query changed while searching
-                    
+
                     if (response && response.length > 0) {
                         displaySearchResults(response);
                     } else {
@@ -1308,14 +1344,14 @@
         function displaySearchResults(books) {
             const container = document.getElementById('searchResultsContainer');
             document.getElementById('noResultsMessage').classList.remove('show');
-            
+
             container.innerHTML = books.map(book => createSearchResultItem(book)).join('');
         }
 
         function createSearchResultItem(book) {
             const coverImage = book.cover || './media/books/default-cover.jpg';
             const price = book.price ? `₱${parseFloat(book.price).toFixed(2)}` : 'Price not available';
-            
+
             return `
                 <div class="search-result-item" onclick="goToBookDetails('${book.id}')" tabindex="0" role="button" aria-label="View details for ${escapeHtml(book.title)} by ${escapeHtml(book.author)}">
                     <img src="${coverImage}" alt="${book.title}" onerror="this.src='./media/books/default-cover.jpg'">
@@ -1341,7 +1377,7 @@
                 '"': '&quot;',
                 "'": '&#039;'
             };
-            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+            return text.replace(/[&<>"']/g, function (m) { return map[m]; });
         }
 
         // Handle search
@@ -1357,6 +1393,7 @@
     <script src="js/custom-notifications.js"></script>
     <script src="js/api-client.js"></script>
     <script src="js/navbar-counts.js"></script>
+    <script src="js/navbar-profile.js"></script>
     <script src="js/database-book-display.js"></script>
     <!-- Remove conflicting scripts that might override notification system -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

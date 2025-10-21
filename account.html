@@ -13,18 +13,19 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         /* Base layout fixes */
-        html, body {
+        html,
+        body {
             height: auto;
             margin: 0;
             padding: 0;
             overflow-x: hidden;
         }
-        
+
         .main-content {
             min-height: calc(100vh - 160px);
             padding: 100px 0 40px 0;
         }
-        
+
         /* Navbar improvements */
         .navbar {
             z-index: 1030;
@@ -33,46 +34,46 @@
             background: rgba(22, 66, 60, 0.95) !important;
             box-shadow: 0 2px 20px rgba(22, 66, 60, 0.3);
         }
-        
+
         .navbar.fixed-top {
             position: fixed !important;
             top: 0;
             left: 0;
             right: 0;
         }
-        
+
         /* Navbar text styling */
         .navbar .nav-link {
             color: #ffffff !important;
             font-weight: 500;
             transition: all 0.3s ease;
         }
-        
+
         .navbar .nav-link:hover {
             color: rgba(51, 189, 170, 0.95) !important;
             transform: translateY(-1px);
         }
-        
+
         .navbar .dropdown-toggle {
             color: #ffffff !important;
         }
-        
+
         .navbar .icon-link {
             color: #ffffff !important;
             text-decoration: none;
             transition: all 0.3s ease;
             display: inline-block;
         }
-        
+
         .navbar .icon-link:hover {
             color: rgba(51, 189, 170, 0.95) !important;
             transform: scale(1.1);
         }
-        
+
         .navbar .icon-link i {
             color: #ffffff !important;
         }
-        
+
         /* Fix checkbox stretching */
         .form-check-input {
             width: 1rem !important;
@@ -80,18 +81,18 @@
             flex-shrink: 0;
             margin-top: 0.25em;
         }
-        
+
         .form-check {
             display: flex;
             align-items: flex-start;
             gap: 0.5rem;
         }
-        
+
         .form-check-label {
             flex: 1;
             line-height: 1.5;
         }
-        
+
         /* Prevent body scroll when modal is open */
         body.modal-open {
             overflow: hidden !important;
@@ -100,16 +101,16 @@
             width: 100% !important;
             height: 100% !important;
         }
-        
+
         .modal {
             overflow-x: hidden;
             overflow-y: auto;
         }
-        
+
         .modal.fade .modal-dialog {
             transition: transform 0.3s ease-out;
         }
-        
+
         /* Additional modal backdrop fix */
         .modal-backdrop {
             position: fixed !important;
@@ -160,9 +161,10 @@
                 <!-- Search Bar -->
                 <form class="d-flex mx-3" onsubmit="handleSearch(event)">
                     <div class="search-wrapper w-100">
-                        <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search" id="searchInput">
+                        <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search"
+                            id="searchInput">
                         <button class="btn mx-0" title="search-btn" type="submit"><i class="bi bi-search"></i></button>
-                        
+
                         <!-- Search Dropdown -->
                         <div class="search-dropdown" id="searchDropdown">
                             <!-- Loading indicator -->
@@ -172,11 +174,11 @@
                                 </div>
                                 <span class="loading-text">Searching...</span>
                             </div>
-                            
+
                             <!-- Search results container -->
                             <div class="search-results-container" id="searchResultsContainer">
                             </div>
-                            
+
                             <!-- No results message -->
                             <div class="no-results-message" id="noResultsMessage">
                                 <i class="bi bi-search"></i>
@@ -196,7 +198,31 @@
                         <i class="fa-solid fa-cart-shopping"></i>
                         <span id="cart-count" class="cart-count">0</span>
                     </a>
-                    <a href="account.html" class="icon-link" title="Account"><i class="fa-solid fa-user"></i></a>
+                    <div class="profile-dropdown-wrapper">
+                        <a href="account.html" class="icon-link" id="profileIcon" title="Account">
+                            <i class="fa-solid fa-user"></i>
+                        </a>
+                        <div class="profile-dropdown" id="profileDropdown">
+                            <div class="profile-dropdown-header">
+                                <div class="user-name" id="dropdownUserName">User Name</div>
+                                <div class="user-email" id="dropdownUserEmail">user@email.com</div>
+                            </div>
+                            <ul class="profile-dropdown-menu">
+                                <li>
+                                    <a href="account-dashboard.html">
+                                        <i class="fa-solid fa-dashboard"></i>
+                                        <span>Dashboard</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <button class="logout-btn" id="navbarLogoutBtn">
+                                        <i class="fa-solid fa-sign-out-alt"></i>
+                                        <span>Logout</span>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -236,8 +262,8 @@
                                     required>
                             </div>
                             <div class="mb-3">
-                                <input type="text" class="form-control" id="signupMiddleInitial" placeholder="Middle Initial (Optional)"
-                                    maxlength="1">
+                                <input type="text" class="form-control" id="signupMiddleInitial"
+                                    placeholder="Middle Initial (Optional)" maxlength="1">
                             </div>
                             <div class="mb-3">
                                 <input type="text" class="form-control" id="signupLastName" placeholder="Last Name"
@@ -256,22 +282,25 @@
                                         <small class="requirement" id="uppercase-req">• One uppercase letter</small>
                                         <small class="requirement" id="lowercase-req">• One lowercase letter</small>
                                         <small class="requirement" id="number-req">• One number</small>
-                                        <small class="requirement" id="special-req">• One special character (!@#$%^&*)</small>
+                                        <small class="requirement" id="special-req">• One special character
+                                            (!@#$%^&*)</small>
                                     </div>
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <input type="password" class="form-control" id="signupConfirmPassword" placeholder="Confirm Password"
-                                    required>
+                                <input type="password" class="form-control" id="signupConfirmPassword"
+                                    placeholder="Confirm Password" required>
                                 <div class="password-match-feedback mt-1"></div>
                             </div>
                             <div class="mb-3 form-check">
                                 <input type="checkbox" class="form-check-input" id="termsCheckbox" required>
                                 <label class="form-check-label" for="termsCheckbox">
-                                    I agree to the <a href="#" onclick="showTermsAndConditions()">Terms and Conditions</a>
+                                    I agree to the <a href="#" onclick="showTermsAndConditions()">Terms and
+                                        Conditions</a>
                                 </label>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100" id="signup-submit-btn" disabled>Sign Up</button>
+                            <button type="submit" class="btn btn-primary w-100" id="signup-submit-btn" disabled>Sign
+                                Up</button>
                         </form>
                         <p class="text-center mt-3">
                             Already have an account? <a href="#" id="showLogin">Login</a>
@@ -293,7 +322,8 @@
                         <span>LITERARY ESCAPE</span>
                     </div>
                     <p class="footer-description">
-                        Your gateway to endless literary adventures. Discover, explore, and escape into the world of books with our carefully curated collection of fiction, non-fiction, and specialty titles.
+                        Your gateway to endless literary adventures. Discover, explore, and escape into the world of
+                        books with our carefully curated collection of fiction, non-fiction, and specialty titles.
                     </p>
                     <div class="social-links">
                         <a href="https://www.facebook.com/" target="_blank" rel="noopener" aria-label="Facebook">
@@ -310,7 +340,7 @@
                         </a>
                     </div>
                 </div>
-                
+
                 <div class="footer-column">
                     <h4 class="footer-title">Quick Links</h4>
                     <ul class="footer-links">
@@ -321,18 +351,19 @@
                         <li><a href="account.html">My Account</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="footer-column">
                     <h4 class="footer-title">Customer Service</h4>
                     <ul class="footer-links">
                         <li><a href="cart.html">Shopping Cart</a></li>
                         <li><a href="favorites.html">My Favorites</a></li>
                         <li><a href="checkout.html">Checkout</a></li>
-                        <li><a href="#" onclick="showInfo('Contact us at: support@literaryescape.com')">Contact Support</a></li>
+                        <li><a href="#" onclick="showInfo('Contact us at: support@literaryescape.com')">Contact
+                                Support</a></li>
                         <li><a href="#" onclick="showInfo('Shipping: 3-5 business days')">Shipping Info</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="footer-column">
                     <h4 class="footer-title">Contact Info</h4>
                     <ul class="footer-links">
@@ -343,9 +374,10 @@
                     </ul>
                 </div>
             </div>
-            
+
             <div class="footer-bottom">
-                <p>&copy; 2024 Literary Escape. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+                <p>&copy; 2024 Literary Escape. All rights reserved. | <a href="#">Privacy Policy</a> | <a
+                        href="#">Terms of Service</a></p>
             </div>
         </div>
     </footer>
@@ -355,20 +387,20 @@
             // Initialize UI components with consistent notification system
             try {
                 await dbBookDisplay.updateCartCount();
-                
+
                 // Verify API connectivity on page load
                 if (!api) {
                     throw new Error('API client not loaded');
                 }
-                
+
                 // Test database connection
                 console.log('Testing database connection...');
-                
+
             } catch (error) {
                 console.error('Initialization error:', error);
                 dbBookDisplay.showMessage('Connection error. Please refresh the page.', 'error');
             }
-            
+
             const loginForm = document.getElementById('login-form');
             const signupForm = document.getElementById('signup-form');
             const showSignupLink = document.getElementById('showSignup');
@@ -390,13 +422,13 @@
             // Handle Signup with enhanced API integration and validation
             signupForm?.addEventListener('submit', async function (e) {
                 e.preventDefault();
-                
+
                 // Disable submit button to prevent double submission
                 const submitBtn = this.querySelector('button[type="submit"]');
                 const originalText = submitBtn.textContent;
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Creating Account...';
-                
+
                 try {
                     const firstName = document.getElementById('signupFirstName').value.trim();
                     const middleInitial = document.getElementById('signupMiddleInitial').value.trim();
@@ -407,7 +439,7 @@
                     const termsAccepted = document.getElementById('termsCheckbox').checked;
 
                     // Create username from name components
-                    const username = middleInitial 
+                    const username = middleInitial
                         ? `${firstName} ${middleInitial}. ${lastName}`
                         : `${firstName} ${lastName}`;
 
@@ -472,20 +504,20 @@
                     // Switch to login form
                     document.getElementById('signupForm').classList.add('d-none');
                     document.getElementById('loginForm').classList.remove('d-none');
-                    
+
                     // Show success message
                     dbBookDisplay.showMessage('Account created successfully! Please log in with your new credentials.', 'success');
-                    
+
                     // Clear form
                     signupForm.reset();
                     resetPasswordRequirements();
 
                 } catch (error) {
                     console.error('Registration error:', error);
-                    
+
                     // Handle specific error types
                     let errorMessage = 'Registration failed. Please try again.';
-                    
+
                     if (error.message) {
                         if (error.message.includes('already exists') || error.message.includes('duplicate')) {
                             errorMessage = 'Email already registered. Please use a different email or try logging in.';
@@ -495,7 +527,7 @@
                             errorMessage = 'Invalid data provided. Please check your information.';
                         }
                     }
-                    
+
                     dbBookDisplay.showMessage(errorMessage, 'error');
                 } finally {
                     // Re-enable submit button
@@ -507,32 +539,32 @@
             // Password validation function
             function validatePassword(password) {
                 const errors = [];
-                
+
                 // Length check (minimum 8 characters)
                 if (password.length < 8) {
                     errors.push('at least 8 characters');
                 }
-                
+
                 // Uppercase check
                 if (!/[A-Z]/.test(password)) {
                     errors.push('one uppercase letter');
                 }
-                
+
                 // Lowercase check
                 if (!/[a-z]/.test(password)) {
                     errors.push('one lowercase letter');
                 }
-                
+
                 // Number check
                 if (!/\d/.test(password)) {
                     errors.push('one number');
                 }
-                
+
                 // Special character check
                 if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
                     errors.push('one special character');
                 }
-                
+
                 return {
                     isValid: errors.length === 0,
                     errors: errors
@@ -545,17 +577,17 @@
             const termsCheckbox = document.getElementById('termsCheckbox');
             const submitBtn = document.getElementById('signup-submit-btn');
 
-            passwordInput?.addEventListener('input', function() {
+            passwordInput?.addEventListener('input', function () {
                 const password = this.value;
                 updatePasswordRequirements(password);
                 checkPasswordMatch();
             });
 
-            confirmPasswordInput?.addEventListener('input', function() {
+            confirmPasswordInput?.addEventListener('input', function () {
                 checkPasswordMatch();
             });
 
-            termsCheckbox?.addEventListener('change', function() {
+            termsCheckbox?.addEventListener('change', function () {
                 updateSubmitButton();
             });
 
@@ -623,23 +655,23 @@
                         element.innerHTML = element.innerHTML.replace('✓', '•');
                     }
                 });
-                
+
                 const feedbackDiv = document.querySelector('.password-match-feedback');
                 if (feedbackDiv) {
                     feedbackDiv.innerHTML = '';
                 }
-                
+
                 if (termsCheckbox) {
                     termsCheckbox.checked = false;
                 }
-                
+
                 if (submitBtn) {
                     submitBtn.disabled = true;
                 }
             }
 
             // Add function to show Terms and Conditions - Move this outside of DOMContentLoaded
-            window.showTermsAndConditions = function() {
+            window.showTermsAndConditions = function () {
                 const termsContent = `
                     <div class="terms-content">
                         <h4>Terms and Conditions for Literary Escape</h4>
@@ -738,7 +770,7 @@
                         </div>
                     </div>
                 `;
-                
+
                 // Create a modal to display terms
                 const modal = document.createElement('div');
                 modal.className = 'modal fade';
@@ -763,7 +795,7 @@
                         </div>
                     </div>
                 `;
-                
+
                 // Add custom styles for the modal
                 const style = document.createElement('style');
                 style.textContent = `
@@ -796,62 +828,62 @@
                         overflow-y: auto;
                     }
                 `;
-                
+
                 document.head.appendChild(style);
                 document.body.appendChild(modal);
-                
+
                 const bootstrapModal = new bootstrap.Modal(modal, {
                     backdrop: 'static',
                     keyboard: true
                 });
-                
+
                 // Store original body styles
                 let originalBodyStyle = '';
                 let originalBodyPosition = '';
                 let originalBodyTop = '';
-                
+
                 // Prevent body scroll when modal is shown
                 modal.addEventListener('show.bs.modal', function () {
                     // Store original styles
                     originalBodyStyle = document.body.style.overflow;
                     originalBodyPosition = document.body.style.position;
                     originalBodyTop = document.body.style.top;
-                    
+
                     // Get current scroll position
                     const scrollY = window.scrollY;
-                    
+
                     // Apply styles to prevent scrolling
                     document.body.style.position = 'fixed';
                     document.body.style.top = `-${scrollY}px`;
                     document.body.style.overflow = 'hidden';
                     document.body.style.width = '100%';
                     document.body.classList.add('modal-open');
-                    
+
                     // Prevent touch events on iOS
                     document.addEventListener('touchmove', preventTouchMove, { passive: false });
                 });
-                
+
                 // Re-enable body scroll when modal is hidden
                 modal.addEventListener('hide.bs.modal', function () {
                     // Remove touch event listener
                     document.removeEventListener('touchmove', preventTouchMove);
-                    
+
                     // Get the scroll position from the fixed body
                     const scrollY = document.body.style.top;
-                    
+
                     // Restore original styles
                     document.body.style.position = originalBodyPosition;
                     document.body.style.top = originalBodyTop;
                     document.body.style.overflow = originalBodyStyle;
                     document.body.style.width = '';
                     document.body.classList.remove('modal-open');
-                    
+
                     // Restore scroll position
                     if (scrollY) {
                         window.scrollTo(0, parseInt(scrollY || '0') * -1);
                     }
                 });
-                
+
                 // Function to prevent touch scrolling on mobile
                 function preventTouchMove(e) {
                     // Allow scrolling within the modal
@@ -860,11 +892,11 @@
                     }
                     e.preventDefault();
                 }
-                
+
                 bootstrapModal.show();
-                
+
                 // Remove modal and styles from DOM when hidden
-                modal.addEventListener('hidden.bs.modal', function() {
+                modal.addEventListener('hidden.bs.modal', function () {
                     // Ensure body scroll is completely restored
                     document.removeEventListener('touchmove', preventTouchMove);
                     document.body.classList.remove('modal-open');
@@ -873,26 +905,26 @@
                     document.body.style.overflow = '';
                     document.body.style.width = '';
                     document.body.style.paddingRight = '';
-                    
+
                     modal.remove();
                     style.remove();
                 });
             };
 
             // Function to accept terms from modal
-            window.acceptTermsFromModal = function() {
+            window.acceptTermsFromModal = function () {
                 const termsCheckbox = document.getElementById('termsCheckbox');
                 if (termsCheckbox) {
                     termsCheckbox.checked = true;
                     updateSubmitButton(); // Update submit button state
                 }
-                
+
                 // Close the modal
                 const modal = bootstrap.Modal.getInstance(document.getElementById('termsModal'));
                 if (modal) {
                     modal.hide();
                 }
-                
+
                 // Show confirmation message
                 dbBookDisplay.showMessage('Terms and Conditions accepted', 'success');
             };
@@ -900,13 +932,13 @@
             // Handle Login with enhanced API integration
             loginForm?.addEventListener('submit', async function (e) {
                 e.preventDefault();
-                
+
                 // Disable submit button
                 const submitBtn = this.querySelector('button[type="submit"]');
                 const originalText = submitBtn.textContent;
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Logging In...';
-                
+
                 try {
                     const email = document.getElementById('loginEmail').value.trim();
                     const password = document.getElementById('loginPassword').value;
@@ -926,13 +958,13 @@
                     // Use API for login
                     const response = await api.login(email, password);
                     console.log('Login successful:', response);
-                    
+
                     if (response.token && response.user) {
                         dbBookDisplay.showMessage(`Welcome back, ${response.user.username}!`, 'success');
-                        
+
                         // Update UI to reflect logged-in state
                         await dbBookDisplay.updateCartCount();
-                        
+
                         // Redirect after short delay
                         setTimeout(() => {
                             window.location.href = 'account-dashboard.html';
@@ -943,9 +975,9 @@
 
                 } catch (error) {
                     console.error('Login error:', error);
-                    
+
                     let errorMessage = 'Login failed. Please try again.';
-                    
+
                     if (error.message) {
                         if (error.message.includes('Admin accounts must use the admin login portal')) {
                             errorMessage = 'Admin accounts cannot login here. Please use the admin panel to login.';
@@ -955,7 +987,7 @@
                             errorMessage = 'Network error. Please check your connection and try again.';
                         }
                     }
-                    
+
                     dbBookDisplay.showMessage(errorMessage, 'error');
                 } finally {
                     // Re-enable submit button
@@ -993,7 +1025,7 @@
 
         function updateNavAuth() {
             const userIconLink = document.querySelector('.nav-icons .icon-link:last-child');
-            
+
             if (api.isLoggedIn()) {
                 const user = api.getCurrentUser();
                 if (user && userIconLink) {
@@ -1003,7 +1035,7 @@
                     userIconLink.className = 'navbar-user-avatar';
                     userIconLink.title = `Logged in as ${user.username}`;
                     userIconLink.href = 'account-dashboard.html'; // Update href for logged-in users
-                    
+
                     // Add click handler for dashboard navigation
                     userIconLink.addEventListener('click', (e) => {
                         e.preventDefault();
@@ -1036,7 +1068,7 @@
         let apiClient;
 
         // Initialize search functionality when page loads
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             apiClient = new APIClient();
             initializeSearchDropdown();
         });
@@ -1046,9 +1078,9 @@
             const searchDropdown = document.getElementById('searchDropdown');
 
             // Listen for input events on search bar
-            searchInput.addEventListener('input', function(e) {
+            searchInput.addEventListener('input', function (e) {
                 const query = e.target.value.trim();
-                
+
                 if (query.length >= 2) {
                     currentSearchTerm = query;
                     showSearchDropdown();
@@ -1064,14 +1096,14 @@
             });
 
             // Hide dropdown when clicking outside
-            document.addEventListener('click', function(e) {
+            document.addEventListener('click', function (e) {
                 if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
                     hideSearchDropdown();
                 }
             });
 
             // Handle escape key to close dropdown
-            searchInput.addEventListener('keydown', function(e) {
+            searchInput.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape') {
                     hideSearchDropdown();
                 } else if (e.key === 'ArrowDown') {
@@ -1084,7 +1116,7 @@
             });
 
             // Handle arrow key navigation in search results
-            searchDropdown.addEventListener('keydown', function(e) {
+            searchDropdown.addEventListener('keydown', function (e) {
                 const resultItems = searchDropdown.querySelectorAll('.search-result-item');
                 const currentFocus = document.activeElement;
                 let currentIndex = Array.from(resultItems).indexOf(currentFocus);
@@ -1111,7 +1143,7 @@
 
             // Prevent form submission when dropdown is visible
             const searchForm = searchInput.closest('form');
-            searchForm.addEventListener('submit', function(e) {
+            searchForm.addEventListener('submit', function (e) {
                 if (searchDropdown.classList.contains('show')) {
                     e.preventDefault();
                     return false;
@@ -1146,9 +1178,9 @@
                     if (query !== currentSearchTerm) return;
 
                     const response = await apiClient.getBooks({ search: query });
-                    
+
                     if (query !== currentSearchTerm) return; // Query changed while searching
-                    
+
                     if (response && response.length > 0) {
                         displaySearchResults(response);
                     } else {
@@ -1204,14 +1236,14 @@
         function displaySearchResults(books) {
             const container = document.getElementById('searchResultsContainer');
             document.getElementById('noResultsMessage').classList.remove('show');
-            
+
             container.innerHTML = books.map(book => createSearchResultItem(book)).join('');
         }
 
         function createSearchResultItem(book) {
             const coverImage = book.cover || './media/books/default-cover.jpg';
             const price = book.price ? `₱${parseFloat(book.price).toFixed(2)}` : 'Price not available';
-            
+
             return `
                 <div class="search-result-item" onclick="goToBookDetails('${book.id}')" tabindex="0" role="button" aria-label="View details for ${escapeHtml(book.title)} by ${escapeHtml(book.author)}">
                     <img src="${coverImage}" alt="${book.title}" onerror="this.src='./media/books/default-cover.jpg'">
@@ -1237,7 +1269,7 @@
                 '"': '&quot;',
                 "'": '&#039;'
             };
-            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+            return text.replace(/[&<>"']/g, function (m) { return map[m]; });
         }
     </script>
 
@@ -1245,6 +1277,7 @@
     <script src="js/custom-notifications.js"></script>
     <script src="js/api-client.js"></script>
     <script src="js/navbar-counts.js"></script>
+    <script src="js/navbar-profile.js"></script>
     <script src="js/database-book-display.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

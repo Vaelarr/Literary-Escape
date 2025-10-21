@@ -153,7 +153,32 @@
             <i class="fa-solid fa-cart-shopping"></i>
             <span id="cart-count" class="cart-count">0</span>
           </a>
-          <a href="account.html" class="icon-link" title="Account"><i class="fa-solid fa-user"></i></a>
+          <div class="profile-dropdown-wrapper">
+            <a href="account.html" class="icon-link" id="profileIcon" title="Account">
+              <i class="fa-solid fa-user"></i>
+            </a>
+            <!-- Profile Dropdown (hidden by default) -->
+            <div class="profile-dropdown" id="profileDropdown">
+              <div class="profile-dropdown-header">
+                <div class="user-name" id="dropdownUserName">User Name</div>
+                <div class="user-email" id="dropdownUserEmail">user@email.com</div>
+              </div>
+              <ul class="profile-dropdown-menu">
+                <li>
+                  <a href="account-dashboard.html">
+                    <i class="fa-solid fa-dashboard"></i>
+                    <span>Dashboard</span>
+                  </a>
+                </li>
+                <li>
+                  <button class="logout-btn" id="navbarLogoutBtn">
+                    <i class="fa-solid fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -407,7 +432,7 @@
           await dbBookDisplay.updateCartCount();
         }
         await updateFavoritesCount();
-        updateNavbarAccountLink();
+        // Profile dropdown is initialized by navbar-profile.js
       } catch (error) {
         console.warn('UI component update failed:', error);
       }
@@ -415,31 +440,6 @@
       // Always load discover books regardless of login status
       await displayDiscoverBooks();
     });
-
-    function getInitials(name) {
-      return name.split(' ').map(word => word[0]).join('').toUpperCase().substring(0, 2);
-    }
-
-    function updateNavbarAccountLink() {
-      const accountIcon = document.querySelector('.nav-icons .icon-link:last-child');
-      if (accountIcon && api && api.isLoggedIn && api.isLoggedIn()) {
-        accountIcon.href = 'account-dashboard.html';
-        const user = api.getCurrentUser();
-        if (user) {
-          // Replace the icon with user initials
-          const userInitials = getInitials(user.username);
-          accountIcon.innerHTML = userInitials;
-          accountIcon.className = 'navbar-user-avatar';
-          accountIcon.title = `Logged in as ${user.username}`;
-        }
-      } else if (accountIcon) {
-        // Ensure link goes to login page when not logged in
-        accountIcon.href = 'account.html';
-        accountIcon.innerHTML = '<i class="fa-solid fa-user" style="color: #ffffff;"></i>';
-        accountIcon.className = 'icon-link';
-        accountIcon.title = 'Login or Sign Up';
-      }
-    }
 
     function showVideoContainer() {
       videoContainer.style.display = 'block';
@@ -1147,6 +1147,7 @@
 
   <script src="js/custom-notifications.js"></script>
   <script src="js/api-client.js"></script>
+  <script src="js/navbar-profile.js"></script>
   <script src="js/navbar-counts.js"></script>
   <script src="js/database-book-display.js"></script>
   <!-- Remove conflicting scripts that might interfere with notifications -->

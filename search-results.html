@@ -52,9 +52,10 @@
                 <!-- Search Bar -->
                 <form class="d-flex mx-3" onsubmit="handleSearch(event)">
                     <div class="search-wrapper w-100">
-                        <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search" id="searchInput">
+                        <input class="form-control pr-5" type="search" placeholder="Search" aria-label="Search"
+                            id="searchInput">
                         <button class="btn mx-0" title="search-btn" type="submit"><i class="bi bi-search"></i></button>
-                        
+
                         <!-- Search Dropdown -->
                         <div id="searchDropdown" class="search-dropdown">
                             <div class="search-dropdown-content">
@@ -84,7 +85,31 @@
                         <i class="fa-solid fa-cart-shopping"></i>
                         <span id="cart-count" class="cart-count">0</span>
                     </a>
-                    <a href="account.html" class="icon-link" title="Account"><i class="fa-solid fa-user"></i></a>
+                    <div class="profile-dropdown-wrapper">
+                        <a href="account.html" class="icon-link" id="profileIcon" title="Account">
+                            <i class="fa-solid fa-user"></i>
+                        </a>
+                        <div class="profile-dropdown" id="profileDropdown">
+                            <div class="profile-dropdown-header">
+                                <div class="user-name" id="dropdownUserName">User Name</div>
+                                <div class="user-email" id="dropdownUserEmail">user@email.com</div>
+                            </div>
+                            <ul class="profile-dropdown-menu">
+                                <li>
+                                    <a href="account-dashboard.html">
+                                        <i class="fa-solid fa-dashboard"></i>
+                                        <span>Dashboard</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <button class="logout-btn" id="navbarLogoutBtn">
+                                        <i class="fa-solid fa-sign-out-alt"></i>
+                                        <span>Logout</span>
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -115,7 +140,8 @@
                         <span>LITERARY ESCAPE</span>
                     </div>
                     <p class="footer-description">
-                        Your gateway to endless literary adventures. Discover, explore, and escape into the world of books with our carefully curated collection of fiction, non-fiction, and specialty titles.
+                        Your gateway to endless literary adventures. Discover, explore, and escape into the world of
+                        books with our carefully curated collection of fiction, non-fiction, and specialty titles.
                     </p>
                     <div class="social-links">
                         <a href="https://www.facebook.com/" target="_blank" rel="noopener" aria-label="Facebook">
@@ -132,7 +158,7 @@
                         </a>
                     </div>
                 </div>
-                
+
                 <div class="footer-column">
                     <h4 class="footer-title">Quick Links</h4>
                     <ul class="footer-links">
@@ -143,18 +169,19 @@
                         <li><a href="account.html">My Account</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="footer-column">
                     <h4 class="footer-title">Customer Service</h4>
                     <ul class="footer-links">
                         <li><a href="cart.html">Shopping Cart</a></li>
                         <li><a href="favorites.html">My Favorites</a></li>
                         <li><a href="checkout.html">Checkout</a></li>
-                        <li><a href="#" onclick="showInfo('Contact us at: support@literaryescape.com')">Contact Support</a></li>
+                        <li><a href="#" onclick="showInfo('Contact us at: support@literaryescape.com')">Contact
+                                Support</a></li>
                         <li><a href="#" onclick="showInfo('Shipping: 3-5 business days')">Shipping Info</a></li>
                     </ul>
                 </div>
-                
+
                 <div class="footer-column">
                     <h4 class="footer-title">Contact Info</h4>
                     <ul class="footer-links">
@@ -165,9 +192,10 @@
                     </ul>
                 </div>
             </div>
-            
+
             <div class="footer-bottom">
-                <p>&copy; 2024 Literary Escape. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+                <p>&copy; 2024 Literary Escape. All rights reserved. | <a href="#">Privacy Policy</a> | <a
+                        href="#">Terms of Service</a></p>
             </div>
         </div>
     </footer>
@@ -177,19 +205,19 @@
         async function waitForDependencies() {
             const maxAttempts = 50;
             let attempts = 0;
-            
+
             while (attempts < maxAttempts) {
-                if (typeof dbBookDisplay !== 'undefined' && 
-                    typeof api !== 'undefined' && 
+                if (typeof dbBookDisplay !== 'undefined' &&
+                    typeof api !== 'undefined' &&
                     typeof APIClient !== 'undefined' &&
                     typeof updateFavoritesCount === 'function') {
                     return true;
                 }
-                
+
                 await new Promise(resolve => setTimeout(resolve, 100));
                 attempts++;
             }
-            
+
             console.warn('Some dependencies not loaded after waiting');
             return false;
         }
@@ -199,39 +227,39 @@
             console.log('Waiting for dependencies...');
             await waitForDependencies();
             console.log('Dependencies ready');
-            
+
             // Initialize UI components with error handling
             try {
                 if (typeof dbBookDisplay !== 'undefined' && dbBookDisplay.updateCartCount) {
                     await dbBookDisplay.updateCartCount();
                 }
-                
+
                 // Update favorites count
                 if (typeof updateFavoritesCount === 'function') {
                     await updateFavoritesCount();
                 }
-                
+
                 // Update navbar for logged-in users
                 updateNavbarAccountLink();
             } catch (error) {
                 console.warn('UI component initialization failed:', error);
             }
-            
+
             // Handle search query
             const urlParams = new URLSearchParams(window.location.search);
             const query = urlParams.get('q');
 
             if (query) {
                 document.getElementById('search-query-display').textContent = `Results for: "${query}"`;
-                
+
                 // Show loading state
                 const container = document.querySelector('.results-container');
                 container.innerHTML = '<div class="col-12"><p class="text-center">Searching...</p></div>';
-                
+
                 try {
                     // Try multiple search methods
                     let results = [];
-                    
+
                     // Method 1: Use dbBookDisplay.searchBooks if available
                     if (typeof dbBookDisplay !== 'undefined' && dbBookDisplay.searchBooks) {
                         console.log('Using dbBookDisplay.searchBooks');
@@ -248,7 +276,7 @@
                         const apiClient = new APIClient();
                         results = await apiClient.searchBooks(query);
                     }
-                    
+
                     if (results && results.length > 0) {
                         // Use dbBookDisplay.displayBooks if available, otherwise create simple display
                         if (typeof dbBookDisplay !== 'undefined' && dbBookDisplay.displayBooks) {
@@ -269,7 +297,7 @@
                 }
             } else {
                 document.getElementById('search-query-display').textContent = 'No search query provided';
-                document.querySelector('.results-container').innerHTML = 
+                document.querySelector('.results-container').innerHTML =
                     '<div class="col-12"><p class="text-center">Please enter a search term.</p></div>';
             }
         });
@@ -296,7 +324,7 @@
                     </div>
                 </div>
             `).join('');
-            
+
             container.innerHTML = booksHTML;
         }
 
@@ -331,7 +359,7 @@
         let apiClient;
 
         // Initialize search dropdown after all scripts are loaded
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             setTimeout(() => {
                 if (typeof APIClient !== 'undefined') {
                     apiClient = new APIClient();
@@ -358,9 +386,9 @@
             }
 
             // Listen for input events on search bar
-            searchInput.addEventListener('input', function(e) {
+            searchInput.addEventListener('input', function (e) {
                 const query = e.target.value.trim();
-                
+
                 if (query.length >= 2) {
                     currentSearchTerm = query;
                     showSearchDropdown();
@@ -375,14 +403,14 @@
             });
 
             // Hide dropdown when clicking outside
-            document.addEventListener('click', function(e) {
+            document.addEventListener('click', function (e) {
                 if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
                     hideSearchDropdown();
                 }
             });
 
             // Handle escape key to close dropdown
-            searchInput.addEventListener('keydown', function(e) {
+            searchInput.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape') {
                     hideSearchDropdown();
                 } else if (e.key === 'ArrowDown') {
@@ -395,7 +423,7 @@
             });
 
             // Handle arrow key navigation in search results
-            searchDropdown.addEventListener('keydown', function(e) {
+            searchDropdown.addEventListener('keydown', function (e) {
                 const resultItems = searchDropdown.querySelectorAll('.search-result-item');
                 const currentFocus = document.activeElement;
                 let currentIndex = Array.from(resultItems).indexOf(currentFocus);
@@ -422,7 +450,7 @@
 
             // Prevent form submission when dropdown is visible
             const searchForm = searchInput.closest('form');
-            searchForm.addEventListener('submit', function(e) {
+            searchForm.addEventListener('submit', function (e) {
                 if (searchDropdown.classList.contains('show')) {
                     e.preventDefault();
                     return false;
@@ -453,9 +481,9 @@
                     if (query !== currentSearchTerm) return;
 
                     const response = await apiClient.getBooks({ search: query });
-                    
+
                     if (query !== currentSearchTerm) return;
-                    
+
                     if (response && response.length > 0) {
                         displaySearchResults(response);
                     } else {
@@ -474,7 +502,7 @@
             const loadingEl = document.getElementById('searchLoading');
             const containerEl = document.getElementById('searchResultsContainer');
             const noResultsEl = document.getElementById('noResultsMessage');
-            
+
             if (loadingEl) loadingEl.classList.add('show');
             if (containerEl) containerEl.innerHTML = '';
             if (noResultsEl) noResultsEl.classList.remove('show');
@@ -488,7 +516,7 @@
         function showNoResults() {
             const noResultsEl = document.getElementById('noResultsMessage');
             const containerEl = document.getElementById('searchResultsContainer');
-            
+
             if (noResultsEl) noResultsEl.classList.add('show');
             if (containerEl) containerEl.innerHTML = '';
         }
@@ -496,7 +524,7 @@
         function showTypeMoreMessage() {
             const container = document.getElementById('searchResultsContainer');
             const noResultsEl = document.getElementById('noResultsMessage');
-            
+
             if (container) {
                 container.innerHTML = `
                     <div class="type-more-message">
@@ -512,7 +540,7 @@
         function showSearchError() {
             const container = document.getElementById('searchResultsContainer');
             const noResultsEl = document.getElementById('noResultsMessage');
-            
+
             if (container) {
                 container.innerHTML = `
                     <div class="alert alert-danger m-2" role="alert">
@@ -527,7 +555,7 @@
         function displaySearchResults(books) {
             const container = document.getElementById('searchResultsContainer');
             const noResultsEl = document.getElementById('noResultsMessage');
-            
+
             if (noResultsEl) noResultsEl.classList.remove('show');
             if (container) {
                 container.innerHTML = books.map(book => createSearchResultItem(book)).join('');
@@ -537,7 +565,7 @@
         function createSearchResultItem(book) {
             const coverImage = book.cover || './media/books/default-cover.jpg';
             const price = book.price ? `₱${parseFloat(book.price).toFixed(2)}` : 'Price not available';
-            
+
             return `
                 <div class="search-result-item" onclick="goToBookDetails('${book.id}')" tabindex="0" role="button" aria-label="View details for ${escapeHtml(book.title)} by ${escapeHtml(book.author)}">
                     <img src="${coverImage}" alt="${book.title}" onerror="this.src='./media/books/default-cover.jpg'">
@@ -563,7 +591,7 @@
                 '"': '&quot;',
                 "'": '&#039;'
             };
-            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+            return text.replace(/[&<>"']/g, function (m) { return map[m]; });
         }
 
         // Handle search
@@ -581,6 +609,7 @@
     <script src="api.js"></script>
     <script src="database.js"></script>
     <script src="js/navbar-counts.js"></script>
+    <script src="js/navbar-profile.js"></script>
     <script src="js/database-book-display.js"></script>
     <!-- Remove conflicting scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
