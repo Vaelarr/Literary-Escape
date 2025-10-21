@@ -363,6 +363,23 @@ function runMigrations(callback) {
         } else {
             console.log('Orders table migration completed - archived column ready');
         }
+    });
+
+    // Fix reviews table - ensure review_text and reviewer_name columns exist
+    db.run("ALTER TABLE reviews ADD COLUMN review_text TEXT NOT NULL DEFAULT ''", (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+            console.error('Error adding review_text column to reviews:', err);
+        } else if (!err) {
+            console.log('Reviews table migration completed - review_text column added');
+        }
+    });
+
+    db.run("ALTER TABLE reviews ADD COLUMN reviewer_name TEXT NOT NULL DEFAULT ''", (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+            console.error('Error adding reviewer_name column to reviews:', err);
+        } else if (!err) {
+            console.log('Reviews table migration completed - reviewer_name column added');
+        }
         
         // Create admin account after all migrations
         createAdminAccount(() => {

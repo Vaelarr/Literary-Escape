@@ -1120,10 +1120,12 @@
                     return;
                 }
 
+                // Get submit button and original text before try block
+                const submitBtn = reviewForm.querySelector('button[type="submit"]');
+                const originalText = submitBtn.textContent;
+
                 try {
                     // Disable submit button during submission
-                    const submitBtn = reviewForm.querySelector('button[type="submit"]');
-                    const originalText = submitBtn.textContent;
                     submitBtn.disabled = true;
                     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Submitting...';
 
@@ -1158,7 +1160,6 @@
                     showError('Failed to submit review: ' + error.message);
                 } finally {
                     // Re-enable submit button
-                    const submitBtn = reviewForm.querySelector('button[type="submit"]');
                     submitBtn.disabled = false;
                     submitBtn.textContent = originalText;
                 }
