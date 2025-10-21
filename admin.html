@@ -1597,10 +1597,21 @@
         async function loadDashboardUsers() {
             try {
                 console.log('📊 Loading dashboard users...');
-                const allUsers = await api.adminListUsers();
+                const response = await api.adminListUsers();
                 
-                if (!allUsers) {
+                if (!response) {
                     throw new Error('Failed to load users for dashboard');
+                }
+                
+                // Handle response - it might be an array directly or an object with users property
+                let allUsers;
+                if (Array.isArray(response)) {
+                    allUsers = response;
+                } else if (response.users && Array.isArray(response.users)) {
+                    allUsers = response.users;
+                } else {
+                    console.warn('⚠️ Unexpected users response format:', response);
+                    throw new Error('Invalid users response format');
                 }
                 
                 // Filter to only show users with role 'user' (exclude admin accounts)
@@ -1609,6 +1620,11 @@
                 );
                 
                 const tbody = document.getElementById('userAccountsTable');
+                if (!tbody) {
+                    console.warn('⚠️ userAccountsTable element not found');
+                    return;
+                }
+                
                 if (!regularUsers || regularUsers.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">No regular users registered</td></tr>';
                     return;
@@ -1646,7 +1662,9 @@
             } catch (error) {
                 console.error('❌ Error loading dashboard users:', error);
                 const tbody = document.getElementById('userAccountsTable');
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">Failed to load users</td></tr>';
+                if (tbody) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">Failed to load users</td></tr>';
+                }
             }
         }
 
@@ -3102,8 +3120,15 @@
         // Update book sales statistics (legacy function - kept for compatibility)
         async function updateBookSales() {
             try {
+                const revenueElement = document.getElementById('totalRevenue');
+                
+                if (!revenueElement) {
+                    console.warn('⚠️ totalRevenue element not found, skipping update');
+                    return;
+                }
+                
                 if (!allOrders || allOrders.length === 0) {
-                    document.getElementById('bookSells').textContent = '₱0.00';
+                    revenueElement.textContent = '₱0.00';
                     return;
                 }
 
@@ -3127,11 +3152,14 @@
                     validStatuses: validSalesStatuses
                 });
                 
-                document.getElementById('bookSells').textContent = `₱${formatPrice(totalRevenue)}`;
+                revenueElement.textContent = `₱${formatPrice(totalRevenue)}`;
                 
             } catch (error) {
                 console.error('❌ Error updating book sales:', error);
-                document.getElementById('bookSells').textContent = '₱0.00';
+                const revenueElement = document.getElementById('totalRevenue');
+                if (revenueElement) {
+                    revenueElement.textContent = '₱0.00';
+                }
             }
         }
 
@@ -3532,6 +3560,17 @@
         // Load vouchers from API
         async function loadVouchersFromAPI(page = 1) {
             try {
+                // Check if API client is available
+                if (typeof window.api === 'undefined' || !window.api) {
+                    throw new Error('API client not available');
+                }
+                
+                // Check if the method exists
+                if (typeof window.api.adminGetVouchers !== 'function') {
+                    throw new Error('adminGetVouchers method not found in API client');
+                }
+                
+                console.log(`📋 Loading vouchers - Page: ${page}`);
                 const response = await api.adminGetVouchers(page, ITEMS_PER_PAGE);
                 
                 if (response && response.vouchers) {
@@ -3546,10 +3585,13 @@
                     throw new Error('Invalid response format');
                 }
             } catch (error) {
-                console.error('Error loading vouchers:', error);
-                document.getElementById('vouchersTable').innerHTML = `
-                    <tr><td colspan="11" style="text-align: center; color: rgba(255,255,255,0.5);">Error loading vouchers. ${error.message}</td></tr>
-                `;
+                console.error('❌ Error loading vouchers:', error);
+                const vouchersTable = document.getElementById('vouchersTable');
+                if (vouchersTable) {
+                    vouchersTable.innerHTML = `
+                        <tr><td colspan="11" style="text-align: center; color: rgba(255,255,255,0.5);">Error loading vouchers: ${error.message}</td></tr>
+                    `;
+                }
             }
         }
         
