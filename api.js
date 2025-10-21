@@ -14,6 +14,7 @@ const {
     reviewsOperations,
     adminOperations,
     archiveOperations,
+    voucherOperations,
     initializeDatabase 
 } = require('./database-config');
 
@@ -1289,59 +1290,126 @@ app.get('/api/test-db', async (req, res) => {
     }
 });
 
-// Voucher validation endpoint
+// Voucher validation endpoint (public - used in checkout)
 app.post('/api/vouchers/validate', (req, res) => {
-    const { code } = req.body;
+    const { code, orderAmount } = req.body;
     
     if (!code) {
         return res.status(400).json({ error: 'Voucher code is required' });
     }
     
-    // Mock voucher system - in production, this would query a vouchers table
-    const validVouchers = {
-        'SAVE10': { 
-            valid: true, 
-            discountAmount: 10, 
-            description: '₱10 off your order',
-            type: 'fixed',
-            minOrder: 0
-        },
-        'SAVE50': { 
-            valid: true, 
-            discountAmount: 50, 
-            description: '₱50 off your order',
-            type: 'fixed',
-            minOrder: 200
-        },
-        'NEWUSER': { 
-            valid: true, 
-            discountAmount: 25, 
-            description: '₱25 off for new users',
-            type: 'fixed',
-            minOrder: 100
-        },
-        'PERCENT10': { 
-            valid: true, 
-            discountAmount: 10, 
-            description: '10% off your order',
-            type: 'percentage',
-            minOrder: 150
-        },
-        'FREESHIP': { 
-            valid: true, 
-            discountAmount: 0, 
-            description: 'Free shipping',
-            type: 'freeshipping',
-            minOrder: 0
-        }
+    voucherOperations.validate(code, orderAmount || 0, (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(result);
+    });
+});
+
+// Admin Voucher CRUD Operations
+// Get all vouchers
+app.get('/api/admin/vouchers', authenticateAdmin, (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    
+    voucherOperations.getAll(page, limit, (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(result);
+    });
+});
+
+// Get single voucher by ID
+app.get('/api/admin/vouchers/:id', authenticateAdmin, (req, res) => {
+    const voucherId = parseInt(req.params.id);
+    
+    if (isNaN(voucherId)) {
+        return res.status(400).json({ error: 'Invalid voucher ID' });
+    }
+    
+    voucherOperations.getById(voucherId, (err, voucher) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (!voucher) return res.status(404).json({ error: 'Voucher not found' });
+        res.json(voucher);
+    });
+});
+
+// Create new voucher
+app.post('/api/admin/vouchers', authenticateAdmin, (req, res) => {
+    const voucherData = {
+        code: req.body.code,
+        discount_type: req.body.discount_type,
+        discount_value: parseFloat(req.body.discount_value),
+        min_purchase: parseFloat(req.body.min_purchase) || 0,
+        max_discount: req.body.max_discount ? parseFloat(req.body.max_discount) : null,
+        usage_limit: req.body.usage_limit ? parseInt(req.body.usage_limit) : null,
+        per_user_limit: parseInt(req.body.per_user_limit) || 1,
+        valid_from: req.body.valid_from,
+        valid_until: req.body.valid_until,
+        status: req.body.status || 'active',
+        description: req.body.description || null
     };
     
-    const voucher = validVouchers[code.toUpperCase()];
-    if (voucher) {
-        res.json(voucher);
-    } else {
-        res.json({ valid: false, message: 'Invalid voucher code' });
+    // Validate required fields
+    if (!voucherData.code || !voucherData.discount_type || !voucherData.discount_value || 
+        !voucherData.valid_from || !voucherData.valid_until) {
+        return res.status(400).json({ error: 'Missing required fields' });
     }
+    
+    voucherOperations.create(voucherData, function(err) {
+        if (err) {
+            if (err.message && err.message.includes('UNIQUE')) {
+                return res.status(400).json({ error: 'Voucher code already exists' });
+            }
+            return res.status(500).json({ error: err.message });
+        }
+        res.status(201).json({ success: true, message: 'Voucher created successfully', id: this.lastID });
+    });
+});
+
+// Update voucher
+app.put('/api/admin/vouchers/:id', authenticateAdmin, (req, res) => {
+    const voucherId = parseInt(req.params.id);
+    
+    if (isNaN(voucherId)) {
+        return res.status(400).json({ error: 'Invalid voucher ID' });
+    }
+    
+    const voucherData = {
+        code: req.body.code,
+        discount_type: req.body.discount_type,
+        discount_value: parseFloat(req.body.discount_value),
+        min_purchase: parseFloat(req.body.min_purchase) || 0,
+        max_discount: req.body.max_discount ? parseFloat(req.body.max_discount) : null,
+        usage_limit: req.body.usage_limit ? parseInt(req.body.usage_limit) : null,
+        per_user_limit: parseInt(req.body.per_user_limit) || 1,
+        valid_from: req.body.valid_from,
+        valid_until: req.body.valid_until,
+        status: req.body.status || 'active',
+        description: req.body.description || null
+    };
+    
+    voucherOperations.update(voucherId, voucherData, (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (result && result.changes === 0) {
+            return res.status(404).json({ error: 'Voucher not found' });
+        }
+        res.json({ success: true, message: 'Voucher updated successfully' });
+    });
+});
+
+// Delete voucher
+app.delete('/api/admin/vouchers/:id', authenticateAdmin, (req, res) => {
+    const voucherId = parseInt(req.params.id);
+    
+    if (isNaN(voucherId)) {
+        return res.status(400).json({ error: 'Invalid voucher ID' });
+    }
+    
+    voucherOperations.delete(voucherId, (err, result) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (result && result.changes === 0) {
+            return res.status(404).json({ error: 'Voucher not found' });
+        }
+        res.json({ success: true, message: 'Voucher deleted successfully' });
+    });
 });
 
 // Debug endpoint to check current authentication state

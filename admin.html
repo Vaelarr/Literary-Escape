@@ -3532,24 +3532,23 @@
         // Load vouchers from API
         async function loadVouchersFromAPI(page = 1) {
             try {
-                const response = await window.api.get('/vouchers', {
-                    page: page,
-                    limit: ITEMS_PER_PAGE
-                });
+                const response = await api.adminGetVouchers(page, ITEMS_PER_PAGE);
                 
-                if (response && response.data) {
-                    allVouchers = response.data.vouchers || [];
-                    totalVouchersItems = response.data.total || 0;
-                    totalVouchersPages = Math.ceil(totalVouchersItems / ITEMS_PER_PAGE) || 1;
+                if (response && response.vouchers) {
+                    allVouchers = response.vouchers || [];
+                    totalVouchersItems = response.pagination?.totalItems || 0;
+                    totalVouchersPages = response.pagination?.totalPages || 1;
                     currentVouchersPage = page;
                     
                     displayVouchers();
                     updateVouchersPagination();
+                } else {
+                    throw new Error('Invalid response format');
                 }
             } catch (error) {
                 console.error('Error loading vouchers:', error);
                 document.getElementById('vouchersTable').innerHTML = `
-                    <tr><td colspan="11" style="text-align: center; color: rgba(255,255,255,0.5);">Not yet implemented.</td></tr>
+                    <tr><td colspan="11" style="text-align: center; color: rgba(255,255,255,0.5);">Error loading vouchers. ${error.message}</td></tr>
                 `;
             }
         }
@@ -3564,10 +3563,10 @@
                 return;
             }
             
-            const vouchersHTML = allVouchers.map(voucher => {
+                const vouchersHTML = allVouchers.map(voucher => {
                 const now = new Date();
-                const validFrom = new Date(voucher.validFrom);
-                const validUntil = new Date(voucher.validUntil);
+                const validFrom = new Date(voucher.valid_from);
+                const validUntil = new Date(voucher.valid_until);
                 
                 let statusBadge = '';
                 if (voucher.status === 'inactive') {
@@ -3576,45 +3575,43 @@
                     statusBadge = '<span class="badge bg-info">Scheduled</span>';
                 } else if (now > validUntil) {
                     statusBadge = '<span class="badge bg-danger">Expired</span>';
-                } else if (voucher.usageLimit && voucher.usedCount >= voucher.usageLimit) {
+                } else if (voucher.usage_limit && voucher.used_count >= voucher.usage_limit) {
                     statusBadge = '<span class="badge bg-warning">Limit Reached</span>';
                 } else {
                     statusBadge = '<span class="badge bg-success">Active</span>';
                 }
                 
-                const discountDisplay = voucher.discountType === 'percentage' 
-                    ? `${voucher.discountValue}%` 
-                    : `₱${parseFloat(voucher.discountValue).toFixed(2)}`;
+                const discountDisplay = voucher.discount_type === 'percentage' 
+                    ? `${voucher.discount_value}%` 
+                    : `₱${parseFloat(voucher.discount_value).toFixed(2)}`;
                 
-                const usageDisplay = voucher.usageLimit 
-                    ? `${voucher.usedCount || 0} / ${voucher.usageLimit}`
-                    : `${voucher.usedCount || 0} / ∞`;
+                const usageDisplay = voucher.usage_limit 
+                    ? `${voucher.used_count || 0} / ${voucher.usage_limit}`
+                    : `${voucher.used_count || 0} / ∞`;
                 
                 return `
                     <tr>
                         <td><strong>${voucher.code}</strong></td>
-                        <td>${voucher.discountType === 'percentage' ? 'Percentage' : 'Fixed Amount'}</td>
+                        <td>${voucher.discount_type === 'percentage' ? 'Percentage' : 'Fixed Amount'}</td>
                         <td>${discountDisplay}</td>
-                        <td>₱${parseFloat(voucher.minPurchase || 0).toFixed(2)}</td>
-                        <td>${voucher.maxDiscount ? '₱' + parseFloat(voucher.maxDiscount).toFixed(2) : '-'}</td>
-                        <td>${voucher.usageLimit || 'Unlimited'}</td>
-                        <td>${voucher.usedCount || 0}</td>
-                        <td>${new Date(voucher.validFrom).toLocaleDateString()}</td>
-                        <td>${new Date(voucher.validUntil).toLocaleDateString()}</td>
+                        <td>₱${parseFloat(voucher.min_purchase || 0).toFixed(2)}</td>
+                        <td>${voucher.max_discount ? '₱' + parseFloat(voucher.max_discount).toFixed(2) : '-'}</td>
+                        <td>${voucher.usage_limit || 'Unlimited'}</td>
+                        <td>${voucher.used_count || 0}</td>
+                        <td>${new Date(voucher.valid_from).toLocaleDateString()}</td>
+                        <td>${new Date(voucher.valid_until).toLocaleDateString()}</td>
                         <td>${statusBadge}</td>
                         <td>
-                            <button class="btn-edit" onclick="editVoucher('${voucher._id}')" title="Edit">
+                            <button class="btn-edit" onclick="editVoucher(${voucher.id})" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn-delete" onclick="deleteVoucher('${voucher._id}', '${voucher.code}')" title="Delete">
+                            <button class="btn-delete" onclick="deleteVoucher(${voucher.id}, '${voucher.code}')" title="Delete">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </td>
                     </tr>
                 `;
-            }).join('');
-            
-            tbody.innerHTML = vouchersHTML;
+            }).join('');            tbody.innerHTML = vouchersHTML;
             
             const start = (currentVouchersPage - 1) * ITEMS_PER_PAGE + 1;
             const end = Math.min(start + allVouchers.length - 1, totalVouchersItems);
@@ -3729,24 +3726,24 @@
         // Edit voucher
         async function editVoucher(voucherId) {
             try {
-                const response = await window.api.get(`/vouchers/${voucherId}`);
+                const response = await api.adminGetVoucher(voucherId);
                 
-                if (response && response.data) {
-                    const voucher = response.data;
+                if (response) {
+                    const voucher = response;
                     
                     // Fill form
-                    document.getElementById('voucherId').value = voucher._id;
+                    document.getElementById('voucherId').value = voucher.id;
                     document.getElementById('voucherCode').value = voucher.code;
-                    document.getElementById('voucherDiscountType').value = voucher.discountType;
-                    document.getElementById('voucherDiscountValue').value = voucher.discountValue;
-                    document.getElementById('voucherMinPurchase').value = voucher.minPurchase || 0;
-                    document.getElementById('voucherMaxDiscount').value = voucher.maxDiscount || '';
-                    document.getElementById('voucherUsageLimit').value = voucher.usageLimit || '';
-                    document.getElementById('voucherPerUserLimit').value = voucher.perUserLimit || 1;
+                    document.getElementById('voucherDiscountType').value = voucher.discount_type;
+                    document.getElementById('voucherDiscountValue').value = voucher.discount_value;
+                    document.getElementById('voucherMinPurchase').value = voucher.min_purchase || 0;
+                    document.getElementById('voucherMaxDiscount').value = voucher.max_discount || '';
+                    document.getElementById('voucherUsageLimit').value = voucher.usage_limit || '';
+                    document.getElementById('voucherPerUserLimit').value = voucher.per_user_limit || 1;
                     
                     // Format dates for datetime-local input
-                    const validFrom = new Date(voucher.validFrom);
-                    const validUntil = new Date(voucher.validUntil);
+                    const validFrom = new Date(voucher.valid_from);
+                    const validUntil = new Date(voucher.valid_until);
                     document.getElementById('voucherValidFrom').value = formatDateTimeLocal(validFrom);
                     document.getElementById('voucherValidUntil').value = formatDateTimeLocal(validUntil);
                     
@@ -3773,7 +3770,7 @@
             }
             
             try {
-                const response = await window.api.delete(`/vouchers/${voucherId}`);
+                const response = await api.adminDeleteVoucher(voucherId);
                 
                 if (response && response.success) {
                     alert('Voucher deleted successfully!');

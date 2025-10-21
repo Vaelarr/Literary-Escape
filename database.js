@@ -191,6 +191,26 @@ function initializeDatabase(callback) {
         )
     `;
 
+    const createVouchersTable = `
+        CREATE TABLE IF NOT EXISTS vouchers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            code TEXT UNIQUE NOT NULL,
+            discount_type TEXT NOT NULL CHECK (discount_type IN ('percentage', 'fixed')),
+            discount_value REAL NOT NULL,
+            min_purchase REAL DEFAULT 0,
+            max_discount REAL,
+            usage_limit INTEGER,
+            used_count INTEGER DEFAULT 0,
+            per_user_limit INTEGER DEFAULT 1,
+            valid_from DATETIME NOT NULL,
+            valid_until DATETIME NOT NULL,
+            status TEXT DEFAULT 'active' CHECK (status IN ('active', 'inactive')),
+            description TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `;
+
     // Execute table creation in sequence with progress logging
     db.serialize(() => {
         console.log('Creating books table...');
@@ -245,9 +265,18 @@ function initializeDatabase(callback) {
         db.run(createReviewsTable, (err) => {
             if (err) {
                 console.error('Error creating reviews table:', err.message);
-                if (callback) callback(err);
             } else {
                 console.log('Reviews table created/verified');
+            }
+        });
+        
+        console.log('Creating vouchers table...');
+        db.run(createVouchersTable, (err) => {
+            if (err) {
+                console.error('Error creating vouchers table:', err.message);
+                if (callback) callback(err);
+            } else {
+                console.log('Vouchers table created/verified');
                 
                 // Run migrations to add new columns
                 runMigrations(() => {
@@ -1599,6 +1628,214 @@ const archiveOperations = {
     }
 };
 
+// Voucher CRUD operations
+const voucherOperations = {
+    // Get all vouchers with pagination
+    getAll: (page = 1, limit = 10, callback) => {
+        const offset = (page - 1) * limit;
+        const query = `
+            SELECT * FROM vouchers
+            ORDER BY created_at DESC
+            LIMIT ? OFFSET ?
+        `;
+        db.all(query, [limit, offset], (err, vouchers) => {
+            if (err) {
+                callback(err);
+                return;
+            }
+            
+            // Get total count
+            db.get('SELECT COUNT(*) as total FROM vouchers', [], (countErr, countResult) => {
+                if (countErr) {
+                    callback(countErr);
+                    return;
+                }
+                
+                callback(null, {
+                    vouchers: vouchers,
+                    pagination: {
+                        currentPage: page,
+                        totalItems: countResult.total,
+                        totalPages: Math.ceil(countResult.total / limit),
+                        itemsPerPage: limit
+                    }
+                });
+            });
+        });
+    },
+
+    // Get voucher by ID
+    getById: (id, callback) => {
+        db.get('SELECT * FROM vouchers WHERE id = ?', [id], callback);
+    },
+
+    // Get voucher by code
+    getByCode: (code, callback) => {
+        db.get('SELECT * FROM vouchers WHERE code = ? AND status = ?', [code.toUpperCase(), 'active'], callback);
+    },
+
+    // Create new voucher
+    create: (voucherData, callback) => {
+        const {
+            code,
+            discount_type,
+            discount_value,
+            min_purchase = 0,
+            max_discount = null,
+            usage_limit = null,
+            per_user_limit = 1,
+            valid_from,
+            valid_until,
+            status = 'active',
+            description = null
+        } = voucherData;
+
+        const query = `
+            INSERT INTO vouchers (
+                code, discount_type, discount_value, min_purchase, max_discount,
+                usage_limit, per_user_limit, valid_from, valid_until, status, description
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+
+        db.run(
+            query,
+            [
+                code.toUpperCase(),
+                discount_type,
+                discount_value,
+                min_purchase,
+                max_discount,
+                usage_limit,
+                per_user_limit,
+                valid_from,
+                valid_until,
+                status,
+                description
+            ],
+            callback
+        );
+    },
+
+    // Update voucher
+    update: (id, voucherData, callback) => {
+        const {
+            code,
+            discount_type,
+            discount_value,
+            min_purchase,
+            max_discount,
+            usage_limit,
+            per_user_limit,
+            valid_from,
+            valid_until,
+            status,
+            description
+        } = voucherData;
+
+        const query = `
+            UPDATE vouchers 
+            SET code = ?,
+                discount_type = ?,
+                discount_value = ?,
+                min_purchase = ?,
+                max_discount = ?,
+                usage_limit = ?,
+                per_user_limit = ?,
+                valid_from = ?,
+                valid_until = ?,
+                status = ?,
+                description = ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        `;
+
+        db.run(
+            query,
+            [
+                code.toUpperCase(),
+                discount_type,
+                discount_value,
+                min_purchase,
+                max_discount,
+                usage_limit,
+                per_user_limit,
+                valid_from,
+                valid_until,
+                status,
+                description,
+                id
+            ],
+            callback
+        );
+    },
+
+    // Delete voucher
+    delete: (id, callback) => {
+        db.run('DELETE FROM vouchers WHERE id = ?', [id], callback);
+    },
+
+    // Validate and apply voucher
+    validate: (code, orderAmount, callback) => {
+        const query = `
+            SELECT * FROM vouchers 
+            WHERE code = ? 
+            AND status = 'active'
+            AND datetime('now') BETWEEN valid_from AND valid_until
+        `;
+
+        db.get(query, [code.toUpperCase()], (err, voucher) => {
+            if (err) {
+                callback(err);
+                return;
+            }
+
+            if (!voucher) {
+                callback(null, { valid: false, message: 'Invalid or expired voucher code' });
+                return;
+            }
+
+            // Check if order meets minimum purchase requirement
+            if (orderAmount < voucher.min_purchase) {
+                callback(null, {
+                    valid: false,
+                    message: `Minimum purchase of ₱${voucher.min_purchase.toFixed(2)} required`
+                });
+                return;
+            }
+
+            // Check usage limit
+            if (voucher.usage_limit && voucher.used_count >= voucher.usage_limit) {
+                callback(null, { valid: false, message: 'Voucher usage limit reached' });
+                return;
+            }
+
+            // Calculate discount
+            let discountAmount = 0;
+            if (voucher.discount_type === 'percentage') {
+                discountAmount = (orderAmount * voucher.discount_value) / 100;
+                if (voucher.max_discount && discountAmount > voucher.max_discount) {
+                    discountAmount = voucher.max_discount;
+                }
+            } else {
+                discountAmount = voucher.discount_value;
+            }
+
+            callback(null, {
+                valid: true,
+                voucher: voucher,
+                discountAmount: discountAmount,
+                description: voucher.description || `${voucher.discount_type === 'percentage' ? voucher.discount_value + '%' : '₱' + voucher.discount_value} off`
+            });
+        });
+    },
+
+    // Increment usage count
+    incrementUsage: (id, callback) => {
+        const query = 'UPDATE vouchers SET used_count = used_count + 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?';
+        db.run(query, [id], callback);
+    }
+};
+
 module.exports = {
     db,
     initializeDatabase,
@@ -1610,6 +1847,7 @@ module.exports = {
     reviewsOperations,
     adminOperations,
     archiveOperations,
+    voucherOperations,
     checkDatabaseHealth,
     bulkInsertBooks
 };

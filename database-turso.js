@@ -214,6 +214,27 @@ async function initializeDatabase(callback) {
             )
         `);
 
+        // Create vouchers table
+        await query(`
+            CREATE TABLE IF NOT EXISTS vouchers (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                code TEXT UNIQUE NOT NULL,
+                discount_type TEXT NOT NULL CHECK (discount_type IN ('percentage', 'fixed')),
+                discount_value REAL NOT NULL,
+                min_purchase REAL DEFAULT 0,
+                max_discount REAL,
+                usage_limit INTEGER,
+                used_count INTEGER DEFAULT 0,
+                per_user_limit INTEGER DEFAULT 1,
+                valid_from DATETIME NOT NULL,
+                valid_until DATETIME NOT NULL,
+                status TEXT DEFAULT 'active' CHECK (status IN ('active', 'inactive')),
+                description TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
         // Create archived_books table
         await query(`
             CREATE TABLE IF NOT EXISTS archived_books (
@@ -248,6 +269,8 @@ async function initializeDatabase(callback) {
         await query('CREATE INDEX IF NOT EXISTS idx_favorites_user_id ON favorites(user_id)');
         await query('CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders(user_id)');
         await query('CREATE INDEX IF NOT EXISTS idx_reviews_book_id ON reviews(book_id)');
+        await query('CREATE INDEX IF NOT EXISTS idx_vouchers_code ON vouchers(code)');
+        await query('CREATE INDEX IF NOT EXISTS idx_vouchers_status ON vouchers(status)');
 
         // Migration: Add missing columns to existing tables
         try {
@@ -1905,6 +1928,234 @@ const archiveOperations = {
     }
 };
 
+// Voucher CRUD operations for Turso
+const voucherOperations = {
+    // Get all vouchers with pagination
+    getAll: async (page = 1, limit = 10, callback) => {
+        try {
+            const offset = (page - 1) * limit;
+            
+            const countQuery = 'SELECT COUNT(*) as total FROM vouchers';
+            const dataQuery = 'SELECT * FROM vouchers ORDER BY created_at DESC LIMIT ? OFFSET ?';
+            
+            const [countResult, vouchersResult] = await Promise.all([
+                query(countQuery),
+                query(dataQuery, [limit, offset])
+            ]);
+            
+            const total = countResult.rows[0].total;
+            const totalPages = Math.ceil(total / limit);
+            
+            callback(null, {
+                vouchers: vouchersResult.rows,
+                pagination: {
+                    currentPage: page,
+                    totalPages: totalPages,
+                    totalItems: total,
+                    itemsPerPage: limit
+                }
+            });
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Get voucher by ID
+    getById: async (id, callback) => {
+        try {
+            const result = await query('SELECT * FROM vouchers WHERE id = ?', [id]);
+            callback(null, result.rows[0] || null);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Get voucher by code
+    getByCode: async (code, callback) => {
+        try {
+            const result = await query('SELECT * FROM vouchers WHERE code = ? AND status = ?', [code.toUpperCase(), 'active']);
+            callback(null, result.rows[0] || null);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Create new voucher
+    create: async (voucherData, callback) => {
+        try {
+            const {
+                code,
+                discount_type,
+                discount_value,
+                min_purchase = 0,
+                max_discount = null,
+                usage_limit = null,
+                per_user_limit = 1,
+                valid_from,
+                valid_until,
+                status = 'active',
+                description = null
+            } = voucherData;
+
+            const result = await query(
+                `INSERT INTO vouchers (
+                    code, discount_type, discount_value, min_purchase, max_discount,
+                    usage_limit, per_user_limit, valid_from, valid_until, status, description
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [
+                    code.toUpperCase(),
+                    discount_type,
+                    discount_value,
+                    min_purchase,
+                    max_discount,
+                    usage_limit,
+                    per_user_limit,
+                    valid_from,
+                    valid_until,
+                    status,
+                    description
+                ]
+            );
+
+            callback.call({ lastID: result.lastInsertRowid }, null);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Update voucher
+    update: async (id, voucherData, callback) => {
+        try {
+            const {
+                code,
+                discount_type,
+                discount_value,
+                min_purchase,
+                max_discount,
+                usage_limit,
+                per_user_limit,
+                valid_from,
+                valid_until,
+                status,
+                description
+            } = voucherData;
+
+            const result = await query(
+                `UPDATE vouchers 
+                SET code = ?,
+                    discount_type = ?,
+                    discount_value = ?,
+                    min_purchase = ?,
+                    max_discount = ?,
+                    usage_limit = ?,
+                    per_user_limit = ?,
+                    valid_from = ?,
+                    valid_until = ?,
+                    status = ?,
+                    description = ?,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?`,
+                [
+                    code.toUpperCase(),
+                    discount_type,
+                    discount_value,
+                    min_purchase,
+                    max_discount,
+                    usage_limit,
+                    per_user_limit,
+                    valid_from,
+                    valid_until,
+                    status,
+                    description,
+                    id
+                ]
+            );
+
+            callback(null, { changes: result.rowsAffected });
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Delete voucher
+    delete: async (id, callback) => {
+        try {
+            const result = await query('DELETE FROM vouchers WHERE id = ?', [id]);
+            callback(null, { changes: result.rowsAffected });
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Validate and apply voucher
+    validate: async (code, orderAmount, callback) => {
+        try {
+            const result = await query(
+                `SELECT * FROM vouchers 
+                WHERE code = ? 
+                AND status = 'active'
+                AND datetime('now') BETWEEN valid_from AND valid_until`,
+                [code.toUpperCase()]
+            );
+
+            const voucher = result.rows[0];
+
+            if (!voucher) {
+                callback(null, { valid: false, message: 'Invalid or expired voucher code' });
+                return;
+            }
+
+            // Check if order meets minimum purchase requirement
+            if (orderAmount < voucher.min_purchase) {
+                callback(null, {
+                    valid: false,
+                    message: `Minimum purchase of ₱${voucher.min_purchase.toFixed(2)} required`
+                });
+                return;
+            }
+
+            // Check usage limit
+            if (voucher.usage_limit && voucher.used_count >= voucher.usage_limit) {
+                callback(null, { valid: false, message: 'Voucher usage limit reached' });
+                return;
+            }
+
+            // Calculate discount
+            let discountAmount = 0;
+            if (voucher.discount_type === 'percentage') {
+                discountAmount = (orderAmount * voucher.discount_value) / 100;
+                if (voucher.max_discount && discountAmount > voucher.max_discount) {
+                    discountAmount = voucher.max_discount;
+                }
+            } else {
+                discountAmount = voucher.discount_value;
+            }
+
+            callback(null, {
+                valid: true,
+                voucher: voucher,
+                discountAmount: discountAmount,
+                description: voucher.description || `${voucher.discount_type === 'percentage' ? voucher.discount_value + '%' : '₱' + voucher.discount_value} off`
+            });
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Increment usage count
+    incrementUsage: async (id, callback) => {
+        try {
+            const result = await query(
+                'UPDATE vouchers SET used_count = used_count + 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+                [id]
+            );
+            callback(null, { changes: result.rowsAffected });
+        } catch (error) {
+            callback(error);
+        }
+    }
+};
+
 // Health check function
 async function checkDatabaseHealth(callback) {
     try {
@@ -1932,6 +2183,7 @@ module.exports = {
     reviewsOperations,
     adminOperations,
     archiveOperations,
+    voucherOperations,
     checkDatabaseHealth
 };
 

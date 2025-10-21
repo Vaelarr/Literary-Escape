@@ -556,6 +556,35 @@ class APIClient {
             body: JSON.stringify({ code })
         });
     }
+
+    // Voucher Admin CRUD Operations
+    async adminGetVouchers(page = 1, limit = 10) {
+        return this.makeRequest(`/admin/vouchers?page=${page}&limit=${limit}`);
+    }
+
+    async adminGetVoucher(id) {
+        return this.makeRequest(`/admin/vouchers/${id}`);
+    }
+
+    async adminCreateVoucher(voucherData) {
+        return this.makeRequest('/admin/vouchers', {
+            method: 'POST',
+            body: JSON.stringify(voucherData)
+        });
+    }
+
+    async adminUpdateVoucher(id, voucherData) {
+        return this.makeRequest(`/admin/vouchers/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(voucherData)
+        });
+    }
+
+    async adminDeleteVoucher(id) {
+        return this.makeRequest(`/admin/vouchers/${id}`, {
+            method: 'DELETE'
+        });
+    }
 }
 
 // Create global API client instance
