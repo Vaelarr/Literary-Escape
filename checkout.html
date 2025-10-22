@@ -631,7 +631,9 @@
                                         class="text-muted">(Optional)</small></label>
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="voucherCode"
-                                        placeholder="Enter voucher code (optional)">
+                                        placeholder="Enter voucher code (optional)" 
+                                        maxlength="50"
+                                        autocomplete="off">
                                     <button class="btn btn-outline-primary" type="button"
                                         id="applyVoucher">Apply</button>
                                     <button class="btn btn-outline-danger d-none" type="button"
@@ -891,6 +893,16 @@
 
         async function initializeCheckout() {
             try {
+                // Test database connection first
+                console.log('🔌 Testing database connection...');
+                const dbConnected = await api.testConnection();
+                if (!dbConnected) {
+                    console.warn('⚠️ Database connection test failed');
+                    showWarning('Database connection issue. Some features may not work properly.');
+                } else {
+                    console.log('✅ Database connection successful');
+                }
+
                 // Load user's saved addresses
                 await loadUserAddresses();
 
@@ -920,10 +932,42 @@
             console.log('🔍 Items container content:', document.getElementById('checkoutItemsContainer').innerHTML);
         }
 
+        // Test voucher validation function
+        async function testVoucherValidation() {
+            console.log('🧪 Testing voucher validation...');
+            
+            try {
+                // Test with a sample voucher code
+                const testCode = 'TEST10';
+                const testAmount = 100;
+                
+                console.log(`Testing voucher: ${testCode} with amount: ₱${testAmount}`);
+                const result = await api.validateVoucher(testCode, testAmount);
+                
+                console.log('Test result:', result);
+                
+                if (result.valid) {
+                    console.log('✅ Voucher validation working correctly!');
+                    console.log('Discount:', result.discountAmount);
+                } else {
+                    console.log('⚠️ Voucher not valid (this may be expected if voucher doesn\'t exist)');
+                    console.log('Message:', result.message);
+                }
+                
+                return result;
+            } catch (error) {
+                console.error('❌ Voucher validation test failed:', error);
+                return { error: error.message };
+            }
+        }
+
         // Add debug button in development
         if (window.location.hostname === 'localhost') {
             window.debugCheckout = debugCheckout;
-            console.log('🛠️ Debug function added: call debugCheckout() in console');
+            window.testVoucherValidation = testVoucherValidation;
+            console.log('🛠️ Debug functions added:');
+            console.log('  - debugCheckout() - View cart items and container');
+            console.log('  - testVoucherValidation() - Test voucher API connection');
         }
 
         let cartItems = [];
@@ -1086,19 +1130,40 @@
         }
 
         async function handleVoucherApplication() {
-            const voucherCode = document.getElementById('voucherCode').value.trim();
+            const voucherCode = document.getElementById('voucherCode').value.trim().toUpperCase();
             const statusDiv = document.getElementById('voucherStatus');
+            const applyButton = document.getElementById('applyVoucher');
 
             if (!voucherCode) {
-                statusDiv.innerHTML = '<small class="text-danger">Please enter a voucher code</small>';
+                statusDiv.innerHTML = '<small class="text-danger"><i class="fas fa-exclamation-circle me-1"></i>Please enter a voucher code</small>';
+                return;
+            }
+
+            // Validate voucher code format (alphanumeric, minimum 3 characters)
+            if (voucherCode.length < 3) {
+                statusDiv.innerHTML = '<small class="text-danger"><i class="fas fa-exclamation-circle me-1"></i>Voucher code must be at least 3 characters</small>';
+                return;
+            }
+
+            if (!/^[A-Z0-9]+$/.test(voucherCode)) {
+                statusDiv.innerHTML = '<small class="text-danger"><i class="fas fa-exclamation-circle me-1"></i>Voucher code can only contain letters and numbers</small>';
                 return;
             }
 
             try {
+                // Show loading state
+                applyButton.disabled = true;
+                applyButton.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Validating...';
+                statusDiv.innerHTML = '<small class="text-muted"><i class="fas fa-spinner fa-spin me-1"></i>Checking voucher...</small>';
+
                 // Get current subtotal for validation
                 const subtotalElement = document.getElementById('subtotal');
                 const subtotalText = subtotalElement.textContent.replace('₱', '').replace(',', '');
                 const subtotalAmount = parseFloat(subtotalText) || 0;
+
+                if (subtotalAmount <= 0) {
+                    throw new Error('Cart is empty or invalid');
+                }
 
                 // Validate voucher through API (now passes order amount)
                 const response = await validateVoucher(voucherCode, subtotalAmount);
@@ -1111,7 +1176,10 @@
 
                     document.getElementById('voucherDiscountRow').classList.remove('d-none');
                     document.getElementById('voucherDiscount').textContent = `-₱${voucherDiscount.toFixed(2)}`;
-                    statusDiv.innerHTML = `<small class="text-success">✓ ${response.description || 'Voucher applied successfully'}</small>`;
+                    statusDiv.innerHTML = `<small class="text-success"><i class="fas fa-check-circle me-1"></i>${response.description || 'Voucher applied successfully!'}</small>`;
+
+                    // Update the input to show the uppercase code
+                    document.getElementById('voucherCode').value = voucherCode;
 
                     // Show remove button, hide apply button
                     document.getElementById('applyVoucher').classList.add('d-none');
@@ -1120,23 +1188,49 @@
 
                     updateOrderTotal();
                 } else {
-                    statusDiv.innerHTML = `<small class="text-danger">${response.message || 'Invalid voucher code'}</small>`;
+                    statusDiv.innerHTML = `<small class="text-danger"><i class="fas fa-times-circle me-1"></i>${response.message || 'Invalid voucher code'}</small>`;
                 }
             } catch (error) {
                 console.error('Voucher validation failed:', error);
-                statusDiv.innerHTML = '<small class="text-danger">Failed to validate voucher. Please try again.</small>';
+                statusDiv.innerHTML = '<small class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>Failed to validate voucher. Please try again.</small>';
+            } finally {
+                // Reset button state
+                applyButton.disabled = false;
+                applyButton.innerHTML = 'Apply';
             }
         }
 
         async function validateVoucher(code, orderAmount) {
             try {
+                console.log('🎫 Validating voucher:', { code, orderAmount });
+                
+                // Ensure API client is initialized
+                if (!api) {
+                    throw new Error('API client not initialized');
+                }
+                
                 // Call API with order amount for proper validation
                 const response = await api.validateVoucher(code, orderAmount);
-                console.log('Voucher validation response:', response);
+                console.log('✅ Voucher validation response:', response);
+                
+                // Validate response structure
+                if (typeof response !== 'object') {
+                    console.error('Invalid response format:', response);
+                    return { valid: false, message: 'Invalid server response' };
+                }
+                
                 return response;
             } catch (error) {
-                console.error('Voucher validation API failed:', error);
-                return { valid: false, message: 'Failed to validate voucher' };
+                console.error('❌ Voucher validation API failed:', error);
+                
+                // Provide user-friendly error messages
+                if (error.message.includes('token')) {
+                    return { valid: false, message: 'Please login to use vouchers' };
+                } else if (error.message.includes('network') || error.message.includes('fetch')) {
+                    return { valid: false, message: 'Network error. Please check your connection' };
+                }
+                
+                return { valid: false, message: error.message || 'Failed to validate voucher. Please try again.' };
             }
         }
 
@@ -1152,12 +1246,17 @@
             // Reset input and buttons
             document.getElementById('voucherCode').value = '';
             document.getElementById('voucherCode').disabled = false;
-            document.getElementById('voucherStatus').innerHTML = '';
+            document.getElementById('voucherStatus').innerHTML = '<small class="text-muted"><i class="fas fa-info-circle me-1"></i>Voucher removed</small>';
             document.getElementById('applyVoucher').classList.remove('d-none');
             document.getElementById('removeVoucher').classList.add('d-none');
 
             // Update totals
             updateOrderTotal();
+
+            // Clear status message after 3 seconds
+            setTimeout(() => {
+                document.getElementById('voucherStatus').innerHTML = '';
+            }, 3000);
 
             console.log('Voucher removed');
         }
@@ -1509,7 +1608,12 @@
 
                 // Discounts summary (only voucher now)
                 const discounts = {
-                    voucher: appliedVoucher ? { code: document.getElementById('voucherCode').value.trim(), amount: voucherDiscount } : null
+                    voucher: appliedVoucher ? { 
+                        code: document.getElementById('voucherCode').value.trim().toUpperCase(),
+                        amount: voucherDiscount,
+                        id: appliedVoucher.voucher?.id || null,
+                        type: appliedVoucher.voucher?.discount_type || 'unknown'
+                    } : null
                 };
 
                 // Totals
