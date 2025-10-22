@@ -2766,7 +2766,6 @@
         }
 
         // Update dashboard statistics
-        // Update dashboard statistics
         async function updateDashboard() {
             try {
                 console.log('📊 Updating dashboard statistics...');
@@ -2774,21 +2773,46 @@
                 // Update last updated time
                 const now = new Date();
                 const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-                document.getElementById('lastUpdated').textContent = timeStr;
-                
-                // Fetch comprehensive statistics from API
-                const stats = await safeApiCall(() => api.makeRequest('/admin/dashboard/stats'));
-                
-                if (!stats) {
-                    throw new Error('Failed to fetch dashboard statistics');
+                const lastUpdatedEl = document.getElementById('lastUpdated');
+                if (lastUpdatedEl) {
+                    lastUpdatedEl.textContent = timeStr;
                 }
                 
-                console.log('📊 Dashboard statistics received:', stats);
+                // Calculate statistics from loaded data
+                const stats = {
+                    books: {
+                        total: adminBooks.length || 0,
+                        totalStock: adminBooks.reduce((sum, book) => sum + (parseInt(book.stock) || 0), 0),
+                        lowStock: adminBooks.filter(book => (parseInt(book.stock) || 0) <= 10).length,
+                        fiction: adminBooks.filter(book => book.category === 'Fiction').length,
+                        nonFiction: adminBooks.filter(book => book.category === 'Non - Fiction' || book.category === 'Non-Fiction').length
+                    },
+                    orders: {
+                        total: allOrders.length || 0,
+                        pending: allOrders.filter(order => order.status === 'pending').length,
+                        processing: allOrders.filter(order => order.status === 'processing').length,
+                        shipped: allOrders.filter(order => order.status === 'shipped').length,
+                        completed: allOrders.filter(order => order.status === 'completed').length,
+                        cancelled: allOrders.filter(order => order.status === 'cancelled').length,
+                        totalRevenue: allOrders
+                            .filter(order => ['completed', 'shipped', 'delivered'].includes(order.status))
+                            .reduce((sum, order) => sum + (parseFloat(order.total_amount) || 0), 0)
+                    },
+                    users: {
+                        total: allUsers.length || 0
+                    }
+                };
+                
+                console.log('📊 Dashboard statistics calculated:', stats);
                 
                 // === Update Book Statistics ===
-                document.getElementById('booksNumber').textContent = stats.books.total;
-                document.getElementById('totalStock').textContent = stats.books.totalStock.toLocaleString();
-                document.getElementById('lowStockCount').textContent = stats.books.lowStock;
+                const booksNumberEl = document.getElementById('booksNumber');
+                const totalStockEl = document.getElementById('totalStock');
+                const lowStockCountEl = document.getElementById('lowStockCount');
+                
+                if (booksNumberEl) booksNumberEl.textContent = stats.books.total;
+                if (totalStockEl) totalStockEl.textContent = stats.books.totalStock.toLocaleString();
+                if (lowStockCountEl) lowStockCountEl.textContent = stats.books.lowStock;
                 
                 // Update category distribution
                 const fictionCountEl = document.getElementById('fictionCount');
@@ -2808,8 +2832,11 @@
                 console.log('📚 Book Statistics:', stats.books);
                 
                 // === Update Order Statistics ===
-                document.getElementById('totalOrders').textContent = stats.orders.total;
-                document.getElementById('pendingOrders').textContent = stats.orders.pending;
+                const totalOrdersEl = document.getElementById('totalOrders');
+                const pendingOrdersEl = document.getElementById('pendingOrders');
+                
+                if (totalOrdersEl) totalOrdersEl.textContent = stats.orders.total;
+                if (pendingOrdersEl) pendingOrdersEl.textContent = stats.orders.pending;
                 
                 // Update order status distribution
                 const pendingCountEl = document.getElementById('pendingOrdersCount');
@@ -2834,12 +2861,16 @@
                 console.log('📊 Order Statistics:', stats.orders);
                 
                 // === Update Revenue ===
-                document.getElementById('totalRevenue').textContent = '₱' + stats.orders.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                const totalRevenueEl = document.getElementById('totalRevenue');
+                if (totalRevenueEl) {
+                    totalRevenueEl.textContent = '₱' + stats.orders.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                }
                 
                 console.log('💰 Revenue:', stats.orders.totalRevenue);
                 
                 // === Update User Statistics ===
-                document.getElementById('totalUsers').textContent = stats.users.total;
+                const totalUsersEl = document.getElementById('totalUsers');
+                if (totalUsersEl) totalUsersEl.textContent = stats.users.total;
                 
                 console.log('👥 User Statistics:', stats.users);
                 
@@ -2858,8 +2889,8 @@
                 
             } catch (error) {
                 console.error('❌ Error updating dashboard:', error);
-                // Show error message to user
-                showErrorMessage('Failed to update dashboard statistics');
+                // Don't show error message to user for dashboard updates - fail silently
+                console.warn('Dashboard update failed, but continuing...');
             }
         }
         
