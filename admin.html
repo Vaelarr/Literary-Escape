@@ -2870,17 +2870,24 @@
                 });
                 
                 // === Low Stock Alert ===
+                // Filter books with 10 or fewer items in stock (including 0)
+                const LOW_STOCK_THRESHOLD = 10;
                 const lowStockBooks = adminBooks.filter(book => {
                     const stock = parseInt(book.stock) || 0;
-                    const minStock = 10;
-                    return stock <= minStock && stock >= 0;
+                    // Include books with stock from 0 to 10 (inclusive)
+                    return stock <= LOW_STOCK_THRESHOLD && stock >= 0;
                 });
                 
                 document.getElementById('lowStockCount').textContent = lowStockBooks.length;
                 
                 console.log('⚠️ Low Stock Alert:', {
+                    threshold: LOW_STOCK_THRESHOLD,
                     lowStockCount: lowStockBooks.length,
-                    books: lowStockBooks.map(b => ({ title: b.title, stock: b.stock, minStock: b.min_stock }))
+                    books: lowStockBooks.map(b => ({ 
+                        title: b.title, 
+                        stock: b.stock,
+                        id: b.id 
+                    }))
                 });
                 
                 // Update low stock table
@@ -2928,25 +2935,42 @@
             const tbody = document.getElementById('lowStockTable');
             
             if (!lowStockBooks || lowStockBooks.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: rgba(255,255,255,0.5);">All stock levels are healthy</td></tr>';
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: rgba(255,255,255,0.5); padding: 30px;">
+                    <i class="fas fa-check-circle" style="font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.3; color: #00b894;"></i>
+                    All stock levels are healthy
+                </td></tr>`;
                 return;
             }
             
-            // Sort by stock level (lowest first)
+            // Sort by stock level (lowest first to show most critical items)
             const sortedBooks = lowStockBooks.sort((a, b) => (parseInt(a.stock) || 0) - (parseInt(b.stock) || 0));
             
+            // Display top 5 lowest stock items
             tbody.innerHTML = sortedBooks.slice(0, 5).map(book => {
                 const stock = parseInt(book.stock) || 0;
-                const minStock = parseInt(book.min_stock) || 5;
-                const status = stock === 0 ? 'Out of Stock' : stock <= minStock / 2 ? 'Critical' : 'Low';
-                const statusColor = stock === 0 ? '#d63031' : stock <= minStock / 2 ? '#e17055' : '#fdcb6e';
+                
+                // Determine status based on stock level
+                let status, statusColor;
+                if (stock === 0) {
+                    status = 'Out of Stock';
+                    statusColor = '#d63031'; // Red
+                } else if (stock <= 3) {
+                    status = 'Critical';
+                    statusColor = '#e17055'; // Orange-red
+                } else if (stock <= 10) {
+                    status = 'Low Stock';
+                    statusColor = '#fdcb6e'; // Yellow
+                } else {
+                    status = 'Normal';
+                    statusColor = '#00b894'; // Green
+                }
                 
                 return `
                     <tr>
-                        <td>${escapeHtml(truncateText(book.title, 30))}</td>
+                        <td title="${escapeHtml(book.title)}">${escapeHtml(truncateText(book.title, 30))}</td>
                         <td style="text-align: right; color: ${statusColor}; font-weight: bold;">${stock}</td>
                         <td style="text-align: center;">
-                            <span style="background: ${statusColor}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">
+                            <span style="background: ${statusColor}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 500;">
                                 ${status}
                             </span>
                         </td>
@@ -3431,67 +3455,91 @@
         
         // Save voucher (add or update)
         async function saveVoucher() {
-            const voucherId = document.getElementById('voucherId').value;
-            const code = document.getElementById('voucherCode').value.trim().toUpperCase();
-            const discountType = document.getElementById('voucherDiscountType').value;
-            const discountValue = parseFloat(document.getElementById('voucherDiscountValue').value);
-            const minPurchase = parseFloat(document.getElementById('voucherMinPurchase').value) || 0;
-            const maxDiscount = parseFloat(document.getElementById('voucherMaxDiscount').value) || null;
-            const usageLimit = parseInt(document.getElementById('voucherUsageLimit').value) || null;
-            const perUserLimit = parseInt(document.getElementById('voucherPerUserLimit').value) || 1;
-            const validFrom = document.getElementById('voucherValidFrom').value;
-            const validUntil = document.getElementById('voucherValidUntil').value;
-            const status = document.getElementById('voucherStatus').value;
-            const description = document.getElementById('voucherDescription').value.trim();
-            
-            // Validation
-            if (!code || !discountType || !discountValue || !validFrom || !validUntil) {
-                alert('Please fill in all required fields');
-                return;
-            }
-            
-            if (new Date(validFrom) >= new Date(validUntil)) {
-                alert('Valid Until date must be after Valid From date');
-                return;
-            }
-            
-            if (discountType === 'percentage' && (discountValue <= 0 || discountValue > 100)) {
-                alert('Percentage discount must be between 0 and 100');
-                return;
-            }
-            
-            const voucherData = {
-                code,
-                discountType,
-                discountValue,
-                minPurchase,
-                maxDiscount,
-                usageLimit,
-                perUserLimit,
-                validFrom,
-                validUntil,
-                status,
-                description
-            };
-            
             try {
+                const voucherId = document.getElementById('voucherId').value;
+                const code = document.getElementById('voucherCode').value.trim().toUpperCase();
+                const discountType = document.getElementById('voucherDiscountType').value;
+                const discountValue = parseFloat(document.getElementById('voucherDiscountValue').value);
+                const minPurchaseInput = document.getElementById('voucherMinPurchase').value;
+                const minPurchase = minPurchaseInput ? parseFloat(minPurchaseInput) : 0;
+                const maxDiscountInput = document.getElementById('voucherMaxDiscount').value;
+                const maxDiscount = maxDiscountInput ? parseFloat(maxDiscountInput) : null;
+                const usageLimitInput = document.getElementById('voucherUsageLimit').value;
+                const usageLimit = usageLimitInput ? parseInt(usageLimitInput) : null;
+                const perUserLimitInput = document.getElementById('voucherPerUserLimit').value;
+                const perUserLimit = perUserLimitInput ? parseInt(perUserLimitInput) : 1;
+                const validFrom = document.getElementById('voucherValidFrom').value;
+                const validUntil = document.getElementById('voucherValidUntil').value;
+                const status = document.getElementById('voucherStatus').value;
+                const description = document.getElementById('voucherDescription').value.trim();
+                
+                // Validation
+                if (!code) {
+                    showErrorMessage('Please enter a voucher code');
+                    return;
+                }
+                
+                if (!discountType) {
+                    showErrorMessage('Please select a discount type');
+                    return;
+                }
+                
+                if (!discountValue || isNaN(discountValue) || discountValue <= 0) {
+                    showErrorMessage('Please enter a valid discount value greater than 0');
+                    return;
+                }
+                
+                if (!validFrom) {
+                    showErrorMessage('Please select a valid from date');
+                    return;
+                }
+                
+                if (!validUntil) {
+                    showErrorMessage('Please select a valid until date');
+                    return;
+                }
+                
+                if (new Date(validFrom) >= new Date(validUntil)) {
+                    showErrorMessage('Valid Until date must be after Valid From date');
+                    return;
+                }
+                
+                if (discountType === 'percentage' && (discountValue <= 0 || discountValue > 100)) {
+                    showErrorMessage('Percentage discount must be between 0 and 100');
+                    return;
+                }
+                
+                const voucherData = {
+                    code,
+                    discount_type: discountType,
+                    discount_value: discountValue,
+                    min_purchase: minPurchase,
+                    max_discount: maxDiscount,
+                    usage_limit: usageLimit,
+                    per_user_limit: perUserLimit,
+                    valid_from: validFrom,
+                    valid_until: validUntil,
+                    status,
+                    description
+                };
+                
                 let response;
                 if (voucherId) {
                     // Update existing voucher
-                    response = await window.api.put(`/vouchers/${voucherId}`, voucherData);
+                    response = await api.adminUpdateVoucher(voucherId, voucherData);
                 } else {
                     // Create new voucher
-                    response = await window.api.post('/vouchers', voucherData);
+                    response = await api.adminCreateVoucher(voucherData);
                 }
                 
-                if (response && response.success) {
+                if (response) {
                     showSuccessMessage(voucherId ? 'Voucher updated successfully!' : 'Voucher created successfully!');
                     bootstrap.Modal.getInstance(document.getElementById('addVoucherModal')).hide();
                     
-                    // Refresh all data
-                    await refreshAllData();
+                    // Refresh vouchers list
+                    await loadVouchersFromAPI(currentVouchersPage);
                 } else {
-                    throw new Error(response.message || 'Failed to save voucher');
+                    throw new Error('Failed to save voucher');
                 }
             } catch (error) {
                 console.error('Error saving voucher:', error);
@@ -3551,8 +3599,8 @@
                 if (response && response.success) {
                     showSuccessMessage('Voucher deleted successfully!');
                     
-                    // Refresh all data
-                    await refreshAllData();
+                    // Refresh vouchers list
+                    await loadVouchersFromAPI(currentVouchersPage);
                 } else {
                     throw new Error(response.message || 'Failed to delete voucher');
                 }
