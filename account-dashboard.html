@@ -1402,7 +1402,10 @@
                 console.error('Error loading reviews:', error);
                 showNoReviews();
             } finally {
-                document.getElementById('loadingReviews').style.display = 'none';
+                const loadingElement = document.getElementById('loadingReviews');
+                if (loadingElement) {
+                    loadingElement.style.display = 'none';
+                }
             }
         }
 
