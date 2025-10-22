@@ -1530,5 +1530,108 @@ app.post('/api/admin/run-migrations', authenticateAdmin, async (req, res) => {
     }
 });
 
+// Dashboard Statistics Endpoints
+// Get comprehensive dashboard statistics in a single call
+app.get('/api/admin/dashboard/stats', authenticateAdmin, (req, res) => {
+    console.log('📊 Fetching comprehensive dashboard statistics...');
+    
+    // Get database instance from database-config
+    const database = require('./database-config');
+    const dbInstance = database.db;
+    
+    const stats = {
+        books: { total: 0, active: 0, totalStock: 0, lowStock: 0, fiction: 0, nonFiction: 0 },
+        users: { total: 0 },
+        orders: { total: 0, pending: 0, processing: 0, shipped: 0, completed: 0, cancelled: 0, totalRevenue: 0 }
+    };
+    
+    // Get book statistics
+    const bookStatsQuery = `
+        SELECT 
+            COUNT(*) as total,
+            SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active,
+            SUM(stock_quantity) as totalStock,
+            SUM(CASE WHEN stock_quantity <= 10 THEN 1 ELSE 0 END) as lowStock,
+            SUM(CASE WHEN LOWER(category) = 'fiction' THEN 1 ELSE 0 END) as fiction,
+            SUM(CASE WHEN LOWER(category) IN ('non-fiction', 'non - fiction') THEN 1 ELSE 0 END) as nonFiction
+        FROM books 
+        WHERE (archived = 0 OR archived IS NULL)
+    `;
+    
+    // Get user statistics
+    const userStatsQuery = `
+        SELECT COUNT(*) as total 
+        FROM users 
+        WHERE (archived = 0 OR archived IS NULL)
+    `;
+    
+    // Get order statistics
+    const orderStatsQuery = `
+        SELECT 
+            COUNT(*) as total,
+            SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
+            SUM(CASE WHEN status = 'processing' THEN 1 ELSE 0 END) as processing,
+            SUM(CASE WHEN status = 'shipped' THEN 1 ELSE 0 END) as shipped,
+            SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,
+            SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) as cancelled,
+            SUM(CASE WHEN status IN ('completed', 'shipped', 'delivered') THEN total_amount ELSE 0 END) as totalRevenue
+        FROM orders 
+        WHERE (archived = 0 OR archived IS NULL)
+    `;
+    
+    // Execute queries in parallel using promises
+    Promise.all([
+        new Promise((resolve, reject) => {
+            dbInstance.get(bookStatsQuery, [], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            dbInstance.get(userStatsQuery, [], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        }),
+        new Promise((resolve, reject) => {
+            dbInstance.get(orderStatsQuery, [], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        })
+    ])
+    .then(([bookResult, userResult, orderResult]) => {
+        stats.books = {
+            total: bookResult.total || 0,
+            active: bookResult.active || 0,
+            totalStock: bookResult.totalStock || 0,
+            lowStock: bookResult.lowStock || 0,
+            fiction: bookResult.fiction || 0,
+            nonFiction: bookResult.nonFiction || 0
+        };
+        
+        stats.users = {
+            total: userResult.total || 0
+        };
+        
+        stats.orders = {
+            total: orderResult.total || 0,
+            pending: orderResult.pending || 0,
+            processing: orderResult.processing || 0,
+            shipped: orderResult.shipped || 0,
+            completed: orderResult.completed || 0,
+            cancelled: orderResult.cancelled || 0,
+            totalRevenue: parseFloat(orderResult.totalRevenue) || 0
+        };
+        
+        console.log('✅ Dashboard statistics retrieved:', stats);
+        res.json(stats);
+    })
+    .catch(error => {
+        console.error('❌ Error fetching dashboard statistics:', error);
+        res.status(500).json({ error: error.message });
+    });
+});
+
 // Export the app for Vercel
 module.exports = app;

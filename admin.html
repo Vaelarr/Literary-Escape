@@ -85,7 +85,7 @@
                         <div style="text-align: left;">
                             <h3 style="font-size: 0.85rem; opacity: 0.95; margin-bottom: 8px;">Total Books</h3>
                             <div class="value" id="booksNumber" style="font-size: 2.2rem; font-weight: bold; margin: 5px 0;">0</div>
-                            <!-- <p style="font-size: 0.75rem; margin-top: 5px; opacity: 0.8; color: #b8e6d5;"><span id="activeBooksCount">0</span> active</p> -->
+                            <p style="font-size: 0.75rem; margin-top: 5px; opacity: 0.8; color: #b8e6d5;">active</p>
                         </div>
                         <i class="fas fa-book" style="font-size: 2.2rem; opacity: 0.25;"></i>
                     </div>
@@ -2776,157 +2776,90 @@
                 const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
                 document.getElementById('lastUpdated').textContent = timeStr;
                 
-                // === Basic Metrics ===
-                const totalBooks = totalBooksItems || 0;
-                const activeBooks = adminBooks.filter(b => b.status?.toLowerCase() === 'active').length;
-                const totalStock = adminBooks.reduce((sum, book) => sum + (parseInt(book.stock) || 0), 0);
+                // Fetch comprehensive statistics from API
+                const stats = await safeApiCall(() => api.makeRequest('/admin/dashboard/stats'));
                 
-                document.getElementById('booksNumber').textContent = totalBooks;
-                document.getElementById('activeBooksCount').textContent = activeBooks;
-                document.getElementById('totalStock').textContent = totalStock.toLocaleString();
-                
-                console.log('📚 Book Statistics:', {
-                    total: totalBooks,
-                    active: activeBooks,
-                    totalStock: totalStock
-                });
-                
-                // === Order Statistics ===
-                // Use totalOrdersItems for the actual total count across all pages
-                const totalOrdersCount = totalOrdersItems || 0;
-                
-                // For status counts, we need to consider that allOrders only contains current page
-                // So we'll display the counts from the current page with a note that it's from the visible data
-                const pendingOrdersCount = allOrders.filter(o => o.status?.toLowerCase() === 'pending').length;
-                const processingOrdersCount = allOrders.filter(o => o.status?.toLowerCase() === 'processing').length;
-                const completedOrdersCount = allOrders.filter(o => o.status?.toLowerCase() === 'completed').length;
-                const shippedOrdersCount = allOrders.filter(o => o.status?.toLowerCase() === 'shipped').length;
-                const deliveredOrdersCount = allOrders.filter(o => o.status?.toLowerCase() === 'delivered').length;
-                const cancelledOrdersCount = allOrders.filter(o => o.status?.toLowerCase() === 'cancelled').length;
-                
-                // Update total orders display
-                document.getElementById('totalOrders').textContent = totalOrdersCount;
-                
-                // Update pending orders (shown in main card)
-                document.getElementById('pendingOrders').textContent = pendingOrdersCount;
-                
-                // Update order status distribution (if elements exist)
-                const pendingCountEl = document.getElementById('pendingOrdersCount');
-                const processingCountEl = document.getElementById('processingOrdersCount');
-                const completedCountEl = document.getElementById('completedOrdersCount');
-                
-                if (pendingCountEl) pendingCountEl.textContent = pendingOrdersCount;
-                if (processingCountEl) processingCountEl.textContent = processingOrdersCount;
-                if (completedCountEl) completedCountEl.textContent = completedOrdersCount;
-                
-                // Update order status bars (based on visible orders in current page)
-                const visibleOrdersCount = allOrders.length;
-                if (visibleOrdersCount > 0) {
-                    const pendingBar = document.getElementById('pendingBar');
-                    const processingBar = document.getElementById('processingBar');
-                    const completedBar = document.getElementById('completedBar');
-                    
-                    if (pendingBar) pendingBar.style.width = ((pendingOrdersCount / visibleOrdersCount) * 100) + '%';
-                    if (processingBar) processingBar.style.width = ((processingOrdersCount / visibleOrdersCount) * 100) + '%';
-                    if (completedBar) completedBar.style.width = ((completedOrdersCount / visibleOrdersCount) * 100) + '%';
+                if (!stats) {
+                    throw new Error('Failed to fetch dashboard statistics');
                 }
                 
-                console.log('📊 Order Statistics:', {
-                    total: totalOrdersCount,
-                    visible: visibleOrdersCount,
-                    pending: pendingOrdersCount,
-                    processing: processingOrdersCount,
-                    completed: completedOrdersCount,
-                    shipped: shippedOrdersCount,
-                    delivered: deliveredOrdersCount,
-                    cancelled: cancelledOrdersCount
-                });
+                console.log('📊 Dashboard statistics received:', stats);
                 
-                // === Revenue Calculation ===
-                const validSalesStatuses = ['completed', 'shipped', 'delivered'];
-                const salesOrders = allOrders.filter(order => 
-                    validSalesStatuses.includes(order.status?.toLowerCase())
-                );
+                // === Update Book Statistics ===
+                document.getElementById('booksNumber').textContent = stats.books.total;
+                document.getElementById('totalStock').textContent = stats.books.totalStock.toLocaleString();
+                document.getElementById('lowStockCount').textContent = stats.books.lowStock;
                 
-                const totalRevenue = salesOrders.reduce((sum, order) => {
-                    const amount = parseFloat(order.total_amount) || 0;
-                    return sum + amount;
-                }, 0);
-                
-                document.getElementById('totalRevenue').textContent = '₱' + totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                
-                console.log('💰 Revenue Statistics:', {
-                    salesOrders: salesOrders.length,
-                    totalRevenue: totalRevenue,
-                    validStatuses: validSalesStatuses
-                });
-                
-                // === User Statistics ===
-                const totalUsersCount = totalUsersItems || 0;
-                document.getElementById('totalUsers').textContent = totalUsersCount;
-                
-                console.log('👥 User Statistics:', {
-                    total: totalUsersCount
-                });
-                
-                // === Low Stock Alert ===
-                // Filter books with 10 or fewer items in stock (including 0)
-                const LOW_STOCK_THRESHOLD = 10;
-                const lowStockBooks = adminBooks.filter(book => {
-                    const stock = parseInt(book.stock) || 0;
-                    // Include books with stock from 0 to 10 (inclusive)
-                    return stock <= LOW_STOCK_THRESHOLD && stock >= 0;
-                });
-                
-                document.getElementById('lowStockCount').textContent = lowStockBooks.length;
-                
-                console.log('⚠️ Low Stock Alert:', {
-                    threshold: LOW_STOCK_THRESHOLD,
-                    lowStockCount: lowStockBooks.length,
-                    books: lowStockBooks.map(b => ({ 
-                        title: b.title, 
-                        stock: b.stock,
-                        id: b.id 
-                    }))
-                });
-                
-                // Update low stock table
-                updateLowStockTable(lowStockBooks);
-                
-                // === Category Distribution ===
-                const fictionBooks = adminBooks.filter(b => b.category?.toLowerCase() === 'fiction').length;
-                const nonFictionBooks = adminBooks.filter(b => {
-                    const cat = b.category?.toLowerCase();
-                    return cat === 'non - fiction' || cat === 'non-fiction';
-                }).length;
-                
+                // Update category distribution
                 const fictionCountEl = document.getElementById('fictionCount');
                 const nonFictionCountEl = document.getElementById('nonFictionCount');
                 const fictionBarEl = document.getElementById('fictionBar');
                 const nonFictionBarEl = document.getElementById('nonFictionBar');
                 
-                if (fictionCountEl) fictionCountEl.textContent = fictionBooks;
-                if (nonFictionCountEl) nonFictionCountEl.textContent = nonFictionBooks;
+                if (fictionCountEl) fictionCountEl.textContent = stats.books.fiction;
+                if (nonFictionCountEl) nonFictionCountEl.textContent = stats.books.nonFiction;
                 
                 // Update category bars
-                if (totalBooks > 0) {
-                    if (fictionBarEl) fictionBarEl.style.width = ((fictionBooks / totalBooks) * 100) + '%';
-                    if (nonFictionBarEl) nonFictionBarEl.style.width = ((nonFictionBooks / totalBooks) * 100) + '%';
+                if (stats.books.total > 0) {
+                    if (fictionBarEl) fictionBarEl.style.width = ((stats.books.fiction / stats.books.total) * 100) + '%';
+                    if (nonFictionBarEl) nonFictionBarEl.style.width = ((stats.books.nonFiction / stats.books.total) * 100) + '%';
                 }
                 
-                console.log('📖 Category Distribution:', {
-                    fiction: fictionBooks,
-                    nonFiction: nonFictionBooks,
-                    total: totalBooks
+                console.log('📚 Book Statistics:', stats.books);
+                
+                // === Update Order Statistics ===
+                document.getElementById('totalOrders').textContent = stats.orders.total;
+                document.getElementById('pendingOrders').textContent = stats.orders.pending;
+                
+                // Update order status distribution
+                const pendingCountEl = document.getElementById('pendingOrdersCount');
+                const processingCountEl = document.getElementById('processingOrdersCount');
+                const completedCountEl = document.getElementById('completedOrdersCount');
+                
+                if (pendingCountEl) pendingCountEl.textContent = stats.orders.pending;
+                if (processingCountEl) processingCountEl.textContent = stats.orders.processing;
+                if (completedCountEl) completedCountEl.textContent = stats.orders.completed;
+                
+                // Update order status bars
+                if (stats.orders.total > 0) {
+                    const pendingBar = document.getElementById('pendingBar');
+                    const processingBar = document.getElementById('processingBar');
+                    const completedBar = document.getElementById('completedBar');
+                    
+                    if (pendingBar) pendingBar.style.width = ((stats.orders.pending / stats.orders.total) * 100) + '%';
+                    if (processingBar) processingBar.style.width = ((stats.orders.processing / stats.orders.total) * 100) + '%';
+                    if (completedBar) completedBar.style.width = ((stats.orders.completed / stats.orders.total) * 100) + '%';
+                }
+                
+                console.log('📊 Order Statistics:', stats.orders);
+                
+                // === Update Revenue ===
+                document.getElementById('totalRevenue').textContent = '₱' + stats.orders.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                
+                console.log('💰 Revenue:', stats.orders.totalRevenue);
+                
+                // === Update User Statistics ===
+                document.getElementById('totalUsers').textContent = stats.users.total;
+                
+                console.log('👥 User Statistics:', stats.users);
+                
+                // === Update Low Stock Table (from currently loaded books) ===
+                const LOW_STOCK_THRESHOLD = 10;
+                const lowStockBooks = adminBooks.filter(book => {
+                    const stock = parseInt(book.stock) || 0;
+                    return stock <= LOW_STOCK_THRESHOLD && stock >= 0;
                 });
                 
-                // === Top Selling Books ===
-                await updateTopSellingBooks();
+                updateLowStockTable(lowStockBooks);
+                
+                console.log('⚠️ Low Stock from loaded books:', lowStockBooks.length);
                 
                 console.log('✅ Dashboard updated successfully');
                 
             } catch (error) {
                 console.error('❌ Error updating dashboard:', error);
+                // Show error message to user
+                showErrorMessage('Failed to update dashboard statistics');
             }
         }
         
