@@ -158,7 +158,7 @@
                         <div>
                             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                                 <span style="color: rgba(255,255,255,0.85); font-size: 0.95rem;">Fiction</span>
-                                <span id="fictionCount" style="font-weight: bold; color: #6a9c89;">0</span>
+                                <span id="fictionCount" style="font-weight: bold; color: white;">0</span>
                             </div>
                             <div style="background: rgba(255,255,255,0.1); height: 10px; border-radius: 5px; overflow: hidden;">
                                 <div id="fictionBar" style="background: linear-gradient(90deg, #6a9c89, #4a6b5a); height: 100%; width: 0%; transition: width 0.5s ease;"></div>
@@ -167,7 +167,7 @@
                         <div>
                             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                                 <span style="color: rgba(255,255,255,0.85); font-size: 0.95rem;">Non-Fiction</span>
-                                <span id="nonFictionCount" style="font-weight: bold; color: #7a9b8a;">0</span>
+                                <span id="nonFictionCount" style="font-weight: bold; color: white;">0</span>
                             </div>
                             <div style="background: rgba(255,255,255,0.1); height: 10px; border-radius: 5px; overflow: hidden;">
                                 <div id="nonFictionBar" style="background: linear-gradient(90deg, #7a9b8a, #5d7c6d); height: 100%; width: 0%; transition: width 0.5s ease;"></div>
@@ -697,6 +697,11 @@
                                 <label class="form-label">Current Stock <span class="text-danger">*</span></label>
                                 <input type="number" class="form-control" id="bookStock" aria-label="Stock Quantity" min="0" value="0" required>
                                 <small class="text-muted">Available quantity</small>
+                            </div>
+                            <div class="col-md-4 mb-3" id="addStockContainer" style="display: none;">
+                                <label class="form-label">Add Stock</label>
+                                <input type="number" class="form-control" id="bookAddStock" aria-label="Add Stock" min="0" value="0" placeholder="0">
+                                <small class="text-muted">Additional stock to add</small>
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="form-label">Selling Price (₱) <span class="text-danger">*</span></label>
@@ -1830,6 +1835,14 @@
                     return;
                 }
                 
+                // Calculate final stock quantity (for edit mode, add new stock to current stock)
+                let finalStockQuantity = parseInt(document.getElementById('bookStock').value);
+                if (id) {
+                    // In edit mode, add the additional stock
+                    const addStock = parseInt(document.getElementById('bookAddStock').value) || 0;
+                    finalStockQuantity += addStock;
+                }
+                
                 // Build payload with only essential fields
                 const payload = {
                     title: document.getElementById('bookTitle').value.trim(),
@@ -1838,7 +1851,7 @@
                     category: document.getElementById('bookCategory').value,
                     genre: document.getElementById('bookGenre').value,
                     price: parseFloat(document.getElementById('bookPrice').value),
-                    stock_quantity: parseInt(document.getElementById('bookStock').value),
+                    stock_quantity: finalStockQuantity,
                     cover: coverData, // Base64 encoded image
                     publisher: document.getElementById('bookPublisher').value.trim() || null,
                     status: document.getElementById('bookStatus').value || 'active',
@@ -2521,6 +2534,14 @@
                 document.getElementById('bookStatus').value = book.status || 'active';
                 document.getElementById('bookDiscount').value = book.discount_percentage || 0;
                 
+                // Make current stock read-only and show add stock field for edit mode
+                const stockField = document.getElementById('bookStock');
+                stockField.readOnly = true;
+                stockField.style.backgroundColor = 'rgba(108, 117, 125, 0.2)';
+                stockField.style.cursor = 'not-allowed';
+                document.getElementById('addStockContainer').style.display = 'block';
+                document.getElementById('bookAddStock').value = 0;
+                
                 // Handle image preview for existing cover
                 if (book.cover) {
                     uploadedImageData = book.cover;
@@ -3113,9 +3134,18 @@
             document.getElementById('bookId').value = '';
             document.querySelector('#addBookModal .modal-title').textContent = 'Add New Book';
             // Reset fields to defaults
-            document.getElementById('bookStock').value = '0';
+            const stockField = document.getElementById('bookStock');
+            stockField.value = '0';
+            stockField.readOnly = false; // Make stock editable for add mode
+            stockField.style.backgroundColor = ''; // Clear read-only styling
+            stockField.style.cursor = ''; // Clear cursor styling
+            document.getElementById('addStockContainer').style.display = 'none'; // Hide add stock field
+            document.getElementById('bookAddStock').value = '0'; // Reset add stock value
             document.getElementById('bookDiscount').value = '0';
             document.getElementById('bookStatus').value = 'active';
+            // Clear image preview
+            clearImagePreview();
+            uploadedImageData = null;
         });
 
         // Image Upload and Preview Functionality
