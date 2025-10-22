@@ -207,12 +207,34 @@
                         <div>
                             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                                 <span style="color: rgba(255,255,255,0.85); font-size: 0.95rem;">
+                                    <i class="fas fa-shipping-fast" style="font-size: 0.8rem; margin-right: 5px; color: #a29bfe;"></i>Shipped
+                                </span>
+                                <span id="shippedOrdersCount" style="font-weight: bold; color: #a29bfe;">0</span>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); height: 10px; border-radius: 5px; overflow: hidden;">
+                                <div id="shippedBar" style="background: #a29bfe; height: 100%; width: 0%; transition: width 0.5s ease;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="color: rgba(255,255,255,0.85); font-size: 0.95rem;">
                                     <i class="fas fa-check-circle" style="font-size: 0.8rem; margin-right: 5px; color: #00b894;"></i>Completed
                                 </span>
                                 <span id="completedOrdersCount" style="font-weight: bold; color: #00b894;">0</span>
                             </div>
                             <div style="background: rgba(255,255,255,0.1); height: 10px; border-radius: 5px; overflow: hidden;">
                                 <div id="completedBar" style="background: #00b894; height: 100%; width: 0%; transition: width 0.5s ease;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="color: rgba(255,255,255,0.85); font-size: 0.95rem;">
+                                    <i class="fas fa-times-circle" style="font-size: 0.8rem; margin-right: 5px; color: #ff7675;"></i>Cancelled
+                                </span>
+                                <span id="cancelledOrdersCount" style="font-weight: bold; color: #ff7675;">0</span>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.1); height: 10px; border-radius: 5px; overflow: hidden;">
+                                <div id="cancelledBar" style="background: #ff7675; height: 100%; width: 0%; transition: width 0.5s ease;"></div>
                             </div>
                         </div>
                     </div>
@@ -2841,21 +2863,29 @@
                 // Update order status distribution
                 const pendingCountEl = document.getElementById('pendingOrdersCount');
                 const processingCountEl = document.getElementById('processingOrdersCount');
+                const shippedCountEl = document.getElementById('shippedOrdersCount');
                 const completedCountEl = document.getElementById('completedOrdersCount');
+                const cancelledCountEl = document.getElementById('cancelledOrdersCount');
                 
                 if (pendingCountEl) pendingCountEl.textContent = stats.orders.pending;
                 if (processingCountEl) processingCountEl.textContent = stats.orders.processing;
+                if (shippedCountEl) shippedCountEl.textContent = stats.orders.shipped;
                 if (completedCountEl) completedCountEl.textContent = stats.orders.completed;
+                if (cancelledCountEl) cancelledCountEl.textContent = stats.orders.cancelled;
                 
                 // Update order status bars
                 if (stats.orders.total > 0) {
                     const pendingBar = document.getElementById('pendingBar');
                     const processingBar = document.getElementById('processingBar');
+                    const shippedBar = document.getElementById('shippedBar');
                     const completedBar = document.getElementById('completedBar');
+                    const cancelledBar = document.getElementById('cancelledBar');
                     
                     if (pendingBar) pendingBar.style.width = ((stats.orders.pending / stats.orders.total) * 100) + '%';
                     if (processingBar) processingBar.style.width = ((stats.orders.processing / stats.orders.total) * 100) + '%';
+                    if (shippedBar) shippedBar.style.width = ((stats.orders.shipped / stats.orders.total) * 100) + '%';
                     if (completedBar) completedBar.style.width = ((stats.orders.completed / stats.orders.total) * 100) + '%';
+                    if (cancelledBar) cancelledBar.style.width = ((stats.orders.cancelled / stats.orders.total) * 100) + '%';
                 }
                 
                 console.log('📊 Order Statistics:', stats.orders);
