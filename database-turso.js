@@ -1369,11 +1369,11 @@ const reviewsOperations = {
     create: async (userId, bookId, rating, reviewText, reviewerName, callback) => {
         try {
             await query(
-                `INSERT INTO reviews (book_id, user_id, rating, review_text)
-                 VALUES (?, ?, ?, ?)
+                `INSERT INTO reviews (book_id, user_id, rating, review_text, reviewer_name)
+                 VALUES (?, ?, ?, ?, ?)
                  ON CONFLICT(book_id, user_id) DO UPDATE SET 
-                 rating = ?, review_text = ?, updated_at = CURRENT_TIMESTAMP`,
-                [bookId, userId, rating, reviewText, rating, reviewText]
+                 rating = ?, review_text = ?, reviewer_name = ?, updated_at = CURRENT_TIMESTAMP`,
+                [bookId, userId, rating, reviewText, reviewerName, rating, reviewText, reviewerName]
             );
             const result = await query(
                 'SELECT * FROM reviews WHERE book_id = ? AND user_id = ?',
