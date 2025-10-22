@@ -2872,7 +2872,7 @@
                 // === Low Stock Alert ===
                 const lowStockBooks = adminBooks.filter(book => {
                     const stock = parseInt(book.stock) || 0;
-                    const minStock = parseInt(book.min_stock) || 5;
+                    const minStock = 10;
                     return stock <= minStock && stock >= 0;
                 });
                 
