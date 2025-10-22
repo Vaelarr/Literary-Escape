@@ -550,10 +550,10 @@ class APIClient {
         return this.makeRequest(url);
     }
 
-    async validateVoucher(code) {
+    async validateVoucher(code, orderAmount = 0) {
         return this.makeRequest('/vouchers/validate', {
             method: 'POST',
-            body: JSON.stringify({ code })
+            body: JSON.stringify({ code, orderAmount })
         });
     }
 

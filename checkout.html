@@ -1095,33 +1095,23 @@
             }
 
             try {
-                const voucher = await validateVoucher(voucherCode);
+                // Get current subtotal for validation
+                const subtotalElement = document.getElementById('subtotal');
+                const subtotalText = subtotalElement.textContent.replace('₱', '').replace(',', '');
+                const subtotalAmount = parseFloat(subtotalText) || 0;
 
-                if (voucher.valid) {
-                    // Check minimum order requirement
-                    const subtotalElement = document.getElementById('subtotal');
-                    const subtotalText = subtotalElement.textContent.replace('₱', '').replace(',', '');
-                    const subtotalAmount = parseFloat(subtotalText) || 0;
+                // Validate voucher through API (now passes order amount)
+                const response = await validateVoucher(voucherCode, subtotalAmount);
 
-                    if (voucher.minOrder && subtotalAmount < voucher.minOrder) {
-                        statusDiv.innerHTML = `<small class="text-danger">Minimum order of ₱${voucher.minOrder} required</small>`;
-                        return;
-                    }
+                if (response.valid) {
+                    appliedVoucher = response;
 
-                    appliedVoucher = voucher;
-
-                    // Calculate discount based on voucher type
-                    if (voucher.type === 'freeshipping') {
-                        voucherDiscount = currentShippingFee;
-                    } else if (voucher.type === 'percentage') {
-                        voucherDiscount = Math.round(subtotalAmount * (voucher.discountAmount / 100));
-                    } else {
-                        voucherDiscount = voucher.discountAmount;
-                    }
+                    // Use the discount amount calculated by the server
+                    voucherDiscount = response.discountAmount || 0;
 
                     document.getElementById('voucherDiscountRow').classList.remove('d-none');
-                    document.getElementById('voucherDiscount').textContent = `-₱${voucherDiscount}.00`;
-                    statusDiv.innerHTML = `<small class="text-success">✓ ${voucher.description}</small>`;
+                    document.getElementById('voucherDiscount').textContent = `-₱${voucherDiscount.toFixed(2)}`;
+                    statusDiv.innerHTML = `<small class="text-success">✓ ${response.description || 'Voucher applied successfully'}</small>`;
 
                     // Show remove button, hide apply button
                     document.getElementById('applyVoucher').classList.add('d-none');
@@ -1130,19 +1120,20 @@
 
                     updateOrderTotal();
                 } else {
-                    statusDiv.innerHTML = `<small class="text-danger">${voucher.message || 'Invalid voucher code'}</small>`;
+                    statusDiv.innerHTML = `<small class="text-danger">${response.message || 'Invalid voucher code'}</small>`;
                 }
             } catch (error) {
                 console.error('Voucher validation failed:', error);
-                statusDiv.innerHTML = '<small class="text-danger">Failed to validate voucher</small>';
+                statusDiv.innerHTML = '<small class="text-danger">Failed to validate voucher. Please try again.</small>';
             }
         }
 
-        async function validateVoucher(code) {
+        async function validateVoucher(code, orderAmount) {
             try {
-                // Use the API to validate voucher
-                const voucher = await api.validateVoucher(code);
-                return voucher;
+                // Call API with order amount for proper validation
+                const response = await api.validateVoucher(code, orderAmount);
+                console.log('Voucher validation response:', response);
+                return response;
             } catch (error) {
                 console.error('Voucher validation API failed:', error);
                 return { valid: false, message: 'Failed to validate voucher' };
