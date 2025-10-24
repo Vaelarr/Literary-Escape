@@ -10,7 +10,7 @@ ini_set('display_errors', 1);
 // Database configuration for XAMPP MySQL
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
-define('DB_PASS', '20Bradford&'); // Default XAMPP MySQL password is empty
+define('DB_PASS', ''); // Default XAMPP MySQL password is empty
 define('DB_NAME', 'literary_escape');
 define('DB_CHARSET', 'utf8mb4');
 
