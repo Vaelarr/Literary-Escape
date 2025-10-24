@@ -880,20 +880,34 @@
         document.addEventListener('DOMContentLoaded', async function () {
             // Check if user is logged in
             if (!api.isLoggedIn()) {
+                console.warn('User not logged in, redirecting to account page');
                 window.location.href = 'account.html';
                 return;
             }
 
             currentUser = api.getCurrentUser();
             if (!currentUser) {
+                console.warn('No user data found, redirecting to account page');
                 window.location.href = 'account.html';
                 return;
             }
 
-            await initializeAccountPage();
-            setupEventListeners();
-            updateNavbarAccountLink();
-            await dbBookDisplay.updateCartCount();
+            try {
+                await initializeAccountPage();
+                setupEventListeners();
+                updateNavbarAccountLink();
+                await dbBookDisplay.updateCartCount();
+            } catch (error) {
+                console.error('Error initializing account page:', error);
+                
+                // If it's a session expiration error, the handleInvalidToken will handle redirect
+                // Otherwise, show an error message
+                if (!error.message.includes('session has expired')) {
+                    if (typeof showNotification === 'function') {
+                        showNotification('Failed to load account data. Please try refreshing the page.', 'error');
+                    }
+                }
+            }
         });
 
         function updateNavbarAccountLink() {
@@ -955,7 +969,18 @@
 
             } catch (error) {
                 console.error('Failed to load user profile:', error);
-                dbBookDisplay.showMessage('Failed to load profile data', 'error');
+                
+                // Don't show error if it's a session expiration (handleInvalidToken handles it)
+                if (!error.message.includes('session has expired')) {
+                    if (typeof showNotification === 'function') {
+                        showNotification('Failed to load profile data', 'error');
+                    } else if (typeof dbBookDisplay !== 'undefined' && dbBookDisplay.showMessage) {
+                        dbBookDisplay.showMessage('Failed to load profile data', 'error');
+                    }
+                }
+                
+                // Re-throw to allow caller to handle
+                throw error;
             }
         }
 
@@ -965,8 +990,12 @@
                 displayOrders();
             } catch (error) {
                 console.error('Failed to load orders:', error);
-                document.getElementById('ordersContainer').innerHTML =
-                    '<div class="text-center py-5"><p class="text-muted">Failed to load orders</p></div>';
+                
+                // Don't show error if it's a session expiration
+                if (!error.message.includes('session has expired')) {
+                    document.getElementById('ordersContainer').innerHTML =
+                        '<div class="text-center py-5"><p class="text-muted">Failed to load orders. Please try refreshing the page.</p></div>';
+                }
             }
         }
 
@@ -1088,8 +1117,12 @@
                 displayAddresses();
             } catch (error) {
                 console.error('Failed to load addresses:', error);
-                document.getElementById('addressesContainer').innerHTML =
-                    '<div class="text-center py-3"><p class="text-muted">Failed to load addresses</p></div>';
+                
+                // Don't show error if it's a session expiration
+                if (!error.message.includes('session has expired')) {
+                    document.getElementById('addressesContainer').innerHTML =
+                        '<div class="text-center py-3"><p class="text-muted">Failed to load addresses. Please try refreshing the page.</p></div>';
+                }
             }
         }
 

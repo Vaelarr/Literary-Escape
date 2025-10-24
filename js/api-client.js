@@ -114,6 +114,15 @@ class APIClient {
             
             if (!response.ok) {
                 console.error('API request failed:', data);
+                
+                // Handle token expiration or invalid token
+                if ((response.status === 401 || response.status === 403) && 
+                    (data.error === 'Invalid token' || data.error === 'Access token required')) {
+                    console.warn('Token is invalid or expired. Logging out user.');
+                    this.handleInvalidToken();
+                    throw new Error('Your session has expired. Please login again.');
+                }
+                
                 throw new Error(data.error || 'Request failed');
             }
             
@@ -128,6 +137,37 @@ class APIClient {
             }
             
             throw error;
+        }
+    }
+    
+    // Handle invalid or expired token
+    handleInvalidToken() {
+        // Clear the invalid token
+        this.logout();
+        
+        // Only redirect if not already on login/account page
+        const currentPath = window.location.pathname;
+        const isOnAccountPage = currentPath.includes('account.html') || 
+                               currentPath.includes('account-dashboard.html');
+        
+        if (!isOnAccountPage) {
+            // Store the current page to redirect back after login
+            sessionStorage.setItem('redirectAfterLogin', window.location.href);
+            
+            // Show a notification if available
+            if (typeof showNotification === 'function') {
+                showNotification('Your session has expired. Please login again.', 'warning');
+            }
+            
+            // Redirect to login page after a short delay
+            setTimeout(() => {
+                window.location.href = 'account.html';
+            }, 1500);
+        } else if (currentPath.includes('account-dashboard.html')) {
+            // If on dashboard, redirect to login
+            setTimeout(() => {
+                window.location.href = 'account.html';
+            }, 1000);
         }
     }
 
@@ -208,6 +248,35 @@ class APIClient {
         localStorage.removeItem('authToken');
         localStorage.removeItem('user');
         localStorage.removeItem('loginTimestamp');
+    }
+    
+    // Check if token is expired (24 hour expiration)
+    isTokenExpired() {
+        const loginTimestamp = localStorage.getItem('loginTimestamp');
+        if (!loginTimestamp) {
+            return true; // No timestamp means token is invalid
+        }
+        
+        const loginTime = parseInt(loginTimestamp);
+        const currentTime = Date.now();
+        const hoursSinceLogin = (currentTime - loginTime) / (1000 * 60 * 60);
+        
+        // Token expires after 24 hours
+        return hoursSinceLogin >= 24;
+    }
+    
+    // Check if user is logged in with a valid token
+    isLoggedIn() {
+        const hasToken = !!this.token;
+        
+        if (hasToken && this.isTokenExpired()) {
+            console.warn('Token has expired (24+ hours old). Logging out.');
+            this.handleInvalidToken();
+            return false;
+        }
+        
+        console.log('Login status check:', { hasToken, token: this.token ? 'Present' : 'Missing' });
+        return hasToken;
     }
 
     // Book methods - these don't require authentication for viewing
@@ -443,12 +512,6 @@ class APIClient {
     }
 
     // Utility methods
-    isLoggedIn() {
-        const hasToken = !!this.token;
-        console.log('Login status check:', { hasToken, token: this.token ? 'Present' : 'Missing' });
-        return hasToken;
-    }
-
     getCurrentUser() {
         const userStr = localStorage.getItem('user');
         const user = userStr ? JSON.parse(userStr) : null;
