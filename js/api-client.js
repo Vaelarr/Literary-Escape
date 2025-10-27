@@ -648,6 +648,59 @@ class APIClient {
             method: 'DELETE'
         });
     }
+
+    // Audit Trail Operations
+    async adminGetAuditTrail(limit = 10) {
+        return this.makeRequest(`/admin/audit-trail/recent?limit=${limit}`);
+    }
+
+    async adminGetAllAuditTrail(page = 1, limit = 50) {
+        return this.makeRequest(`/admin/audit-trail?page=${page}&limit=${limit}`);
+    }
+
+    async adminGetAuditTrailByEntity(entityType, page = 1, limit = 50) {
+        return this.makeRequest(`/admin/audit-trail/entity/${entityType}?page=${page}&limit=${limit}`);
+    }
+
+    async adminGetAuditTrailByAction(actionType, page = 1, limit = 50) {
+        return this.makeRequest(`/admin/audit-trail/action/${actionType}?page=${page}&limit=${limit}`);
+    }
+
+    async adminGetAuditTrailByAdmin(adminId, page = 1, limit = 50) {
+        return this.makeRequest(`/admin/audit-trail/admin/${adminId}?page=${page}&limit=${limit}`);
+    }
+
+    // Super Admin - Admin Management Operations
+    async superAdminGetAdmins() {
+        return this.makeRequest('/super-admin/admins');
+    }
+
+    async superAdminCreateAdmin(adminData) {
+        return this.makeRequest('/super-admin/admins', {
+            method: 'POST',
+            body: JSON.stringify(adminData)
+        });
+    }
+
+    async superAdminUpdateAdmin(adminId, adminData) {
+        return this.makeRequest(`/super-admin/admins/${adminId}`, {
+            method: 'PUT',
+            body: JSON.stringify(adminData)
+        });
+    }
+
+    async superAdminDeleteAdmin(adminId) {
+        return this.makeRequest(`/super-admin/admins/${adminId}`, {
+            method: 'DELETE'
+        });
+    }
+
+    async superAdminResetPassword(adminId, password) {
+        return this.makeRequest(`/super-admin/admins/${adminId}/password`, {
+            method: 'PUT',
+            body: JSON.stringify({ password })
+        });
+    }
 }
 
 // Create global API client instance

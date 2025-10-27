@@ -47,6 +47,13 @@
             <li><a href="#" class="menu-link archived-link" data-section="archived-books">Archived Books</a></li>
             <li><a href="#" class="menu-link archived-link" data-section="archived-users">Archived Users</a></li>
             <li><a href="#" class="menu-link archived-link" data-section="archived-orders">Archived Orders</a></li>
+            <!-- Super Admin Only Section -->
+            <li id="superAdminSeparator" class="menu-separator super-admin-only" style="display:none;">Super Admin</li>
+            <li id="adminManagementLink" class="super-admin-only" style="display:none;">
+                <a href="#" class="menu-link" data-section="admin-management">
+                    <i class="fas fa-user-shield"></i> Admin Management
+                </a>
+            </li>
             <li><a href="#" class="menu-link" data-section="settings">Security & Settings</a></li>
         </ul>
 
@@ -60,9 +67,25 @@
             </button>
             <div class="user-menu">
                 <span id="dbStatus" class="badge bg-secondary" style="margin-right: 12px;">DB: checking...</span>
-                <div class="notification-icon">
+                <div class="notification-icon" id="auditTrailBell">
                     <i class="fas fa-bell"></i>
-                    <span class="badge">5</span>
+                    <span class="badge" id="auditTrailCount">0</span>
+                </div>
+                <!-- Audit Trail Dropdown -->
+                <div class="notification-dropdown" id="auditTrailDropdown">
+                    <div class="notification-header">
+                        <h4><i class="fas fa-history me-2"></i>Activity Log</h4>
+                        <span class="mark-all-read" id="viewAllAudit" style="cursor: pointer;">View All</span>
+                    </div>
+                    <div class="notification-list" id="auditTrailList">
+                        <div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.5);">
+                            <i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i>
+                            <p style="margin-top: 10px;">Loading activity...</p>
+                        </div>
+                    </div>
+                    <div class="notification-footer" style="padding: 10px; text-align: center; border-top: 1px solid rgba(255,255,255,0.2);">
+                        <small style="color: rgba(255,255,255,0.6);">Last 10 admin activities</small>
+                    </div>
                 </div>
                 <div class="user-avatar"></div>
             </div>
@@ -625,6 +648,115 @@
         </div>
     </div>
 
+    <!-- Admin Management Section (Super Admin Only) -->
+    <div id="admin-management-section" class="content-section super-admin-only" style="display:none;">
+        <h2 class="section-title">
+            <i class="fas fa-user-shield me-2"></i>Admin Management
+            <span style="font-size: 0.6rem; background: #ff6b6b; padding: 4px 12px; border-radius: 12px; margin-left: 10px;">SUPER ADMIN</span>
+        </h2>
+
+        <div class="content-card">
+            <div class="card-header-section">
+                <div>
+                    <h3 class="card-title">Admin Accounts</h3>
+                    <p class="card-subtitle">Manage administrator access and permissions</p>
+                </div>
+                <button class="btn-add" onclick="openAddAdminModal()">
+                    <i class="fas fa-user-plus me-2"></i>Add New Admin
+                </button>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Name</th>
+                            <th>Role</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminsTable">
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: rgba(255,255,255,0.5); padding: 40px;">
+                                <i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i>
+                                <p style="margin-top: 10px;">Loading admins...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    </div>
+
+    <!-- Add/Edit Admin Modal -->
+    <div class="modal fade" id="addAdminModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Admin</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="adminForm">
+                        <input type="hidden" id="adminId">
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Username <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="adminUsername" placeholder="Enter username" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Email <span class="text-danger">*</span></label>
+                                <input type="email" class="form-control" id="adminEmail" placeholder="admin@example.com" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="adminFirstName" placeholder="First name">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="adminLastName" placeholder="Last name">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Phone</label>
+                            <input type="tel" class="form-control" id="adminPhone" placeholder="Phone number">
+                        </div>
+
+                        <div class="mb-3" id="passwordField">
+                            <label class="form-label">Password <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" id="adminPassword" placeholder="Minimum 6 characters" minlength="6">
+                            <small class="text-muted">Leave blank to keep current password (edit mode)</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="adminIsSuperAdmin">
+                                <label class="form-check-label" for="adminIsSuperAdmin">
+                                    <i class="fas fa-shield-alt me-2"></i>Super Admin (Full System Access)
+                                </label>
+                                <small class="d-block text-muted mt-1">Super admins can manage other admin accounts</small>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn-add" onclick="saveAdmin()">
+                        <i class="fas fa-save me-2"></i>Save Admin
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Add Book Modal -->
@@ -2558,6 +2690,7 @@
                 if (isConnected) {
                     console.log('✅ Admin session is valid, showing admin panel');
                     showAdminApp();
+                    checkSuperAdminAccess(); // Check super admin status and show/hide menu
                     initAdmin();
                 } else {
                     console.log('❌ Database connection failed, showing login');
@@ -2606,6 +2739,7 @@
                 if (response.token) {
                     console.log('✅ Admin login successful');
                     showAdminApp();
+                    checkSuperAdminAccess(); // Check super admin status and show/hide menu
                     initAdmin();
                 } else {
                     throw new Error('Login failed');
@@ -3404,6 +3538,429 @@
         
         setupMobileMenu();
         
+        // ==================== AUDIT TRAIL FUNCTIONS ====================
+        
+        let auditTrailLogs = [];
+        
+        // Load recent audit trail logs
+        async function loadAuditTrail() {
+            try {
+                console.log('📜 Loading audit trail logs...');
+                const logs = await api.adminGetAuditTrail(10); // Get last 10 logs
+                
+                if (logs && Array.isArray(logs)) {
+                    auditTrailLogs = logs;
+                    displayAuditTrail();
+                    updateAuditTrailBadge(logs.length);
+                } else {
+                    console.warn('No audit trail logs received');
+                    auditTrailLogs = [];
+                    displayAuditTrail();
+                    updateAuditTrailBadge(0);
+                }
+            } catch (error) {
+                console.error('❌ Error loading audit trail:', error);
+                showAuditTrailError();
+            }
+        }
+        
+        // Display audit trail in dropdown
+        function displayAuditTrail() {
+            const listElement = document.getElementById('auditTrailList');
+            
+            if (!auditTrailLogs || auditTrailLogs.length === 0) {
+                listElement.innerHTML = `
+                    <div style="text-align: center; padding: 30px; color: rgba(255,255,255,0.5);">
+                        <i class="fas fa-inbox" style="font-size: 32px; margin-bottom: 10px; opacity: 0.3;"></i>
+                        <p>No recent activity</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            listElement.innerHTML = auditTrailLogs.map(log => {
+                const timeAgo = formatTimeAgo(log.created_at);
+                const icon = getAuditIcon(log.action_type);
+                const color = getAuditColor(log.action_type);
+                
+                return `
+                    <div class="notification-item" data-log-id="${log.id}">
+                        <div class="notification-icon-circle" style="background: ${color};">
+                            <i class="${icon}"></i>
+                        </div>
+                        <div class="notification-content-area">
+                            <div class="notification-text">
+                                <strong>${escapeHtml(log.action_type)}</strong> ${escapeHtml(log.entity_type)}
+                                ${log.entity_name ? `<span class="entity-name">"${escapeHtml(log.entity_name)}"</span>` : ''}
+                            </div>
+                            <div class="notification-description">
+                                ${log.description ? escapeHtml(log.description) : ''}
+                            </div>
+                            <div class="notification-meta">
+                                <span><i class="fas fa-user"></i> ${escapeHtml(log.admin_email)}</span>
+                                <span><i class="fas fa-clock"></i> ${timeAgo}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Update audit trail badge
+        function updateAuditTrailBadge(count) {
+            const badge = document.getElementById('auditTrailCount');
+            if (badge) {
+                badge.textContent = count > 0 ? (count > 99 ? '99+' : count) : '0';
+                badge.style.display = count > 0 ? 'flex' : 'none';
+            }
+        }
+        
+        // Show error in audit trail
+        function showAuditTrailError() {
+            const listElement = document.getElementById('auditTrailList');
+            listElement.innerHTML = `
+                <div style="text-align: center; padding: 20px; color: #ff6b6b;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 24px; margin-bottom: 10px;"></i>
+                    <p>Failed to load activity log</p>
+                </div>
+            `;
+        }
+        
+        // Get icon for audit action type
+        function getAuditIcon(actionType) {
+            const icons = {
+                'CREATE': 'fas fa-plus-circle',
+                'UPDATE': 'fas fa-edit',
+                'DELETE': 'fas fa-trash-alt',
+                'ARCHIVE': 'fas fa-archive',
+                'UNARCHIVE': 'fas fa-box-open',
+                'LOGIN': 'fas fa-sign-in-alt',
+                'LOGOUT': 'fas fa-sign-out-alt'
+            };
+            return icons[actionType] || 'fas fa-circle';
+        }
+        
+        // Get color for audit action type
+        function getAuditColor(actionType) {
+            const colors = {
+                'CREATE': 'rgba(40, 167, 69, 0.8)',
+                'UPDATE': 'rgba(0, 123, 255, 0.8)',
+                'DELETE': 'rgba(220, 53, 69, 0.8)',
+                'ARCHIVE': 'rgba(255, 193, 7, 0.8)',
+                'UNARCHIVE': 'rgba(23, 162, 184, 0.8)',
+                'LOGIN': 'rgba(40, 167, 69, 0.8)',
+                'LOGOUT': 'rgba(108, 117, 125, 0.8)'
+            };
+            return colors[actionType] || 'rgba(108, 117, 125, 0.8)';
+        }
+        
+        // Format time ago
+        function formatTimeAgo(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const seconds = Math.floor((now - date) / 1000);
+            
+            if (seconds < 60) return 'just now';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes}m ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            const days = Math.floor(hours / 24);
+            if (days < 7) return `${days}d ago`;
+            const weeks = Math.floor(days / 7);
+            if (weeks < 4) return `${weeks}w ago`;
+            return date.toLocaleDateString();
+        }
+        
+        // Toggle audit trail dropdown
+        function toggleAuditTrailDropdown() {
+            const dropdown = document.getElementById('auditTrailDropdown');
+            dropdown.classList.toggle('show');
+            
+            // Reload audit trail when opening
+            if (dropdown.classList.contains('show')) {
+                loadAuditTrail();
+            }
+        }
+        
+        // Setup audit trail bell click handler
+        document.getElementById('auditTrailBell').addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleAuditTrailDropdown();
+        });
+        
+        // Close audit trail dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('auditTrailDropdown');
+            const bell = document.getElementById('auditTrailBell');
+            
+            if (!dropdown.contains(e.target) && !bell.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+        
+        // Load audit trail on page load
+        loadAuditTrail();
+        
+        // Refresh audit trail every 30 seconds
+        setInterval(loadAuditTrail, 30000);
+        
+        // ==================== ADMIN MANAGEMENT FUNCTIONS (SUPER ADMIN ONLY) ====================
+        
+        let allAdmins = [];
+        
+        // Load admins list
+        async function loadAdmins() {
+            try {
+                const response = await window.api.superAdminGetAdmins();
+                
+                if (response.success) {
+                    allAdmins = response.admins;
+                    displayAdmins();
+                } else {
+                    throw new Error(response.message || 'Failed to load admins');
+                }
+            } catch (error) {
+                console.error('Error loading admins:', error);
+                document.getElementById('adminsTable').innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: #ff6b6b; padding: 40px;">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 24px;"></i>
+                            <p style="margin-top: 10px;">Error loading admins: ${error.message}</p>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
+        // Display admins in table
+        function displayAdmins() {
+            const tableBody = document.getElementById('adminsTable');
+            
+            if (allAdmins.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: rgba(255,255,255,0.5); padding: 40px;">
+                            <i class="fas fa-users-slash" style="font-size: 24px;"></i>
+                            <p style="margin-top: 10px;">No admin accounts found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tableBody.innerHTML = allAdmins.map(admin => {
+                const createdDate = new Date(admin.created_at).toLocaleDateString();
+                const roleBadge = admin.is_super_admin 
+                    ? '<span style="background: #ff6b6b; padding: 4px 8px; border-radius: 8px; font-size: 0.75rem; font-weight: 600;">SUPER ADMIN</span>'
+                    : '<span style="background: #4dabf7; padding: 4px 8px; border-radius: 8px; font-size: 0.75rem; font-weight: 600;">ADMIN</span>';
+                
+                const fullName = [admin.first_name, admin.last_name].filter(Boolean).join(' ') || '-';
+                
+                // Check if this is the current logged-in admin
+                const userData = JSON.parse(localStorage.getItem('adminUser') || '{}');
+                const isCurrentUser = userData.id === admin.id;
+                
+                // Count super admins
+                const superAdminCount = allAdmins.filter(a => a.is_super_admin).length;
+                const canDelete = !isCurrentUser && !(admin.is_super_admin && superAdminCount <= 1);
+                
+                return `
+                    <tr>
+                        <td>
+                            ${admin.username}
+                            ${isCurrentUser ? '<span style="color: #51cf66; margin-left: 8px; font-size: 0.7rem;">(You)</span>' : ''}
+                        </td>
+                        <td>${admin.email}</td>
+                        <td>${fullName}</td>
+                        <td>${roleBadge}</td>
+                        <td>${createdDate}</td>
+                        <td>
+                            <button class="btn-icon" onclick="openEditAdminModal(${admin.id})" title="Edit Admin">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-icon" onclick="resetAdminPasswordPrompt(${admin.id}, '${admin.username}')" title="Reset Password">
+                                <i class="fas fa-key"></i>
+                            </button>
+                            ${canDelete ? `
+                                <button class="btn-icon btn-delete" onclick="deleteAdminPrompt(${admin.id}, '${admin.username}')" title="Delete Admin">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            ` : `
+                                <button class="btn-icon" disabled title="${isCurrentUser ? 'Cannot delete yourself' : 'Cannot delete last super admin'}" style="opacity: 0.3; cursor: not-allowed;">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            `}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        // Open add admin modal
+        function openAddAdminModal() {
+            document.getElementById('adminId').value = '';
+            document.getElementById('adminForm').reset();
+            document.querySelector('#addAdminModal .modal-title').textContent = 'Add New Admin';
+            document.getElementById('passwordField').querySelector('small').style.display = 'none';
+            document.getElementById('adminPassword').required = true;
+            
+            const modal = new bootstrap.Modal(document.getElementById('addAdminModal'));
+            modal.show();
+        }
+        
+        // Open edit admin modal
+        function openEditAdminModal(adminId) {
+            const admin = allAdmins.find(a => a.id === adminId);
+            if (!admin) return;
+            
+            document.getElementById('adminId').value = admin.id;
+            document.getElementById('adminUsername').value = admin.username;
+            document.getElementById('adminEmail').value = admin.email;
+            document.getElementById('adminFirstName').value = admin.first_name || '';
+            document.getElementById('adminLastName').value = admin.last_name || '';
+            document.getElementById('adminPhone').value = admin.phone || '';
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('adminIsSuperAdmin').checked = admin.is_super_admin;
+            
+            document.querySelector('#addAdminModal .modal-title').textContent = 'Edit Admin';
+            document.getElementById('passwordField').querySelector('small').style.display = 'block';
+            document.getElementById('adminPassword').required = false;
+            
+            const modal = new bootstrap.Modal(document.getElementById('addAdminModal'));
+            modal.show();
+        }
+        
+        // Save admin (create or update)
+        async function saveAdmin() {
+            const adminId = document.getElementById('adminId').value;
+            const username = document.getElementById('adminUsername').value.trim();
+            const email = document.getElementById('adminEmail').value.trim();
+            const firstName = document.getElementById('adminFirstName').value.trim();
+            const lastName = document.getElementById('adminLastName').value.trim();
+            const phone = document.getElementById('adminPhone').value.trim();
+            const password = document.getElementById('adminPassword').value;
+            const isSuperAdmin = document.getElementById('adminIsSuperAdmin').checked;
+            
+            // Validation
+            if (!username || !email) {
+                showNotification('Username and email are required', 'error');
+                return;
+            }
+            
+            if (!adminId && !password) {
+                showNotification('Password is required for new admins', 'error');
+                return;
+            }
+            
+            if (password && password.length < 6) {
+                showNotification('Password must be at least 6 characters', 'error');
+                return;
+            }
+            
+            try {
+                const adminData = {
+                    username,
+                    email,
+                    first_name: firstName,
+                    last_name: lastName,
+                    phone,
+                    is_super_admin: isSuperAdmin ? 1 : 0
+                };
+                
+                if (password) {
+                    adminData.password = password;
+                }
+                
+                let response;
+                if (adminId) {
+                    // Update existing admin
+                    response = await window.api.superAdminUpdateAdmin(adminId, adminData);
+                } else {
+                    // Create new admin
+                    response = await window.api.superAdminCreateAdmin(adminData);
+                }
+                
+                if (response.success) {
+                    showNotification(adminId ? 'Admin updated successfully' : 'Admin created successfully', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('addAdminModal')).hide();
+                    await loadAdmins();
+                } else {
+                    throw new Error(response.message || 'Failed to save admin');
+                }
+            } catch (error) {
+                console.error('Error saving admin:', error);
+                showNotification(error.message, 'error');
+            }
+        }
+        
+        // Delete admin with confirmation
+        async function deleteAdminPrompt(adminId, username) {
+            if (!confirm(`Are you sure you want to delete admin "${username}"?\n\nThis action cannot be undone.`)) {
+                return;
+            }
+            
+            try {
+                const response = await window.api.superAdminDeleteAdmin(adminId);
+                
+                if (response.success) {
+                    showNotification('Admin deleted successfully', 'success');
+                    await loadAdmins();
+                } else {
+                    throw new Error(response.message || 'Failed to delete admin');
+                }
+            } catch (error) {
+                console.error('Error deleting admin:', error);
+                showNotification(error.message, 'error');
+            }
+        }
+        
+        // Reset admin password
+        async function resetAdminPasswordPrompt(adminId, username) {
+            const newPassword = prompt(`Enter new password for "${username}":\n\n(Minimum 6 characters)`);
+            
+            if (!newPassword) return;
+            
+            if (newPassword.length < 6) {
+                showNotification('Password must be at least 6 characters', 'error');
+                return;
+            }
+            
+            try {
+                const response = await window.api.superAdminResetPassword(adminId, newPassword);
+                
+                if (response.success) {
+                    showNotification('Password reset successfully', 'success');
+                } else {
+                    throw new Error(response.message || 'Failed to reset password');
+                }
+            } catch (error) {
+                console.error('Error resetting password:', error);
+                showNotification(error.message, 'error');
+            }
+        }
+        
+        // Check if user is super admin and show/hide menu
+        function checkSuperAdminAccess() {
+            const userData = JSON.parse(localStorage.getItem('adminUser') || '{}');
+            const isSuperAdmin = userData.isSuperAdmin === true;
+            
+            // Show/hide super admin menu items
+            const superAdminElements = document.querySelectorAll('.super-admin-only');
+            superAdminElements.forEach(element => {
+                element.style.display = isSuperAdmin ? '' : 'none';
+            });
+            
+            // If on admin management section and not super admin, redirect to dashboard
+            const currentSection = document.querySelector('.content-section:not([style*="display: none"])');
+            if (currentSection && currentSection.id === 'admin-management-section' && !isSuperAdmin) {
+                showSection('dashboard');
+            }
+        }
+        
+        // Call on page load and after login
+        checkSuperAdminAccess();
+        
         // ==================== VOUCHER MANAGEMENT FUNCTIONS ====================
         
         let allVouchers = [];
@@ -3738,6 +4295,11 @@
         // Load vouchers when voucher section is opened
         document.querySelector('[data-section="vouchers"]')?.addEventListener('click', function() {
             loadVouchersFromAPI(1);
+        });
+        
+        // Load admins when admin management section is opened
+        document.querySelector('[data-section="admin-management"]')?.addEventListener('click', function() {
+            loadAdmins();
         });
         
         // ==================== END VOUCHER MANAGEMENT ====================

@@ -105,6 +105,7 @@ function initializeDatabase(callback) {
             last_name TEXT,
             phone TEXT,
             role TEXT DEFAULT 'admin',
+            is_super_admin BOOLEAN DEFAULT 0,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
@@ -211,6 +212,25 @@ function initializeDatabase(callback) {
         )
     `;
 
+    const createAuditTrailTable = `
+        CREATE TABLE IF NOT EXISTS audit_trail (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            action_type TEXT NOT NULL,
+            entity_type TEXT NOT NULL,
+            entity_id INTEGER,
+            entity_name TEXT,
+            old_value TEXT,
+            new_value TEXT,
+            admin_id INTEGER NOT NULL,
+            admin_email TEXT NOT NULL,
+            ip_address TEXT,
+            user_agent TEXT,
+            description TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (admin_id) REFERENCES admins(id)
+        )
+    `;
+
     // Execute table creation in sequence with progress logging
     db.serialize(() => {
         console.log('Creating books table...');
@@ -274,9 +294,18 @@ function initializeDatabase(callback) {
         db.run(createVouchersTable, (err) => {
             if (err) {
                 console.error('Error creating vouchers table:', err.message);
-                if (callback) callback(err);
             } else {
                 console.log('Vouchers table created/verified');
+            }
+        });
+        
+        console.log('Creating audit_trail table...');
+        db.run(createAuditTrailTable, (err) => {
+            if (err) {
+                console.error('Error creating audit_trail table:', err.message);
+                if (callback) callback(err);
+            } else {
+                console.log('Audit trail table created/verified');
                 
                 // Run migrations to add new columns
                 runMigrations(() => {
@@ -380,6 +409,15 @@ function runMigrations(callback) {
         } else if (!err) {
             console.log('Reviews table migration completed - reviewer_name column added');
         }
+    });
+
+    // Add is_super_admin column to admins table
+    db.run("ALTER TABLE admins ADD COLUMN is_super_admin BOOLEAN DEFAULT 0", (err) => {
+        if (err && !err.message.includes('duplicate column name')) {
+            console.error('Error adding is_super_admin column to admins:', err);
+        } else if (!err) {
+            console.log('Admins table migration completed - is_super_admin column added');
+        }
         
         // Create admin account after all migrations
         createAdminAccount(() => {
@@ -406,11 +444,16 @@ function createAdminAccount(callback) {
         
         if (row) {
             console.log('Administrator account already exists');
-            if (callback) callback(null);
+            // Ensure existing admin is super admin
+            db.run("UPDATE admins SET is_super_admin = 1 WHERE email = ?", [adminEmail], (updateErr) => {
+                if (updateErr) console.error('Error updating admin to super admin:', updateErr);
+                else console.log('Admin account upgraded to super admin');
+                if (callback) callback(null);
+            });
             return;
         }
         
-        // Create admin account
+        // Create super admin account
         bcrypt.hash(adminPassword, 10, (err, hash) => {
             if (err) {
                 console.error('Error hashing admin password:', err);
@@ -419,16 +462,16 @@ function createAdminAccount(callback) {
             }
             
             const query = `
-                INSERT INTO admins (username, email, password_hash, first_name, last_name, role)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO admins (username, email, password_hash, first_name, last_name, role, is_super_admin)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
             `;
             
-            db.run(query, ['admin', adminEmail, hash, adminFirstName, adminLastName, 'admin'], function(err) {
+            db.run(query, ['admin', adminEmail, hash, adminFirstName, adminLastName, 'admin', 1], function(err) {
                 if (err) {
-                    console.error('Error creating Administrator account:', err);
+                    console.error('Error creating Super Administrator account:', err);
                 } else {
-                    console.log('Administrator account created successfully');
-                    console.log('Administrator credentials:');
+                    console.log('Super Administrator account created successfully');
+                    console.log('Super Administrator credentials:');
                     console.log('Email:', adminEmail);
                     console.log('Password:', adminPassword);
                 }
@@ -1232,10 +1275,18 @@ const adminOperations = {
         console.log('Attempting to register admin:', admin.email);
         
         const query = `
-            INSERT INTO admins (username, email, password_hash, first_name, last_name, phone)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO admins (username, email, password_hash, first_name, last_name, phone, is_super_admin)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         `;
-        const values = [admin.username, admin.email, admin.password_hash, admin.first_name, admin.last_name, admin.phone];
+        const values = [
+            admin.username, 
+            admin.email, 
+            admin.password_hash, 
+            admin.first_name, 
+            admin.last_name, 
+            admin.phone,
+            admin.is_super_admin || 0
+        ];
         
         db.run(query, values, function(err) {
             if (err) {
@@ -1247,8 +1298,8 @@ const adminOperations = {
                 }
             } else {
                 console.log('Admin registered successfully with ID:', this.lastID);
+                callback(null, { id: this.lastID });
             }
-            callback(err);
         });
     },
 
@@ -1276,17 +1327,51 @@ const adminOperations = {
     // Get all admins (for super admin use)
     getAll: (callback) => {
         const query = `
-            SELECT id, username, email, first_name, last_name, created_at
+            SELECT id, username, email, first_name, last_name, is_super_admin, created_at
             FROM admins
-            ORDER BY created_at DESC
+            ORDER BY is_super_admin DESC, created_at DESC
         `;
         db.all(query, [], callback);
+    },
+    
+    // Update admin (for super admin use)
+    updateAdmin: (id, adminData, callback) => {
+        const query = `
+            UPDATE admins SET 
+                username = ?, first_name = ?, last_name = ?, email = ?, phone = ?, 
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        `;
+        const values = [
+            adminData.username,
+            adminData.first_name, 
+            adminData.last_name, 
+            adminData.email, 
+            adminData.phone, 
+            id
+        ];
+        db.run(query, values, callback);
     },
 
     // Delete admin (should be restricted to super admins)
     deleteAdmin: (id, callback) => {
-        const query = `DELETE FROM admins WHERE id = ?`;
-        db.run(query, [id], callback);
+        // Check if this is the last super admin
+        db.get('SELECT COUNT(*) as count FROM admins WHERE is_super_admin = 1', [], (err, row) => {
+            if (err) return callback(err);
+            
+            db.get('SELECT is_super_admin FROM admins WHERE id = ?', [id], (err, admin) => {
+                if (err) return callback(err);
+                if (!admin) return callback(new Error('Admin not found'));
+                
+                // Prevent deletion of last super admin
+                if (admin.is_super_admin && row.count <= 1) {
+                    return callback(new Error('Cannot delete the last super admin'));
+                }
+                
+                const query = `DELETE FROM admins WHERE id = ?`;
+                db.run(query, [id], callback);
+            });
+        });
     },
 
     // Admin methods to get all items (including archived)
@@ -1853,6 +1938,205 @@ const voucherOperations = {
     }
 };
 
+// Audit Trail Operations
+const auditTrailOperations = {
+    // Add audit log entry
+    add: (auditData, callback) => {
+        const query = `
+            INSERT INTO audit_trail (
+                action_type, entity_type, entity_id, entity_name,
+                old_value, new_value, admin_id, admin_email,
+                ip_address, user_agent, description
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+
+        db.run(
+            query,
+            [
+                auditData.action_type,
+                auditData.entity_type,
+                auditData.entity_id || null,
+                auditData.entity_name || null,
+                auditData.old_value ? JSON.stringify(auditData.old_value) : null,
+                auditData.new_value ? JSON.stringify(auditData.new_value) : null,
+                auditData.admin_id,
+                auditData.admin_email,
+                auditData.ip_address || null,
+                auditData.user_agent || null,
+                auditData.description || null
+            ],
+            callback
+        );
+    },
+
+    // Get all audit logs with pagination
+    getAll: (page = 1, limit = 50, callback) => {
+        const offset = (page - 1) * limit;
+        const query = `
+            SELECT * FROM audit_trail
+            ORDER BY created_at DESC
+            LIMIT ? OFFSET ?
+        `;
+
+        db.all(query, [limit, offset], (err, rows) => {
+            if (err) {
+                callback(err);
+                return;
+            }
+
+            // Get total count
+            db.get('SELECT COUNT(*) as total FROM audit_trail', (countErr, countRow) => {
+                if (countErr) {
+                    callback(countErr);
+                    return;
+                }
+
+                callback(null, {
+                    items: rows,
+                    total: countRow.total,
+                    page: page,
+                    limit: limit,
+                    totalPages: Math.ceil(countRow.total / limit)
+                });
+            });
+        });
+    },
+
+    // Get recent audit logs (for notification display)
+    getRecent: (limit = 10, callback) => {
+        const query = `
+            SELECT * FROM audit_trail
+            ORDER BY created_at DESC
+            LIMIT ?
+        `;
+
+        db.all(query, [limit], callback);
+    },
+
+    // Get audit logs by entity type
+    getByEntityType: (entityType, page = 1, limit = 50, callback) => {
+        const offset = (page - 1) * limit;
+        const query = `
+            SELECT * FROM audit_trail
+            WHERE entity_type = ?
+            ORDER BY created_at DESC
+            LIMIT ? OFFSET ?
+        `;
+
+        db.all(query, [entityType, limit, offset], (err, rows) => {
+            if (err) {
+                callback(err);
+                return;
+            }
+
+            // Get total count
+            db.get(
+                'SELECT COUNT(*) as total FROM audit_trail WHERE entity_type = ?',
+                [entityType],
+                (countErr, countRow) => {
+                    if (countErr) {
+                        callback(countErr);
+                        return;
+                    }
+
+                    callback(null, {
+                        items: rows,
+                        total: countRow.total,
+                        page: page,
+                        limit: limit,
+                        totalPages: Math.ceil(countRow.total / limit)
+                    });
+                }
+            );
+        });
+    },
+
+    // Get audit logs by admin
+    getByAdmin: (adminId, page = 1, limit = 50, callback) => {
+        const offset = (page - 1) * limit;
+        const query = `
+            SELECT * FROM audit_trail
+            WHERE admin_id = ?
+            ORDER BY created_at DESC
+            LIMIT ? OFFSET ?
+        `;
+
+        db.all(query, [adminId, limit, offset], (err, rows) => {
+            if (err) {
+                callback(err);
+                return;
+            }
+
+            // Get total count
+            db.get(
+                'SELECT COUNT(*) as total FROM audit_trail WHERE admin_id = ?',
+                [adminId],
+                (countErr, countRow) => {
+                    if (countErr) {
+                        callback(countErr);
+                        return;
+                    }
+
+                    callback(null, {
+                        items: rows,
+                        total: countRow.total,
+                        page: page,
+                        limit: limit,
+                        totalPages: Math.ceil(countRow.total / limit)
+                    });
+                }
+            );
+        });
+    },
+
+    // Get audit logs by action type
+    getByActionType: (actionType, page = 1, limit = 50, callback) => {
+        const offset = (page - 1) * limit;
+        const query = `
+            SELECT * FROM audit_trail
+            WHERE action_type = ?
+            ORDER BY created_at DESC
+            LIMIT ? OFFSET ?
+        `;
+
+        db.all(query, [actionType, limit, offset], (err, rows) => {
+            if (err) {
+                callback(err);
+                return;
+            }
+
+            // Get total count
+            db.get(
+                'SELECT COUNT(*) as total FROM audit_trail WHERE action_type = ?',
+                [actionType],
+                (countErr, countRow) => {
+                    if (countErr) {
+                        callback(countErr);
+                        return;
+                    }
+
+                    callback(null, {
+                        items: rows,
+                        total: countRow.total,
+                        page: page,
+                        limit: limit,
+                        totalPages: Math.ceil(countRow.total / limit)
+                    });
+                }
+            );
+        });
+    },
+
+    // Delete old audit logs (for maintenance)
+    deleteOlderThan: (days, callback) => {
+        const query = `
+            DELETE FROM audit_trail
+            WHERE created_at < datetime('now', '-' || ? || ' days')
+        `;
+        db.run(query, [days], callback);
+    }
+};
+
 module.exports = {
     db,
     initializeDatabase,
@@ -1865,6 +2149,7 @@ module.exports = {
     adminOperations,
     archiveOperations,
     voucherOperations,
+    auditTrailOperations,
     checkDatabaseHealth,
     bulkInsertBooks
 };

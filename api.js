@@ -15,6 +15,7 @@ const {
     adminOperations,
     archiveOperations,
     voucherOperations,
+    auditTrailOperations,
     initializeDatabase 
 } = require('./database-config');
 
@@ -82,6 +83,48 @@ function authenticateAdmin(req, res, next) {
         } else {
             console.log('Admin access denied - not an admin token');
             return res.status(403).json({ error: 'Admin access required' });
+        }
+    });
+}
+
+// Super Admin authentication middleware (extends admin authentication)
+function authenticateSuperAdmin(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (!token) {
+        return res.status(401).json({ error: 'Access token required' });
+    }
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) return res.status(403).json({ error: 'Invalid token' });
+        
+        console.log('Super Admin middleware - Token payload:', user);
+        
+        // Check if this is a super admin token
+        if (user.role === 'admin' && user.isAdmin === true && user.isSuperAdmin === true) {
+            console.log('Super Admin authentication successful');
+            
+            // Verify super admin still exists in database
+            adminOperations.getById(user.userId, (err, adminData) => {
+                if (err) {
+                    console.log('Error getting super admin by ID:', err);
+                    return res.status(500).json({ error: 'Failed to verify super admin' });
+                }
+                
+                if (!adminData || !adminData.is_super_admin) {
+                    console.log('Super admin not found or access revoked');
+                    return res.status(403).json({ error: 'Super admin access required' });
+                }
+                
+                console.log('Database super admin verification successful');
+                req.user = user;
+                req.adminData = adminData;
+                next();
+            });
+        } else {
+            console.log('Super admin access denied - not a super admin token');
+            return res.status(403).json({ error: 'Super admin access required' });
         }
     });
 }
@@ -160,6 +203,19 @@ app.post('/api/books', authenticateAdmin, (req, res) => {
             return res.status(500).json({ error: err.message });
         }
         console.log('✅ Book created with ID:', this.lastID);
+        
+        // Log audit trail
+        logAuditTrail(
+            req,
+            'CREATE',
+            'book',
+            this.lastID,
+            bookData.title,
+            null,
+            bookData,
+            `Created new book "${bookData.title}" by ${bookData.author}`
+        );
+        
         res.status(201).json({ id: this.lastID, message: 'Book created' });
     });
 });
@@ -185,13 +241,38 @@ app.put('/api/books/:id', authenticateAdmin, (req, res) => {
         fieldsProvided: Object.keys(book).length
     });
     
-    bookOperations.update(bookId, book, function(err) {
-        if (err) {
-            console.error('❌ Error updating book:', err);
-            return res.status(500).json({ error: err.message });
+    // First, get the old book data for audit trail
+    bookOperations.getById(bookId, (getErr, oldBook) => {
+        if (getErr) {
+            console.error('❌ Error fetching book for update:', getErr);
+            return res.status(500).json({ error: getErr.message });
         }
-        console.log('✅ Book updated, changes:', this.changes);
-        res.json({ message: 'Book updated', changes: this.changes });
+        
+        if (!oldBook) {
+            return res.status(404).json({ error: 'Book not found' });
+        }
+        
+        bookOperations.update(bookId, book, function(err) {
+            if (err) {
+                console.error('❌ Error updating book:', err);
+                return res.status(500).json({ error: err.message });
+            }
+            console.log('✅ Book updated, changes:', this.changes);
+            
+            // Log audit trail
+            logAuditTrail(
+                req,
+                'UPDATE',
+                'book',
+                bookId,
+                book.title || oldBook.title,
+                oldBook,
+                book,
+                `Updated book "${book.title || oldBook.title}"`
+            );
+            
+            res.json({ message: 'Book updated', changes: this.changes });
+        });
     });
 });
 
@@ -204,13 +285,38 @@ app.delete('/api/books/:id', authenticateAdmin, (req, res) => {
     
     console.log('Deleting book ID:', bookId);
     
-    bookOperations.removeBook(bookId, function(err) {
-        if (err) {
-            console.error('Error deleting book:', err);
-            return res.status(500).json({ error: err.message });
+    // First, get the book data for audit trail
+    bookOperations.getById(bookId, (getErr, oldBook) => {
+        if (getErr) {
+            console.error('Error fetching book for delete:', getErr);
+            return res.status(500).json({ error: getErr.message });
         }
-        console.log('Book deleted, changes:', this.changes);
-        res.json({ message: 'Book deleted', changes: this.changes });
+        
+        if (!oldBook) {
+            return res.status(404).json({ error: 'Book not found' });
+        }
+        
+        bookOperations.removeBook(bookId, function(err) {
+            if (err) {
+                console.error('Error deleting book:', err);
+                return res.status(500).json({ error: err.message });
+            }
+            console.log('Book deleted, changes:', this.changes);
+            
+            // Log audit trail
+            logAuditTrail(
+                req,
+                'DELETE',
+                'book',
+                bookId,
+                oldBook.title,
+                oldBook,
+                null,
+                `Deleted book "${oldBook.title}" by ${oldBook.author}`
+            );
+            
+            res.json({ message: 'Book deleted', changes: this.changes });
+        });
     });
 });
 
@@ -343,7 +449,8 @@ app.post('/api/admin/login', async (req, res) => {
                     userId: admin.id,
                     email: admin.email,
                     role: 'admin',
-                    isAdmin: true
+                    isAdmin: true,
+                    isSuperAdmin: admin.is_super_admin === 1
                 }, 
                 JWT_SECRET, 
                 { expiresIn: '24h' }
@@ -358,7 +465,8 @@ app.post('/api/admin/login', async (req, res) => {
                     first_name: admin.first_name,
                     last_name: admin.last_name,
                     role: 'admin',
-                    isAdmin: true
+                    isAdmin: true,
+                    isSuperAdmin: admin.is_super_admin === 1
                 } 
             });
         });
@@ -655,13 +763,38 @@ app.put('/api/admin/orders/:id', authenticateAdmin, (req, res) => {
     
     console.log('Admin updating order ID:', orderId, 'with:', { status, shipping_address });
     
-    orderOperations.updateOrder(orderId, { status, shipping_address }, (err, result) => {
-        if (err) {
-            console.error('Error updating order:', err);
-            return res.status(500).json({ error: err.message });
+    // Get old order data for audit trail
+    orderOperations.getAdminOrderDetails(orderId, (getErr, oldOrder) => {
+        if (getErr) {
+            console.error('Error fetching order for update:', getErr);
+            return res.status(500).json({ error: getErr.message });
         }
-        console.log('Order updated, changes:', result.changes);
-        res.json({ message: 'Order updated', changes: result.changes });
+        
+        if (!oldOrder) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+        
+        orderOperations.updateOrder(orderId, { status, shipping_address }, (err, result) => {
+            if (err) {
+                console.error('Error updating order:', err);
+                return res.status(500).json({ error: err.message });
+            }
+            console.log('Order updated, changes:', result.changes);
+            
+            // Log audit trail
+            logAuditTrail(
+                req,
+                'UPDATE',
+                'order',
+                orderId,
+                `Order #${orderId}`,
+                { status: oldOrder.status, shipping_address: oldOrder.shipping_address },
+                { status, shipping_address },
+                `Updated order #${orderId} status from "${oldOrder.status}" to "${status}"`
+            );
+            
+            res.json({ message: 'Order updated', changes: result.changes });
+        });
     });
 });
 
@@ -944,18 +1077,43 @@ app.put('/api/admin/users/:id/role', authenticateAdmin, (req, res) => {
         return res.status(400).json({ error: 'Invalid role. Must be "user" or "admin"' });
     }
     
-    userOperations.updateRole(userId, role, (err, result) => {
-        if (err) {
-            console.error('Error updating user role:', err);
-            return res.status(500).json({ error: err.message });
+    // Get old user data for audit trail
+    userOperations.getById(userId, (getErr, oldUser) => {
+        if (getErr) {
+            console.error('Error fetching user for role update:', getErr);
+            return res.status(500).json({ error: getErr.message });
         }
         
-        if (!result) {
+        if (!oldUser) {
             return res.status(404).json({ error: 'User not found' });
         }
         
-        console.log('User role updated successfully');
-        res.json({ success: true, message: 'User role updated successfully' });
+        userOperations.updateRole(userId, role, (err, result) => {
+            if (err) {
+                console.error('Error updating user role:', err);
+                return res.status(500).json({ error: err.message });
+            }
+            
+            if (!result) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+            
+            console.log('User role updated successfully');
+            
+            // Log audit trail
+            logAuditTrail(
+                req,
+                'UPDATE',
+                'user',
+                userId,
+                oldUser.username || oldUser.email,
+                { role: oldUser.role },
+                { role },
+                `Changed user "${oldUser.username || oldUser.email}" role from "${oldUser.role}" to "${role}"`
+            );
+            
+            res.json({ success: true, message: 'User role updated successfully' });
+        });
     });
 });
 
@@ -1630,6 +1788,335 @@ app.get('/api/admin/dashboard/stats', authenticateAdmin, (req, res) => {
     .catch(error => {
         console.error('❌ Error fetching dashboard statistics:', error);
         res.status(500).json({ error: error.message });
+    });
+});
+
+// ==================== SUPER ADMIN - ADMIN MANAGEMENT API ENDPOINTS ====================
+
+// Get all admin accounts (super admin only)
+app.get('/api/super-admin/admins', authenticateSuperAdmin, (req, res) => {
+    console.log('📋 Fetching all admin accounts...');
+    
+    adminOperations.getAll((err, admins) => {
+        if (err) {
+            console.error('Error fetching admins:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(admins);
+    });
+});
+
+// Create new admin account (super admin only)
+app.post('/api/super-admin/admins', authenticateSuperAdmin, async (req, res) => {
+    try {
+        const { username, email, password, first_name, last_name, phone, is_super_admin } = req.body;
+        
+        console.log('👤 Creating new admin account:', email);
+        
+        // Validate required fields
+        if (!username || !email || !password) {
+            return res.status(400).json({ error: 'Username, email, and password are required' });
+        }
+        
+        // Hash password
+        const password_hash = await bcrypt.hash(password, 10);
+        
+        const adminData = {
+            username,
+            email,
+            password_hash,
+            first_name: first_name || '',
+            last_name: last_name || '',
+            phone: phone || '',
+            is_super_admin: is_super_admin ? 1 : 0
+        };
+        
+        adminOperations.register(adminData, (err, result) => {
+            if (err) {
+                console.error('Error creating admin:', err);
+                return res.status(500).json({ error: err.message });
+            }
+            
+            console.log('✅ Admin created successfully with ID:', result.id);
+            
+            // Log audit trail
+            logAuditTrail(
+                req,
+                'CREATE',
+                'admin',
+                result.id,
+                username,
+                null,
+                { username, email, is_super_admin: adminData.is_super_admin },
+                `Created new ${is_super_admin ? 'super ' : ''}admin account "${username}"`
+            );
+            
+            res.status(201).json({ id: result.id, message: 'Admin created successfully' });
+        });
+    } catch (error) {
+        console.error('Error in admin creation:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Update admin account (super admin only)
+app.put('/api/super-admin/admins/:id', authenticateSuperAdmin, (req, res) => {
+    const adminId = parseInt(req.params.id);
+    const { username, email, first_name, last_name, phone } = req.body;
+    
+    console.log(`📝 Updating admin account ${adminId}`);
+    
+    if (isNaN(adminId)) {
+        return res.status(400).json({ error: 'Invalid admin ID' });
+    }
+    
+    // Get old admin data for audit trail
+    adminOperations.getById(adminId, (getErr, oldAdmin) => {
+        if (getErr) {
+            console.error('Error fetching admin for update:', getErr);
+            return res.status(500).json({ error: getErr.message });
+        }
+        
+        if (!oldAdmin) {
+            return res.status(404).json({ error: 'Admin not found' });
+        }
+        
+        const adminData = {
+            username: username || oldAdmin.username,
+            email: email || oldAdmin.email,
+            first_name: first_name || oldAdmin.first_name,
+            last_name: last_name || oldAdmin.last_name,
+            phone: phone || oldAdmin.phone
+        };
+        
+        adminOperations.updateAdmin(adminId, adminData, (err) => {
+            if (err) {
+                console.error('Error updating admin:', err);
+                return res.status(500).json({ error: err.message });
+            }
+            
+            console.log('✅ Admin updated successfully');
+            
+            // Log audit trail
+            logAuditTrail(
+                req,
+                'UPDATE',
+                'admin',
+                adminId,
+                adminData.username,
+                oldAdmin,
+                adminData,
+                `Updated admin account "${adminData.username}"`
+            );
+            
+            res.json({ message: 'Admin updated successfully' });
+        });
+    });
+});
+
+// Delete admin account (super admin only)
+app.delete('/api/super-admin/admins/:id', authenticateSuperAdmin, (req, res) => {
+    const adminId = parseInt(req.params.id);
+    
+    console.log(`🗑️ Deleting admin account ${adminId}`);
+    
+    if (isNaN(adminId)) {
+        return res.status(400).json({ error: 'Invalid admin ID' });
+    }
+    
+    // Prevent self-deletion
+    if (adminId === req.user.userId) {
+        return res.status(400).json({ error: 'Cannot delete your own account' });
+    }
+    
+    // Get admin data for audit trail before deletion
+    adminOperations.getById(adminId, (getErr, adminData) => {
+        if (getErr) {
+            console.error('Error fetching admin for deletion:', getErr);
+            return res.status(500).json({ error: getErr.message });
+        }
+        
+        if (!adminData) {
+            return res.status(404).json({ error: 'Admin not found' });
+        }
+        
+        adminOperations.deleteAdmin(adminId, (err) => {
+            if (err) {
+                console.error('Error deleting admin:', err);
+                return res.status(500).json({ error: err.message });
+            }
+            
+            console.log('✅ Admin deleted successfully');
+            
+            // Log audit trail
+            logAuditTrail(
+                req,
+                'DELETE',
+                'admin',
+                adminId,
+                adminData.username,
+                adminData,
+                null,
+                `Deleted ${adminData.is_super_admin ? 'super ' : ''}admin account "${adminData.username}"`
+            );
+            
+            res.json({ message: 'Admin deleted successfully' });
+        });
+    });
+});
+
+// Reset admin password (super admin only)
+app.put('/api/super-admin/admins/:id/password', authenticateSuperAdmin, async (req, res) => {
+    try {
+        const adminId = parseInt(req.params.id);
+        const { password } = req.body;
+        
+        console.log(`🔑 Resetting password for admin ${adminId}`);
+        
+        if (isNaN(adminId)) {
+            return res.status(400).json({ error: 'Invalid admin ID' });
+        }
+        
+        if (!password || password.length < 6) {
+            return res.status(400).json({ error: 'Password must be at least 6 characters' });
+        }
+        
+        // Hash new password
+        const password_hash = await bcrypt.hash(password, 10);
+        
+        // Get admin data for audit trail
+        adminOperations.getById(adminId, (getErr, adminData) => {
+            if (getErr) {
+                return res.status(500).json({ error: getErr.message });
+            }
+            
+            if (!adminData) {
+                return res.status(404).json({ error: 'Admin not found' });
+            }
+            
+            adminOperations.updatePassword(adminId, password_hash, (err) => {
+                if (err) {
+                    console.error('Error resetting admin password:', err);
+                    return res.status(500).json({ error: err.message });
+                }
+                
+                console.log('✅ Admin password reset successfully');
+                
+                // Log audit trail
+                logAuditTrail(
+                    req,
+                    'UPDATE',
+                    'admin',
+                    adminId,
+                    adminData.username,
+                    null,
+                    null,
+                    `Reset password for admin "${adminData.username}"`
+                );
+                
+                res.json({ message: 'Password reset successfully' });
+            });
+        });
+    } catch (error) {
+        console.error('Error in password reset:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ==================== AUDIT TRAIL API ENDPOINTS ====================
+
+// Helper function to log audit trail
+function logAuditTrail(req, actionType, entityType, entityId, entityName, oldValue, newValue, description) {
+    const auditData = {
+        action_type: actionType,
+        entity_type: entityType,
+        entity_id: entityId,
+        entity_name: entityName,
+        old_value: oldValue,
+        new_value: newValue,
+        admin_id: req.user.userId,
+        admin_email: req.user.email || req.user.username,
+        ip_address: req.ip || req.connection.remoteAddress,
+        user_agent: req.headers['user-agent'],
+        description: description
+    };
+
+    auditTrailOperations.add(auditData, (err) => {
+        if (err) {
+            console.error('Error logging audit trail:', err);
+        }
+    });
+}
+
+// Get recent audit trail logs (for notification bell)
+app.get('/api/admin/audit-trail/recent', authenticateAdmin, (req, res) => {
+    const limit = parseInt(req.query.limit) || 10;
+    
+    auditTrailOperations.getRecent(limit, (err, logs) => {
+        if (err) {
+            console.error('Error fetching recent audit logs:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(logs);
+    });
+});
+
+// Get all audit trail logs with pagination
+app.get('/api/admin/audit-trail', authenticateAdmin, (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 50;
+    
+    auditTrailOperations.getAll(page, limit, (err, result) => {
+        if (err) {
+            console.error('Error fetching audit logs:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(result);
+    });
+});
+
+// Get audit trail logs by entity type
+app.get('/api/admin/audit-trail/entity/:entityType', authenticateAdmin, (req, res) => {
+    const entityType = req.params.entityType;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 50;
+    
+    auditTrailOperations.getByEntityType(entityType, page, limit, (err, result) => {
+        if (err) {
+            console.error('Error fetching audit logs by entity type:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(result);
+    });
+});
+
+// Get audit trail logs by action type
+app.get('/api/admin/audit-trail/action/:actionType', authenticateAdmin, (req, res) => {
+    const actionType = req.params.actionType;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 50;
+    
+    auditTrailOperations.getByActionType(actionType, page, limit, (err, result) => {
+        if (err) {
+            console.error('Error fetching audit logs by action type:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(result);
+    });
+});
+
+// Get audit trail logs by admin
+app.get('/api/admin/audit-trail/admin/:adminId', authenticateAdmin, (req, res) => {
+    const adminId = parseInt(req.params.adminId);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 50;
+    
+    auditTrailOperations.getByAdmin(adminId, page, limit, (err, result) => {
+        if (err) {
+            console.error('Error fetching audit logs by admin:', err);
+            return res.status(500).json({ error: err.message });
+        }
+        res.json(result);
     });
 });
 

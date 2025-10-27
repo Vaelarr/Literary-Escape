@@ -100,6 +100,7 @@ async function initializeDatabase(callback) {
                 last_name TEXT,
                 phone TEXT,
                 role TEXT DEFAULT 'admin',
+                is_super_admin BOOLEAN DEFAULT 0,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
@@ -216,6 +217,26 @@ async function initializeDatabase(callback) {
             )
         `);
 
+        // Create audit_trail table
+        await query(`
+            CREATE TABLE IF NOT EXISTS audit_trail (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                action_type TEXT NOT NULL,
+                entity_type TEXT NOT NULL,
+                entity_id INTEGER,
+                old_value TEXT,
+                new_value TEXT,
+                admin_id INTEGER,
+                admin_username TEXT,
+                admin_email TEXT,
+                ip_address TEXT,
+                user_agent TEXT,
+                description TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (admin_id) REFERENCES admins(id)
+            )
+        `);
+
         // Create archived_books table
         await query(`
             CREATE TABLE IF NOT EXISTS archived_books (
@@ -252,6 +273,10 @@ async function initializeDatabase(callback) {
         await query('CREATE INDEX IF NOT EXISTS idx_reviews_book_id ON reviews(book_id)');
         await query('CREATE INDEX IF NOT EXISTS idx_vouchers_code ON vouchers(code)');
         await query('CREATE INDEX IF NOT EXISTS idx_vouchers_status ON vouchers(status)');
+        await query('CREATE INDEX IF NOT EXISTS idx_audit_trail_entity ON audit_trail(entity_type, entity_id)');
+        await query('CREATE INDEX IF NOT EXISTS idx_audit_trail_admin ON audit_trail(admin_id)');
+        await query('CREATE INDEX IF NOT EXISTS idx_audit_trail_action ON audit_trail(action_type)');
+        await query('CREATE INDEX IF NOT EXISTS idx_audit_trail_created ON audit_trail(created_at)');
 
         // Migration: Add missing columns to existing tables
         try {
@@ -342,6 +367,27 @@ async function runMigrations() {
             }
         }
         
+        // Try to add is_super_admin column to admins table
+        try {
+            console.log('  → Attempting to add is_super_admin column to admins table...');
+            await query('ALTER TABLE admins ADD COLUMN is_super_admin INTEGER DEFAULT 0');
+            console.log('  ✅ Added is_super_admin column to admins table');
+        } catch (error) {
+            const errorMsg = error.message ? error.message.toLowerCase() : '';
+            if (errorMsg.includes('duplicate') || errorMsg.includes('already exists')) {
+                console.log('  ℹ️  Admins table already has is_super_admin column');
+            } else {
+                console.warn('  ⚠️  Admins table migration error:', error.message);
+                // Try to verify if column exists by querying it
+                try {
+                    await query('SELECT is_super_admin FROM admins LIMIT 1');
+                    console.log('  ✅ Admins.is_super_admin column verified (already exists)');
+                } catch (verifyError) {
+                    console.error('  ❌ Admins.is_super_admin column does not exist and could not be added:', verifyError.message);
+                }
+            }
+        }
+        
         console.log('🎉 Database migrations completed');
     } catch (error) {
         console.error('❌ Error running migrations:', error);
@@ -359,23 +405,37 @@ async function createDefaultAdmin() {
     
     try {
         // Check if admin already exists
-        const existing = await query('SELECT id FROM admins WHERE email = ?', [adminEmail]);
+        const existing = await query('SELECT id, is_super_admin FROM admins WHERE email = ?', [adminEmail]);
         
         if (existing.rows && existing.rows.length > 0) {
             console.log('Administrator account already exists');
+            
+            // Check if admin is already a super admin
+            const admin = existing.rows[0];
+            if (!admin.is_super_admin) {
+                // Upgrade existing admin to super admin
+                try {
+                    await query('UPDATE admins SET is_super_admin = 1 WHERE id = ?', [admin.id]);
+                    console.log('✅ Admin account upgraded to super admin');
+                } catch (upgradeError) {
+                    console.error('❌ Error upgrading admin to super admin:', upgradeError);
+                }
+            } else {
+                console.log('✅ Admin is already a super admin');
+            }
             return;
         }
         
-        // Create admin account
+        // Create admin account as super admin
         const hash = await bcrypt.hash(adminPassword, 10);
         
         await query(
-            `INSERT INTO admins (username, email, password_hash, first_name, last_name, role)
-             VALUES (?, ?, ?, ?, ?, ?)`,
-            ['admin', adminEmail, hash, adminFirstName, adminLastName, 'admin']
+            `INSERT INTO admins (username, email, password_hash, first_name, last_name, role, is_super_admin)
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            ['admin', adminEmail, hash, adminFirstName, adminLastName, 'admin', 1]
         );
         
-        console.log('Administrator account created successfully');
+        console.log('✅ Super Administrator account created successfully');
         console.log('Administrator credentials:');
         console.log('Email:', adminEmail);
         console.log('Password:', adminPassword);
@@ -1602,7 +1662,7 @@ const adminOperations = {
     getAll: async (callback) => {
         try {
             const result = await query(
-                `SELECT id, username, email, first_name, last_name, created_at
+                `SELECT id, username, email, first_name, last_name, phone, is_super_admin, created_at
                  FROM admins
                  ORDER BY created_at DESC`
             );
@@ -1612,9 +1672,67 @@ const adminOperations = {
         }
     },
 
+    // Update admin (super admin only)
+    update: async (id, adminData, callback) => {
+        try {
+            const fields = [];
+            const values = [];
+            
+            if (adminData.username !== undefined) {
+                fields.push('username = ?');
+                values.push(adminData.username);
+            }
+            if (adminData.email !== undefined) {
+                fields.push('email = ?');
+                values.push(adminData.email);
+            }
+            if (adminData.first_name !== undefined) {
+                fields.push('first_name = ?');
+                values.push(adminData.first_name);
+            }
+            if (adminData.last_name !== undefined) {
+                fields.push('last_name = ?');
+                values.push(adminData.last_name);
+            }
+            if (adminData.phone !== undefined) {
+                fields.push('phone = ?');
+                values.push(adminData.phone);
+            }
+            if (adminData.is_super_admin !== undefined) {
+                fields.push('is_super_admin = ?');
+                values.push(adminData.is_super_admin);
+            }
+            if (adminData.password_hash !== undefined) {
+                fields.push('password_hash = ?');
+                values.push(adminData.password_hash);
+            }
+            
+            fields.push('updated_at = CURRENT_TIMESTAMP');
+            values.push(id);
+            
+            await query(
+                `UPDATE admins SET ${fields.join(', ')} WHERE id = ?`,
+                values
+            );
+            
+            const updated = await query('SELECT * FROM admins WHERE id = ?', [id]);
+            callback(null, updated.rows[0]);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
     // Delete admin
     deleteAdmin: async (id, callback) => {
         try {
+            // Check if this is the last super admin
+            const superAdminCount = await query('SELECT COUNT(*) as count FROM admins WHERE is_super_admin = 1');
+            const adminToDelete = await query('SELECT is_super_admin FROM admins WHERE id = ?', [id]);
+            
+            if (adminToDelete.rows[0]?.is_super_admin && superAdminCount.rows[0].count <= 1) {
+                return callback(new Error('Cannot delete the last super admin'));
+            }
+            
             await query('DELETE FROM admins WHERE id = ?', [id]);
             callback(null, { message: 'Admin deleted successfully' });
         } catch (error) {
@@ -2154,6 +2272,131 @@ const voucherOperations = {
     }
 };
 
+// Audit Trail Operations
+const auditTrailOperations = {
+    // Add audit log entry
+    add: async (logData, callback) => {
+        try {
+            const result = await query(
+                `INSERT INTO audit_trail (
+                    action_type, entity_type, entity_id, old_value, new_value,
+                    admin_id, admin_username, admin_email, ip_address, user_agent, description
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [
+                    logData.action_type,
+                    logData.entity_type,
+                    logData.entity_id,
+                    logData.old_value,
+                    logData.new_value,
+                    logData.admin_id,
+                    logData.admin_username,
+                    logData.admin_email,
+                    logData.ip_address,
+                    logData.user_agent,
+                    logData.description
+                ]
+            );
+            callback(null, { id: result.lastInsertRowid, message: 'Audit log created successfully' });
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Get all audit logs with pagination
+    getAll: async (page = 1, limit = 50, callback) => {
+        try {
+            const offset = (page - 1) * limit;
+            
+            const countResult = await query('SELECT COUNT(*) as total FROM audit_trail');
+            const total = countResult.rows[0].total;
+            
+            const result = await query(
+                `SELECT * FROM audit_trail 
+                 ORDER BY created_at DESC 
+                 LIMIT ? OFFSET ?`,
+                [limit, offset]
+            );
+            
+            callback(null, {
+                logs: result.rows,
+                pagination: {
+                    currentPage: page,
+                    totalPages: Math.ceil(total / limit),
+                    totalItems: total,
+                    itemsPerPage: limit
+                }
+            });
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Get recent audit logs
+    getRecent: async (limit = 10, callback) => {
+        try {
+            const result = await query(
+                `SELECT * FROM audit_trail 
+                 ORDER BY created_at DESC 
+                 LIMIT ?`,
+                [limit]
+            );
+            callback(null, result.rows);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Get audit logs by entity
+    getByEntityType: async (entityType, entityId = null, callback) => {
+        try {
+            let sql = 'SELECT * FROM audit_trail WHERE entity_type = ?';
+            let params = [entityType];
+            
+            if (entityId !== null) {
+                sql += ' AND entity_id = ?';
+                params.push(entityId);
+            }
+            
+            sql += ' ORDER BY created_at DESC';
+            
+            const result = await query(sql, params);
+            callback(null, result.rows);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Get audit logs by action type
+    getByActionType: async (actionType, callback) => {
+        try {
+            const result = await query(
+                `SELECT * FROM audit_trail 
+                 WHERE action_type = ? 
+                 ORDER BY created_at DESC`,
+                [actionType]
+            );
+            callback(null, result.rows);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Get audit logs by admin
+    getByAdmin: async (adminId, callback) => {
+        try {
+            const result = await query(
+                `SELECT * FROM audit_trail 
+                 WHERE admin_id = ? 
+                 ORDER BY created_at DESC`,
+                [adminId]
+            );
+            callback(null, result.rows);
+        } catch (error) {
+            callback(error);
+        }
+    }
+};
+
 // Health check function
 async function checkDatabaseHealth(callback) {
     try {
@@ -2182,6 +2425,7 @@ module.exports = {
     adminOperations,
     archiveOperations,
     voucherOperations,
+    auditTrailOperations,
     checkDatabaseHealth
 };
 

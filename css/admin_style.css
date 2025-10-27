@@ -319,6 +319,88 @@ body {
             color: white;
         }
 
+        /* Audit Trail Specific Styles */
+        .notification-icon {
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .notification-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .notification-icon-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .notification-content-area {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .notification-item {
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .notification-description {
+            color: rgba(255,255,255,0.6);
+            font-size: 11px;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        .notification-meta {
+            display: flex;
+            gap: 15px;
+            margin-top: 8px;
+            font-size: 10px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .notification-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .notification-meta i {
+            font-size: 9px;
+        }
+
+        .entity-name {
+            color: #6a9c89;
+            font-weight: 600;
+        }
+
+        .notification-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .notification-list::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+            border-radius: 3px;
+        }
+
+        .notification-list::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.2);
+            border-radius: 3px;
+        }
+
+        .notification-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+
         .user-avatar {
             width: 40px;
             height: 40px;
