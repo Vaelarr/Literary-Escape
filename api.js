@@ -2273,6 +2273,7 @@ function logAuditTrail(req, actionType, entityType, entityId, entityName, oldVal
         old_value: oldValue,
         new_value: newValue,
         admin_id: req.user.userId,
+        admin_username: req.user.username || req.user.email,
         admin_email: req.user.email || req.user.username,
         ip_address: req.ip || req.connection.remoteAddress,
         user_agent: req.headers['user-agent'],

@@ -224,6 +224,7 @@ async function initializeDatabase(callback) {
                 action_type TEXT NOT NULL,
                 entity_type TEXT NOT NULL,
                 entity_id INTEGER,
+                entity_name TEXT,
                 old_value TEXT,
                 new_value TEXT,
                 admin_id INTEGER,
@@ -2279,17 +2280,18 @@ const auditTrailOperations = {
         try {
             const result = await query(
                 `INSERT INTO audit_trail (
-                    action_type, entity_type, entity_id, old_value, new_value,
+                    action_type, entity_type, entity_id, entity_name, old_value, new_value,
                     admin_id, admin_username, admin_email, ip_address, user_agent, description
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
                     logData.action_type,
                     logData.entity_type,
                     logData.entity_id,
+                    logData.entity_name,
                     logData.old_value,
                     logData.new_value,
                     logData.admin_id,
-                    logData.admin_username,
+                    logData.admin_username || logData.admin_email, // Use email as fallback for username
                     logData.admin_email,
                     logData.ip_address,
                     logData.user_agent,
