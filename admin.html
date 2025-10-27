@@ -2260,6 +2260,9 @@
                     // Refresh all data including dashboard
                     await refreshAllData();
                     
+                    // Reload audit trail to show the new action
+                    await loadAuditTrail();
+                    
                     // Show success message
                     const successMsg = `Book ${id ? 'updated' : 'created'} successfully!`;
                     showSuccessMessage(successMsg);
@@ -2282,6 +2285,10 @@
                 if (result) {
                     // Refresh all data including dashboard statistics
                     await refreshAllData();
+                    
+                    // Reload audit trail to show the new action
+                    await loadAuditTrail();
+                    
                     showSuccessMessage('Order status updated successfully');
                 } else {
                     throw new Error('Failed to update order status');
@@ -2306,6 +2313,10 @@
                 if (result) {
                     // Refresh all data
                     await refreshAllData();
+                    
+                    // Reload audit trail to show the new action
+                    await loadAuditTrail();
+                    
                     showSuccessMessage('User role updated successfully');
                 } else {
                     throw new Error('Failed to update user role');
@@ -2341,6 +2352,9 @@
                     
                     // Refresh all data including dashboard
                     await refreshAllData();
+                    
+                    // Reload audit trail to show the new action
+                    await loadAuditTrail();
                     
                     // If we're viewing archived books, make sure to reload that as well
                     const archivedSection = document.getElementById('archived-books-section');
@@ -2378,6 +2392,9 @@
                     // Refresh all data including dashboard
                     await refreshAllData();
                     
+                    // Reload audit trail to show the new action
+                    await loadAuditTrail();
+                    
                     // If we're viewing archived users, make sure to reload that as well
                     const archivedSection = document.getElementById('archived-users-section');
                     if (archivedSection && archivedSection.classList.contains('active')) {
@@ -2413,6 +2430,9 @@
                     
                     // Refresh all data including dashboard
                     await refreshAllData();
+                    
+                    // Reload audit trail to show the new action
+                    await loadAuditTrail();
                     
                     // If we're viewing archived orders, make sure to reload that as well
                     const archivedSection = document.getElementById('archived-orders-section');
@@ -4043,6 +4063,9 @@
                     showNotification(adminId ? 'Admin updated successfully' : 'Admin created successfully', 'success');
                     bootstrap.Modal.getInstance(document.getElementById('addAdminModal')).hide();
                     await loadAdmins();
+                    
+                    // Reload audit trail to show the new action
+                    await loadAuditTrail();
                 } else {
                     throw new Error(response.message || 'Failed to save admin');
                 }
@@ -4064,6 +4087,9 @@
                 if (response.success) {
                     showNotification('Admin deleted successfully', 'success');
                     await loadAdmins();
+                    
+                    // Reload audit trail to show the new action
+                    await loadAuditTrail();
                 } else {
                     throw new Error(response.message || 'Failed to delete admin');
                 }
@@ -4089,6 +4115,9 @@
                 
                 if (response.success) {
                     showNotification('Password reset successfully', 'success');
+                    
+                    // Reload audit trail to show the new action
+                    await loadAuditTrail();
                 } else {
                     throw new Error(response.message || 'Failed to reset password');
                 }
@@ -4381,6 +4410,9 @@
                     
                     // Refresh vouchers list
                     await loadVouchersFromAPI(currentVouchersPage);
+                    
+                    // Reload audit trail to show the new action
+                    await loadAuditTrail();
                 } else {
                     throw new Error('Failed to save voucher');
                 }
@@ -4444,6 +4476,9 @@
                     
                     // Refresh vouchers list
                     await loadVouchersFromAPI(currentVouchersPage);
+                    
+                    // Reload audit trail to show the new action
+                    await loadAuditTrail();
                 } else {
                     throw new Error(response.message || 'Failed to delete voucher');
                 }

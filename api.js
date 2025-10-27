@@ -807,13 +807,38 @@ app.delete('/api/admin/orders/:id', authenticateAdmin, (req, res) => {
     
     console.log('Admin deleting order ID:', orderId);
     
-    orderOperations.deleteOrder(orderId, (err) => {
-        if (err) {
-            console.error('Error deleting order:', err);
-            return res.status(500).json({ error: err.message });
+    // Get order data for audit trail before deletion
+    orderOperations.getById(orderId, (getErr, orderData) => {
+        if (getErr) {
+            console.error('Error fetching order for deletion:', getErr);
+            return res.status(500).json({ error: getErr.message });
         }
-        console.log('Order deleted successfully');
-        res.json({ message: 'Order deleted' });
+        
+        if (!orderData) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+        
+        orderOperations.deleteOrder(orderId, (err) => {
+            if (err) {
+                console.error('Error deleting order:', err);
+                return res.status(500).json({ error: err.message });
+            }
+            
+            // Log audit trail
+            logAuditTrail(
+                req,
+                'DELETE',
+                'Order',
+                orderId,
+                `Order #${orderId}`,
+                orderData,
+                null,
+                `Deleted order #${orderId} (${orderData.status})`
+            );
+            
+            console.log('Order deleted successfully');
+            res.json({ message: 'Order deleted' });
+        });
     });
 });
 
@@ -839,18 +864,43 @@ app.post('/api/admin/books/:id/archive', authenticateAdmin, (req, res) => {
     
     console.log('Admin archiving book ID:', bookId);
     
-    archiveOperations.archiveBook(bookId, (err, result) => {
+    // First, get the book data for audit trail
+    bookOperations.getById(bookId, (err, book) => {
         if (err) {
-            console.error('Error archiving book:', err);
+            console.error('Error fetching book for archive:', err);
             return res.status(500).json({ error: err.message });
         }
         
-        if (result.changes === 0) {
+        if (!book) {
             return res.status(404).json({ error: 'Book not found' });
         }
         
-        console.log('Book archived successfully');
-        res.json({ message: 'Book archived successfully' });
+        // Archive the book
+        archiveOperations.archiveBook(bookId, (err, result) => {
+            if (err) {
+                console.error('Error archiving book:', err);
+                return res.status(500).json({ error: err.message });
+            }
+            
+            if (result.changes === 0) {
+                return res.status(404).json({ error: 'Book not found' });
+            }
+            
+            // Log audit trail
+            logAuditTrail(
+                req.user.id,
+                req.user.email,
+                'ARCHIVE',
+                'Book',
+                bookId,
+                book.title,
+                `Archived book "${book.title}"`,
+                null
+            );
+            
+            console.log('Book archived successfully');
+            res.json({ message: 'Book archived successfully' });
+        });
     });
 });
 
@@ -864,18 +914,43 @@ app.post('/api/admin/books/:id/unarchive', authenticateAdmin, (req, res) => {
     
     console.log('Admin unarchiving book ID:', bookId);
     
-    archiveOperations.unarchiveBook(bookId, (err, result) => {
+    // First, get the book data for audit trail
+    bookOperations.getById(bookId, (err, book) => {
         if (err) {
-            console.error('Error unarchiving book:', err);
+            console.error('Error fetching book for unarchive:', err);
             return res.status(500).json({ error: err.message });
         }
         
-        if (result.changes === 0) {
+        if (!book) {
             return res.status(404).json({ error: 'Book not found' });
         }
         
-        console.log('Book unarchived successfully');
-        res.json({ message: 'Book unarchived successfully' });
+        // Unarchive the book
+        archiveOperations.unarchiveBook(bookId, (err, result) => {
+            if (err) {
+                console.error('Error unarchiving book:', err);
+                return res.status(500).json({ error: err.message });
+            }
+            
+            if (result.changes === 0) {
+                return res.status(404).json({ error: 'Book not found' });
+            }
+            
+            // Log audit trail
+            logAuditTrail(
+                req.user.id,
+                req.user.email,
+                'UNARCHIVE',
+                'Book',
+                bookId,
+                book.title,
+                `Unarchived book "${book.title}"`,
+                null
+            );
+            
+            console.log('Book unarchived successfully');
+            res.json({ message: 'Book unarchived successfully' });
+        });
     });
 });
 
@@ -889,18 +964,43 @@ app.post('/api/admin/users/:id/archive', authenticateAdmin, (req, res) => {
     
     console.log('Admin archiving user ID:', userId);
     
-    archiveOperations.archiveUser(userId, (err, result) => {
+    // First, get the user data for audit trail
+    userOperations.getById(userId, (err, user) => {
         if (err) {
-            console.error('Error archiving user:', err);
+            console.error('Error fetching user for archive:', err);
             return res.status(500).json({ error: err.message });
         }
         
-        if (result.changes === 0) {
+        if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
         
-        console.log('User archived successfully');
-        res.json({ message: 'User archived successfully' });
+        // Archive the user
+        archiveOperations.archiveUser(userId, (err, result) => {
+            if (err) {
+                console.error('Error archiving user:', err);
+                return res.status(500).json({ error: err.message });
+            }
+            
+            if (result.changes === 0) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+            
+            // Log audit trail
+            logAuditTrail(
+                req.user.id,
+                req.user.email,
+                'ARCHIVE',
+                'User',
+                userId,
+                user.username,
+                `Archived user "${user.username}"`,
+                null
+            );
+            
+            console.log('User archived successfully');
+            res.json({ message: 'User archived successfully' });
+        });
     });
 });
 
@@ -914,18 +1014,43 @@ app.post('/api/admin/users/:id/unarchive', authenticateAdmin, (req, res) => {
     
     console.log('Admin unarchiving user ID:', userId);
     
-    archiveOperations.unarchiveUser(userId, (err, result) => {
+    // First, get the user data for audit trail
+    userOperations.getById(userId, (err, user) => {
         if (err) {
-            console.error('Error unarchiving user:', err);
+            console.error('Error fetching user for unarchive:', err);
             return res.status(500).json({ error: err.message });
         }
         
-        if (result.changes === 0) {
+        if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
         
-        console.log('User unarchived successfully');
-        res.json({ message: 'User unarchived successfully' });
+        // Unarchive the user
+        archiveOperations.unarchiveUser(userId, (err, result) => {
+            if (err) {
+                console.error('Error unarchiving user:', err);
+                return res.status(500).json({ error: err.message });
+            }
+            
+            if (result.changes === 0) {
+                return res.status(404).json({ error: 'User not found' });
+            }
+            
+            // Log audit trail
+            logAuditTrail(
+                req.user.id,
+                req.user.email,
+                'UNARCHIVE',
+                'User',
+                userId,
+                user.username,
+                `Unarchived user "${user.username}"`,
+                null
+            );
+            
+            console.log('User unarchived successfully');
+            res.json({ message: 'User unarchived successfully' });
+        });
     });
 });
 
@@ -939,18 +1064,43 @@ app.post('/api/admin/orders/:id/archive', authenticateAdmin, (req, res) => {
     
     console.log('Admin archiving order ID:', orderId);
     
-    archiveOperations.archiveOrder(orderId, (err, result) => {
+    // First, get the order data for audit trail
+    orderOperations.getById(orderId, (err, order) => {
         if (err) {
-            console.error('Error archiving order:', err);
+            console.error('Error fetching order for archive:', err);
             return res.status(500).json({ error: err.message });
         }
         
-        if (result.changes === 0) {
+        if (!order) {
             return res.status(404).json({ error: 'Order not found' });
         }
         
-        console.log('Order archived successfully');
-        res.json({ message: 'Order archived successfully' });
+        // Archive the order
+        archiveOperations.archiveOrder(orderId, (err, result) => {
+            if (err) {
+                console.error('Error archiving order:', err);
+                return res.status(500).json({ error: err.message });
+            }
+            
+            if (result.changes === 0) {
+                return res.status(404).json({ error: 'Order not found' });
+            }
+            
+            // Log audit trail
+            logAuditTrail(
+                req.user.id,
+                req.user.email,
+                'ARCHIVE',
+                'Order',
+                orderId,
+                `Order #${orderId}`,
+                `Archived order #${orderId}`,
+                null
+            );
+            
+            console.log('Order archived successfully');
+            res.json({ message: 'Order archived successfully' });
+        });
     });
 });
 
@@ -964,18 +1114,43 @@ app.post('/api/admin/orders/:id/unarchive', authenticateAdmin, (req, res) => {
     
     console.log('Admin unarchiving order ID:', orderId);
     
-    archiveOperations.unarchiveOrder(orderId, (err, result) => {
+    // First, get the order data for audit trail
+    orderOperations.getById(orderId, (err, order) => {
         if (err) {
-            console.error('Error unarchiving order:', err);
+            console.error('Error fetching order for unarchive:', err);
             return res.status(500).json({ error: err.message });
         }
         
-        if (result.changes === 0) {
+        if (!order) {
             return res.status(404).json({ error: 'Order not found' });
         }
         
-        console.log('Order unarchived successfully');
-        res.json({ message: 'Order unarchived successfully' });
+        // Unarchive the order
+        archiveOperations.unarchiveOrder(orderId, (err, result) => {
+            if (err) {
+                console.error('Error unarchiving order:', err);
+                return res.status(500).json({ error: err.message });
+            }
+            
+            if (result.changes === 0) {
+                return res.status(404).json({ error: 'Order not found' });
+            }
+            
+            // Log audit trail
+            logAuditTrail(
+                req.user.id,
+                req.user.email,
+                'UNARCHIVE',
+                'Order',
+                orderId,
+                `Order #${orderId}`,
+                `Unarchived order #${orderId}`,
+                null
+            );
+            
+            console.log('Order unarchived successfully');
+            res.json({ message: 'Order unarchived successfully' });
+        });
     });
 });
 
@@ -1534,6 +1709,19 @@ app.post('/api/admin/vouchers', authenticateAdmin, (req, res) => {
             }
             return res.status(500).json({ error: err.message });
         }
+        
+        // Log audit trail
+        logAuditTrail(
+            req,
+            'CREATE',
+            'Voucher',
+            this.lastID,
+            voucherData.code,
+            null,
+            voucherData,
+            `Created voucher "${voucherData.code}" (${voucherData.discount_type}: ${voucherData.discount_value})`
+        );
+        
         res.status(201).json({ success: true, message: 'Voucher created successfully', id: this.lastID });
     });
 });
@@ -1560,12 +1748,37 @@ app.put('/api/admin/vouchers/:id', authenticateAdmin, (req, res) => {
         description: req.body.description || null
     };
     
-    voucherOperations.update(voucherId, voucherData, (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (result && result.changes === 0) {
+    // Get old voucher data for audit trail
+    voucherOperations.getById(voucherId, (getErr, oldVoucher) => {
+        if (getErr) {
+            console.error('Error fetching voucher for update:', getErr);
+            return res.status(500).json({ error: getErr.message });
+        }
+        
+        if (!oldVoucher) {
             return res.status(404).json({ error: 'Voucher not found' });
         }
-        res.json({ success: true, message: 'Voucher updated successfully' });
+        
+        voucherOperations.update(voucherId, voucherData, (err, result) => {
+            if (err) return res.status(500).json({ error: err.message });
+            if (result && result.changes === 0) {
+                return res.status(404).json({ error: 'Voucher not found' });
+            }
+            
+            // Log audit trail
+            logAuditTrail(
+                req,
+                'UPDATE',
+                'Voucher',
+                voucherId,
+                voucherData.code,
+                oldVoucher,
+                voucherData,
+                `Updated voucher "${voucherData.code}"`
+            );
+            
+            res.json({ success: true, message: 'Voucher updated successfully' });
+        });
     });
 });
 
@@ -1577,12 +1790,37 @@ app.delete('/api/admin/vouchers/:id', authenticateAdmin, (req, res) => {
         return res.status(400).json({ error: 'Invalid voucher ID' });
     }
     
-    voucherOperations.delete(voucherId, (err, result) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (result && result.changes === 0) {
+    // Get voucher data for audit trail before deletion
+    voucherOperations.getById(voucherId, (getErr, voucherData) => {
+        if (getErr) {
+            console.error('Error fetching voucher for deletion:', getErr);
+            return res.status(500).json({ error: getErr.message });
+        }
+        
+        if (!voucherData) {
             return res.status(404).json({ error: 'Voucher not found' });
         }
-        res.json({ success: true, message: 'Voucher deleted successfully' });
+        
+        voucherOperations.delete(voucherId, (err, result) => {
+            if (err) return res.status(500).json({ error: err.message });
+            if (result && result.changes === 0) {
+                return res.status(404).json({ error: 'Voucher not found' });
+            }
+            
+            // Log audit trail
+            logAuditTrail(
+                req,
+                'DELETE',
+                'Voucher',
+                voucherId,
+                voucherData.code,
+                voucherData,
+                null,
+                `Deleted voucher "${voucherData.code}"`
+            );
+            
+            res.json({ success: true, message: 'Voucher deleted successfully' });
+        });
     });
 });
 
