@@ -5094,6 +5094,28 @@
                 }
             }, 100);
         });
+
+        // Prevent form submission on Enter key
+        document.addEventListener('DOMContentLoaded', function () {
+            const adminForm = document.getElementById('adminForm');
+            if (adminForm) {
+                // Prevent form submission
+                adminForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    console.log('⚠️ Form submit prevented - use Save button instead');
+                    return false;
+                });
+
+                // Also prevent Enter key from submitting
+                adminForm.addEventListener('keypress', function (e) {
+                    if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+                        e.preventDefault();
+                        console.log('⚠️ Enter key pressed - prevented form submission');
+                        return false;
+                    }
+                });
+            }
+        });
     </script>
 </body>
 
