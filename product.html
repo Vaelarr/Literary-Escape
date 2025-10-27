@@ -685,9 +685,21 @@
 
         async function loadBookDetails(bookId) {
             try {
+                console.log('Loading book details for ID:', bookId);
+
+                // Check if dbBookDisplay is available
+                if (typeof dbBookDisplay === 'undefined' || !dbBookDisplay) {
+                    console.error('dbBookDisplay is not available');
+                    document.querySelector('.content').innerHTML =
+                        '<div class="alert alert-danger">Book display system not loaded. Please refresh the page.</div>';
+                    return;
+                }
+
                 const book = await dbBookDisplay.getBookById(bookId);
+                console.log('Book data received:', book);
 
                 if (!book) {
+                    console.error('No book found with ID:', bookId);
                     document.querySelector('.content').innerHTML =
                         '<div class="alert alert-danger">Book not found</div>';
                     return;
@@ -695,6 +707,8 @@
 
                 currentBook = book;
                 maxStock = book.stock_quantity || 10;
+                console.log('Current book set:', currentBook);
+                console.log('Max stock set to:', maxStock);
 
                 // Create 2D book model
                 const bookContainer = document.querySelector('#book-3d-container');
@@ -706,6 +720,7 @@
                 }
 
                 // Populate all book details
+                console.log('Populating book details...');
                 document.querySelector('.title').textContent = book.title;
                 document.querySelector('.author').textContent = `by ${book.author}`;
                 document.querySelector('.description').textContent = book.description || 'No description available.';
@@ -724,6 +739,8 @@
                 document.querySelector('.dimensions').textContent = book.dimensions || 'Unknown';
                 document.querySelector('.isbn').textContent = book.isbn || 'Unknown';
 
+                console.log('Book details populated successfully');
+
                 // Rating - Load from reviews table
                 await loadAndDisplayRating(bookId);
 
@@ -735,29 +752,42 @@
 
                 // Update quantity control max value
                 const quantityInput = document.getElementById('quantity');
-                quantityInput.max = Math.min(maxStock, 10);
+                if (quantityInput) {
+                    quantityInput.max = Math.min(maxStock, 10);
+                }
 
                 // Setup action buttons with consistent notifications
                 const addToCartBtn = document.querySelector('.add-to-cart-btn');
                 const favoriteBtn = document.querySelector('.favorite-btn');
 
-                addToCartBtn.addEventListener('click', async () => {
-                    const quantity = parseInt(document.getElementById('quantity').value);
-                    await addToCartWithQuantity(book.id, quantity);
-                });
+                if (addToCartBtn) {
+                    addToCartBtn.addEventListener('click', async () => {
+                        const qtyInput = document.getElementById('quantity');
+                        const quantity = qtyInput ? parseInt(qtyInput.value) : 1;
+                        await addToCartWithQuantity(book.id, quantity);
+                    });
+                }
 
-                favoriteBtn.addEventListener('click', async () => {
-                    await handleFavoriteToggle(book.id, favoriteBtn);
-                });
+                if (favoriteBtn) {
+                    favoriteBtn.addEventListener('click', async () => {
+                        await handleFavoriteToggle(book.id, favoriteBtn);
+                    });
+                }
 
                 // Check if book is in favorites and update button state
-                await updateFavoriteButtonState(book.id, favoriteBtn);
+                if (favoriteBtn) {
+                    await updateFavoriteButtonState(book.id, favoriteBtn);
+                }
 
                 // Disable add to cart if out of stock
                 if (book.stock_quantity <= 0) {
-                    addToCartBtn.disabled = true;
-                    addToCartBtn.innerHTML = '<i class="fa-solid fa-cart-shopping me-2"></i>Out of Stock';
-                    quantityInput.disabled = true;
+                    if (addToCartBtn) {
+                        addToCartBtn.disabled = true;
+                        addToCartBtn.innerHTML = '<i class="fa-solid fa-cart-shopping me-2"></i>Out of Stock';
+                    }
+                    if (quantityInput) {
+                        quantityInput.disabled = true;
+                    }
                     document.querySelectorAll('.quantity-btn').forEach(btn => btn.disabled = true);
                 }
 
@@ -853,6 +883,12 @@
             const decreaseBtn = document.getElementById('decrease-qty');
             const increaseBtn = document.getElementById('increase-qty');
 
+            // Check if elements exist before adding event listeners
+            if (!quantityInput || !decreaseBtn || !increaseBtn) {
+                console.error('Quantity control elements not found:', { quantityInput, decreaseBtn, increaseBtn });
+                return;
+            }
+
             // Decrease quantity
             decreaseBtn.addEventListener('click', () => {
                 const currentValue = parseInt(quantityInput.value);
@@ -895,6 +931,13 @@
             const quantityInput = document.getElementById('quantity');
             const decreaseBtn = document.getElementById('decrease-qty');
             const increaseBtn = document.getElementById('increase-qty');
+
+            // Check if elements exist
+            if (!quantityInput || !decreaseBtn || !increaseBtn) {
+                console.error('Quantity control elements not found in updateQuantityButtons');
+                return;
+            }
+
             const currentValue = parseInt(quantityInput.value);
             const maxAllowed = Math.min(maxStock, 10);
 
@@ -1166,8 +1209,27 @@
 
         // Initialize reviews when book details are loaded
         document.addEventListener('DOMContentLoaded', async function () {
+            console.log('DOMContentLoaded fired, checking for dbBookDisplay...');
+
+            // Wait for dbBookDisplay to be available
+            let waitCount = 0;
+            while (typeof dbBookDisplay === 'undefined' && waitCount < 50) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                waitCount++;
+            }
+
+            if (typeof dbBookDisplay === 'undefined') {
+                console.error('dbBookDisplay failed to load after waiting');
+                document.querySelector('.content').innerHTML =
+                    '<div class="alert alert-danger">Book display system failed to load. Please refresh the page.</div>';
+                return;
+            }
+
+            console.log('dbBookDisplay is available, proceeding...');
+
             const urlParams = new URLSearchParams(window.location.search);
             const bookId = urlParams.get('id');
+            console.log('Book ID from URL:', bookId);
 
             if (bookId) {
                 await loadBookDetails(bookId);
@@ -1187,9 +1249,6 @@
             if (window.navbarCounts) {
                 await window.navbarCounts.init();
             }
-
-            // Initialize quantity controls
-            initializeQuantityControls();
         });
 
         // Search Dropdown Functionality
