@@ -2831,33 +2831,28 @@
                 // Verify user is admin
                 if (userData.role !== 'admin') {
                     console.log('⛔ User is not admin, clearing session');
-                    localStorage.removeItem('authToken');
-                    localStorage.removeItem('user');
-                    localStorage.removeItem('adminUser');
+                    api.logout();
                     showAdminLogin();
                     return;
                 }
                 
                 // Store admin user data for super-admin checks
                 localStorage.setItem('adminUser', user);
+                localStorage.setItem('isAdminSession', 'true'); // Ensure admin session flag is set
                 
-                // Verify token is still valid by checking database connection
-                // The token will be sent with API calls automatically
-                const isConnected = await verifyDatabaseConnection();
-                if (isConnected) {
-                    console.log('✅ Admin session is valid, showing admin panel');
-                    showAdminApp();
-                    checkSuperAdminAccess(); // Check super admin status and show/hide menu
-                    initAdmin();
-                } else {
-                    console.log('❌ Database connection failed, showing login');
-                    showAdminLogin();
-                }
+                // Admin session is valid - show admin panel
+                console.log('✅ Admin session is valid, showing admin panel');
+                showAdminApp();
+                checkSuperAdminAccess(); // Check super admin status and show/hide menu
+                initAdmin();
+                
             } catch (error) {
                 console.error('❌ Error checking admin access:', error);
-                localStorage.removeItem('authToken');
-                localStorage.removeItem('user');
-                localStorage.removeItem('adminUser');
+                // Only clear session if there's a parsing error or critical failure
+                if (error.message && error.message.includes('JSON')) {
+                    console.error('Invalid user data stored, clearing session');
+                    api.logout();
+                }
                 showAdminLogin();
             }
         }

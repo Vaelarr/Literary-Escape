@@ -116,11 +116,23 @@ class APIClient {
                 console.error('API request failed:', data);
                 
                 // Handle token expiration or invalid token
+                // Be more careful with admin sessions - don't auto-logout on every 401
+                const isAdminSession = localStorage.getItem('isAdminSession') === 'true';
+                const isOnAdminPage = window.location.pathname.includes('admin.html');
+                
                 if ((response.status === 401 || response.status === 403) && 
                     (data.error === 'Invalid token' || data.error === 'Access token required')) {
-                    console.warn('Token is invalid or expired. Logging out user.');
-                    this.handleInvalidToken();
-                    throw new Error('Your session has expired. Please login again.');
+                    
+                    // For admin sessions, only handle invalid token on admin page without auto-redirect
+                    if (isAdminSession && isOnAdminPage) {
+                        console.warn('Admin token issue detected. Admin page will handle re-authentication.');
+                        throw new Error(data.error || 'Authentication required');
+                    } else if (!isAdminSession) {
+                        // For regular users, handle token expiration normally
+                        console.warn('Token is invalid or expired. Logging out user.');
+                        this.handleInvalidToken();
+                        throw new Error('Your session has expired. Please login again.');
+                    }
                 }
                 
                 throw new Error(data.error || 'Request failed');
@@ -142,6 +154,17 @@ class APIClient {
     
     // Handle invalid or expired token
     handleInvalidToken() {
+        // Check if this is an admin session
+        const isAdminSession = localStorage.getItem('isAdminSession') === 'true';
+        const isOnAdminPage = window.location.pathname.includes('admin.html');
+        
+        // For admin sessions, only show login form on admin page, don't clear token automatically
+        if (isAdminSession && isOnAdminPage) {
+            console.log('Admin session - showing admin login form');
+            // Admin page will handle showing login form
+            return;
+        }
+        
         // Clear the invalid token
         this.logout();
         
@@ -149,7 +172,6 @@ class APIClient {
         const currentPath = window.location.pathname;
         const isOnAccountPage = currentPath.includes('account.html') || 
                                currentPath.includes('account-dashboard.html');
-        const isOnAdminPage = currentPath.includes('admin.html');
         
         // Don't redirect if on admin page (admin has its own login form)
         if (isOnAdminPage) {
@@ -243,6 +265,7 @@ class APIClient {
             localStorage.setItem('authToken', response.token);
             localStorage.setItem('user', JSON.stringify(response.user));
             localStorage.setItem('adminUser', JSON.stringify(response.user)); // Store separately for admin panel
+            localStorage.setItem('isAdminSession', 'true'); // Mark this as an admin session
             console.log('Admin token stored successfully:', this.token ? 'Present' : 'Missing');
             console.log('Admin user data stored:', response.user);
         } else {
@@ -258,10 +281,21 @@ class APIClient {
         localStorage.removeItem('user');
         localStorage.removeItem('adminUser');
         localStorage.removeItem('loginTimestamp');
+        localStorage.removeItem('isAdminSession');
     }
     
     // Check if token is expired (24 hour expiration)
+    // NOTE: Admin sessions do not expire based on time - only on explicit logout
     isTokenExpired() {
+        // Check if this is an admin session
+        const isAdminSession = localStorage.getItem('isAdminSession') === 'true';
+        
+        // Admin sessions never expire based on time
+        if (isAdminSession) {
+            return false;
+        }
+        
+        // For regular users, check timestamp
         const loginTimestamp = localStorage.getItem('loginTimestamp');
         if (!loginTimestamp) {
             return true; // No timestamp means token is invalid
@@ -271,7 +305,7 @@ class APIClient {
         const currentTime = Date.now();
         const hoursSinceLogin = (currentTime - loginTime) / (1000 * 60 * 60);
         
-        // Token expires after 24 hours
+        // Token expires after 24 hours for regular users
         return hoursSinceLogin >= 24;
     }
     
@@ -279,13 +313,16 @@ class APIClient {
     isLoggedIn() {
         const hasToken = !!this.token;
         
-        if (hasToken && this.isTokenExpired()) {
+        // Skip expiration check for admin sessions
+        const isAdminSession = localStorage.getItem('isAdminSession') === 'true';
+        
+        if (hasToken && !isAdminSession && this.isTokenExpired()) {
             console.warn('Token has expired (24+ hours old). Logging out.');
             this.handleInvalidToken();
             return false;
         }
         
-        console.log('Login status check:', { hasToken, token: this.token ? 'Present' : 'Missing' });
+        console.log('Login status check:', { hasToken, token: this.token ? 'Present' : 'Missing', isAdminSession });
         return hasToken;
     }
 
