@@ -4033,11 +4033,9 @@
         async function openAddAdminModal() {
             console.log('📝 Opening Add Admin Modal');
             
-            // Clear form first
+            // Only clear/reset when opening modal, not on save
             document.getElementById('adminId').value = '';
             document.getElementById('adminForm').reset();
-            // Explicitly clear the email field to avoid stale values
-            document.getElementById('adminEmail').value = '';
             document.querySelector('#addAdminModal .modal-title').textContent = 'Add New Admin';
     
             const passwordField = document.getElementById('passwordField');
