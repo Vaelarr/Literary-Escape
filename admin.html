@@ -1000,6 +1000,11 @@
         let allUsers = [];
         let allOrders = [];
         
+        // Store ALL books for dashboard statistics (not paginated)
+        let allBooksForStats = [];
+        let allUsersForStats = [];
+        let allOrdersForStats = [];
+        
         // Pagination variables
         const ITEMS_PER_PAGE = 10;
         const itemsPerPage = 10;
@@ -1326,7 +1331,10 @@
                     loadBooksFromAPI(),
                     loadUsersFromAPI(),
                     loadOrdersFromAPI(),
-                    loadDashboardUsers()
+                    loadDashboardUsers(),
+                    loadAllBooksForDashboard(),
+                    loadAllUsersForDashboard(),
+                    loadAllOrdersForDashboard()
                 ]);
                 console.log('✅ Initial data loaded successfully');
             } catch (error) {
@@ -1344,7 +1352,12 @@
                 const activeSection = document.querySelector('.content-section.active');
                 const sectionId = activeSection ? activeSection.id : 'dashboard-section';
                 
-                // Always refresh dashboard statistics
+                // Always refresh dashboard statistics with ALL data
+                await Promise.all([
+                    loadAllBooksForDashboard(),
+                    loadAllUsersForDashboard(),
+                    loadAllOrdersForDashboard()
+                ]);
                 await updateDashboard();
                 
                 // Refresh the active section's data
@@ -1586,6 +1599,82 @@
                 if (tbody) {
                     tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: rgba(255,255,255,0.5);">Failed to load users</td></tr>';
                 }
+            }
+        }
+
+        // Load ALL books for accurate dashboard statistics (not paginated)
+        async function loadAllBooksForDashboard() {
+            try {
+                console.log('📊 Loading all books for dashboard statistics...');
+                
+                // Request a very large limit to get all books at once
+                // Most bookstores won't have more than 10000 books
+                const result = await safeApiCall(() => api.getAllBooksForAdmin(1, 10000, null, null));
+                
+                if (!result || !result.books) {
+                    throw new Error('Invalid response from books API');
+                }
+                
+                allBooksForStats = result.books.map(b => ({
+                    id: b.id,
+                    title: b.title || 'Untitled',
+                    author: b.author || 'Unknown Author',
+                    category: b.category || '',
+                    genre: b.genre || '',
+                    price: parseFloat(b.price) || 0,
+                    stock: parseInt(b.stock_quantity) || 0
+                }));
+                
+                console.log(`📊 All books loaded for stats: ${allBooksForStats.length} total books`);
+                
+            } catch (error) {
+                console.error('❌ Error loading all books for dashboard:', error);
+                // Don't fail completely - just use empty array
+                allBooksForStats = [];
+            }
+        }
+
+        // Load ALL users for accurate dashboard statistics (not paginated)
+        async function loadAllUsersForDashboard() {
+            try {
+                console.log('📊 Loading all users for dashboard statistics...');
+                
+                const result = await safeApiCall(() => api.getAllUsersForAdmin(1, 10000));
+                
+                if (!result || !result.users) {
+                    throw new Error('Invalid response from users API');
+                }
+                
+                allUsersForStats = result.users.filter(user => 
+                    !user.role || user.role.toLowerCase() === 'user'
+                );
+                
+                console.log(`📊 All users loaded for stats: ${allUsersForStats.length} total users`);
+                
+            } catch (error) {
+                console.error('❌ Error loading all users for dashboard:', error);
+                allUsersForStats = [];
+            }
+        }
+
+        // Load ALL orders for accurate dashboard statistics (not paginated)
+        async function loadAllOrdersForDashboard() {
+            try {
+                console.log('📊 Loading all orders for dashboard statistics...');
+                
+                const result = await safeApiCall(() => api.getAllOrdersForAdmin(1, 10000, {}));
+                
+                if (!result || !result.orders) {
+                    throw new Error('Invalid response from orders API');
+                }
+                
+                allOrdersForStats = result.orders;
+                
+                console.log(`📊 All orders loaded for stats: ${allOrdersForStats.length} total orders`);
+                
+            } catch (error) {
+                console.error('❌ Error loading all orders for dashboard:', error);
+                allOrdersForStats = [];
             }
         }
 
@@ -2800,28 +2889,28 @@
                     lastUpdatedEl.textContent = timeStr;
                 }
                 
-                // Calculate statistics from loaded data
+                // Calculate statistics from ALL loaded data (not just current page)
                 const stats = {
                     books: {
-                        total: adminBooks.length || 0,
-                        totalStock: adminBooks.reduce((sum, book) => sum + (parseInt(book.stock) || 0), 0),
-                        lowStock: adminBooks.filter(book => (parseInt(book.stock) || 0) <= 10).length,
-                        fiction: adminBooks.filter(book => book.category === 'Fiction').length,
-                        nonFiction: adminBooks.filter(book => book.category === 'Non - Fiction' || book.category === 'Non-Fiction').length
+                        total: allBooksForStats.length || 0,
+                        totalStock: allBooksForStats.reduce((sum, book) => sum + (parseInt(book.stock) || 0), 0),
+                        lowStock: allBooksForStats.filter(book => (parseInt(book.stock) || 0) <= 10).length,
+                        fiction: allBooksForStats.filter(book => book.category === 'Fiction').length,
+                        nonFiction: allBooksForStats.filter(book => book.category === 'Non - Fiction' || book.category === 'Non-Fiction').length
                     },
                     orders: {
-                        total: allOrders.length || 0,
-                        pending: allOrders.filter(order => order.status === 'pending').length,
-                        processing: allOrders.filter(order => order.status === 'processing').length,
-                        shipped: allOrders.filter(order => order.status === 'shipped').length,
-                        completed: allOrders.filter(order => order.status === 'completed').length,
-                        cancelled: allOrders.filter(order => order.status === 'cancelled').length,
-                        totalRevenue: allOrders
+                        total: allOrdersForStats.length || 0,
+                        pending: allOrdersForStats.filter(order => order.status === 'pending').length,
+                        processing: allOrdersForStats.filter(order => order.status === 'processing').length,
+                        shipped: allOrdersForStats.filter(order => order.status === 'shipped').length,
+                        completed: allOrdersForStats.filter(order => order.status === 'completed').length,
+                        cancelled: allOrdersForStats.filter(order => order.status === 'cancelled').length,
+                        totalRevenue: allOrdersForStats
                             .filter(order => ['completed', 'shipped', 'delivered'].includes(order.status))
                             .reduce((sum, order) => sum + (parseFloat(order.total_amount) || 0), 0)
                     },
                     users: {
-                        total: allUsers.length || 0
+                        total: allUsersForStats.length || 0
                     }
                 };
                 
@@ -2904,16 +2993,16 @@
                 
                 console.log('👥 User Statistics:', stats.users);
                 
-                // === Update Low Stock Table (from currently loaded books) ===
+                // === Update Low Stock Table (from ALL books) ===
                 const LOW_STOCK_THRESHOLD = 10;
-                const lowStockBooks = adminBooks.filter(book => {
+                const lowStockBooks = allBooksForStats.filter(book => {
                     const stock = parseInt(book.stock) || 0;
                     return stock <= LOW_STOCK_THRESHOLD && stock >= 0;
                 });
                 
                 updateLowStockTable(lowStockBooks);
                 
-                console.log('⚠️ Low Stock from loaded books:', lowStockBooks.length);
+                console.log('⚠️ Low Stock from all books:', lowStockBooks.length);
                 
                 console.log('✅ Dashboard updated successfully');
                 
