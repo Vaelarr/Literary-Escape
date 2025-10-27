@@ -2304,24 +2304,51 @@ app.put('/api/super-admin/admins/:id/password', authenticateSuperAdmin, async (r
 
 // Helper function to log audit trail
 function logAuditTrail(req, actionType, entityType, entityId, entityName, oldValue, newValue, description) {
+    // Validate that req and req.user exist
+    if (!req || !req.user) {
+        console.error('⚠️ Cannot log audit trail - req or req.user is undefined');
+        console.error('   Action:', actionType, 'Entity:', entityType, entityId);
+        return;
+    }
+
+    // Extract admin information safely
+    const adminId = req.user.userId || req.user.id;
+    const adminUsername = req.user.username || req.user.email || 'Unknown';
+    const adminEmail = req.user.email || req.user.username || 'unknown@example.com';
+
+    if (!adminId) {
+        console.error('⚠️ Cannot log audit trail - admin_id is undefined');
+        console.error('   Req.user:', req.user);
+        return;
+    }
+
     const auditData = {
         action_type: actionType,
         entity_type: entityType,
-        entity_id: entityId,
-        entity_name: entityName,
-        old_value: oldValue,
-        new_value: newValue,
-        admin_id: req.user.userId,
-        admin_username: req.user.username || req.user.email,
-        admin_email: req.user.email || req.user.username,
-        ip_address: req.ip || req.connection.remoteAddress,
-        user_agent: req.headers['user-agent'],
-        description: description
+        entity_id: entityId || null,
+        entity_name: entityName || null,
+        old_value: oldValue || null,
+        new_value: newValue || null,
+        admin_id: adminId,
+        admin_email: adminEmail,
+        ip_address: req.ip || req.connection?.remoteAddress || null,
+        user_agent: req.headers?.['user-agent'] || null,
+        description: description || null
     };
+
+    console.log('📜 Logging audit trail:', {
+        action: actionType,
+        entity: `${entityType} #${entityId}`,
+        admin_id: adminId,
+        admin_email: adminEmail
+    });
 
     auditTrailOperations.add(auditData, (err) => {
         if (err) {
-            console.error('Error logging audit trail:', err);
+            console.error('❌ Error logging audit trail:', err);
+            console.error('   Audit data:', auditData);
+        } else {
+            console.log('✅ Audit trail logged successfully');
         }
     });
 }

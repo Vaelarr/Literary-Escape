@@ -2619,6 +2619,18 @@
             hideLoadingMessage();
         }
 
+        function showNotification(message, type = 'info') {
+            console.log(`${type.toUpperCase()}: ${message}`);
+            if (type === 'error') {
+                alert(message);
+            } else if (type === 'success') {
+                alert(message); // You can implement a better toast notification
+            } else {
+                console.log(message);
+            }
+            hideLoadingMessage();
+        }
+
         function showLoadingMessage(message) {
             console.log('⏳ ' + message);
             // You can implement a loading overlay here
@@ -3981,12 +3993,35 @@
         }
         
         // Open add admin modal
-        function openAddAdminModal() {
+        async function openAddAdminModal() {
+            console.log('📝 Opening Add Admin Modal');
+            
+            // Clear form first
             document.getElementById('adminId').value = '';
             document.getElementById('adminForm').reset();
             document.querySelector('#addAdminModal .modal-title').textContent = 'Add New Admin';
-            document.getElementById('passwordField').querySelector('small').style.display = 'none';
+            
+            const passwordField = document.getElementById('passwordField');
+            const smallText = passwordField.querySelector('small');
+            if (smallText) {
+                smallText.style.display = 'none';
+            }
             document.getElementById('adminPassword').required = true;
+            document.getElementById('adminIsSuperAdmin').checked = false;
+            
+            // Refresh admin list to ensure we have latest data for duplicate checking
+            try {
+                console.log('🔄 Refreshing admin list before opening add modal...');
+                const response = await window.api.superAdminGetAdmins();
+                if (Array.isArray(response)) {
+                    allAdmins = response;
+                } else if (response.success && response.admins && Array.isArray(response.admins)) {
+                    allAdmins = response.admins;
+                }
+                console.log('📋 Admin list refreshed:', allAdmins.length, 'admins');
+            } catch (error) {
+                console.warn('⚠️ Could not refresh admin list:', error);
+            }
             
             const modal = new bootstrap.Modal(document.getElementById('addAdminModal'));
             modal.show();
@@ -4060,20 +4095,46 @@
                 // Ensure we have the latest admin list
                 try {
                     const response = await window.api.superAdminGetAdmins();
+                    console.log('📋 Checking for duplicates, allAdmins before:', allAdmins.length);
+                    
                     if (Array.isArray(response)) {
                         allAdmins = response;
+                        console.log('📋 Refreshed admin list:', allAdmins.length, 'admins');
+                    } else if (response.success && response.admins && Array.isArray(response.admins)) {
+                        allAdmins = response.admins;
+                        console.log('📋 Refreshed admin list from wrapped response:', allAdmins.length, 'admins');
                     }
+                    
+                    console.log('🔍 Checking for duplicates with username:', username, 'and email:', email);
+                    
+                    const existingAdmin = allAdmins.find(admin => {
+                        const usernameMatch = admin.username && username &&
+                            admin.username.toLowerCase().trim() === username.toLowerCase().trim();
+                        const emailMatch = admin.email && email &&
+                            admin.email.toLowerCase().trim() === email.toLowerCase().trim();
+                        
+                        if (usernameMatch) {
+                            console.log('⚠️ Duplicate username found:', admin.username);
+                        }
+                        if (emailMatch) {
+                            console.log('⚠️ Duplicate email found:', admin.email);
+                        }
+                        
+                        return usernameMatch || emailMatch;
+                    });
+                    
+                    if (existingAdmin) {
+                        console.error('❌ Duplicate found:', existingAdmin);
+                        const duplicateType = existingAdmin.username.toLowerCase().trim() === username.toLowerCase().trim() 
+                            ? 'username' : 'email';
+                        showNotification(`An admin with this ${duplicateType} already exists. Please use a different ${duplicateType}.`, 'error');
+                        return;
+                    }
+                    
+                    console.log('✅ No duplicates found, proceeding with creation');
                 } catch (error) {
                     console.warn('Could not refresh admin list for duplicate check:', error);
-                }
-                
-                const existingAdmin = allAdmins.find(admin => 
-                    admin.username.toLowerCase() === username.toLowerCase() || 
-                    admin.email.toLowerCase() === email.toLowerCase()
-                );
-                if (existingAdmin) {
-                    showNotification('An admin with this username or email already exists. Please use a different username and email.', 'error');
-                    return;
+                    // Continue anyway - server will catch actual duplicates
                 }
             }
             
