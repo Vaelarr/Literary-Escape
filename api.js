@@ -888,14 +888,14 @@ app.post('/api/admin/books/:id/archive', authenticateAdmin, (req, res) => {
             
             // Log audit trail
             logAuditTrail(
-                req.user.id,
-                req.user.email,
+                req,
                 'ARCHIVE',
                 'Book',
                 bookId,
                 book.title,
-                `Archived book "${book.title}"`,
-                null
+                null,
+                null,
+                `Archived book "${book.title}"`
             );
             
             console.log('Book archived successfully');
@@ -938,14 +938,14 @@ app.post('/api/admin/books/:id/unarchive', authenticateAdmin, (req, res) => {
             
             // Log audit trail
             logAuditTrail(
-                req.user.id,
-                req.user.email,
+                req,
                 'UNARCHIVE',
                 'Book',
                 bookId,
                 book.title,
-                `Unarchived book "${book.title}"`,
-                null
+                null,
+                null,
+                `Unarchived book "${book.title}"`
             );
             
             console.log('Book unarchived successfully');
@@ -988,14 +988,14 @@ app.post('/api/admin/users/:id/archive', authenticateAdmin, (req, res) => {
             
             // Log audit trail
             logAuditTrail(
-                req.user.id,
-                req.user.email,
+                req,
                 'ARCHIVE',
                 'User',
                 userId,
                 user.username,
-                `Archived user "${user.username}"`,
-                null
+                null,
+                null,
+                `Archived user "${user.username}"`
             );
             
             console.log('User archived successfully');
@@ -1038,14 +1038,14 @@ app.post('/api/admin/users/:id/unarchive', authenticateAdmin, (req, res) => {
             
             // Log audit trail
             logAuditTrail(
-                req.user.id,
-                req.user.email,
+                req,
                 'UNARCHIVE',
                 'User',
                 userId,
                 user.username,
-                `Unarchived user "${user.username}"`,
-                null
+                null,
+                null,
+                `Unarchived user "${user.username}"`
             );
             
             console.log('User unarchived successfully');
@@ -1088,14 +1088,14 @@ app.post('/api/admin/orders/:id/archive', authenticateAdmin, (req, res) => {
             
             // Log audit trail
             logAuditTrail(
-                req.user.id,
-                req.user.email,
+                req,
                 'ARCHIVE',
                 'Order',
                 orderId,
                 `Order #${orderId}`,
-                `Archived order #${orderId}`,
-                null
+                null,
+                null,
+                `Archived order #${orderId}`
             );
             
             console.log('Order archived successfully');
@@ -1138,14 +1138,14 @@ app.post('/api/admin/orders/:id/unarchive', authenticateAdmin, (req, res) => {
             
             // Log audit trail
             logAuditTrail(
-                req.user.id,
-                req.user.email,
+                req,
                 'UNARCHIVE',
                 'Order',
                 orderId,
                 `Order #${orderId}`,
-                `Unarchived order #${orderId}`,
-                null
+                null,
+                null,
+                `Unarchived order #${orderId}`
             );
             
             console.log('Order unarchived successfully');
