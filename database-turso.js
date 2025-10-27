@@ -2310,7 +2310,7 @@ const voucherOperations = {
                 'UPDATE vouchers SET used_count = used_count + 1, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
                 [id]
             );
-            callback(null, { changes: result.rowsAffected });
+             callback(null, { changes: result.rowsAffected });
         } catch (error) {
             callback(error);
         }
