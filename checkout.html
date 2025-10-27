@@ -1209,6 +1209,11 @@
                     throw new Error('API client not initialized');
                 }
                 
+                // Check if user is logged in
+                if (!api.isLoggedIn()) {
+                    return { valid: false, message: 'Please login to use voucher codes' };
+                }
+                
                 // Call API with order amount for proper validation
                 const response = await api.validateVoucher(code, orderAmount);
                 console.log('✅ Voucher validation response:', response);
@@ -1224,8 +1229,8 @@
                 console.error('❌ Voucher validation API failed:', error);
                 
                 // Provide user-friendly error messages
-                if (error.message.includes('token')) {
-                    return { valid: false, message: 'Please login to use vouchers' };
+                if (error.message.includes('token') || error.message.includes('session')) {
+                    return { valid: false, message: 'Please login to use voucher codes' };
                 } else if (error.message.includes('network') || error.message.includes('fetch')) {
                     return { valid: false, message: 'Network error. Please check your connection' };
                 }

@@ -1306,8 +1306,8 @@ app.get('/api/test-db', async (req, res) => {
     }
 });
 
-// Voucher validation endpoint (public - used in checkout)
-app.post('/api/vouchers/validate', (req, res) => {
+// Voucher validation endpoint (requires authentication)
+app.post('/api/vouchers/validate', authenticateToken, (req, res) => {
     const { code, orderAmount } = req.body;
     
     if (!code) {
