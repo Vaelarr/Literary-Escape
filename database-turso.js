@@ -2278,6 +2278,7 @@ const auditTrailOperations = {
     // Add audit log entry
     add: async (logData, callback) => {
         try {
+            console.log('AUDIT LOG DATA:', logData);
             const result = await query(
                 `INSERT INTO audit_trail (
                     action_type, entity_type, entity_id, entity_name, old_value, new_value,
@@ -2298,8 +2299,10 @@ const auditTrailOperations = {
                     logData.description
                 ]
             );
+            console.log('AUDIT LOG INSERT RESULT:', result);
             callback(null, { id: result.lastInsertRowid, message: 'Audit log created successfully' });
         } catch (error) {
+            console.error('AUDIT LOG ERROR:', error);
             callback(error);
         }
     },
