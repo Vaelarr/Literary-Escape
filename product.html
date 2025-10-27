@@ -705,10 +705,27 @@
                     return;
                 }
 
+                console.log('Book data received:', book);
+                console.log('Book object type:', typeof book);
+                console.log('Book is null?', book === null);
+                console.log('Book title exists?', book.title);
+                console.log('Book author exists?', book.author);
+
+                // Ensure book has required properties
+                if (!book.title || !book.author) {
+                    console.error('Book missing required properties:', { title: book.title, author: book.author });
+                    document.querySelector('.content').innerHTML =
+                        '<div class="alert alert-danger">Book data is incomplete</div>';
+                    return;
+                }
+
                 currentBook = book;
                 maxStock = book.stock_quantity || 10;
                 console.log('Current book set:', currentBook);
                 console.log('Max stock set to:', maxStock);
+                console.log('Book object keys:', Object.keys(book));
+                console.log('Book title:', book.title);
+                console.log('Book author:', book.author);
 
                 // Create 2D book model
                 const bookContainer = document.querySelector('#book-3d-container');
@@ -721,23 +738,56 @@
 
                 // Populate all book details
                 console.log('Populating book details...');
-                document.querySelector('.title').textContent = book.title;
-                document.querySelector('.author').textContent = `by ${book.author}`;
-                document.querySelector('.description').textContent = book.description || 'No description available.';
+                console.log('Looking for elements in product content...');
+                
+                // Scope selectors to the product content area
+                const productContent = document.querySelector('#product-show .content');
+                if (!productContent) {
+                    console.error('Product content container not found!');
+                    return;
+                }
+                
+                const titleElement = productContent.querySelector('.title');
+                const authorElement = productContent.querySelector('.author');
+                const descriptionElement = productContent.querySelector('.description');
+                
+                console.log('Elements found:', { titleElement, authorElement, descriptionElement });
+                
+                if (!titleElement || !authorElement || !descriptionElement) {
+                    console.error('Required elements not found in product content!');
+                    console.log('Product content HTML:', productContent.innerHTML.substring(0, 500));
+                    return;
+                }
+
+                titleElement.textContent = book.title;
+                authorElement.textContent = `by ${book.author}`;
+                descriptionElement.textContent = book.description || 'No description available.';
 
                 // Basic details
-                document.querySelector('.category').textContent = book.category || 'Unknown';
-                document.querySelector('.genre').textContent = book.genre || 'Unknown';
-                document.querySelector('.publisher').textContent = book.publisher || 'Unknown Publisher';
-                document.querySelector('.publication-date').textContent = formatDate(book.publication_date) || 'Unknown';
-                document.querySelector('.pages').textContent = book.pages ? `${book.pages} pages` : 'Unknown';
+                const categoryElement = productContent.querySelector('.category');
+                const genreElement = productContent.querySelector('.genre');
+                const publisherElement = productContent.querySelector('.publisher');
+                const pubDateElement = productContent.querySelector('.publication-date');
+                const pagesElement = productContent.querySelector('.pages');
+
+                if (categoryElement) categoryElement.textContent = book.category || 'Unknown';
+                if (genreElement) genreElement.textContent = book.genre || 'Unknown';
+                if (publisherElement) publisherElement.textContent = book.publisher || 'Unknown Publisher';
+                if (pubDateElement) pubDateElement.textContent = formatDate(book.publication_date) || 'Unknown';
+                if (pagesElement) pagesElement.textContent = book.pages ? `${book.pages} pages` : 'Unknown';
 
                 // Additional details
-                document.querySelector('.language').textContent = book.language || 'English';
-                document.querySelector('.format').textContent = book.format || 'Paperback';
-                document.querySelector('.weight').textContent = book.weight ? `${book.weight} kg` : 'Unknown';
-                document.querySelector('.dimensions').textContent = book.dimensions || 'Unknown';
-                document.querySelector('.isbn').textContent = book.isbn || 'Unknown';
+                const languageElement = productContent.querySelector('.language');
+                const formatElement = productContent.querySelector('.format');
+                const weightElement = productContent.querySelector('.weight');
+                const dimensionsElement = productContent.querySelector('.dimensions');
+                const isbnElement = productContent.querySelector('.isbn');
+
+                if (languageElement) languageElement.textContent = book.language || 'English';
+                if (formatElement) formatElement.textContent = book.format || 'Paperback';
+                if (weightElement) weightElement.textContent = book.weight ? `${book.weight} kg` : 'Unknown';
+                if (dimensionsElement) dimensionsElement.textContent = book.dimensions || 'Unknown';
+                if (isbnElement) isbnElement.textContent = book.isbn || 'Unknown';
 
                 console.log('Book details populated successfully');
 
