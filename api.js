@@ -456,6 +456,27 @@ app.post('/api/admin/login', async (req, res) => {
                 { expiresIn: '24h' }
             );
             
+            // Log audit trail for successful admin login
+            logAuditTrail(
+                {
+                    user: {
+                        userId: admin.id,
+                        username: admin.username,
+                        email: admin.email
+                    },
+                    ip: req.ip,
+                    headers: req.headers,
+                    connection: req.connection
+                },
+                'LOGIN',
+                'admin',
+                admin.id,
+                admin.username || admin.email,
+                null,
+                null,
+                `Admin ${admin.username || admin.email} logged in.`
+            );
+
             res.json({ 
                 token, 
                 user: { 
