@@ -97,6 +97,45 @@ function updateNavbarAccountLink() {
       // Show dropdown functionality
       if (profileDropdown) {
         profileDropdown.style.display = 'block';
+
+        // Show audit trail notifications for admins only
+        if (user.role === 'admin' || user.isAdmin === true) {
+          // Create or select notification area in dropdown
+          let notifArea = document.getElementById('adminAuditTrailNotifications');
+          if (!notifArea) {
+            notifArea = document.createElement('div');
+            notifArea.id = 'adminAuditTrailNotifications';
+            notifArea.style.maxHeight = '180px';
+            notifArea.style.overflowY = 'auto';
+            notifArea.style.background = '#f8f9fa';
+            notifArea.style.borderRadius = '6px';
+            notifArea.style.margin = '10px 0';
+            notifArea.style.padding = '8px 10px';
+            notifArea.innerHTML = '<div style="font-weight:bold;font-size:14px;margin-bottom:6px;">Recent Admin Actions</div>';
+            profileDropdown.insertBefore(notifArea, profileDropdown.querySelector('.profile-dropdown-menu'));
+          }
+          notifArea.innerHTML = '<div style="font-weight:bold;font-size:14px;margin-bottom:6px;">Recent Admin Actions</div>';
+          // Fetch recent audit logs (limit 5)
+          api.adminGetAuditTrail(5).then(logs => {
+            if (logs && logs.length > 0) {
+              notifArea.innerHTML += logs.map(log =>
+                `<div style="font-size:13px;padding:4px 0;border-bottom:1px solid #e0e0e0;">
+                  <span style='color:#228b22;font-weight:500;'>${log.action_type}</span>
+                  <span style='color:#555;'>${log.entity_type}${log.entity_name ? ': ' + log.entity_name : ''}</span><br>
+                  <span style='color:#888;font-size:11px;'>${new Date(log.created_at).toLocaleString()}</span>
+                </div>`
+              ).join('');
+            } else {
+              notifArea.innerHTML += '<div style="font-size:13px;color:#888;">No recent admin actions.</div>';
+            }
+          }).catch(() => {
+            notifArea.innerHTML += '<div style="font-size:13px;color:#c00;">Could not load audit trail.</div>';
+          });
+        } else {
+          // Remove audit notifications if not admin
+          const notifArea = document.getElementById('adminAuditTrailNotifications');
+          if (notifArea) notifArea.remove();
+        }
       }
       
       console.log('Navbar updated for logged-in user:', user.username);
