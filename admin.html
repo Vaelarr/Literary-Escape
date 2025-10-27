@@ -4036,8 +4036,10 @@
             // Clear form first
             document.getElementById('adminId').value = '';
             document.getElementById('adminForm').reset();
+            // Explicitly clear the email field to avoid stale values
+            document.getElementById('adminEmail').value = '';
             document.querySelector('#addAdminModal .modal-title').textContent = 'Add New Admin';
-            
+    
             const passwordField = document.getElementById('passwordField');
             const smallText = passwordField.querySelector('small');
             if (smallText) {
