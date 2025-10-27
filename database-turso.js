@@ -1570,6 +1570,43 @@ const reviewsOperations = {
 
 // Admin Operations
 const adminOperations = {
+    // Update admin (for API compatibility)
+    updateAdmin: async (id, adminData, callback) => {
+        try {
+            const fields = [];
+            const values = [];
+            if (adminData.username !== undefined) {
+                fields.push('username = ?');
+                values.push(adminData.username);
+            }
+            if (adminData.email !== undefined) {
+                fields.push('email = ?');
+                values.push(adminData.email);
+            }
+            if (adminData.first_name !== undefined) {
+                fields.push('first_name = ?');
+                values.push(adminData.first_name);
+            }
+            if (adminData.last_name !== undefined) {
+                fields.push('last_name = ?');
+                values.push(adminData.last_name);
+            }
+            if (adminData.phone !== undefined) {
+                fields.push('phone = ?');
+                values.push(adminData.phone);
+            }
+            fields.push('updated_at = CURRENT_TIMESTAMP');
+            values.push(id);
+            await query(
+                `UPDATE admins SET ${fields.join(', ')} WHERE id = ?`,
+                values
+            );
+            const updated = await query('SELECT * FROM admins WHERE id = ?', [id]);
+            callback(null, updated.rows[0]);
+        } catch (error) {
+            callback(error);
+        }
+    },
     create: async (adminData, callback) => {
         try {
             const result = await query(
