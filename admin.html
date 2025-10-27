@@ -2694,9 +2694,13 @@
                     console.log('⛔ User is not admin, clearing session');
                     localStorage.removeItem('authToken');
                     localStorage.removeItem('user');
+                    localStorage.removeItem('adminUser');
                     showAdminLogin();
                     return;
                 }
+                
+                // Store admin user data for super-admin checks
+                localStorage.setItem('adminUser', user);
                 
                 // Verify token is still valid by checking database connection
                 // The token will be sent with API calls automatically
@@ -2714,6 +2718,7 @@
                 console.error('❌ Error checking admin access:', error);
                 localStorage.removeItem('authToken');
                 localStorage.removeItem('user');
+                localStorage.removeItem('adminUser');
                 showAdminLogin();
             }
         }
@@ -3959,11 +3964,24 @@
             const userData = JSON.parse(localStorage.getItem('adminUser') || '{}');
             const isSuperAdmin = userData.isSuperAdmin === true;
             
+            console.log('🔍 Checking super admin access:');
+            console.log('   adminUser data:', userData);
+            console.log('   isSuperAdmin:', isSuperAdmin);
+            
             // Show/hide super admin menu items
             const superAdminElements = document.querySelectorAll('.super-admin-only');
+            console.log('   Found super-admin-only elements:', superAdminElements.length);
+            
             superAdminElements.forEach(element => {
                 element.style.display = isSuperAdmin ? '' : 'none';
+                console.log('   Element display set to:', isSuperAdmin ? 'visible' : 'hidden', element);
             });
+            
+            if (isSuperAdmin) {
+                console.log('✅ Super admin access granted - Admin Management should be visible');
+            } else {
+                console.log('❌ Super admin access denied - Admin Management hidden');
+            }
             
             // If on admin management section and not super admin, redirect to dashboard
             const currentSection = document.querySelector('.content-section.active');

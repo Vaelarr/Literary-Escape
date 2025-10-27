@@ -242,7 +242,9 @@ class APIClient {
             this.token = response.token;
             localStorage.setItem('authToken', response.token);
             localStorage.setItem('user', JSON.stringify(response.user));
+            localStorage.setItem('adminUser', JSON.stringify(response.user)); // Store separately for admin panel
             console.log('Admin token stored successfully:', this.token ? 'Present' : 'Missing');
+            console.log('Admin user data stored:', response.user);
         } else {
             console.warn('No token in admin login response');
         }
@@ -254,6 +256,7 @@ class APIClient {
         this.token = null;
         localStorage.removeItem('authToken');
         localStorage.removeItem('user');
+        localStorage.removeItem('adminUser');
         localStorage.removeItem('loginTimestamp');
     }
     
