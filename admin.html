@@ -525,9 +525,9 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label" style="color: rgba(255,255,255,0.8);">Username</label>
-                            <input type="text" class="form-control" id="profileUsername" readonly
-                                   style="background: rgba(0,0,0,0.4); border: 1px solid rgba(106, 156, 137, 0.2); color: rgba(255,255,255,0.6); cursor: not-allowed;">
-                            <small style="color: rgba(255,255,255,0.5);">Username cannot be changed</small>
+                            <input type="text" class="form-control" id="profileUsername"
+                                   style="background: rgba(0,0,0,0.3); border: 1px solid rgba(106, 156, 137, 0.3); color: white;">
+                            <small style="color: rgba(255,255,255,0.5);">You can now change your username</small>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" style="color: rgba(255,255,255,0.8);">Email</label>
@@ -4646,46 +4646,48 @@
         // Handle profile update
         async function handleUpdateProfile(event) {
             event.preventDefault();
-            
+            const username = document.getElementById('profileUsername').value.trim();
             const email = document.getElementById('profileEmail').value.trim();
             const firstName = document.getElementById('profileFirstName').value.trim();
             const lastName = document.getElementById('profileLastName').value.trim();
             const phone = document.getElementById('profilePhone').value.trim();
-            
+
             // Validation
+            if (!username) {
+                alert('Username is required!');
+                return;
+            }
             if (!email) {
                 alert('Email is required!');
                 return;
             }
-            
+
             try {
                 showLoadingMessage('Updating profile...');
-                
                 const userData = JSON.parse(localStorage.getItem('adminUser') || '{}');
                 const response = await api.adminUpdateProfile({
                     adminId: userData.id,
+                    username: username,
                     email: email,
                     firstName: firstName,
                     lastName: lastName,
                     phone: phone
                 });
-                
-                if (response && response.success) {
+                if (response && (response.success || response.message === 'Profile updated successfully' || response.message === 'Admin updated successfully')) {
                     // Update local storage
                     const updatedUser = {
                         ...userData,
+                        username: username,
                         email: email,
                         firstName: firstName,
                         lastName: lastName,
                         phone: phone
                     };
                     localStorage.setItem('adminUser', JSON.stringify(updatedUser));
-                    
                     showSuccessMessage('Profile updated successfully!');
                 } else {
                     throw new Error(response?.error || 'Failed to update profile');
                 }
-                
             } catch (error) {
                 console.error('Error updating profile:', error);
                 showErrorMessage(error.message || 'Failed to update profile');

@@ -767,6 +767,7 @@ class APIClient {
             method: 'PUT',
             body: JSON.stringify({ 
                 adminId,
+                username: arguments[0].username,
                 email, 
                 firstName, 
                 lastName, 
