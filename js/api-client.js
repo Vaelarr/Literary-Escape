@@ -711,6 +711,32 @@ class APIClient {
             body: JSON.stringify({ password })
         });
     }
+
+    // ==================== ADMIN SELF-SERVICE METHODS ====================
+    
+    async adminChangePassword({ adminId, currentPassword, newPassword }) {
+        return this.makeRequest(`/admin/profile/change-password`, {
+            method: 'PUT',
+            body: JSON.stringify({ 
+                adminId,
+                currentPassword, 
+                newPassword 
+            })
+        });
+    }
+
+    async adminUpdateProfile({ adminId, email, firstName, lastName, phone }) {
+        return this.makeRequest(`/admin/profile/update`, {
+            method: 'PUT',
+            body: JSON.stringify({ 
+                adminId,
+                email, 
+                firstName, 
+                lastName, 
+                phone 
+            })
+        });
+    }
 }
 
 // Create global API client instance

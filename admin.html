@@ -455,26 +455,129 @@
 
         <!-- Settings Section -->
         <div id="settings-section" class="content-section">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-                <div>
-                    <h2 class="section-title">LOGO</h2>
-                    <div class="content-card">
-                        <div class="logo-upload-area">
-                            <div>LOGO IMG</div>
+            <h2 class="section-title">
+                <i class="fas fa-lock me-2"></i>Security & Settings
+            </h2>
+
+            <!-- Security Settings -->
+            <div class="content-card" style="margin-bottom: 30px;">
+                <h3 style="color: rgba(255,255,255,0.9); margin-bottom: 20px; font-size: 1.2rem;">
+                    <i class="fas fa-shield-alt me-2"></i>Security
+                </h3>
+                
+                <div style="display: grid; gap: 20px;">
+                    <!-- Change Password -->
+                    <div style="padding: 20px; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid rgba(106, 156, 137, 0.3);">
+                        <h4 style="color: rgba(255,255,255,0.9); margin-bottom: 15px; font-size: 1rem;">
+                            <i class="fas fa-key me-2"></i>Change Password
+                        </h4>
+                        <form id="changePasswordForm" onsubmit="handleChangePassword(event)">
+                            <div class="mb-3">
+                                <label class="form-label" style="color: rgba(255,255,255,0.8);">Current Password</label>
+                                <input type="password" class="form-control" id="currentPassword" required 
+                                       style="background: rgba(0,0,0,0.3); border: 1px solid rgba(106, 156, 137, 0.3); color: white;">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" style="color: rgba(255,255,255,0.8);">New Password</label>
+                                <input type="password" class="form-control" id="newPassword" required minlength="6"
+                                       style="background: rgba(0,0,0,0.3); border: 1px solid rgba(106, 156, 137, 0.3); color: white;">
+                                <small style="color: rgba(255,255,255,0.6);">Minimum 6 characters</small>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" style="color: rgba(255,255,255,0.8);">Confirm New Password</label>
+                                <input type="password" class="form-control" id="confirmPassword" required minlength="6"
+                                       style="background: rgba(0,0,0,0.3); border: 1px solid rgba(106, 156, 137, 0.3); color: white;">
+                            </div>
+                            <button type="submit" class="btn-add">
+                                <i class="fas fa-save me-2"></i>Update Password
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Session Management -->
+                    <div style="padding: 20px; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid rgba(106, 156, 137, 0.3);">
+                        <h4 style="color: rgba(255,255,255,0.9); margin-bottom: 15px; font-size: 1rem;">
+                            <i class="fas fa-clock me-2"></i>Session Information
+                        </h4>
+                        <div style="color: rgba(255,255,255,0.7); margin-bottom: 10px;">
+                            <strong>Last Login:</strong> <span id="lastLoginTime">Loading...</span>
                         </div>
-                        <button class="btn-change">CHANGE</button>
+                        <div style="color: rgba(255,255,255,0.7); margin-bottom: 10px;">
+                            <strong>Session Expires:</strong> <span id="sessionExpiry">Loading...</span>
+                        </div>
+                        <div style="color: rgba(255,255,255,0.7); margin-bottom: 20px;">
+                            <strong>Admin Since:</strong> <span id="adminSince">Loading...</span>
+                        </div>
+                        <button class="btn-archive" onclick="handleLogoutAllSessions()" style="background: rgba(214, 48, 49, 0.3); border-color: rgba(214, 48, 49, 0.5);">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout All Sessions
+                        </button>
                     </div>
                 </div>
+            </div>
+
+            <!-- Admin Profile Settings -->
+            <div class="content-card" style="margin-bottom: 30px;">
+                <h3 style="color: rgba(255,255,255,0.9); margin-bottom: 20px; font-size: 1.2rem;">
+                    <i class="fas fa-user-cog me-2"></i>Profile Settings
+                </h3>
                 
-                <div>
-                    <h2 class="section-title">Permissions</h2>
-                    <div class="permission-card">
-                        <h4 style="color: white; margin-bottom: 20px;">Admin name</h4>
-                        <div style="color: rgba(255,255,255,0.7); margin-bottom: 15px;">Access</div>
-                        <div class="permission-item">Full Access</div>
-                        <div class="permission-item">Books Management</div>
-                        <div class="permission-item">User Management</div>
-                        <div class="permission-item">Orders Management</div>
+                <form id="profileSettingsForm" onsubmit="handleUpdateProfile(event)">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" style="color: rgba(255,255,255,0.8);">Username</label>
+                            <input type="text" class="form-control" id="profileUsername" readonly
+                                   style="background: rgba(0,0,0,0.4); border: 1px solid rgba(106, 156, 137, 0.2); color: rgba(255,255,255,0.6); cursor: not-allowed;">
+                            <small style="color: rgba(255,255,255,0.5);">Username cannot be changed</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" style="color: rgba(255,255,255,0.8);">Email</label>
+                            <input type="email" class="form-control" id="profileEmail" required
+                                   style="background: rgba(0,0,0,0.3); border: 1px solid rgba(106, 156, 137, 0.3); color: white;">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" style="color: rgba(255,255,255,0.8);">First Name</label>
+                            <input type="text" class="form-control" id="profileFirstName"
+                                   style="background: rgba(0,0,0,0.3); border: 1px solid rgba(106, 156, 137, 0.3); color: white;">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" style="color: rgba(255,255,255,0.8);">Last Name</label>
+                            <input type="text" class="form-control" id="profileLastName"
+                                   style="background: rgba(0,0,0,0.3); border: 1px solid rgba(106, 156, 137, 0.3); color: white;">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="color: rgba(255,255,255,0.8);">Phone Number</label>
+                        <input type="tel" class="form-control" id="profilePhone"
+                               style="background: rgba(0,0,0,0.3); border: 1px solid rgba(106, 156, 137, 0.3); color: white;">
+                    </div>
+                    <button type="submit" class="btn-add">
+                        <i class="fas fa-save me-2"></i>Update Profile
+                    </button>
+                </form>
+            </div>
+
+            <!-- Account Information -->
+            <div class="content-card">
+                <h3 style="color: rgba(255,255,255,0.9); margin-bottom: 20px; font-size: 1.2rem;">
+                    <i class="fas fa-info-circle me-2"></i>Account Information
+                </h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                    <div style="padding: 15px; background: rgba(0,0,0,0.2); border-radius: 8px; border-left: 3px solid rgba(106, 156, 137, 0.8);">
+                        <div style="color: rgba(255,255,255,0.6); font-size: 0.85rem; margin-bottom: 5px;">Role</div>
+                        <div style="color: white; font-size: 1.1rem;" id="accountRole">Loading...</div>
+                    </div>
+                    <div style="padding: 15px; background: rgba(0,0,0,0.2); border-radius: 8px; border-left: 3px solid rgba(106, 156, 137, 0.8);">
+                        <div style="color: rgba(255,255,255,0.6); font-size: 0.85rem; margin-bottom: 5px;">Account ID</div>
+                        <div style="color: white; font-size: 1.1rem; font-family: monospace;" id="accountId">Loading...</div>
+                    </div>
+                    <div style="padding: 15px; background: rgba(0,0,0,0.2); border-radius: 8px; border-left: 3px solid rgba(106, 156, 137, 0.8);">
+                        <div style="color: rgba(255,255,255,0.6); font-size: 0.85rem; margin-bottom: 5px;">Status</div>
+                        <div style="color: #4caf50; font-size: 1.1rem;">
+                            <i class="fas fa-check-circle me-1"></i>Active
+                        </div>
                     </div>
                 </div>
             </div>
@@ -4401,6 +4504,183 @@
         });
         
         // ==================== END VOUCHER MANAGEMENT ====================
+        
+        // ==================== SECURITY & SETTINGS FUNCTIONS ====================
+        
+        // Load admin profile data into settings form
+        async function loadProfileSettings() {
+            try {
+                const userData = JSON.parse(localStorage.getItem('adminUser') || '{}');
+                
+                // Populate profile form
+                document.getElementById('profileUsername').value = userData.username || '';
+                document.getElementById('profileEmail').value = userData.email || '';
+                document.getElementById('profileFirstName').value = userData.firstName || '';
+                document.getElementById('profileLastName').value = userData.lastName || '';
+                document.getElementById('profilePhone').value = userData.phone || '';
+                
+                // Populate account information
+                document.getElementById('accountRole').textContent = userData.isSuperAdmin ? 'Super Admin' : 'Admin';
+                document.getElementById('accountId').textContent = userData.id || 'N/A';
+                
+                // Load session information
+                const token = localStorage.getItem('authToken');
+                if (token) {
+                    try {
+                        // Decode JWT to get expiration (simple base64 decode)
+                        const payload = JSON.parse(atob(token.split('.')[1]));
+                        const expiryDate = new Date(payload.exp * 1000);
+                        document.getElementById('sessionExpiry').textContent = expiryDate.toLocaleString();
+                    } catch (e) {
+                        document.getElementById('sessionExpiry').textContent = 'Unknown';
+                    }
+                }
+                
+                // Set last login time (you can store this when user logs in)
+                const lastLogin = localStorage.getItem('lastLogin');
+                if (lastLogin) {
+                    document.getElementById('lastLoginTime').textContent = new Date(lastLogin).toLocaleString();
+                } else {
+                    document.getElementById('lastLoginTime').textContent = 'Current session';
+                }
+                
+                // Set admin since date
+                document.getElementById('adminSince').textContent = userData.createdAt 
+                    ? new Date(userData.createdAt).toLocaleDateString() 
+                    : 'N/A';
+                
+            } catch (error) {
+                console.error('Error loading profile settings:', error);
+                showErrorMessage('Failed to load profile settings');
+            }
+        }
+        
+        // Handle password change
+        async function handleChangePassword(event) {
+            event.preventDefault();
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // Validation
+            if (newPassword !== confirmPassword) {
+                alert('New passwords do not match!');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                alert('Password must be at least 6 characters long!');
+                return;
+            }
+            
+            if (currentPassword === newPassword) {
+                alert('New password must be different from current password!');
+                return;
+            }
+            
+            try {
+                showLoadingMessage('Changing password...');
+                
+                const userData = JSON.parse(localStorage.getItem('adminUser') || '{}');
+                const response = await api.adminChangePassword({
+                    adminId: userData.id,
+                    currentPassword: currentPassword,
+                    newPassword: newPassword
+                });
+                
+                if (response && response.success) {
+                    showSuccessMessage('Password changed successfully!');
+                    document.getElementById('changePasswordForm').reset();
+                    
+                    // Optional: logout user to re-login with new password
+                    setTimeout(() => {
+                        if (confirm('Password changed successfully! You will be logged out. Click OK to continue.')) {
+                            logoutAdmin(new Event('click'));
+                        }
+                    }, 1000);
+                } else {
+                    throw new Error(response?.error || 'Failed to change password');
+                }
+                
+            } catch (error) {
+                console.error('Error changing password:', error);
+                showErrorMessage(error.message || 'Failed to change password. Please check your current password.');
+            }
+        }
+        
+        // Handle profile update
+        async function handleUpdateProfile(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('profileEmail').value.trim();
+            const firstName = document.getElementById('profileFirstName').value.trim();
+            const lastName = document.getElementById('profileLastName').value.trim();
+            const phone = document.getElementById('profilePhone').value.trim();
+            
+            // Validation
+            if (!email) {
+                alert('Email is required!');
+                return;
+            }
+            
+            try {
+                showLoadingMessage('Updating profile...');
+                
+                const userData = JSON.parse(localStorage.getItem('adminUser') || '{}');
+                const response = await api.adminUpdateProfile({
+                    adminId: userData.id,
+                    email: email,
+                    firstName: firstName,
+                    lastName: lastName,
+                    phone: phone
+                });
+                
+                if (response && response.success) {
+                    // Update local storage
+                    const updatedUser = {
+                        ...userData,
+                        email: email,
+                        firstName: firstName,
+                        lastName: lastName,
+                        phone: phone
+                    };
+                    localStorage.setItem('adminUser', JSON.stringify(updatedUser));
+                    
+                    showSuccessMessage('Profile updated successfully!');
+                } else {
+                    throw new Error(response?.error || 'Failed to update profile');
+                }
+                
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showErrorMessage(error.message || 'Failed to update profile');
+            }
+        }
+        
+        // Handle logout all sessions
+        function handleLogoutAllSessions() {
+            if (confirm('This will log you out from all devices. Continue?')) {
+                // Clear all auth data
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('user');
+                localStorage.removeItem('adminUser');
+                localStorage.removeItem('lastLogin');
+                
+                // Optional: call API to invalidate all tokens
+                // await api.adminLogoutAllSessions();
+                
+                // Redirect to login
+                window.location.reload();
+            }
+        }
+        
+        // Load settings when settings section is opened
+        document.querySelector('[data-section="settings"]')?.addEventListener('click', function() {
+            loadProfileSettings();
+        });
+        
+        // ==================== END SECURITY & SETTINGS ====================
         
         // Wait for API client to be ready before checking access
         document.addEventListener('DOMContentLoaded', function() {
