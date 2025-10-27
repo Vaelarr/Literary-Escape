@@ -1335,13 +1335,18 @@
                     loadAllOrdersForDashboard()
                 ]);
                 
-                // Then load paginated data and update dashboard
+                console.log('✅ All statistics data loaded');
+                
+                // Then load paginated data (without calling updateDashboard)
                 await Promise.all([
                     loadBooksFromAPI(),
                     loadUsersFromAPI(),
                     loadOrdersFromAPI(),
                     loadDashboardUsers()
                 ]);
+                
+                // Finally, update the dashboard with the complete stats
+                await updateDashboard();
                 
                 console.log('✅ Initial data loaded successfully');
             } catch (error) {
@@ -1447,7 +1452,7 @@
                 }
                 
                 displayBooks();
-                await updateDashboard();
+                // Don't call updateDashboard here - it will be called after all stats are loaded
                 
             } catch (error) {
                 console.error('❌ Error loading books:', error);
@@ -2887,6 +2892,9 @@
         async function updateDashboard() {
             try {
                 console.log('📊 Updating dashboard statistics...');
+                console.log('📊 allBooksForStats.length:', allBooksForStats.length);
+                console.log('📊 allUsersForStats.length:', allUsersForStats.length);
+                console.log('📊 allOrdersForStats.length:', allOrdersForStats.length);
                 
                 // Update last updated time
                 const now = new Date();
