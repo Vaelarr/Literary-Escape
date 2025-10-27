@@ -655,18 +655,18 @@
         </h2>
 
         <div class="content-card">
-            <div class="card-header-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
                 <div>
-                    <h3 class="card-title">Admin Accounts</h3>
-                    <p class="card-subtitle">Manage administrator access and permissions</p>
+                    <h3 style="color: white; font-size: 18px; margin: 0 0 5px 0;">Admin Accounts</h3>
+                    <p style="color: rgba(255,255,255,0.6); font-size: 13px; margin: 0;">Manage administrator access and permissions</p>
                 </div>
                 <button class="btn-add" onclick="openAddAdminModal()">
                     <i class="fas fa-user-plus me-2"></i>Add New Admin
                 </button>
             </div>
 
-            <div class="table-container">
-                <table class="data-table">
+            <div class="table-container scrollable-content">
+                <table class="custom-table">
                     <thead>
                         <tr>
                             <th>Username</th>
@@ -674,7 +674,7 @@
                             <th>Name</th>
                             <th>Role</th>
                             <th>Created</th>
-                            <th>Actions</th>
+                            <th class="col-actions">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="adminsTable">
