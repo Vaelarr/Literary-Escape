@@ -4031,6 +4031,20 @@
                 return;
             }
             
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showNotification('Please enter a valid email address', 'error');
+                return;
+            }
+            
+            // Validate username (alphanumeric, underscore, dash, min 3 chars)
+            const usernameRegex = /^[a-zA-Z0-9_-]{3,}$/;
+            if (!usernameRegex.test(username)) {
+                showNotification('Username must be at least 3 characters and contain only letters, numbers, underscores, or dashes', 'error');
+                return;
+            }
+            
             if (!adminId && !password) {
                 showNotification('Password is required for new admins', 'error');
                 return;
