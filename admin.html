@@ -1292,6 +1292,9 @@
             setupCategoryGenreToggle();
             setupMobileMenu();
             
+            // Refresh audit trail every 30 seconds
+            setInterval(loadAuditTrail, 30000);
+            
             // Only load data if database is connected
             checkDbConnectionAndLoadData();
         }
@@ -1576,7 +1579,8 @@
                     loadBooksFromAPI(),
                     loadUsersFromAPI(),
                     loadOrdersFromAPI(),
-                    loadDashboardUsers()
+                    loadDashboardUsers(),
+                    loadAuditTrail() // Load audit trail after authentication
                 ]);
                 
                 // Finally, update the dashboard with the complete stats
@@ -3719,18 +3723,24 @@
                 console.log('📜 Loading audit trail logs...');
                 const logs = await api.adminGetAuditTrail(10); // Get last 10 logs
                 
+                console.log('📜 Audit trail response:', logs);
+                console.log('📜 Is array?', Array.isArray(logs));
+                console.log('📜 Logs length:', logs?.length);
+                
                 if (logs && Array.isArray(logs)) {
                     auditTrailLogs = logs;
                     displayAuditTrail();
                     updateAuditTrailBadge(logs.length);
+                    console.log('✅ Audit trail loaded successfully:', logs.length, 'logs');
                 } else {
-                    console.warn('No audit trail logs received');
+                    console.warn('⚠️ No audit trail logs received or invalid format:', logs);
                     auditTrailLogs = [];
                     displayAuditTrail();
                     updateAuditTrailBadge(0);
                 }
             } catch (error) {
                 console.error('❌ Error loading audit trail:', error);
+                console.error('❌ Error details:', error.message, error.stack);
                 showAuditTrailError();
             }
         }
@@ -3869,12 +3879,6 @@
                 dropdown.classList.remove('show');
             }
         });
-        
-        // Load audit trail on page load
-        loadAuditTrail();
-        
-        // Refresh audit trail every 30 seconds
-        setInterval(loadAuditTrail, 30000);
         
         // ==================== ADMIN MANAGEMENT FUNCTIONS (SUPER ADMIN ONLY) ====================
         
