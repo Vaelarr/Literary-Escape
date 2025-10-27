@@ -979,6 +979,7 @@ app.post('/api/admin/books/:id/unarchive', authenticateAdmin, (req, res) => {
 
 // Archive a user
 app.post('/api/admin/users/:id/archive', authenticateAdmin, (req, res) => {
+    console.log('ARCHIVE USER ENDPOINT HIT');
     const userId = parseInt(req.params.id);
     
     if (isNaN(userId)) {
