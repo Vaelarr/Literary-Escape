@@ -1327,15 +1327,22 @@
         async function loadInitialData() {
             try {
                 console.log('🔄 Loading initial admin data...');
+                
+                // First, load all data for statistics
                 await Promise.all([
-                    loadBooksFromAPI(),
-                    loadUsersFromAPI(),
-                    loadOrdersFromAPI(),
-                    loadDashboardUsers(),
                     loadAllBooksForDashboard(),
                     loadAllUsersForDashboard(),
                     loadAllOrdersForDashboard()
                 ]);
+                
+                // Then load paginated data and update dashboard
+                await Promise.all([
+                    loadBooksFromAPI(),
+                    loadUsersFromAPI(),
+                    loadOrdersFromAPI(),
+                    loadDashboardUsers()
+                ]);
+                
                 console.log('✅ Initial data loaded successfully');
             } catch (error) {
                 console.error('❌ Error loading initial data:', error);
