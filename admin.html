@@ -4208,27 +4208,39 @@
             const modal = new bootstrap.Modal(modalElement);
             modal.show();
 
-            // Clear fields AGAIN after modal is fully shown (combat autofill)
-            setTimeout(() => {
-                console.log('🧹 Secondary clear after modal shown');
-                fields.forEach(fieldId => {
-                    const field = document.getElementById(fieldId);
-                    if (field && fieldId !== 'adminId') { // Don't log hidden ID field
-                        console.log(`   Clearing ${fieldId}, current value:`, field.value);
-                        field.value = '';
-                    }
-                });
-
-                // Focus username to trigger any remaining autofill, then clear again
-                const usernameField = document.getElementById('adminUsername');
-                usernameField.focus();
+            // Combat browser autofill ONLY - check if fields got auto-populated
+            // This runs ONCE after modal is shown, checking for autofill
+            modalElement.addEventListener('shown.bs.modal', function handleAutofill() {
+                // Small delay to let browser autofill kick in (if it's going to)
                 setTimeout(() => {
-                    usernameField.value = '';
-                    document.getElementById('adminEmail').value = '';
-                }, 50);
-            }, 100);
-        }
+                    const emailField = document.getElementById('adminEmail');
+                    const usernameField = document.getElementById('adminUsername');
 
+                    // Check if the email was autofilled with a known admin email
+                    const emailValue = emailField.value.trim().toLowerCase();
+                    const isAutofilled = allAdmins.some(admin =>
+                        admin.email && admin.email.toLowerCase() === emailValue
+                    );
+
+                    if (isAutofilled) {
+                        console.log('🧹 Detected autofill, clearing fields');
+                        emailField.value = '';
+                        usernameField.value = '';
+                        document.getElementById('adminPassword').value = '';
+                    } else {
+                        console.log('✅ No autofill detected');
+                    }
+
+                    // Focus on username field if empty
+                    if (!usernameField.value) {
+                        usernameField.focus();
+                    }
+                }, 100);
+
+                // Remove this listener after first use
+                modalElement.removeEventListener('shown.bs.modal', handleAutofill);
+            });
+        }
         // Open edit admin modal
         function openEditAdminModal(adminId) {
             const admin = allAdmins.find(a => a.id === adminId);
