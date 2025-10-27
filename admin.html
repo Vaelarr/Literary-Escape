@@ -2505,9 +2505,23 @@
             document.querySelectorAll('.menu-link').forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
+                    
+                    const section = this.getAttribute('data-section');
+                    
+                    // Check if trying to access admin management section
+                    if (section === 'admin-management') {
+                        const userData = JSON.parse(localStorage.getItem('adminUser') || '{}');
+                        const isSuperAdmin = userData.isSuperAdmin === true;
+                        
+                        if (!isSuperAdmin) {
+                            // Show error message and prevent access
+                            showErrorMessage('Access Denied: Super Admin privileges required');
+                            return;
+                        }
+                    }
+                    
                     document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active'));
                     this.classList.add('active');
-                    const section = this.getAttribute('data-section');
                     document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
                     document.getElementById(section + '-section').classList.add('active');
 
@@ -3952,9 +3966,26 @@
             });
             
             // If on admin management section and not super admin, redirect to dashboard
-            const currentSection = document.querySelector('.content-section:not([style*="display: none"])');
+            const currentSection = document.querySelector('.content-section.active');
             if (currentSection && currentSection.id === 'admin-management-section' && !isSuperAdmin) {
-                showSection('dashboard');
+                // Hide admin management section
+                currentSection.classList.remove('active');
+                
+                // Show dashboard section
+                const dashboardSection = document.getElementById('dashboard-section');
+                if (dashboardSection) {
+                    dashboardSection.classList.add('active');
+                }
+                
+                // Update active menu link
+                document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active'));
+                const dashboardLink = document.querySelector('[data-section="dashboard"]');
+                if (dashboardLink) {
+                    dashboardLink.classList.add('active');
+                }
+                
+                // Show error message
+                showErrorMessage('Access Denied: Super Admin privileges required');
             }
         }
         
@@ -4297,8 +4328,16 @@
             loadVouchersFromAPI(1);
         });
         
-        // Load admins when admin management section is opened
+        // Load admins when admin management section is opened (super admin only)
         document.querySelector('[data-section="admin-management"]')?.addEventListener('click', function() {
+            const userData = JSON.parse(localStorage.getItem('adminUser') || '{}');
+            const isSuperAdmin = userData.isSuperAdmin === true;
+            
+            if (!isSuperAdmin) {
+                showErrorMessage('Access Denied: Super Admin privileges required');
+                return;
+            }
+            
             loadAdmins();
         });
         
