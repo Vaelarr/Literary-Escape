@@ -145,10 +145,17 @@ class APIClient {
         // Clear the invalid token
         this.logout();
         
-        // Only redirect if not already on login/account page
+        // Only redirect if not already on login/account page or admin page
         const currentPath = window.location.pathname;
         const isOnAccountPage = currentPath.includes('account.html') || 
                                currentPath.includes('account-dashboard.html');
+        const isOnAdminPage = currentPath.includes('admin.html');
+        
+        // Don't redirect if on admin page (admin has its own login form)
+        if (isOnAdminPage) {
+            console.log('On admin page - staying on admin login');
+            return;
+        }
         
         if (!isOnAccountPage) {
             // Store the current page to redirect back after login
