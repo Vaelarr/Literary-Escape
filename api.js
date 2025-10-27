@@ -898,6 +898,7 @@ app.post('/api/admin/books/:id/archive', authenticateAdmin, (req, res) => {
         
         // Archive the book
         archiveOperations.archiveBook(bookId, (err, result) => {
+            console.log('[AUDIT DEBUG] req.user for archive book:', req.user);
             if (err) {
                 console.error('Error archiving book:', err);
                 return res.status(500).json({ error: err.message });
@@ -948,6 +949,7 @@ app.post('/api/admin/books/:id/unarchive', authenticateAdmin, (req, res) => {
         
         // Unarchive the book
         archiveOperations.unarchiveBook(bookId, (err, result) => {
+            console.log('[AUDIT DEBUG] req.user for unarchive book:', req.user);
             if (err) {
                 console.error('Error unarchiving book:', err);
                 return res.status(500).json({ error: err.message });
@@ -998,6 +1000,7 @@ app.post('/api/admin/users/:id/archive', authenticateAdmin, (req, res) => {
         
         // Archive the user
         archiveOperations.archiveUser(userId, (err, result) => {
+            console.log('[AUDIT DEBUG] req.user for archive user:', req.user);
             if (err) {
                 console.error('Error archiving user:', err);
                 return res.status(500).json({ error: err.message });
@@ -1048,6 +1051,7 @@ app.post('/api/admin/users/:id/unarchive', authenticateAdmin, (req, res) => {
         
         // Unarchive the user
         archiveOperations.unarchiveUser(userId, (err, result) => {
+            console.log('[AUDIT DEBUG] req.user for unarchive user:', req.user);
             if (err) {
                 console.error('Error unarchiving user:', err);
                 return res.status(500).json({ error: err.message });
@@ -1098,6 +1102,7 @@ app.post('/api/admin/orders/:id/archive', authenticateAdmin, (req, res) => {
         
         // Archive the order
         archiveOperations.archiveOrder(orderId, (err, result) => {
+            console.log('[AUDIT DEBUG] req.user for archive order:', req.user);
             if (err) {
                 console.error('Error archiving order:', err);
                 return res.status(500).json({ error: err.message });
@@ -1148,6 +1153,7 @@ app.post('/api/admin/orders/:id/unarchive', authenticateAdmin, (req, res) => {
         
         // Unarchive the order
         archiveOperations.unarchiveOrder(orderId, (err, result) => {
+            console.log('[AUDIT DEBUG] req.user for unarchive order:', req.user);
             if (err) {
                 console.error('Error unarchiving order:', err);
                 return res.status(500).json({ error: err.message });
