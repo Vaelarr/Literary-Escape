@@ -3733,11 +3733,18 @@
             try {
                 const response = await window.api.superAdminGetAdmins();
                 
-                if (response.success) {
+                console.log('📋 Super Admin - Admins response:', response);
+                
+                // The API returns the admins array directly, not wrapped in a success object
+                if (Array.isArray(response)) {
+                    allAdmins = response;
+                    displayAdmins();
+                } else if (response.success && response.admins) {
+                    // Fallback for wrapped response
                     allAdmins = response.admins;
                     displayAdmins();
                 } else {
-                    throw new Error(response.message || 'Failed to load admins');
+                    throw new Error('Invalid response format from server');
                 }
             } catch (error) {
                 console.error('Error loading admins:', error);
