@@ -1628,16 +1628,23 @@ const adminOperations = {
     register: async (adminData, callback) => {
         try {
             const result = await query(
-                `INSERT INTO admins (username, email, password_hash, first_name, last_name, phone)
-                 VALUES (?, ?, ?, ?, ?, ?)`,
+                `INSERT INTO admins (username, email, password_hash, first_name, last_name, phone, is_super_admin)
+                 VALUES (?, ?, ?, ?, ?, ?, ?)`,
                 [
                     adminData.username, adminData.email, adminData.password_hash,
-                    adminData.first_name, adminData.last_name, adminData.phone
+                    adminData.first_name, adminData.last_name, adminData.phone,
+                    adminData.is_super_admin || 0
                 ]
             );
             callback(null, { id: result.lastInsertRowid, message: 'Admin registered successfully' });
         } catch (error) {
-            if (error.message && error.message.includes('UNIQUE constraint failed')) {
+            console.error('Error in admin registration:', error);
+            if (error.message && (
+                error.message.includes('UNIQUE constraint failed') || 
+                error.message.includes('UNIQUE constraint') ||
+                error.message.includes('unique constraint') ||
+                error.message.includes('already exists')
+            )) {
                 callback(new Error('Admin with this email or username already exists'));
             } else {
                 callback(error);

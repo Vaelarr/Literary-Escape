@@ -2102,7 +2102,12 @@ app.post('/api/super-admin/admins', authenticateSuperAdmin, async (req, res) => 
                 console.error('Error creating admin:', err);
                 
                 // Check if this is a validation error (duplicate username/email)
-                if (err.message && err.message.includes('UNIQUE constraint failed')) {
+                if (err.message && (
+                    err.message.includes('UNIQUE constraint failed') || 
+                    err.message.includes('UNIQUE constraint') ||
+                    err.message.includes('unique constraint') ||
+                    err.message.includes('already exists')
+                )) {
                     return res.status(400).json({ error: 'Admin with this email or username already exists' });
                 }
                 
