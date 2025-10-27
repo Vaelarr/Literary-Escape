@@ -20,7 +20,7 @@ body {
     top: 0;
     padding: 20px 0;
     box-shadow: 4px 0 15px rgba(0,0,0,0.2);
-    transition: transform 0.3s ease, width 0.3s ease;
+    transition: transform 0.3s ease, width 0.3s ease, box-shadow 0.3s ease;
     z-index: 1000;
     overflow-y: auto;
 }
@@ -161,11 +161,18 @@ body {
             display: flex;
             gap: 20px;
             align-items: center;
+            position: relative;
         }
 
         .notification-icon {
             position: relative;
             cursor: pointer;
+            padding: 8px;
+            transition: transform 0.2s ease;
+        }
+
+        .notification-icon:hover {
+            transform: scale(1.05);
         }
 
         .notification-icon i {
@@ -175,8 +182,8 @@ body {
 
         .notification-icon .badge {
             position: absolute;
-            top: -8px;
-            right: -8px;
+            top: 0px;
+            right: 0px;
             background: #ff6b6b;
             color: white;
             border-radius: 50%;
@@ -191,18 +198,18 @@ body {
 
         .notification-dropdown {
             position: absolute;
-            top: 60px;
-            right: -20px;
-            width: 350px;
-            max-height: 450px;
+            top: 50px;
+            right: 0;
+            width: 380px;
+            max-height: 500px;
             background: rgba(45, 74, 62, 0.98);
             border: 2px solid rgba(255,255,255,0.3);
             border-radius: 15px;
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur();
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
             display: none;
-            z-index: 1000;
+            z-index: 2000;
             overflow: hidden;
         }
 
@@ -320,15 +327,6 @@ body {
         }
 
         /* Audit Trail Specific Styles */
-        .notification-icon {
-            cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-
-        .notification-icon:hover {
-            transform: scale(1.1);
-        }
-
         .notification-icon-circle {
             width: 32px;
             height: 32px;
@@ -957,18 +955,39 @@ body {
         /* Mobile Menu Toggle */
         .mobile-menu-toggle {
             display: none;
-            background: transparent;
-            border: none;
+            background: rgba(106, 156, 137, 0.5);
+            border: 2px solid rgba(255,255,255,0.3);
             color: white;
-            font-size: 20px;
-            padding: 10px;
+            font-size: 22px;
+            padding: 10px 14px;
             cursor: pointer;
-            border-radius: 4px;
-            transition: background-color 0.3s ease;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
         .mobile-menu-toggle:hover {
-            background: rgba(106, 156, 137, 0.3);
+            background: rgba(106, 156, 137, 0.8);
+            border-color: rgba(255,255,255,0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .mobile-menu-toggle:active {
+            transform: translateY(0);
+        }
+
+        .mobile-menu-toggle i {
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.mobile-open ~ .main-content .mobile-menu-toggle {
+            background: rgba(255, 107, 107, 0.5);
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        .sidebar.mobile-open ~ .main-content .mobile-menu-toggle:hover {
+            background: rgba(255, 107, 107, 0.8);
         }
 
         /* Sidebar Overlay */
@@ -979,8 +998,18 @@ body {
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
             z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            cursor: pointer;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+            opacity: 1;
         }
 
         /* Responsive Design */
@@ -1004,12 +1033,14 @@ body {
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
-                width: 250px;
+                width: 280px;
                 z-index: 1001;
+                box-shadow: 4px 0 20px rgba(0,0,0,0.3);
             }
 
             .sidebar.mobile-open {
                 transform: translateX(0);
+                box-shadow: 8px 0 30px rgba(0,0,0,0.5);
             }
 
             .main-content {
@@ -1020,6 +1051,8 @@ body {
 
             .mobile-menu-toggle {
                 display: block;
+                position: relative;
+                z-index: 1;
             }
 
             .sidebar-overlay.show {
@@ -1037,6 +1070,18 @@ body {
 
             .top-bar {
                 flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .user-menu {
+                position: static;
+            }
+
+            .notification-dropdown {
+                right: 0;
+                left: auto;
+                width: 90vw;
+                max-width: 350px;
             }
 
             .search-box {
@@ -1075,8 +1120,25 @@ body {
         }
 
         @media (max-width: 576px) {
+            .sidebar {
+                width: 260px;
+            }
+
+            .sidebar.mobile-open {
+                width: 260px;
+            }
+
+            .mobile-menu-toggle {
+                font-size: 20px;
+                padding: 8px 12px;
+            }
+
             .main-content {
                 padding: 10px;
+            }
+
+            .top-bar {
+                padding: 10px 0;
             }
 
             .content-card {
@@ -1116,6 +1178,12 @@ body {
             
             .modal-body {
                 padding: 15px 12px;
+            }
+
+            .notification-dropdown {
+                width: 95vw;
+                max-width: 320px;
+                right: -10px;
             }
 
             .custom-table {

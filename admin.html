@@ -70,21 +70,21 @@
                 <div class="notification-icon" id="auditTrailBell">
                     <i class="fas fa-bell"></i>
                     <span class="badge" id="auditTrailCount">0</span>
-                </div>
-                <!-- Audit Trail Dropdown -->
-                <div class="notification-dropdown" id="auditTrailDropdown">
-                    <div class="notification-header">
-                        <h4><i class="fas fa-history me-2"></i>Activity Log</h4>
-                        <span class="mark-all-read" id="viewAllAudit" style="cursor: pointer;">View All</span>
-                    </div>
-                    <div class="notification-list" id="auditTrailList">
-                        <div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.5);">
-                            <i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i>
-                            <p style="margin-top: 10px;">Loading activity...</p>
+                    <!-- Audit Trail Dropdown -->
+                    <div class="notification-dropdown" id="auditTrailDropdown">
+                        <div class="notification-header">
+                            <h4><i class="fas fa-history me-2"></i>Activity Log</h4>
+                            <span class="mark-all-read" id="viewAllAudit" style="cursor: pointer;">View All</span>
                         </div>
-                    </div>
-                    <div class="notification-footer" style="padding: 10px; text-align: center; border-top: 1px solid rgba(255,255,255,0.2);">
-                        <small style="color: rgba(255,255,255,0.6);">Last 10 admin activities</small>
+                        <div class="notification-list" id="auditTrailList">
+                            <div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.5);">
+                                <i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i>
+                                <p style="margin-top: 10px;">Loading activity...</p>
+                            </div>
+                        </div>
+                        <div class="notification-footer" style="padding: 10px; text-align: center; border-top: 1px solid rgba(255,255,255,0.2);">
+                            <small style="color: rgba(255,255,255,0.6);">Last 10 admin activities</small>
+                        </div>
                     </div>
                 </div>
                 <div class="user-avatar"></div>
@@ -2584,6 +2584,7 @@
             const mobileToggle = document.getElementById('mobileMenuToggle');
             const sidebar = document.querySelector('.sidebar');
             const mainContent = document.querySelector('.main-content');
+            const toggleIcon = mobileToggle.querySelector('i');
             
             // Create overlay if it doesn't exist
             let overlay = document.querySelector('.sidebar-overlay');
@@ -2598,6 +2599,15 @@
                 sidebar.classList.toggle('mobile-open');
                 overlay.classList.toggle('show');
                 document.body.style.overflow = sidebar.classList.contains('mobile-open') ? 'hidden' : '';
+                
+                // Change icon between bars and times
+                if (sidebar.classList.contains('mobile-open')) {
+                    toggleIcon.classList.remove('fa-bars');
+                    toggleIcon.classList.add('fa-times');
+                } else {
+                    toggleIcon.classList.remove('fa-times');
+                    toggleIcon.classList.add('fa-bars');
+                }
             });
 
             // Close menu when clicking overlay
@@ -2605,6 +2615,8 @@
                 sidebar.classList.remove('mobile-open');
                 overlay.classList.remove('show');
                 document.body.style.overflow = '';
+                toggleIcon.classList.remove('fa-times');
+                toggleIcon.classList.add('fa-bars');
             });
 
             // Close menu when clicking a menu item on mobile
@@ -2614,6 +2626,8 @@
                         sidebar.classList.remove('mobile-open');
                         overlay.classList.remove('show');
                         document.body.style.overflow = '';
+                        toggleIcon.classList.remove('fa-times');
+                        toggleIcon.classList.add('fa-bars');
                     }
                 });
             });
@@ -2624,6 +2638,8 @@
                     sidebar.classList.remove('mobile-open');
                     overlay.classList.remove('show');
                     document.body.style.overflow = '';
+                    toggleIcon.classList.remove('fa-times');
+                    toggleIcon.classList.add('fa-bars');
                 }
             });
         }
