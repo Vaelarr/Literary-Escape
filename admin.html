@@ -2973,8 +2973,15 @@
                 document.getElementById('bookTitle').value = book.title;
                 document.getElementById('bookAuthor').value = book.author;
                 document.getElementById('bookDescription').value = book.description;
-                document.getElementById('bookCategory').value = book.category;
-                document.getElementById('bookGenre').value = book.genre;
+                
+                // Normalize category value to match dropdown (handle both "Non-Fiction" and "Non - Fiction")
+                let categoryValue = book.category;
+                if (categoryValue === 'Non-Fiction') {
+                    categoryValue = 'Non - Fiction'; // Use the format with spaces to match dropdown
+                }
+                document.getElementById('bookCategory').value = categoryValue;
+                console.log('📝 Setting category:', categoryValue, 'for book:', book.title);
+                
                 document.getElementById('bookPrice').value = book.price;
                 document.getElementById('bookStock').value = book.stock || book.stock_quantity || 0;
                 document.getElementById('bookPublisher').value = book.publisher || '';
@@ -2995,15 +3002,35 @@
                     showImagePreview(book.cover);
                 }
                 
-                // Trigger category change to populate genres
+                // Setup category-genre relationship
                 const categorySelect = document.getElementById('bookCategory');
-                const changeEvent = new Event('change');
+                const genreSelect = document.getElementById('bookGenre');
+                
+                // Store the original genre for later
+                const originalGenre = book.genre;
+                
+                // First, trigger category change to populate genres
+                const changeEvent = new Event('change', { bubbles: true });
                 categorySelect.dispatchEvent(changeEvent);
                 
-                // Set genre after category is set
+                console.log('📝 Triggered category change. Current value:', categoryValue);
+                
+                // Wait for genre options to be populated, then set the genre value
                 setTimeout(() => {
-                    document.getElementById('bookGenre').value = book.genre;
-                }, 100);
+                    const genreOptions = Array.from(genreSelect.options).map(opt => opt.value);
+                    console.log('📝 Available genres:', genreOptions);
+                    console.log('📝 Trying to set genre to:', originalGenre);
+                    
+                    if (genreOptions.includes(originalGenre)) {
+                        genreSelect.value = originalGenre;
+                        console.log('✅ Genre set successfully:', originalGenre);
+                    } else {
+                        console.warn('⚠️ Genre not found in dropdown:', originalGenre);
+                        console.warn('   Available genres:', genreOptions);
+                        // Try to set it anyway - some browsers may allow this
+                        genreSelect.value = originalGenre;
+                    }
+                }, 200);
                 
                 // Update modal title
                 document.querySelector('#addBookModal .modal-title').textContent = 'Edit Book';
@@ -3767,31 +3794,41 @@
                     <div style="text-align: center; padding: 30px; color: rgba(255,255,255,0.5);">
                         <i class="fas fa-inbox" style="font-size: 32px; margin-bottom: 10px; opacity: 0.3;"></i>
                         <p>No recent activity</p>
+                        <small style="font-size: 0.8rem; display: block; margin-top: 10px;">
+                            Action logs will appear here when admins perform operations
+                        </small>
                     </div>
                 `;
                 return;
             }
             
+            console.log('📜 Displaying audit trail logs:', auditTrailLogs.length);
+            
             listElement.innerHTML = auditTrailLogs.map(log => {
-                const timeAgo = formatTimeAgo(log.created_at);
+                const timeAgo = formatTimeAgo(log.created_at || log.date || new Date());
                 const icon = getAuditIcon(log.action_type);
                 const color = getAuditColor(log.action_type);
+                const actionType = log.action_type || 'UNKNOWN';
+                const entityType = log.entity_type || 'item';
+                const entityName = log.entity_name || '';
+                const adminEmail = log.admin_email || 'Unknown';
+                const description = log.description || '';
                 
                 return `
-                    <div class="notification-item" data-log-id="${log.id}">
+                    <div class="notification-item" data-log-id="${log.id || ''}">
                         <div class="notification-icon-circle" style="background: ${color};">
                             <i class="${icon}"></i>
                         </div>
                         <div class="notification-content-area">
                             <div class="notification-text">
-                                <strong>${escapeHtml(log.action_type)}</strong> ${escapeHtml(log.entity_type)}
-                                ${log.entity_name ? `<span class="entity-name">"${escapeHtml(log.entity_name)}"</span>` : ''}
+                                <strong>${escapeHtml(actionType)}</strong> ${escapeHtml(entityType)}
+                                ${entityName ? `<span class="entity-name">"${escapeHtml(entityName)}"</span>` : ''}
                             </div>
                             <div class="notification-description">
-                                ${log.description ? escapeHtml(log.description) : ''}
+                                ${description ? escapeHtml(description) : ''}
                             </div>
                             <div class="notification-meta">
-                                <span><i class="fas fa-user"></i> ${escapeHtml(log.admin_email)}</span>
+                                <span><i class="fas fa-user"></i> ${escapeHtml(adminEmail)}</span>
                                 <span><i class="fas fa-clock"></i> ${timeAgo}</span>
                             </div>
                         </div>
@@ -4161,7 +4198,9 @@
                     response = await window.api.superAdminCreateAdmin(adminData);
                 }
                 
-                if (response.success) {
+                console.log('📝 Admin save response:', response);
+                
+                if (response && response.success) {
                     showNotification(adminId ? 'Admin updated successfully' : 'Admin created successfully', 'success');
                     bootstrap.Modal.getInstance(document.getElementById('addAdminModal')).hide();
                     await loadAdmins();
@@ -4169,7 +4208,8 @@
                     // Reload audit trail to show the new action
                     await loadAuditTrail();
                 } else {
-                    throw new Error(response.message || 'Failed to save admin');
+                    const errorMsg = response?.error || response?.message || 'Failed to save admin';
+                    throw new Error(errorMsg);
                 }
             } catch (error) {
                 console.error('Error saving admin:', error);
@@ -4191,14 +4231,15 @@
             try {
                 const response = await window.api.superAdminDeleteAdmin(adminId);
                 
-                if (response.success) {
+                if (response && response.success) {
                     showNotification('Admin deleted successfully', 'success');
                     await loadAdmins();
                     
                     // Reload audit trail to show the new action
                     await loadAuditTrail();
                 } else {
-                    throw new Error(response.message || 'Failed to delete admin');
+                    const errorMsg = response?.error || response?.message || 'Failed to delete admin';
+                    throw new Error(errorMsg);
                 }
             } catch (error) {
                 console.error('Error deleting admin:', error);
@@ -4220,13 +4261,14 @@
             try {
                 const response = await window.api.superAdminResetPassword(adminId, newPassword);
                 
-                if (response.success) {
+                if (response && response.success) {
                     showNotification('Password reset successfully', 'success');
                     
                     // Reload audit trail to show the new action
                     await loadAuditTrail();
                 } else {
-                    throw new Error(response.message || 'Failed to reset password');
+                    const errorMsg = response?.error || response?.message || 'Failed to reset password';
+                    throw new Error(errorMsg);
                 }
             } catch (error) {
                 console.error('Error resetting password:', error);
@@ -4820,6 +4862,38 @@
         });
         
         // ==================== END SECURITY & SETTINGS ====================
+        
+        // ==================== TEST AUDIT TRAIL FUNCTION ====================
+        // This function can be called from the console to test audit trail
+        window.testAuditTrail = async function() {
+            console.log('🧪 Testing audit trail...');
+            
+            try {
+                // Load audit trail
+                const logs = await api.adminGetAuditTrail(10);
+                console.log('📜 Audit trail loaded:', logs);
+                
+                if (logs && Array.isArray(logs)) {
+                    console.log('✅ Audit trail is working! Found', logs.length, 'entries');
+                    
+                    if (logs.length > 0) {
+                        console.log('📝 Sample entries:');
+                        logs.forEach((log, index) => {
+                            console.log(`  ${index + 1}. ${log.action_type} ${log.entity_type} - ${log.entity_name} (${log.created_at})`);
+                        });
+                    } else {
+                        console.warn('⚠️ No audit trail entries found. Try creating/updating a book to generate one.');
+                    }
+                } else {
+                    console.error('❌ Invalid audit trail response format');
+                }
+                
+                return logs;
+            } catch (error) {
+                console.error('❌ Error testing audit trail:', error);
+                throw error;
+            }
+        };
         
         // Wait for API client to be ready before checking access
         document.addEventListener('DOMContentLoaded', function() {

@@ -2128,7 +2128,7 @@ app.post('/api/super-admin/admins', authenticateSuperAdmin, async (req, res) => 
                 `Created new ${is_super_admin ? 'super ' : ''}admin account "${username}"`
             );
             
-            res.status(201).json({ id: result.id, message: 'Admin created successfully' });
+            res.status(201).json({ success: true, id: result.id, message: 'Admin created successfully' });
         });
     } catch (error) {
         console.error('Error in admin creation:', error);
@@ -2186,7 +2186,7 @@ app.put('/api/super-admin/admins/:id', authenticateSuperAdmin, (req, res) => {
                 `Updated admin account "${adminData.username}"`
             );
             
-            res.json({ message: 'Admin updated successfully' });
+            res.json({ success: true, message: 'Admin updated successfully' });
         });
     });
 });
@@ -2237,7 +2237,7 @@ app.delete('/api/super-admin/admins/:id', authenticateSuperAdmin, (req, res) => 
                 `Deleted ${adminData.is_super_admin ? 'super ' : ''}admin account "${adminData.username}"`
             );
             
-            res.json({ message: 'Admin deleted successfully' });
+            res.json({ success: true, message: 'Admin deleted successfully' });
         });
     });
 });
@@ -2291,7 +2291,7 @@ app.put('/api/super-admin/admins/:id/password', authenticateSuperAdmin, async (r
                     `Reset password for admin "${adminData.username}"`
                 );
                 
-                res.json({ message: 'Password reset successfully' });
+                res.json({ success: true, message: 'Password reset successfully' });
             });
         });
     } catch (error) {
@@ -2357,11 +2357,19 @@ function logAuditTrail(req, actionType, entityType, entityId, entityName, oldVal
 app.get('/api/admin/audit-trail/recent', authenticateAdmin, (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     
+    console.log('📜 Fetching recent audit trail logs, limit:', limit);
+    
     auditTrailOperations.getRecent(limit, (err, logs) => {
         if (err) {
-            console.error('Error fetching recent audit logs:', err);
+            console.error('❌ Error fetching recent audit logs:', err);
             return res.status(500).json({ error: err.message });
         }
+        
+        console.log('✅ Audit trail logs fetched:', logs?.length || 0, 'entries');
+        if (logs && logs.length > 0) {
+            console.log('   Sample entry:', logs[0]);
+        }
+        
         res.json(logs);
     });
 });
