@@ -170,6 +170,7 @@ body {
             cursor: pointer;
             padding: 8px;
             transition: transform 0.2s ease;
+            z-index: 2100;
         }
 
         .notification-icon:hover {
@@ -210,7 +211,7 @@ body {
             -webkit-backdrop-filter: blur(10px);
             box-shadow: 0 15px 40px rgba(0,0,0,0.4);
             display: none;
-            z-index: 2000;
+            z-index: 9999;
             overflow: hidden;
         }
 

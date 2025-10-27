@@ -2583,7 +2583,19 @@
             const mobileToggle = document.getElementById('mobileMenuToggle');
             const sidebar = document.querySelector('.sidebar');
             const mainContent = document.querySelector('.main-content');
+            
+            // Safety check - ensure elements exist
+            if (!mobileToggle || !sidebar || !mainContent) {
+                console.warn('Mobile menu elements not found, skipping setup');
+                return;
+            }
+            
             const toggleIcon = mobileToggle.querySelector('i');
+            
+            if (!toggleIcon) {
+                console.warn('Mobile toggle icon not found');
+                return;
+            }
             
             // Create overlay if it doesn't exist
             let overlay = document.querySelector('.sidebar-overlay');
@@ -2593,19 +2605,26 @@
                 document.body.appendChild(overlay);
             }
 
+            // Remove any existing event listeners by cloning and replacing
+            const newToggle = mobileToggle.cloneNode(true);
+            mobileToggle.parentNode.replaceChild(newToggle, mobileToggle);
+            const newToggleIcon = newToggle.querySelector('i');
+
             // Toggle mobile menu
-            mobileToggle.addEventListener('click', function() {
+            newToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
                 sidebar.classList.toggle('mobile-open');
                 overlay.classList.toggle('show');
                 document.body.style.overflow = sidebar.classList.contains('mobile-open') ? 'hidden' : '';
                 
                 // Change icon between bars and times
                 if (sidebar.classList.contains('mobile-open')) {
-                    toggleIcon.classList.remove('fa-bars');
-                    toggleIcon.classList.add('fa-times');
+                    newToggleIcon.classList.remove('fa-bars');
+                    newToggleIcon.classList.add('fa-times');
                 } else {
-                    toggleIcon.classList.remove('fa-times');
-                    toggleIcon.classList.add('fa-bars');
+                    newToggleIcon.classList.remove('fa-times');
+                    newToggleIcon.classList.add('fa-bars');
                 }
             });
 
@@ -2614,8 +2633,8 @@
                 sidebar.classList.remove('mobile-open');
                 overlay.classList.remove('show');
                 document.body.style.overflow = '';
-                toggleIcon.classList.remove('fa-times');
-                toggleIcon.classList.add('fa-bars');
+                newToggleIcon.classList.remove('fa-times');
+                newToggleIcon.classList.add('fa-bars');
             });
 
             // Close menu when clicking a menu item on mobile
@@ -2625,8 +2644,8 @@
                         sidebar.classList.remove('mobile-open');
                         overlay.classList.remove('show');
                         document.body.style.overflow = '';
-                        toggleIcon.classList.remove('fa-times');
-                        toggleIcon.classList.add('fa-bars');
+                        newToggleIcon.classList.remove('fa-times');
+                        newToggleIcon.classList.add('fa-bars');
                     }
                 });
             });
@@ -2637,10 +2656,12 @@
                     sidebar.classList.remove('mobile-open');
                     overlay.classList.remove('show');
                     document.body.style.overflow = '';
-                    toggleIcon.classList.remove('fa-times');
-                    toggleIcon.classList.add('fa-bars');
+                    newToggleIcon.classList.remove('fa-times');
+                    newToggleIcon.classList.add('fa-bars');
                 }
             });
+            
+            console.log('✅ Mobile menu setup complete');
         }
 
         // Initialize category-genre toggle when modal is shown
@@ -3569,8 +3590,6 @@
             // Clear hidden data field
             document.getElementById('bookCoverData').value = '';
         });
-        
-        setupMobileMenu();
         
         // ==================== AUDIT TRAIL FUNCTIONS ====================
         
