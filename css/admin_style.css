@@ -159,9 +159,10 @@ body {
 
         .user-menu {
             display: flex;
-            gap: 20px;
+            gap: 15px;
             align-items: center;
             position: relative;
+            margin-left: auto;
         }
 
         .notification-icon {
@@ -396,15 +397,6 @@ body {
 
         .notification-list::-webkit-scrollbar-thumb:hover {
             background: rgba(255,255,255,0.3);
-        }
-
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: white;
-            border: 2px solid rgba(255,255,255,0.5);
         }
 
         .section-title {
