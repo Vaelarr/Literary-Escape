@@ -4265,14 +4265,19 @@
 
         // Save admin (create or update)
         async function saveAdmin() {
+            const form = document.getElementById('adminForm');
+            const formData = new FormData(form);
+
             const adminId = document.getElementById('adminId').value;
-            const username = document.getElementById('adminUsername').value.trim();
-            const email = document.getElementById('adminEmail').value.trim();
-            const firstName = document.getElementById('adminFirstName').value.trim();
-            const lastName = document.getElementById('adminLastName').value.trim();
-            const phone = document.getElementById('adminPhone').value.trim();
-            const password = document.getElementById('adminPassword').value;
+            const username = formData.get('username')?.trim() || '';
+            const email = formData.get('email')?.trim() || '';
+            const firstName = formData.get('firstname')?.trim() || '';
+            const lastName = formData.get('lastname')?.trim() || '';
+            const phone = formData.get('phone')?.trim() || '';
+            const password = formData.get('password') || '';
             const isSuperAdmin = document.getElementById('adminIsSuperAdmin').checked;
+
+            console.log('📦 Form values:', { username, email, password: password ? '***' : 'EMPTY' });
 
             // Validation
             if (!username || !email) {
