@@ -932,42 +932,11 @@
             console.log('🔍 Items container content:', document.getElementById('checkoutItemsContainer').innerHTML);
         }
 
-        // Test voucher validation function
-        async function testVoucherValidation() {
-            console.log('🧪 Testing voucher validation...');
-            
-            try {
-                // Test with a sample voucher code
-                const testCode = 'TEST10';
-                const testAmount = 100;
-                
-                console.log(`Testing voucher: ${testCode} with amount: ₱${testAmount}`);
-                const result = await api.validateVoucher(testCode, testAmount);
-                
-                console.log('Test result:', result);
-                
-                if (result.valid) {
-                    console.log('✅ Voucher validation working correctly!');
-                    console.log('Discount:', result.discountAmount);
-                } else {
-                    console.log('⚠️ Voucher not valid (this may be expected if voucher doesn\'t exist)');
-                    console.log('Message:', result.message);
-                }
-                
-                return result;
-            } catch (error) {
-                console.error('❌ Voucher validation test failed:', error);
-                return { error: error.message };
-            }
-        }
-
         // Add debug button in development
         if (window.location.hostname === 'localhost') {
             window.debugCheckout = debugCheckout;
-            window.testVoucherValidation = testVoucherValidation;
             console.log('🛠️ Debug functions added:');
             console.log('  - debugCheckout() - View cart items and container');
-            console.log('  - testVoucherValidation() - Test voucher API connection');
         }
 
         let cartItems = [];
