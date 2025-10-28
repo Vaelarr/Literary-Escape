@@ -23,6 +23,26 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-here'; // In production, use environment variable
 
+// Fix BigInt serialization issue
+app.use((req, res, next) => {
+    const originalJson = res.json;
+    res.json = function(data) {
+        const convertBigInt = (obj) => {
+            if (obj === null || obj === undefined) return obj;
+            if (typeof obj === 'bigint') return Number(obj);
+            if (Array.isArray(obj)) return obj.map(convertBigInt);
+            if (typeof obj === 'object') {
+                return Object.fromEntries(
+                    Object.entries(obj).map(([k, v]) => [k, convertBigInt(v)])
+                );
+            }
+            return obj;
+        };
+        return originalJson.call(this, convertBigInt(data));
+    };
+    next();
+});
+
 // Middleware
 // Increase payload size limit to handle base64 encoded images (10MB limit)
 app.use(express.json({ limit: '10mb' }));
