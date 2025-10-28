@@ -5,18 +5,18 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const path = require('path');
-const { 
-    bookOperations, 
-    userOperations, 
-    cartOperations, 
-    favoritesOperations, 
+const {
+    bookOperations,
+    userOperations,
+    cartOperations,
+    favoritesOperations,
     orderOperations,
     reviewsOperations,
     adminOperations,
     archiveOperations,
     voucherOperations,
     auditTrailOperations,
-    initializeDatabase 
+    initializeDatabase
 } = require('./database-config');
 
 const app = express();
@@ -26,7 +26,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-here'; // In produ
 // Fix BigInt serialization issue
 app.use((req, res, next) => {
     const originalJson = res.json;
-    res.json = function(data) {
+    res.json = function (data) {
         const convertBigInt = (obj) => {
             if (obj === null || obj === undefined) return obj;
             if (typeof obj === 'bigint') return Number(obj);
@@ -76,25 +76,25 @@ function authenticateAdmin(req, res, next) {
 
     jwt.verify(token, JWT_SECRET, (err, user) => {
         if (err) return res.status(403).json({ error: 'Invalid token' });
-        
+
         console.log('Admin middleware - Token payload:', user);
-        
+
         // Check if this is an admin token
         if (user.role === 'admin' && user.isAdmin === true) {
             console.log('Admin authentication successful');
-            
+
             // Verify admin still exists in database
             adminOperations.getById(user.userId, (err, adminData) => {
                 if (err) {
                     console.log('Error getting admin by ID:', err);
                     return res.status(500).json({ error: 'Failed to verify admin' });
                 }
-                
+
                 if (!adminData) {
                     console.log('Admin not found in database - token invalid');
                     return res.status(403).json({ error: 'Admin access revoked' });
                 }
-                
+
                 console.log('Database admin verification successful');
                 req.user = user;
                 req.adminData = adminData;
@@ -118,25 +118,25 @@ function authenticateSuperAdmin(req, res, next) {
 
     jwt.verify(token, JWT_SECRET, (err, user) => {
         if (err) return res.status(403).json({ error: 'Invalid token' });
-        
+
         console.log('Super Admin middleware - Token payload:', user);
-        
+
         // Check if this is a super admin token
         if (user.role === 'admin' && user.isAdmin === true && user.isSuperAdmin === true) {
             console.log('Super Admin authentication successful');
-            
+
             // Verify super admin still exists in database
             adminOperations.getById(user.userId, (err, adminData) => {
                 if (err) {
                     console.log('Error getting super admin by ID:', err);
                     return res.status(500).json({ error: 'Failed to verify super admin' });
                 }
-                
+
                 if (!adminData || !adminData.is_super_admin) {
                     console.log('Super admin not found or access revoked');
                     return res.status(403).json({ error: 'Super admin access required' });
                 }
-                
+
                 console.log('Database super admin verification successful');
                 req.user = user;
                 req.adminData = adminData;
@@ -152,7 +152,7 @@ function authenticateSuperAdmin(req, res, next) {
 // Book API endpoints - public read, admin write
 app.get('/api/books', (req, res) => {
     const { category, genre, search } = req.query;
-    
+
     if (search) {
         bookOperations.search(search, (err, books) => {
             if (err) return res.status(500).json({ error: err.message });
@@ -187,7 +187,7 @@ app.get('/api/books/:id', (req, res) => {
 // Admin book management endpoints (require admin authentication)
 app.post('/api/books', authenticateAdmin, (req, res) => {
     const book = req.body;
-    
+
     console.log('📚 POST /api/books - Received book data:', {
         title: book.title,
         author: book.author,
@@ -200,12 +200,12 @@ app.post('/api/books', authenticateAdmin, (req, res) => {
         publisher: book.publisher,
         hasCover: !!book.cover
     });
-    
+
     // Validate required fields
     if (!book.title || !book.author) {
         return res.status(400).json({ error: 'Title and author are required' });
     }
-    
+
     // Set defaults for optional fields
     const bookData = {
         ...book,
@@ -214,16 +214,16 @@ app.post('/api/books', authenticateAdmin, (req, res) => {
         category: book.category || 'Fiction',
         genre: book.genre || 'General'
     };
-    
+
     console.log('📝 Creating book with processed data');
-    
-    bookOperations.add(bookData, function(err) {
+
+    bookOperations.add(bookData, function (err) {
         if (err) {
             console.error('❌ Error creating book:', err);
             return res.status(500).json({ error: err.message });
         }
         console.log('✅ Book created with ID:', this.lastID);
-        
+
         // Log audit trail
         logAuditTrail(
             req,
@@ -235,7 +235,7 @@ app.post('/api/books', authenticateAdmin, (req, res) => {
             bookData,
             `Created new book "${bookData.title}" by ${bookData.author}`
         );
-        
+
         res.status(201).json({ id: this.lastID, message: 'Book created' });
     });
 });
@@ -243,11 +243,11 @@ app.post('/api/books', authenticateAdmin, (req, res) => {
 app.put('/api/books/:id', authenticateAdmin, (req, res) => {
     const bookId = parseInt(req.params.id);
     const book = req.body;
-    
+
     if (isNaN(bookId)) {
         return res.status(400).json({ error: 'Invalid book ID' });
     }
-    
+
     console.log('📚 PUT /api/books/:id - Updating book:', {
         id: bookId,
         title: book.title,
@@ -260,25 +260,25 @@ app.put('/api/books/:id', authenticateAdmin, (req, res) => {
         discount_percentage: book.discount_percentage,
         fieldsProvided: Object.keys(book).length
     });
-    
+
     // First, get the old book data for audit trail
     bookOperations.getById(bookId, (getErr, oldBook) => {
         if (getErr) {
             console.error('❌ Error fetching book for update:', getErr);
             return res.status(500).json({ error: getErr.message });
         }
-        
+
         if (!oldBook) {
             return res.status(404).json({ error: 'Book not found' });
         }
-        
-        bookOperations.update(bookId, book, function(err) {
+
+        bookOperations.update(bookId, book, function (err) {
             if (err) {
                 console.error('❌ Error updating book:', err);
                 return res.status(500).json({ error: err.message });
             }
             console.log('✅ Book updated, changes:', this.changes);
-            
+
             // Log audit trail
             logAuditTrail(
                 req,
@@ -290,7 +290,7 @@ app.put('/api/books/:id', authenticateAdmin, (req, res) => {
                 book,
                 `Updated book "${book.title || oldBook.title}"`
             );
-            
+
             res.json({ message: 'Book updated', changes: this.changes });
         });
     });
@@ -298,31 +298,31 @@ app.put('/api/books/:id', authenticateAdmin, (req, res) => {
 
 app.delete('/api/books/:id', authenticateAdmin, (req, res) => {
     const bookId = parseInt(req.params.id);
-    
+
     if (isNaN(bookId)) {
         return res.status(400).json({ error: 'Invalid book ID' });
     }
-    
+
     console.log('Deleting book ID:', bookId);
-    
+
     // First, get the book data for audit trail
     bookOperations.getById(bookId, (getErr, oldBook) => {
         if (getErr) {
             console.error('Error fetching book for delete:', getErr);
             return res.status(500).json({ error: getErr.message });
         }
-        
+
         if (!oldBook) {
             return res.status(404).json({ error: 'Book not found' });
         }
-        
-        bookOperations.removeBook(bookId, function(err) {
+
+        bookOperations.removeBook(bookId, function (err) {
             if (err) {
                 console.error('Error deleting book:', err);
                 return res.status(500).json({ error: err.message });
             }
             console.log('Book deleted, changes:', this.changes);
-            
+
             // Log audit trail
             logAuditTrail(
                 req,
@@ -334,7 +334,7 @@ app.delete('/api/books/:id', authenticateAdmin, (req, res) => {
                 null,
                 `Deleted book "${oldBook.title}" by ${oldBook.author}`
             );
-            
+
             res.json({ message: 'Book deleted', changes: this.changes });
         });
     });
@@ -344,28 +344,28 @@ app.delete('/api/books/:id', authenticateAdmin, (req, res) => {
 app.post('/api/register', async (req, res) => {
     try {
         const { username, email, password, first_name, last_name, address, phone } = req.body;
-        
+
         // Enhanced server-side password validation
         const passwordValidation = validatePasswordServer(password);
         if (!passwordValidation.isValid) {
-            return res.status(400).json({ 
+            return res.status(400).json({
                 error: `Password requirements not met: ${passwordValidation.errors.join(', ')}`
             });
         }
-        
+
         // Check if user already exists
         userOperations.getByEmail(email, async (err, existingUser) => {
             if (err) return res.status(500).json({ error: err.message });
             if (existingUser) return res.status(400).json({ error: 'User already exists' });
-            
+
             // Hash password with enhanced security
             const saltRounds = 12; // Increased from default 10 for better security
             const password_hash = await bcrypt.hash(password, saltRounds);
-            
+
             const newUser = {
                 username, email, password_hash, first_name, last_name, address, phone
             };
-            
+
             userOperations.register(newUser, (err) => {
                 if (err) return res.status(500).json({ error: err.message });
                 res.status(201).json({ message: 'User registered successfully' });
@@ -378,52 +378,52 @@ app.post('/api/register', async (req, res) => {
 
 app.post('/api/login', (req, res) => {
     const { email, password } = req.body;
-    
+
     // First check if this email belongs to an admin account
     adminOperations.getByEmail(email, (err, admin) => {
         if (err) {
             console.error('Error checking admin table during regular login:', err);
             return res.status(500).json({ error: 'Database error' });
         }
-        
+
         if (admin) {
             // This email belongs to an admin account
-            return res.status(403).json({ 
-                error: 'Admin accounts must use the admin login portal. Please visit the admin panel to login.' 
+            return res.status(403).json({
+                error: 'Admin accounts must use the admin login portal. Please visit the admin panel to login.'
             });
         }
-        
+
         // Continue with regular user login
         userOperations.getByEmail(email, async (err, user) => {
             if (err) return res.status(500).json({ error: err.message });
             if (!user) return res.status(400).json({ error: 'Invalid credentials' });
-            
+
             // Additional check: Prevent any users with admin role from logging in through regular login
             if (user.role === 'Admin' || user.role === 'admin') {
-                return res.status(403).json({ 
-                    error: 'Admin accounts must use the admin login portal. Please visit the admin panel to login.' 
+                return res.status(403).json({
+                    error: 'Admin accounts must use the admin login portal. Please visit the admin panel to login.'
                 });
             }
-            
+
             try {
                 const validPassword = await bcrypt.compare(password, user.password_hash);
                 if (!validPassword) return res.status(400).json({ error: 'Invalid credentials' });
-            
+
                 const token = jwt.sign(
-                    { userId: user.id, email: user.email }, 
-                    JWT_SECRET, 
+                    { userId: user.id, email: user.email },
+                    JWT_SECRET,
                     { expiresIn: '24h' }
                 );
-                
-                res.json({ 
-                    token, 
-                    user: { 
-                        id: user.id, 
-                        username: user.username, 
+
+                res.json({
+                    token,
+                    user: {
+                        id: user.id,
+                        username: user.username,
                         email: user.email,
                         first_name: user.first_name,
                         last_name: user.last_name
-                    } 
+                    }
                 });
             } catch (error) {
                 res.status(500).json({ error: error.message });
@@ -435,9 +435,9 @@ app.post('/api/login', (req, res) => {
 // Admin login endpoint - uses database authentication
 app.post('/api/admin/login', async (req, res) => {
     const { email, password } = req.body;
-    
+
     console.log('Admin login attempt for:', email);
-    
+
     try {
         // Check if admin exists in database
         adminOperations.getByEmail(email, async (err, admin) => {
@@ -445,37 +445,37 @@ app.post('/api/admin/login', async (req, res) => {
                 console.error('Database error during admin login:', err);
                 return res.status(500).json({ error: 'Database error' });
             }
-            
+
             if (!admin) {
                 console.log('Admin not found in database:', email);
                 return res.status(400).json({ error: 'Invalid credentials' });
             }
-            
+
             console.log('Admin found in database, verifying password...');
-            
+
             // Verify password
             const passwordMatch = await bcrypt.compare(password, admin.password_hash);
-            
+
             if (!passwordMatch) {
                 console.log('Invalid password for admin:', email);
                 return res.status(400).json({ error: 'Invalid credentials' });
             }
-            
+
             console.log('Admin credentials validated successfully');
-            
+
             // Generate JWT token
             const token = jwt.sign(
-                { 
+                {
                     userId: admin.id,
                     email: admin.email,
                     role: 'admin',
                     isAdmin: true,
                     isSuperAdmin: admin.is_super_admin === 1
-                }, 
-                JWT_SECRET, 
+                },
+                JWT_SECRET,
                 { expiresIn: '24h' }
             );
-            
+
             // Log audit trail for successful admin login
             logAuditTrail(
                 {
@@ -497,9 +497,9 @@ app.post('/api/admin/login', async (req, res) => {
                 `Admin ${admin.username || admin.email} logged in.`
             );
 
-            res.json({ 
-                token, 
-                user: { 
+            res.json({
+                token,
+                user: {
                     id: admin.id,
                     username: admin.username,
                     email: admin.email,
@@ -508,7 +508,7 @@ app.post('/api/admin/login', async (req, res) => {
                     role: 'admin',
                     isAdmin: true,
                     isSuperAdmin: admin.is_super_admin === 1
-                } 
+                }
             });
         });
     } catch (error) {
@@ -621,30 +621,30 @@ app.get('/api/reviews/:bookId', (req, res) => {
 // Create a new review (requires authentication)
 app.post('/api/reviews', authenticateToken, (req, res) => {
     const { bookId, rating, reviewText, reviewerName } = req.body;
-    
+
     // Validate input
     if (!bookId || !rating || !reviewText || !reviewerName) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
-    
+
     if (rating < 1 || rating > 5) {
         return res.status(400).json({ error: 'Rating must be between 1 and 5' });
     }
-    
+
     // Check if user has already reviewed this book
     reviewsOperations.hasUserReviewed(req.user.userId, bookId, (err, hasReviewed) => {
         if (err) return res.status(500).json({ error: err.message });
-        
+
         if (hasReviewed) {
             return res.status(400).json({ error: 'You have already reviewed this book' });
         }
-        
+
         // Create the review
         reviewsOperations.create(req.user.userId, bookId, rating, reviewText, reviewerName, (err, result) => {
             if (err) return res.status(500).json({ error: err.message });
-            res.status(201).json({ 
-                message: 'Review created successfully', 
-                reviewId: result.id 
+            res.status(201).json({
+                message: 'Review created successfully',
+                reviewId: result.id
             });
         });
     });
@@ -654,22 +654,22 @@ app.post('/api/reviews', authenticateToken, (req, res) => {
 app.put('/api/reviews/:reviewId', authenticateToken, (req, res) => {
     const { rating, reviewText } = req.body;
     const reviewId = parseInt(req.params.reviewId);
-    
+
     if (!rating || !reviewText) {
         return res.status(400).json({ error: 'Rating and review text are required' });
     }
-    
+
     if (rating < 1 || rating > 5) {
         return res.status(400).json({ error: 'Rating must be between 1 and 5' });
     }
-    
+
     reviewsOperations.update(reviewId, req.user.userId, rating, reviewText, (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
-        
+
         if (result.changes === 0) {
             return res.status(404).json({ error: 'Review not found or unauthorized' });
         }
-        
+
         res.json({ message: 'Review updated successfully' });
     });
 });
@@ -677,14 +677,14 @@ app.put('/api/reviews/:reviewId', authenticateToken, (req, res) => {
 // Delete a review
 app.delete('/api/reviews/:reviewId', authenticateToken, (req, res) => {
     const reviewId = parseInt(req.params.reviewId);
-    
+
     reviewsOperations.delete(reviewId, req.user.userId, (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
-        
+
         if (result.changes === 0) {
             return res.status(404).json({ error: 'Review not found or unauthorized' });
         }
-        
+
         res.json({ message: 'Review deleted successfully' });
     });
 });
@@ -709,7 +709,7 @@ app.get('/api/user/reviews', authenticateToken, (req, res) => {
 // Order endpoints
 app.post('/api/orders', authenticateToken, (req, res) => {
     const { shippingAddress, paymentMethod, courier, discounts, totals } = req.body;
-    
+
     console.log('📦 Order creation request received for user:', req.user.userId);
     console.log('📄 Order payload:', { shippingAddress, paymentMethod, courier, discounts, totals });
 
@@ -719,55 +719,55 @@ app.post('/api/orders', authenticateToken, (req, res) => {
             console.error('❌ Error getting selected cart items:', err);
             return res.status(500).json({ error: err.message });
         }
-        
+
         console.log('🛒 Selected cart items found:', cartItems.length, 'items');
         console.log('📋 Cart items details:', cartItems);
-        
+
         if (cartItems.length === 0) {
             console.log('⚠️ No selected cart items found for user:', req.user.userId);
             return res.status(400).json({ error: 'Cart is empty or no items selected for checkout' });
         }
-        
+
         // Calculate total
         const itemsSubtotal = cartItems.reduce((sum, item) => sum + (item.quantity * item.price), 0);
         const totalAmount = totals && typeof totals.total === 'number' ? totals.total : itemsSubtotal;
-        
+
         console.log('💰 Order totals - Items subtotal:', itemsSubtotal, 'Final total:', totalAmount);
-        
+
         // Create order
-        orderOperations.createOrder(req.user.userId, totalAmount, JSON.stringify({ shippingAddress, paymentMethod, courier, discounts, itemsSubtotal }), function(err) {
+        orderOperations.createOrder(req.user.userId, totalAmount, JSON.stringify({ shippingAddress, paymentMethod, courier, discounts, itemsSubtotal }), function (err) {
             if (err) {
                 console.error('❌ Error creating order:', err);
                 return res.status(500).json({ error: err.message });
             }
-            
+
             const orderId = this.lastID;
             console.log('✅ Order created with ID:', orderId);
-            
+
             const orderItems = cartItems.map(item => ({
                 book_id: item.book_id,
                 quantity: item.quantity,
                 price: item.price
             }));
-            
+
             console.log('📚 Adding order items:', orderItems);
-            
+
             // Add order items
             orderOperations.addOrderItems(orderId, orderItems, (err) => {
                 if (err) {
                     console.error('❌ Error adding order items:', err);
                     return res.status(500).json({ error: err.message });
                 }
-                
+
                 console.log('✅ Order items added successfully');
-                
+
                 // Clear cart (remove selected items)
                 cartOperations.clearCart(req.user.userId, (err) => {
                     if (err) {
                         console.error('❌ Error clearing cart:', err);
                         return res.status(500).json({ error: err.message });
                     }
-                    
+
                     console.log('✅ Cart cleared successfully');
                     res.json({ message: 'Order created successfully', orderId });
                 });
@@ -797,31 +797,31 @@ app.get('/api/admin/users/:userId/orders', authenticateAdmin, (req, res) => {
 app.put('/api/admin/orders/:id', authenticateAdmin, (req, res) => {
     const orderId = parseInt(req.params.id);
     const { status, shipping_address } = req.body;
-    
+
     if (isNaN(orderId)) {
         return res.status(400).json({ error: 'Invalid order ID' });
     }
-    
+
     console.log('Admin updating order ID:', orderId, 'with:', { status, shipping_address });
-    
+
     // Get old order data for audit trail
     orderOperations.getAdminOrderDetails(orderId, (getErr, oldOrder) => {
         if (getErr) {
             console.error('Error fetching order for update:', getErr);
             return res.status(500).json({ error: getErr.message });
         }
-        
+
         if (!oldOrder) {
             return res.status(404).json({ error: 'Order not found' });
         }
-        
+
         orderOperations.updateOrder(orderId, { status, shipping_address }, (err, result) => {
             if (err) {
                 console.error('Error updating order:', err);
                 return res.status(500).json({ error: err.message });
             }
             console.log('Order updated, changes:', result.changes);
-            
+
             // Log audit trail
             logAuditTrail(
                 req,
@@ -833,7 +833,7 @@ app.put('/api/admin/orders/:id', authenticateAdmin, (req, res) => {
                 { status, shipping_address },
                 `Updated order #${orderId} status from "${oldOrder.status}" to "${status}"`
             );
-            
+
             res.json({ message: 'Order updated', changes: result.changes });
         });
     });
@@ -841,30 +841,30 @@ app.put('/api/admin/orders/:id', authenticateAdmin, (req, res) => {
 
 app.delete('/api/admin/orders/:id', authenticateAdmin, (req, res) => {
     const orderId = parseInt(req.params.id);
-    
+
     if (isNaN(orderId)) {
         return res.status(400).json({ error: 'Invalid order ID' });
     }
-    
+
     console.log('Admin deleting order ID:', orderId);
-    
+
     // Get order data for audit trail before deletion
     orderOperations.getById(orderId, (getErr, orderData) => {
         if (getErr) {
             console.error('Error fetching order for deletion:', getErr);
             return res.status(500).json({ error: getErr.message });
         }
-        
+
         if (!orderData) {
             return res.status(404).json({ error: 'Order not found' });
         }
-        
+
         orderOperations.deleteOrder(orderId, (err) => {
             if (err) {
                 console.error('Error deleting order:', err);
                 return res.status(500).json({ error: err.message });
             }
-            
+
             // Log audit trail
             logAuditTrail(
                 req,
@@ -876,7 +876,7 @@ app.delete('/api/admin/orders/:id', authenticateAdmin, (req, res) => {
                 null,
                 `Deleted order #${orderId} (${orderData.status})`
             );
-            
+
             console.log('Order deleted successfully');
             res.json({ message: 'Order deleted' });
         });
@@ -898,24 +898,24 @@ app.get('/api/admin/orders/:id/details', authenticateAdmin, (req, res) => {
 // Archive a book
 app.post('/api/admin/books/:id/archive', authenticateAdmin, (req, res) => {
     const bookId = parseInt(req.params.id);
-    
+
     if (isNaN(bookId)) {
         return res.status(400).json({ error: 'Invalid book ID' });
     }
-    
+
     console.log('Admin archiving book ID:', bookId);
-    
+
     // First, get the book data for audit trail
     bookOperations.getById(bookId, (err, book) => {
         if (err) {
             console.error('Error fetching book for archive:', err);
             return res.status(500).json({ error: err.message });
         }
-        
+
         if (!book) {
             return res.status(404).json({ error: 'Book not found' });
         }
-        
+
         // Archive the book
         archiveOperations.archiveBook(bookId, (err, result) => {
             console.log('[AUDIT DEBUG] req.user for archive book:', req.user);
@@ -923,11 +923,11 @@ app.post('/api/admin/books/:id/archive', authenticateAdmin, (req, res) => {
                 console.error('Error archiving book:', err);
                 return res.status(500).json({ error: err.message });
             }
-            
+
             if (result.changes === 0) {
                 return res.status(404).json({ error: 'Book not found' });
             }
-            
+
             // Log audit trail
             logAuditTrail(
                 req,
@@ -939,7 +939,7 @@ app.post('/api/admin/books/:id/archive', authenticateAdmin, (req, res) => {
                 null,
                 `Archived book "${book.title}"`
             );
-            
+
             console.log('Book archived successfully');
             res.json({ message: 'Book archived successfully' });
         });
@@ -949,24 +949,24 @@ app.post('/api/admin/books/:id/archive', authenticateAdmin, (req, res) => {
 // Unarchive a book
 app.post('/api/admin/books/:id/unarchive', authenticateAdmin, (req, res) => {
     const bookId = parseInt(req.params.id);
-    
+
     if (isNaN(bookId)) {
         return res.status(400).json({ error: 'Invalid book ID' });
     }
-    
+
     console.log('Admin unarchiving book ID:', bookId);
-    
+
     // First, get the book data for audit trail
     bookOperations.getById(bookId, (err, book) => {
         if (err) {
             console.error('Error fetching book for unarchive:', err);
             return res.status(500).json({ error: err.message });
         }
-        
+
         if (!book) {
             return res.status(404).json({ error: 'Book not found' });
         }
-        
+
         // Unarchive the book
         archiveOperations.unarchiveBook(bookId, (err, result) => {
             console.log('[AUDIT DEBUG] req.user for unarchive book:', req.user);
@@ -974,11 +974,11 @@ app.post('/api/admin/books/:id/unarchive', authenticateAdmin, (req, res) => {
                 console.error('Error unarchiving book:', err);
                 return res.status(500).json({ error: err.message });
             }
-            
+
             if (result.changes === 0) {
                 return res.status(404).json({ error: 'Book not found' });
             }
-            
+
             // Log audit trail
             logAuditTrail(
                 req,
@@ -990,7 +990,7 @@ app.post('/api/admin/books/:id/unarchive', authenticateAdmin, (req, res) => {
                 null,
                 `Unarchived book "${book.title}"`
             );
-            
+
             console.log('Book unarchived successfully');
             res.json({ message: 'Book unarchived successfully' });
         });
@@ -1001,24 +1001,24 @@ app.post('/api/admin/books/:id/unarchive', authenticateAdmin, (req, res) => {
 app.post('/api/admin/users/:id/archive', authenticateAdmin, (req, res) => {
     console.log('ARCHIVE USER ENDPOINT HIT');
     const userId = parseInt(req.params.id);
-    
+
     if (isNaN(userId)) {
         return res.status(400).json({ error: 'Invalid user ID' });
     }
-    
+
     console.log('Admin archiving user ID:', userId);
-    
+
     // First, get the user data for audit trail
     userOperations.getById(userId, (err, user) => {
         if (err) {
             console.error('Error fetching user for archive:', err);
             return res.status(500).json({ error: err.message });
         }
-        
+
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
-        
+
         // Archive the user
         archiveOperations.archiveUser(userId, (err, result) => {
             console.log('[AUDIT DEBUG] req.user for archive user:', req.user);
@@ -1026,11 +1026,11 @@ app.post('/api/admin/users/:id/archive', authenticateAdmin, (req, res) => {
                 console.error('Error archiving user:', err);
                 return res.status(500).json({ error: err.message });
             }
-            
+
             if (result.changes === 0) {
                 return res.status(404).json({ error: 'User not found' });
             }
-            
+
             // Log audit trail
             logAuditTrail(
                 req,
@@ -1042,7 +1042,7 @@ app.post('/api/admin/users/:id/archive', authenticateAdmin, (req, res) => {
                 null,
                 `Archived user "${user.username}"`
             );
-            
+
             console.log('User archived successfully');
             res.json({ message: 'User archived successfully' });
         });
@@ -1052,24 +1052,24 @@ app.post('/api/admin/users/:id/archive', authenticateAdmin, (req, res) => {
 // Unarchive a user
 app.post('/api/admin/users/:id/unarchive', authenticateAdmin, (req, res) => {
     const userId = parseInt(req.params.id);
-    
+
     if (isNaN(userId)) {
         return res.status(400).json({ error: 'Invalid user ID' });
     }
-    
+
     console.log('Admin unarchiving user ID:', userId);
-    
+
     // First, get the user data for audit trail
     userOperations.getById(userId, (err, user) => {
         if (err) {
             console.error('Error fetching user for unarchive:', err);
             return res.status(500).json({ error: err.message });
         }
-        
+
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
-        
+
         // Unarchive the user
         archiveOperations.unarchiveUser(userId, (err, result) => {
             console.log('[AUDIT DEBUG] req.user for unarchive user:', req.user);
@@ -1077,11 +1077,11 @@ app.post('/api/admin/users/:id/unarchive', authenticateAdmin, (req, res) => {
                 console.error('Error unarchiving user:', err);
                 return res.status(500).json({ error: err.message });
             }
-            
+
             if (result.changes === 0) {
                 return res.status(404).json({ error: 'User not found' });
             }
-            
+
             // Log audit trail
             logAuditTrail(
                 req,
@@ -1093,7 +1093,7 @@ app.post('/api/admin/users/:id/unarchive', authenticateAdmin, (req, res) => {
                 null,
                 `Unarchived user "${user.username}"`
             );
-            
+
             console.log('User unarchived successfully');
             res.json({ message: 'User unarchived successfully' });
         });
@@ -1103,24 +1103,24 @@ app.post('/api/admin/users/:id/unarchive', authenticateAdmin, (req, res) => {
 // Archive an order
 app.post('/api/admin/orders/:id/archive', authenticateAdmin, (req, res) => {
     const orderId = parseInt(req.params.id);
-    
+
     if (isNaN(orderId)) {
         return res.status(400).json({ error: 'Invalid order ID' });
     }
-    
+
     console.log('Admin archiving order ID:', orderId);
-    
+
     // First, get the order data for audit trail
     orderOperations.getById(orderId, (err, order) => {
         if (err) {
             console.error('Error fetching order for archive:', err);
             return res.status(500).json({ error: err.message });
         }
-        
+
         if (!order) {
             return res.status(404).json({ error: 'Order not found' });
         }
-        
+
         // Archive the order
         archiveOperations.archiveOrder(orderId, (err, result) => {
             console.log('[AUDIT DEBUG] req.user for archive order:', req.user);
@@ -1128,11 +1128,11 @@ app.post('/api/admin/orders/:id/archive', authenticateAdmin, (req, res) => {
                 console.error('Error archiving order:', err);
                 return res.status(500).json({ error: err.message });
             }
-            
+
             if (result.changes === 0) {
                 return res.status(404).json({ error: 'Order not found' });
             }
-            
+
             // Log audit trail
             logAuditTrail(
                 req,
@@ -1144,7 +1144,7 @@ app.post('/api/admin/orders/:id/archive', authenticateAdmin, (req, res) => {
                 null,
                 `Archived order #${orderId}`
             );
-            
+
             console.log('Order archived successfully');
             res.json({ message: 'Order archived successfully' });
         });
@@ -1154,24 +1154,24 @@ app.post('/api/admin/orders/:id/archive', authenticateAdmin, (req, res) => {
 // Unarchive an order
 app.post('/api/admin/orders/:id/unarchive', authenticateAdmin, (req, res) => {
     const orderId = parseInt(req.params.id);
-    
+
     if (isNaN(orderId)) {
         return res.status(400).json({ error: 'Invalid order ID' });
     }
-    
+
     console.log('Admin unarchiving order ID:', orderId);
-    
+
     // First, get the order data for audit trail
     orderOperations.getById(orderId, (err, order) => {
         if (err) {
             console.error('Error fetching order for unarchive:', err);
             return res.status(500).json({ error: err.message });
         }
-        
+
         if (!order) {
             return res.status(404).json({ error: 'Order not found' });
         }
-        
+
         // Unarchive the order
         archiveOperations.unarchiveOrder(orderId, (err, result) => {
             console.log('[AUDIT DEBUG] req.user for unarchive order:', req.user);
@@ -1179,11 +1179,11 @@ app.post('/api/admin/orders/:id/unarchive', authenticateAdmin, (req, res) => {
                 console.error('Error unarchiving order:', err);
                 return res.status(500).json({ error: err.message });
             }
-            
+
             if (result.changes === 0) {
                 return res.status(404).json({ error: 'Order not found' });
             }
-            
+
             // Log audit trail
             logAuditTrail(
                 req,
@@ -1195,7 +1195,7 @@ app.post('/api/admin/orders/:id/unarchive', authenticateAdmin, (req, res) => {
                 null,
                 `Unarchived order #${orderId}`
             );
-            
+
             console.log('Order unarchived successfully');
             res.json({ message: 'Order unarchived successfully' });
         });
@@ -1206,15 +1206,15 @@ app.post('/api/admin/orders/:id/unarchive', authenticateAdmin, (req, res) => {
 app.get('/api/admin/books/archived', authenticateAdmin, (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    
+
     console.log('Admin fetching archived books, page:', page, 'limit:', limit);
-    
+
     archiveOperations.getArchivedBooks(page, limit, (err, result) => {
         if (err) {
             console.error('Error fetching archived books:', err);
             return res.status(500).json({ error: err.message });
         }
-        
+
         res.json(result);
     });
 });
@@ -1223,15 +1223,15 @@ app.get('/api/admin/books/archived', authenticateAdmin, (req, res) => {
 app.get('/api/admin/users/archived', authenticateAdmin, (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    
+
     console.log('Admin fetching archived users, page:', page, 'limit:', limit);
-    
+
     archiveOperations.getArchivedUsers(page, limit, (err, result) => {
         if (err) {
             console.error('Error fetching archived users:', err);
             return res.status(500).json({ error: err.message });
         }
-        
+
         res.json(result);
     });
 });
@@ -1240,15 +1240,15 @@ app.get('/api/admin/users/archived', authenticateAdmin, (req, res) => {
 app.get('/api/admin/orders/archived', authenticateAdmin, (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    
+
     console.log('Admin fetching archived orders, page:', page, 'limit:', limit);
-    
+
     archiveOperations.getArchivedOrders(page, limit, (err, result) => {
         if (err) {
             console.error('Error fetching archived orders:', err);
             return res.status(500).json({ error: err.message });
         }
-        
+
         res.json(result);
     });
 });
@@ -1259,15 +1259,15 @@ app.get('/api/admin/books', authenticateAdmin, (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const category = req.query.category || null;
     const search = req.query.search || null;
-    
+
     console.log('Admin fetching books, page:', page, 'limit:', limit, 'category:', category, 'search:', search);
-    
+
     adminOperations.getAllBooks(page, limit, category, search, (err, result) => {
         if (err) {
             console.error('Error fetching books for admin:', err);
             return res.status(500).json({ error: err.message });
         }
-        
+
         res.json(result);
     });
 });
@@ -1276,15 +1276,15 @@ app.get('/api/admin/books', authenticateAdmin, (req, res) => {
 app.get('/api/admin/users', authenticateAdmin, (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    
+
     console.log('Admin fetching users, page:', page, 'limit:', limit);
-    
+
     adminOperations.getAllUsers(page, limit, (err, result) => {
         if (err) {
             console.error('Error fetching users for admin:', err);
             return res.status(500).json({ error: err.message });
         }
-        
+
         res.json(result);
     });
 });
@@ -1293,36 +1293,36 @@ app.get('/api/admin/users', authenticateAdmin, (req, res) => {
 app.put('/api/admin/users/:id/role', authenticateAdmin, (req, res) => {
     const userId = parseInt(req.params.id);
     const { role } = req.body;
-    
+
     console.log('Admin updating user role:', { userId, role });
-    
+
     if (!role || !['user', 'admin'].includes(role)) {
         return res.status(400).json({ error: 'Invalid role. Must be "user" or "admin"' });
     }
-    
+
     // Get old user data for audit trail
     userOperations.getById(userId, (getErr, oldUser) => {
         if (getErr) {
             console.error('Error fetching user for role update:', getErr);
             return res.status(500).json({ error: getErr.message });
         }
-        
+
         if (!oldUser) {
             return res.status(404).json({ error: 'User not found' });
         }
-        
+
         userOperations.updateRole(userId, role, (err, result) => {
             if (err) {
                 console.error('Error updating user role:', err);
                 return res.status(500).json({ error: err.message });
             }
-            
+
             if (!result) {
                 return res.status(404).json({ error: 'User not found' });
             }
-            
+
             console.log('User role updated successfully');
-            
+
             // Log audit trail
             logAuditTrail(
                 req,
@@ -1334,7 +1334,7 @@ app.put('/api/admin/users/:id/role', authenticateAdmin, (req, res) => {
                 { role },
                 `Changed user "${oldUser.username || oldUser.email}" role from "${oldUser.role}" to "${role}"`
             );
-            
+
             res.json({ success: true, message: 'User role updated successfully' });
         });
     });
@@ -1345,23 +1345,23 @@ app.get('/api/admin/orders', authenticateAdmin, (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const filters = {};
-    
+
     if (req.query.status) {
         filters.status = req.query.status;
     }
-    
+
     if (req.query.search) {
         filters.search = req.query.search;
     }
-    
+
     console.log('Admin fetching orders, page:', page, 'limit:', limit, 'filters:', filters);
-    
+
     adminOperations.getAllOrders(page, limit, filters, (err, result) => {
         if (err) {
             console.error('Error fetching orders for admin:', err);
             return res.status(500).json({ error: err.message });
         }
-        
+
         res.json(result);
     });
 });
@@ -1376,7 +1376,7 @@ app.get('/api/user/profile', authenticateToken, (req, res) => {
         adminOperations.getById(req.user.userId, (err, admin) => {
             if (err) return res.status(500).json({ error: err.message });
             if (!admin) return res.status(404).json({ error: 'Admin not found' });
-            
+
             // Remove password hash from response
             const { password_hash, ...adminProfile } = admin;
             res.json(adminProfile);
@@ -1386,7 +1386,7 @@ app.get('/api/user/profile', authenticateToken, (req, res) => {
         userOperations.getById(req.user.userId, (err, user) => {
             if (err) return res.status(500).json({ error: err.message });
             if (!user) return res.status(404).json({ error: 'User not found' });
-            
+
             // Remove password hash from response
             const { password_hash, ...userProfile } = user;
             res.json(userProfile);
@@ -1397,17 +1397,17 @@ app.get('/api/user/profile', authenticateToken, (req, res) => {
 // Admin user management endpoints (require admin authentication)
 app.get('/api/users', authenticateAdmin, (req, res) => {
     console.log('Admin requesting all users');
-    
+
     // Use the admin operations method with pagination
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    
+
     adminOperations.getAllUsers(page, limit, (err, result) => {
         if (err) {
             console.error('Error getting users:', err);
             return res.status(500).json({ error: err.message });
         }
-        
+
         console.log('Returning users:', result);
         res.json(result);
     });
@@ -1415,13 +1415,13 @@ app.get('/api/users', authenticateAdmin, (req, res) => {
 
 app.delete('/api/users/:id', authenticateAdmin, (req, res) => {
     const userId = parseInt(req.params.id);
-    
+
     if (isNaN(userId)) {
         return res.status(400).json({ error: 'Invalid user ID' });
     }
-    
+
     console.log('Admin deleting user ID:', userId);
-    
+
     userOperations.deleteUser(userId, (err) => {
         if (err) {
             console.error('Error deleting user:', err);
@@ -1434,7 +1434,7 @@ app.delete('/api/users/:id', authenticateAdmin, (req, res) => {
 
 app.put('/api/user/profile', authenticateToken, (req, res) => {
     const { first_name, last_name, email, phone, address, birthdate, city, zip_code } = req.body;
-    
+
     const profileData = {
         first_name,
         last_name,
@@ -1455,30 +1455,30 @@ app.put('/api/user/profile', authenticateToken, (req, res) => {
 app.post('/api/user/change-password', authenticateToken, async (req, res) => {
     try {
         const { currentPassword, newPassword } = req.body;
-        
+
         // Get current user
         userOperations.getById(req.user.userId, async (err, user) => {
             if (err) return res.status(500).json({ error: err.message });
             if (!user) return res.status(404).json({ error: 'User not found' });
-            
+
             // Verify current password
             const validPassword = await bcrypt.compare(currentPassword, user.password_hash);
             if (!validPassword) {
                 return res.status(400).json({ error: 'Current password is incorrect' });
             }
-            
+
             // Validate new password
             const passwordValidation = validatePasswordServer(newPassword);
             if (!passwordValidation.isValid) {
-                return res.status(400).json({ 
+                return res.status(400).json({
                     error: `Password requirements not met: ${passwordValidation.errors.join(', ')}`
                 });
             }
-            
+
             // Hash new password
             const saltRounds = 12;
             const newPasswordHash = await bcrypt.hash(newPassword, saltRounds);
-            
+
             // Update password
             userOperations.updatePassword(req.user.userId, newPasswordHash, (err) => {
                 if (err) return res.status(500).json({ error: err.message });
@@ -1500,7 +1500,7 @@ app.get('/api/user/addresses', authenticateToken, (req, res) => {
 
 app.post('/api/user/addresses', authenticateToken, (req, res) => {
     const { label, full_address, city, zip_code, is_default } = req.body;
-    
+
     const addressData = {
         user_id: req.user.userId,
         label,
@@ -1535,12 +1535,12 @@ app.get('/api/orders/:id', authenticateToken, (req, res) => {
     orderOperations.getOrderDetails(req.params.id, (err, orderDetails) => {
         if (err) return res.status(500).json({ error: err.message });
         if (!orderDetails) return res.status(404).json({ error: 'Order not found' });
-        
+
         // Verify order belongs to user
         if (orderDetails.user_id !== req.user.userId) {
             return res.status(403).json({ error: 'Access denied' });
         }
-        
+
         res.json(orderDetails);
     });
 });
@@ -1551,9 +1551,9 @@ initializeDatabase((err) => {
         console.error('Failed to initialize database:', err);
         return;
     }
-    
+
     console.log('Database initialized successfully');
-    
+
     // Only start the server if not running on Vercel (serverless environment)
     // Vercel handles the server startup automatically
     if (!process.env.VERCEL && require.main === module) {
@@ -1569,56 +1569,56 @@ initializeDatabase((err) => {
 // Enhanced server-side password validation function with database logging
 function validatePasswordServer(password) {
     console.log('Validating password on server side...');
-    
+
     const errors = [];
-    
+
     // Check if password exists
     if (!password) {
         errors.push('password is required');
         return { isValid: false, errors };
     }
-    
+
     // Length check (minimum 8 characters)
     if (password.length < 8) {
         errors.push('minimum 8 characters required');
     }
-    
+
     // Maximum length check (for security)
     if (password.length > 128) {
         errors.push('maximum 128 characters allowed');
     }
-    
+
     // Uppercase check
     if (!/[A-Z]/.test(password)) {
         errors.push('at least one uppercase letter required');
     }
-    
+
     // Lowercase check
     if (!/[a-z]/.test(password)) {
         errors.push('at least one lowercase letter required');
     }
-    
+
     // Number check
     if (!/\d/.test(password)) {
         errors.push('at least one number required');
     }
-    
+
     // Special character check
     if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
         errors.push('at least one special character required (!@#$%^&*()_+-=[]{}|;:,.<>?)');
     }
-    
+
     // Check for common weak passwords
     const commonPasswords = ['password', '12345678', 'qwerty123', 'admin123', 'password123'];
     if (commonPasswords.includes(password.toLowerCase())) {
         errors.push('password is too common');
     }
-    
+
     const result = {
         isValid: errors.length === 0,
         errors: errors
     };
-    
+
     console.log('Password validation result:', result);
     return result;
 }
@@ -1628,12 +1628,12 @@ app.get('/api/test-db', async (req, res) => {
     try {
         // Auto-run migrations on first connection test
         const database = require('./database-config');
-        
+
         // Run migrations if using Turso (has query function)
         if (database.query && typeof database.query === 'function') {
             try {
                 console.log('🔧 Auto-running migrations on test-db call...');
-                
+
                 // Try to add archived column to users table
                 try {
                     await database.query('ALTER TABLE users ADD COLUMN archived INTEGER DEFAULT 0');
@@ -1644,7 +1644,7 @@ app.get('/api/test-db', async (req, res) => {
                         console.log('  ℹ️  Users.archived already exists');
                     }
                 }
-                
+
                 // Try to add archived column to orders table
                 try {
                     await database.query('ALTER TABLE orders ADD COLUMN archived INTEGER DEFAULT 0');
@@ -1655,13 +1655,13 @@ app.get('/api/test-db', async (req, res) => {
                         console.log('  ℹ️  Orders.archived already exists');
                     }
                 }
-                
+
                 console.log('🎉 Auto-migration completed');
             } catch (migrationError) {
                 console.error('⚠️  Auto-migration error (continuing anyway):', migrationError.message);
             }
         }
-        
+
         // Test with a simple query that works across all database types
         const testResult = await new Promise((resolve, reject) => {
             bookOperations.getAll((err, books) => {
@@ -1669,20 +1669,20 @@ app.get('/api/test-db', async (req, res) => {
                 else resolve(books);
             });
         });
-        
-        res.json({ 
-            success: true, 
-            message: 'Database connection successful', 
+
+        res.json({
+            success: true,
+            message: 'Database connection successful',
             bookCount: testResult ? testResult.length : 0,
-            databaseType: process.env.TURSO_DATABASE_URL ? 'Turso' : 
-                         (process.env.POSTGRES_URL || process.env.DATABASE_URL) ? 'PostgreSQL' : 
-                         'SQLite'
+            databaseType: process.env.TURSO_DATABASE_URL ? 'Turso' :
+                (process.env.POSTGRES_URL || process.env.DATABASE_URL) ? 'PostgreSQL' :
+                    'SQLite'
         });
     } catch (err) {
         console.error('Database test failed:', err);
-        res.status(500).json({ 
-            error: 'Database connection failed', 
-            details: err.message 
+        res.status(500).json({
+            error: 'Database connection failed',
+            details: err.message
         });
     }
 });
@@ -1690,11 +1690,11 @@ app.get('/api/test-db', async (req, res) => {
 // Voucher validation endpoint (requires authentication)
 app.post('/api/vouchers/validate', authenticateToken, (req, res) => {
     const { code, orderAmount } = req.body;
-    
+
     if (!code) {
         return res.status(400).json({ error: 'Voucher code is required' });
     }
-    
+
     voucherOperations.validate(code, orderAmount || 0, (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(result);
@@ -1706,7 +1706,7 @@ app.post('/api/vouchers/validate', authenticateToken, (req, res) => {
 app.get('/api/admin/vouchers', authenticateAdmin, (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    
+
     voucherOperations.getAll(page, limit, (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(result);
@@ -1716,11 +1716,11 @@ app.get('/api/admin/vouchers', authenticateAdmin, (req, res) => {
 // Get single voucher by ID
 app.get('/api/admin/vouchers/:id', authenticateAdmin, (req, res) => {
     const voucherId = parseInt(req.params.id);
-    
+
     if (isNaN(voucherId)) {
         return res.status(400).json({ error: 'Invalid voucher ID' });
     }
-    
+
     voucherOperations.getById(voucherId, (err, voucher) => {
         if (err) return res.status(500).json({ error: err.message });
         if (!voucher) return res.status(404).json({ error: 'Voucher not found' });
@@ -1743,21 +1743,21 @@ app.post('/api/admin/vouchers', authenticateAdmin, (req, res) => {
         status: req.body.status || 'active',
         description: req.body.description || null
     };
-    
+
     // Validate required fields
-    if (!voucherData.code || !voucherData.discount_type || !voucherData.discount_value || 
+    if (!voucherData.code || !voucherData.discount_type || !voucherData.discount_value ||
         !voucherData.valid_from || !voucherData.valid_until) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
-    
-    voucherOperations.create(voucherData, function(err) {
+
+    voucherOperations.create(voucherData, function (err) {
         if (err) {
             if (err.message && err.message.includes('UNIQUE')) {
                 return res.status(400).json({ error: 'Voucher code already exists' });
             }
             return res.status(500).json({ error: err.message });
         }
-        
+
         // Log audit trail
         logAuditTrail(
             req,
@@ -1769,7 +1769,7 @@ app.post('/api/admin/vouchers', authenticateAdmin, (req, res) => {
             voucherData,
             `Created voucher "${voucherData.code}" (${voucherData.discount_type}: ${voucherData.discount_value})`
         );
-        
+
         res.status(201).json({ success: true, message: 'Voucher created successfully', id: this.lastID });
     });
 });
@@ -1777,11 +1777,11 @@ app.post('/api/admin/vouchers', authenticateAdmin, (req, res) => {
 // Update voucher
 app.put('/api/admin/vouchers/:id', authenticateAdmin, (req, res) => {
     const voucherId = parseInt(req.params.id);
-    
+
     if (isNaN(voucherId)) {
         return res.status(400).json({ error: 'Invalid voucher ID' });
     }
-    
+
     const voucherData = {
         code: req.body.code,
         discount_type: req.body.discount_type,
@@ -1795,24 +1795,24 @@ app.put('/api/admin/vouchers/:id', authenticateAdmin, (req, res) => {
         status: req.body.status || 'active',
         description: req.body.description || null
     };
-    
+
     // Get old voucher data for audit trail
     voucherOperations.getById(voucherId, (getErr, oldVoucher) => {
         if (getErr) {
             console.error('Error fetching voucher for update:', getErr);
             return res.status(500).json({ error: getErr.message });
         }
-        
+
         if (!oldVoucher) {
             return res.status(404).json({ error: 'Voucher not found' });
         }
-        
+
         voucherOperations.update(voucherId, voucherData, (err, result) => {
             if (err) return res.status(500).json({ error: err.message });
             if (result && result.changes === 0) {
                 return res.status(404).json({ error: 'Voucher not found' });
             }
-            
+
             // Log audit trail
             logAuditTrail(
                 req,
@@ -1824,7 +1824,7 @@ app.put('/api/admin/vouchers/:id', authenticateAdmin, (req, res) => {
                 voucherData,
                 `Updated voucher "${voucherData.code}"`
             );
-            
+
             res.json({ success: true, message: 'Voucher updated successfully' });
         });
     });
@@ -1833,28 +1833,28 @@ app.put('/api/admin/vouchers/:id', authenticateAdmin, (req, res) => {
 // Delete voucher
 app.delete('/api/admin/vouchers/:id', authenticateAdmin, (req, res) => {
     const voucherId = parseInt(req.params.id);
-    
+
     if (isNaN(voucherId)) {
         return res.status(400).json({ error: 'Invalid voucher ID' });
     }
-    
+
     // Get voucher data for audit trail before deletion
     voucherOperations.getById(voucherId, (getErr, voucherData) => {
         if (getErr) {
             console.error('Error fetching voucher for deletion:', getErr);
             return res.status(500).json({ error: getErr.message });
         }
-        
+
         if (!voucherData) {
             return res.status(404).json({ error: 'Voucher not found' });
         }
-        
+
         voucherOperations.delete(voucherId, (err, result) => {
             if (err) return res.status(500).json({ error: err.message });
             if (result && result.changes === 0) {
                 return res.status(404).json({ error: 'Voucher not found' });
             }
-            
+
             // Log audit trail
             logAuditTrail(
                 req,
@@ -1866,7 +1866,7 @@ app.delete('/api/admin/vouchers/:id', authenticateAdmin, (req, res) => {
                 null,
                 `Deleted voucher "${voucherData.code}"`
             );
-            
+
             res.json({ success: true, message: 'Voucher deleted successfully' });
         });
     });
@@ -1888,7 +1888,7 @@ app.get('/api/debug/admin-status', (req, res) => {
         if (err) {
             return res.status(500).json({ error: 'Database error' });
         }
-        
+
         res.json({
             adminAccountExists: !!admin,
             adminId: admin ? admin.id : null,
@@ -1901,17 +1901,17 @@ app.get('/api/debug/admin-status', (req, res) => {
 app.post('/api/admin/run-migrations', authenticateAdmin, async (req, res) => {
     try {
         console.log('🔧 Manual migration triggered by admin');
-        
+
         // Import the database module to access query function
         const database = require('./database-config');
-        
+
         // Check if we're using Turso
         if (database.query && typeof database.query === 'function') {
             const results = {
                 users: { attempted: false, success: false, message: '' },
                 orders: { attempted: false, success: false, message: '' }
             };
-            
+
             // Migrate users table
             try {
                 results.users.attempted = true;
@@ -1935,7 +1935,7 @@ app.post('/api/admin/run-migrations', authenticateAdmin, async (req, res) => {
                     }
                 }
             }
-            
+
             // Migrate orders table
             try {
                 results.orders.attempted = true;
@@ -1959,7 +1959,7 @@ app.post('/api/admin/run-migrations', authenticateAdmin, async (req, res) => {
                     }
                 }
             }
-            
+
             res.json({
                 success: results.users.success && results.orders.success,
                 results,
@@ -1978,17 +1978,17 @@ app.post('/api/admin/run-migrations', authenticateAdmin, async (req, res) => {
 // Get comprehensive dashboard statistics in a single call
 app.get('/api/admin/dashboard/stats', authenticateAdmin, (req, res) => {
     console.log('📊 Fetching comprehensive dashboard statistics...');
-    
+
     // Get database instance from database-config
     const database = require('./database-config');
     const dbInstance = database.db;
-    
+
     const stats = {
         books: { total: 0, active: 0, totalStock: 0, lowStock: 0, fiction: 0, nonFiction: 0 },
         users: { total: 0 },
         orders: { total: 0, pending: 0, processing: 0, shipped: 0, completed: 0, cancelled: 0, totalRevenue: 0 }
     };
-    
+
     // Get book statistics
     const bookStatsQuery = `
         SELECT 
@@ -2001,14 +2001,14 @@ app.get('/api/admin/dashboard/stats', authenticateAdmin, (req, res) => {
         FROM books 
         WHERE (archived = 0 OR archived IS NULL)
     `;
-    
+
     // Get user statistics
     const userStatsQuery = `
         SELECT COUNT(*) as total 
         FROM users 
         WHERE (archived = 0 OR archived IS NULL)
     `;
-    
+
     // Get order statistics
     const orderStatsQuery = `
         SELECT 
@@ -2022,7 +2022,7 @@ app.get('/api/admin/dashboard/stats', authenticateAdmin, (req, res) => {
         FROM orders 
         WHERE (archived = 0 OR archived IS NULL)
     `;
-    
+
     // Execute queries in parallel using promises
     Promise.all([
         new Promise((resolve, reject) => {
@@ -2044,37 +2044,37 @@ app.get('/api/admin/dashboard/stats', authenticateAdmin, (req, res) => {
             });
         })
     ])
-    .then(([bookResult, userResult, orderResult]) => {
-        stats.books = {
-            total: bookResult.total || 0,
-            active: bookResult.active || 0,
-            totalStock: bookResult.totalStock || 0,
-            lowStock: bookResult.lowStock || 0,
-            fiction: bookResult.fiction || 0,
-            nonFiction: bookResult.nonFiction || 0
-        };
-        
-        stats.users = {
-            total: userResult.total || 0
-        };
-        
-        stats.orders = {
-            total: orderResult.total || 0,
-            pending: orderResult.pending || 0,
-            processing: orderResult.processing || 0,
-            shipped: orderResult.shipped || 0,
-            completed: orderResult.completed || 0,
-            cancelled: orderResult.cancelled || 0,
-            totalRevenue: parseFloat(orderResult.totalRevenue) || 0
-        };
-        
-        console.log('✅ Dashboard statistics retrieved:', stats);
-        res.json(stats);
-    })
-    .catch(error => {
-        console.error('❌ Error fetching dashboard statistics:', error);
-        res.status(500).json({ error: error.message });
-    });
+        .then(([bookResult, userResult, orderResult]) => {
+            stats.books = {
+                total: bookResult.total || 0,
+                active: bookResult.active || 0,
+                totalStock: bookResult.totalStock || 0,
+                lowStock: bookResult.lowStock || 0,
+                fiction: bookResult.fiction || 0,
+                nonFiction: bookResult.nonFiction || 0
+            };
+
+            stats.users = {
+                total: userResult.total || 0
+            };
+
+            stats.orders = {
+                total: orderResult.total || 0,
+                pending: orderResult.pending || 0,
+                processing: orderResult.processing || 0,
+                shipped: orderResult.shipped || 0,
+                completed: orderResult.completed || 0,
+                cancelled: orderResult.cancelled || 0,
+                totalRevenue: parseFloat(orderResult.totalRevenue) || 0
+            };
+
+            console.log('✅ Dashboard statistics retrieved:', stats);
+            res.json(stats);
+        })
+        .catch(error => {
+            console.error('❌ Error fetching dashboard statistics:', error);
+            res.status(500).json({ error: error.message });
+        });
 });
 
 // ==================== SUPER ADMIN - ADMIN MANAGEMENT API ENDPOINTS ====================
@@ -2082,7 +2082,7 @@ app.get('/api/admin/dashboard/stats', authenticateAdmin, (req, res) => {
 // Get all admin accounts (super admin only)
 app.get('/api/super-admin/admins', authenticateSuperAdmin, (req, res) => {
     console.log('📋 Fetching all admin accounts...');
-    
+
     adminOperations.getAll((err, admins) => {
         if (err) {
             console.error('Error fetching admins:', err);
@@ -2096,17 +2096,17 @@ app.get('/api/super-admin/admins', authenticateSuperAdmin, (req, res) => {
 app.post('/api/super-admin/admins', authenticateSuperAdmin, async (req, res) => {
     try {
         const { username, email, password, first_name, last_name, phone, is_super_admin } = req.body;
-        
+
         console.log('👤 Creating new admin account:', email);
-        
+
         // Validate required fields
         if (!username || !email || !password) {
             return res.status(400).json({ error: 'Username, email, and password are required' });
         }
-        
+
         // Hash password
         const password_hash = await bcrypt.hash(password, 10);
-        
+
         const adminData = {
             username,
             email,
@@ -2116,26 +2116,26 @@ app.post('/api/super-admin/admins', authenticateSuperAdmin, async (req, res) => 
             phone: phone || '',
             is_super_admin: is_super_admin ? 1 : 0
         };
-        
+
         adminOperations.register(adminData, (err, result) => {
             if (err) {
                 console.error('Error creating admin:', err);
-                
+
                 // Check if this is a validation error (duplicate username/email)
                 if (err.message && (
-                    err.message.includes('UNIQUE constraint failed') || 
+                    err.message.includes('UNIQUE constraint failed') ||
                     err.message.includes('UNIQUE constraint') ||
                     err.message.includes('unique constraint') ||
                     err.message.includes('already exists')
                 )) {
                     return res.status(400).json({ error: 'Admin with this email or username already exists' });
                 }
-                
+
                 return res.status(500).json({ error: err.message });
             }
-            
+
             console.log('✅ Admin created successfully with ID:', result.id);
-            
+
             // Log audit trail
             logAuditTrail(
                 req,
@@ -2147,7 +2147,7 @@ app.post('/api/super-admin/admins', authenticateSuperAdmin, async (req, res) => 
                 { username, email, is_super_admin: adminData.is_super_admin },
                 `Created new ${is_super_admin ? 'super ' : ''}admin account "${username}"`
             );
-            
+
             res.status(201).json({ success: true, id: result.id, message: 'Admin created successfully' });
         });
     } catch (error) {
@@ -2160,24 +2160,24 @@ app.post('/api/super-admin/admins', authenticateSuperAdmin, async (req, res) => 
 app.put('/api/super-admin/admins/:id', authenticateSuperAdmin, (req, res) => {
     const adminId = parseInt(req.params.id);
     const { username, email, first_name, last_name, phone } = req.body;
-    
+
     console.log(`📝 Updating admin account ${adminId}`);
-    
+
     if (isNaN(adminId)) {
         return res.status(400).json({ error: 'Invalid admin ID' });
     }
-    
+
     // Get old admin data for audit trail
     adminOperations.getById(adminId, (getErr, oldAdmin) => {
         if (getErr) {
             console.error('Error fetching admin for update:', getErr);
             return res.status(500).json({ error: getErr.message });
         }
-        
+
         if (!oldAdmin) {
             return res.status(404).json({ error: 'Admin not found' });
         }
-        
+
         const adminData = {
             username: username || oldAdmin.username,
             email: email || oldAdmin.email,
@@ -2185,15 +2185,15 @@ app.put('/api/super-admin/admins/:id', authenticateSuperAdmin, (req, res) => {
             last_name: last_name || oldAdmin.last_name,
             phone: phone || oldAdmin.phone
         };
-        
+
         adminOperations.updateAdmin(adminId, adminData, (err) => {
             if (err) {
                 console.error('Error updating admin:', err);
                 return res.status(500).json({ error: err.message });
             }
-            
+
             console.log('✅ Admin updated successfully');
-            
+
             // Log audit trail
             logAuditTrail(
                 req,
@@ -2205,7 +2205,7 @@ app.put('/api/super-admin/admins/:id', authenticateSuperAdmin, (req, res) => {
                 adminData,
                 `Updated admin account "${adminData.username}"`
             );
-            
+
             res.json({ success: true, message: 'Admin updated successfully' });
         });
     });
@@ -2214,37 +2214,37 @@ app.put('/api/super-admin/admins/:id', authenticateSuperAdmin, (req, res) => {
 // Delete admin account (super admin only)
 app.delete('/api/super-admin/admins/:id', authenticateSuperAdmin, (req, res) => {
     const adminId = parseInt(req.params.id);
-    
+
     console.log(`🗑️ Deleting admin account ${adminId}`);
-    
+
     if (isNaN(adminId)) {
         return res.status(400).json({ error: 'Invalid admin ID' });
     }
-    
+
     // Prevent self-deletion
     if (adminId === req.user.userId) {
         return res.status(400).json({ error: 'Cannot delete your own account' });
     }
-    
+
     // Get admin data for audit trail before deletion
     adminOperations.getById(adminId, (getErr, adminData) => {
         if (getErr) {
             console.error('Error fetching admin for deletion:', getErr);
             return res.status(500).json({ error: getErr.message });
         }
-        
+
         if (!adminData) {
             return res.status(404).json({ error: 'Admin not found' });
         }
-        
+
         adminOperations.deleteAdmin(adminId, (err) => {
             if (err) {
                 console.error('Error deleting admin:', err);
                 return res.status(500).json({ error: err.message });
             }
-            
+
             console.log('✅ Admin deleted successfully');
-            
+
             // Log audit trail
             logAuditTrail(
                 req,
@@ -2256,7 +2256,7 @@ app.delete('/api/super-admin/admins/:id', authenticateSuperAdmin, (req, res) => 
                 null,
                 `Deleted ${adminData.is_super_admin ? 'super ' : ''}admin account "${adminData.username}"`
             );
-            
+
             res.json({ success: true, message: 'Admin deleted successfully' });
         });
     });
@@ -2267,38 +2267,38 @@ app.put('/api/super-admin/admins/:id/password', authenticateSuperAdmin, async (r
     try {
         const adminId = parseInt(req.params.id);
         const { password } = req.body;
-        
+
         console.log(`🔑 Resetting password for admin ${adminId}`);
-        
+
         if (isNaN(adminId)) {
             return res.status(400).json({ error: 'Invalid admin ID' });
         }
-        
+
         if (!password || password.length < 6) {
             return res.status(400).json({ error: 'Password must be at least 6 characters' });
         }
-        
+
         // Hash new password
         const password_hash = await bcrypt.hash(password, 10);
-        
+
         // Get admin data for audit trail
         adminOperations.getById(adminId, (getErr, adminData) => {
             if (getErr) {
                 return res.status(500).json({ error: getErr.message });
             }
-            
+
             if (!adminData) {
                 return res.status(404).json({ error: 'Admin not found' });
             }
-            
+
             adminOperations.updatePassword(adminId, password_hash, (err) => {
                 if (err) {
                     console.error('Error resetting admin password:', err);
                     return res.status(500).json({ error: err.message });
                 }
-                
+
                 console.log('✅ Admin password reset successfully');
-                
+
                 // Log audit trail
                 logAuditTrail(
                     req,
@@ -2310,7 +2310,7 @@ app.put('/api/super-admin/admins/:id/password', authenticateSuperAdmin, async (r
                     null,
                     `Reset password for admin "${adminData.username}"`
                 );
-                
+
                 res.json({ success: true, message: 'Password reset successfully' });
             });
         });
@@ -2319,6 +2319,138 @@ app.put('/api/super-admin/admins/:id/password', authenticateSuperAdmin, async (r
         res.status(500).json({ error: error.message });
     }
 });
+
+// ==================== ADMIN SELF-SERVICE ENDPOINTS ====================
+
+// Admin change own password
+app.put('/api/admin/profile/change-password', authenticateAdmin, async (req, res) => {
+    try {
+        const { adminId, currentPassword, newPassword } = req.body;
+
+        // Verify this is the logged-in admin
+        if (parseInt(adminId) !== req.user.userId) {
+            return res.status(403).json({ error: 'You can only change your own password' });
+        }
+
+        // Validate passwords
+        if (!currentPassword || !newPassword) {
+            return res.status(400).json({ error: 'Current password and new password are required' });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({ error: 'New password must be at least 6 characters' });
+        }
+
+        // Get admin data
+        adminOperations.getById(adminId, async (err, admin) => {
+            if (err || !admin) {
+                return res.status(404).json({ error: 'Admin not found' });
+            }
+
+            // Verify current password
+            const isValidPassword = await bcrypt.compare(currentPassword, admin.password_hash);
+            if (!isValidPassword) {
+                return res.status(400).json({ error: 'Current password is incorrect' });
+            }
+
+            // Hash new password
+            const newPasswordHash = await bcrypt.hash(newPassword, 10);
+
+            // Update password
+            adminOperations.updatePassword(adminId, newPasswordHash, (err) => {
+                if (err) {
+                    console.error('Error updating admin password:', err);
+                    return res.status(500).json({ error: err.message });
+                }
+
+                console.log('✅ Admin password updated successfully');
+
+                // Log audit trail
+                logAuditTrail(
+                    req,
+                    'UPDATE',
+                    'admin',
+                    adminId,
+                    admin.username,
+                    null,
+                    null,
+                    `Admin "${admin.username}" changed their password`
+                );
+
+                res.json({ success: true, message: 'Password changed successfully' });
+            });
+        });
+    } catch (error) {
+        console.error('Error in admin password change:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Admin update own profile
+app.put('/api/admin/profile/update', authenticateAdmin, (req, res) => {
+    try {
+        const { adminId, username, email, first_name, last_name, phone } = req.body;
+
+        // Verify this is the logged-in admin
+        if (parseInt(adminId) !== req.user.userId) {
+            return res.status(403).json({ error: 'You can only update your own profile' });
+        }
+
+        // Validate required fields
+        if (!username || !email) {
+            return res.status(400).json({ error: 'Username and email are required' });
+        }
+
+        // Get old admin data for audit trail
+        adminOperations.getById(adminId, (getErr, oldAdmin) => {
+            if (getErr || !oldAdmin) {
+                return res.status(404).json({ error: 'Admin not found' });
+            }
+
+            const adminData = {
+                username: username,
+                email: email,
+                first_name: first_name || oldAdmin.first_name,
+                last_name: last_name || oldAdmin.last_name,
+                phone: phone || oldAdmin.phone
+            };
+
+            adminOperations.updateAdmin(adminId, adminData, (err) => {
+                if (err) {
+                    console.error('Error updating admin profile:', err);
+
+                    // Check for duplicate username/email
+                    if (err.message && err.message.includes('UNIQUE constraint')) {
+                        return res.status(400).json({ error: 'Username or email already exists' });
+                    }
+
+                    return res.status(500).json({ error: err.message });
+                }
+
+                console.log('✅ Admin profile updated successfully');
+
+                // Log audit trail
+                logAuditTrail(
+                    req,
+                    'UPDATE',
+                    'admin',
+                    adminId,
+                    adminData.username,
+                    oldAdmin,
+                    adminData,
+                    `Admin "${adminData.username}" updated their profile`
+                );
+
+                res.json({ success: true, message: 'Profile updated successfully' });
+            });
+        });
+    } catch (error) {
+        console.error('Error in admin profile update:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ==================== END ADMIN SELF-SERVICE ENDPOINTS ====================
 
 // ==================== AUDIT TRAIL API ENDPOINTS ====================
 
@@ -2376,20 +2508,20 @@ function logAuditTrail(req, actionType, entityType, entityId, entityName, oldVal
 // Get recent audit trail logs (for notification bell)
 app.get('/api/admin/audit-trail/recent', authenticateAdmin, (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
-    
+
     console.log('📜 Fetching recent audit trail logs, limit:', limit);
-    
+
     auditTrailOperations.getRecent(limit, (err, logs) => {
         if (err) {
             console.error('❌ Error fetching recent audit logs:', err);
             return res.status(500).json({ error: err.message });
         }
-        
+
         console.log('✅ Audit trail logs fetched:', logs?.length || 0, 'entries');
         if (logs && logs.length > 0) {
             console.log('   Sample entry:', logs[0]);
         }
-        
+
         res.json(logs);
     });
 });
@@ -2398,7 +2530,7 @@ app.get('/api/admin/audit-trail/recent', authenticateAdmin, (req, res) => {
 app.get('/api/admin/audit-trail', authenticateAdmin, (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 50;
-    
+
     auditTrailOperations.getAll(page, limit, (err, result) => {
         if (err) {
             console.error('Error fetching audit logs:', err);
@@ -2413,7 +2545,7 @@ app.get('/api/admin/audit-trail/entity/:entityType', authenticateAdmin, (req, re
     const entityType = req.params.entityType;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 50;
-    
+
     auditTrailOperations.getByEntityType(entityType, page, limit, (err, result) => {
         if (err) {
             console.error('Error fetching audit logs by entity type:', err);
@@ -2428,7 +2560,7 @@ app.get('/api/admin/audit-trail/action/:actionType', authenticateAdmin, (req, re
     const actionType = req.params.actionType;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 50;
-    
+
     auditTrailOperations.getByActionType(actionType, page, limit, (err, result) => {
         if (err) {
             console.error('Error fetching audit logs by action type:', err);
@@ -2443,7 +2575,7 @@ app.get('/api/admin/audit-trail/admin/:adminId', authenticateAdmin, (req, res) =
     const adminId = parseInt(req.params.adminId);
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 50;
-    
+
     auditTrailOperations.getByAdmin(adminId, page, limit, (err, result) => {
         if (err) {
             console.error('Error fetching audit logs by admin:', err);

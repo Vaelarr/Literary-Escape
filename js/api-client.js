@@ -3,23 +3,23 @@ class APIClient {
         // Dynamically set base URL based on environment
         // In production (Vercel), use relative path
         // In development, use localhost
-        const isLocalhost = window.location.hostname === 'localhost' || 
-                           window.location.hostname === '127.0.0.1' ||
-                           window.location.hostname === '';
-        
-        this.baseURL = isLocalhost 
+        const isLocalhost = window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1' ||
+            window.location.hostname === '';
+
+        this.baseURL = isLocalhost
             ? 'http://localhost:3000/api'
             : '/api'; // Relative path for production (Vercel)
-        
+
         console.log('API Client initialized with baseURL:', this.baseURL);
-        
+
         this.token = localStorage.getItem('authToken');
         this.connectionTested = false;
-        
+
         // Check if stored token belongs to admin and clear it if on regular site
         this.checkAndClearAdminToken();
     }
-    
+
     // Check if the stored token is an admin token and clear it if on regular pages
     checkAndClearAdminToken() {
         try {
@@ -27,7 +27,7 @@ class APIClient {
             if (user && (user.role === 'admin' || user.isAdmin === true)) {
                 console.warn('Admin token detected on regular user interface. Clearing session.');
                 this.logout();
-                
+
                 // Optionally show a message to the user
                 if (typeof window !== 'undefined' && !window.location.pathname.includes('admin')) {
                     console.log('Admin session cleared. Please login with a regular user account.');
@@ -41,12 +41,12 @@ class APIClient {
     // Test database connectivity
     async testConnection() {
         if (this.connectionTested) return true;
-        
+
         try {
             console.log('Testing database connection...');
             const response = await fetch(`${this.baseURL}/test-db`);
             const data = await response.json();
-            
+
             if (response.ok && data.success) {
                 console.log('Database connection test successful:', data);
                 this.connectionTested = true;
@@ -75,7 +75,7 @@ class APIClient {
         // Only add authorization header if token exists and endpoint requires it
         const publicEndpoints = ['/test-db'];
         const isPublicBooksEndpoint = endpoint.startsWith('/books') && (options.method === 'GET' || !options.method);
-        const isPublicEndpoint = publicEndpoints.some(publicEndpoint => 
+        const isPublicEndpoint = publicEndpoints.some(publicEndpoint =>
             endpoint.startsWith(publicEndpoint) || endpoint === publicEndpoint
         ) || isPublicBooksEndpoint;
 
@@ -100,7 +100,7 @@ class APIClient {
         try {
             console.log(`Making API request to: ${endpoint}`);
             const response = await fetch(url, config);
-            
+
             // Check if response is HTML (error page) instead of JSON
             const contentType = response.headers.get('content-type');
             if (contentType && contentType.includes('text/html')) {
@@ -109,20 +109,20 @@ class APIClient {
                 console.error('HTML response preview:', htmlText.substring(0, 200));
                 throw new Error('Server returned an error page. Please check server logs.');
             }
-            
+
             const data = await response.json();
-            
+
             if (!response.ok) {
                 console.error('API request failed:', data);
-                
+
                 // Handle token expiration or invalid token
                 // Be more careful with admin sessions - don't auto-logout on every 401
                 const isAdminSession = localStorage.getItem('isAdminSession') === 'true';
                 const isOnAdminPage = window.location.pathname.includes('admin.html');
-                
-                if ((response.status === 401 || response.status === 403) && 
+
+                if ((response.status === 401 || response.status === 403) &&
                     (data.error === 'Invalid token' || data.error === 'Access token required')) {
-                    
+
                     // For admin sessions, only handle invalid token on admin page without auto-redirect
                     if (isAdminSession && isOnAdminPage) {
                         console.warn('Admin token issue detected. Admin page will handle re-authentication.');
@@ -134,60 +134,60 @@ class APIClient {
                         throw new Error('Your session has expired. Please login again.');
                     }
                 }
-                
+
                 throw new Error(data.error || 'Request failed');
             }
-            
+
             console.log(`API request successful: ${endpoint}`);
             return data;
         } catch (error) {
             console.error('API request failed:', error);
-            
+
             // Provide more specific error messages
             if (error.message.includes('JSON')) {
                 throw new Error('Server error: Unable to process response. Please try again or contact support.');
             }
-            
+
             throw error;
         }
     }
-    
+
     // Handle invalid or expired token
     handleInvalidToken() {
         // Check if this is an admin session
         const isAdminSession = localStorage.getItem('isAdminSession') === 'true';
         const isOnAdminPage = window.location.pathname.includes('admin.html');
-        
+
         // For admin sessions, only show login form on admin page, don't clear token automatically
         if (isAdminSession && isOnAdminPage) {
             console.log('Admin session - showing admin login form');
             // Admin page will handle showing login form
             return;
         }
-        
+
         // Clear the invalid token
         this.logout();
-        
+
         // Only redirect if not already on login/account page or admin page
         const currentPath = window.location.pathname;
-        const isOnAccountPage = currentPath.includes('account.html') || 
-                               currentPath.includes('account-dashboard.html');
-        
+        const isOnAccountPage = currentPath.includes('account.html') ||
+            currentPath.includes('account-dashboard.html');
+
         // Don't redirect if on admin page (admin has its own login form)
         if (isOnAdminPage) {
             console.log('On admin page - staying on admin login');
             return;
         }
-        
+
         if (!isOnAccountPage) {
             // Store the current page to redirect back after login
             sessionStorage.setItem('redirectAfterLogin', window.location.href);
-            
+
             // Show a notification if available
             if (typeof showNotification === 'function') {
                 showNotification('Your session has expired. Please login again.', 'warning');
             }
-            
+
             // Redirect to login page after a short delay
             setTimeout(() => {
                 window.location.href = 'account.html';
@@ -202,19 +202,19 @@ class APIClient {
 
     // Authentication methods
     async register(userData) {
-        console.log('Registering user:', { 
-            username: userData.username, 
+        console.log('Registering user:', {
+            username: userData.username,
             email: userData.email,
             first_name: userData.first_name,
             last_name: userData.last_name
         });
-        
+
         try {
             const response = await this.makeRequest('/register', {
                 method: 'POST',
                 body: JSON.stringify(userData)
             });
-            
+
             console.log('Registration successful');
             return response;
         } catch (error) {
@@ -229,16 +229,16 @@ class APIClient {
             method: 'POST',
             body: JSON.stringify({ email, password })
         });
-        
+
         console.log('Login response:', response);
-        
+
         if (response.token) {
             // Additional check: ensure this is not an admin account
             if (response.user && (response.user.role === 'admin' || response.user.isAdmin === true)) {
                 console.error('Admin account detected in regular login. This should not happen.');
                 throw new Error('Admin accounts must use the admin login portal');
             }
-            
+
             this.token = response.token;
             localStorage.setItem('authToken', response.token);
             localStorage.setItem('user', JSON.stringify(response.user));
@@ -247,7 +247,7 @@ class APIClient {
         } else {
             console.warn('No token in login response');
         }
-        
+
         return response;
     }
 
@@ -257,9 +257,9 @@ class APIClient {
             method: 'POST',
             body: JSON.stringify({ email, password })
         });
-        
+
         console.log('Admin login response:', response);
-        
+
         if (response.token) {
             this.token = response.token;
             localStorage.setItem('authToken', response.token);
@@ -271,7 +271,7 @@ class APIClient {
         } else {
             console.warn('No token in admin login response');
         }
-        
+
         return response;
     }
 
@@ -283,45 +283,45 @@ class APIClient {
         localStorage.removeItem('loginTimestamp');
         localStorage.removeItem('isAdminSession');
     }
-    
+
     // Check if token is expired (24 hour expiration)
     // NOTE: Admin sessions do not expire based on time - only on explicit logout
     isTokenExpired() {
         // Check if this is an admin session
         const isAdminSession = localStorage.getItem('isAdminSession') === 'true';
-        
+
         // Admin sessions never expire based on time
         if (isAdminSession) {
             return false;
         }
-        
+
         // For regular users, check timestamp
         const loginTimestamp = localStorage.getItem('loginTimestamp');
         if (!loginTimestamp) {
             return true; // No timestamp means token is invalid
         }
-        
+
         const loginTime = parseInt(loginTimestamp);
         const currentTime = Date.now();
         const hoursSinceLogin = (currentTime - loginTime) / (1000 * 60 * 60);
-        
+
         // Token expires after 24 hours for regular users
         return hoursSinceLogin >= 24;
     }
-    
+
     // Check if user is logged in with a valid token
     isLoggedIn() {
         const hasToken = !!this.token;
-        
+
         // Skip expiration check for admin sessions
         const isAdminSession = localStorage.getItem('isAdminSession') === 'true';
-        
+
         if (hasToken && !isAdminSession && this.isTokenExpired()) {
             console.warn('Token has expired (24+ hours old). Logging out.');
             this.handleInvalidToken();
             return false;
         }
-        
+
         console.log('Login status check:', { hasToken, token: this.token ? 'Present' : 'Missing', isAdminSession });
         return hasToken;
     }
@@ -618,7 +618,7 @@ class APIClient {
 
     async getArchivedOrders(page = 1, limit = 10, filters = {}) {
         let url = `/admin/orders/archived?page=${page}&limit=${limit}`;
-        
+
         // Add filters to URL
         if (filters.status) {
             url += `&status=${encodeURIComponent(filters.status)}`;
@@ -626,7 +626,7 @@ class APIClient {
         if (filters.search) {
             url += `&search=${encodeURIComponent(filters.search)}`;
         }
-        
+
         return this.makeRequest(url);
     }
 
@@ -648,7 +648,7 @@ class APIClient {
 
     async getAllOrdersForAdmin(page = 1, limit = 10, filters = {}) {
         let url = `/admin/orders?page=${page}&limit=${limit}`;
-        
+
         // Add filters to URL
         if (filters.status) {
             url += `&status=${encodeURIComponent(filters.status)}`;
@@ -656,7 +656,7 @@ class APIClient {
         if (filters.search) {
             url += `&search=${encodeURIComponent(filters.search)}`;
         }
-        
+
         return this.makeRequest(url);
     }
 
@@ -750,36 +750,37 @@ class APIClient {
     }
 
     // ==================== ADMIN SELF-SERVICE METHODS ====================
-    
+
     async adminChangePassword({ adminId, currentPassword, newPassword }) {
         return this.makeRequest(`/admin/profile/change-password`, {
             method: 'PUT',
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 adminId,
-                currentPassword, 
-                newPassword 
+                currentPassword,
+                newPassword
             })
         });
     }
 
-    async adminUpdateProfile({ adminId, email, firstName, lastName, phone }) {
+    async adminUpdateProfile({ adminId, username, email, firstName, lastName, phone }) {
         return this.makeRequest(`/admin/profile/update`, {
             method: 'PUT',
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 adminId,
-                username: arguments[0].username,
-                email, 
-                firstName, 
-                lastName, 
-                phone 
+                username,
+                email,
+                first_name: firstName,  // Convert camelCase to snake_case
+                last_name: lastName,    // Convert camelCase to snake_case
+                phone
             })
         });
     }
+
 }
 
 // Create global API client instance
 console.log('Initializing API client...');
-const api = new APIClient();
+    const api = new APIClient();
 
 // Make API client globally accessible
 window.api = api;
