@@ -612,6 +612,12 @@
                 </div>
             `;
 
+            // Hide selection controls when not logged in
+            const selectionControls = document.getElementById('selectionControls');
+            if (selectionControls) {
+                selectionControls.style.display = 'none';
+            }
+
             // Hide order summary section when not logged in
             const orderSummarySection = document.getElementById('orderSummarySection');
             if (orderSummarySection) {

@@ -1,72 +1,72 @@
 /* Common styles for Literary Escape website */
 
 /* Base layout fixes - Ensures footer stays at bottom */
-html, body {
+html {
     height: 100%;
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
 }
 
 body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+    min-height: 100vh !important;
+    height: auto !important;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    display: flex !important;
+    flex-direction: column !important;
+    position: relative;
 }
 
+/* Main content wrapper */
 .main-content {
     flex: 1 0 auto;
-    min-height: calc(100vh - 160px);
     padding: 100px 0 40px 0;
 }
 
-/* Footer positioning - ensures footer stays at bottom without overlapping */
-footer {
-    flex-shrink: 0;
-    margin-top: auto;
+/* All sections should not overlap and have proper flow */
+section {
+    position: relative;
+    clear: both;
     width: 100%;
 }
 
 /* Wrapper for pages without explicit main-content class */
-body > section:first-of-type {
-    padding-top: 80px;
+body > section {
+    flex: 0 0 auto;
 }
 
-body > nav ~ section:first-of-type,
-body > nav ~ section:first-child {
+body > section:first-of-type:not(footer) {
     padding-top: 100px;
 }
 
-/* Ensure all sections before footer have proper spacing */
-section:not(.hero):not(#featured-section):not(#dedicated-section) {
-    flex: 1 0 auto;
+/* Ensure containers inside sections don't cause issues */
+section .container,
+section .container-fluid {
+    position: relative;
 }
 
-/* Specific page content wrappers */
-.container,
-.container-fluid {
-    flex: 1 0 auto;
-}
-
-/* Prevent footer overlap with content */
-body > *:not(footer):not(.navbar) {
+/* For pages with multiple sections */
+body > nav ~ section:not(footer) {
+    flex: 0 0 auto;
     margin-bottom: 0;
 }
 
-body > section:last-of-type:not(footer) {
-    margin-bottom: 40px;
-}
-
-/* Specific overrides for pages with unique layouts */
+/* Specific page sections */
+.about-us,
 .hero,
 #featured-section,
 #showcase-section,
-#dedicated-section,
-.about-us,
-.checkout-container,
-.cart-container,
-.account-container {
-    flex: 0 1 auto;
+#dedicated-section {
+    flex: 0 0 auto !important;
+}
+
+/* Footer positioning - ensures footer stays at bottom without overlapping */
+footer {
+    flex-shrink: 0 !important;
+    margin-top: auto !important;
+    width: 100%;
+    position: relative !important;
+    clear: both;
+    z-index: 1;
 }
 
 

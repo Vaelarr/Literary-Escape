@@ -1271,6 +1271,13 @@
             showLoginRequired();
         }
 
+        // Show login required message
+        function showLoginRequired() {
+            hideAllMessages();
+            document.getElementById('loginRequiredMessage').classList.remove('d-none');
+            document.getElementById('loginRequiredMessage').classList.add('d-block');
+        }
+
         // Show loading message
         function showLoading() {
             hideAllMessages();
@@ -1297,13 +1304,6 @@
             hideAllMessages();
             document.getElementById('favoritesItems').classList.remove('d-none');
             document.getElementById('favoritesItems').classList.add('d-block');
-        }
-
-        // Show login required message
-        function showLoginRequired() {
-            hideAllMessages();
-            document.getElementById('loginRequiredMessage').classList.remove('d-none');
-            document.getElementById('loginRequiredMessage').classList.add('d-block');
         }
 
         // Hide all messages
