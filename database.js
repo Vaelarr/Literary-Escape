@@ -578,16 +578,16 @@ const bookOperations = {
         db.run(query, [id], callback);
     },
 
-    // Search books (excluding archived)
+    // Search books by title and author only (excluding archived)
     search: (term, callback) => {
         const query = `
             SELECT * FROM books 
-            WHERE (title LIKE ? OR author LIKE ? OR description LIKE ?)
+            WHERE (title LIKE ? OR author LIKE ?)
             AND (archived = 0 OR archived IS NULL)
             ORDER BY title
         `;
         const searchTerm = `%${term}%`;
-        db.all(query, [searchTerm, searchTerm, searchTerm], callback);
+        db.all(query, [searchTerm, searchTerm], callback);
     }
 };
 
@@ -1375,7 +1375,7 @@ const adminOperations = {
     },
 
     // Admin methods to get all items (including archived)
-    getAllBooks: (page = 1, limit = 10, category = null, callback) => {
+    getAllBooks: (page = 1, limit = 10, category = null, search = null, callback) => {
         const offset = (page - 1) * limit;
         
         let query = `
@@ -1387,6 +1387,13 @@ const adminOperations = {
         if (category) {
             query += ` AND category = ?`;
             params.push(category);
+        }
+        
+        // Add search filter for title and author only
+        if (search) {
+            query += ` AND (title LIKE ? OR author LIKE ?)`;
+            const searchTerm = `%${search}%`;
+            params.push(searchTerm, searchTerm);
         }
         
         query += ` ORDER BY created_at DESC LIMIT ? OFFSET ?`;
@@ -1405,6 +1412,13 @@ const adminOperations = {
             if (category) {
                 countQuery += ' AND category = ?';
                 countParams.push(category);
+            }
+            
+            // Add search to count query
+            if (search) {
+                countQuery += ' AND (title LIKE ? OR author LIKE ?)';
+                const searchTerm = `%${search}%`;
+                countParams.push(searchTerm, searchTerm);
             }
             
             db.get(countQuery, countParams, (countErr, countResult) => {

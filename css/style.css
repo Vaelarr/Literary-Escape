@@ -1776,6 +1776,10 @@ footer {
     padding: 40px 0 20px 0;
     color: #ffffff;
     margin-top: auto;
+    flex-shrink: 0;
+    width: 100%;
+    position: relative;
+    z-index: 1;
 }
 
 .footer-content {

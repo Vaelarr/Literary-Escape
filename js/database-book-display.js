@@ -805,20 +805,16 @@ class DatabaseBookDisplay {
             if (typeof api === 'undefined' || !api || typeof api.searchBooks !== 'function') {
                 console.warn('API search not available, falling back to client-side search');
                 
-                // Fallback to client-side search
+                // Fallback to client-side search - only search title and author
                 const allBooks = await this.loadAllBooks();
                 const searchTerm = query.toLowerCase();
                 
                 return allBooks.filter(book => {
                     const title = (book.title || '').toLowerCase();
                     const author = (book.author || '').toLowerCase();
-                    const description = (book.description || '').toLowerCase();
-                    const genre = (book.genre || '').toLowerCase();
                     
                     return title.includes(searchTerm) || 
-                           author.includes(searchTerm) || 
-                           description.includes(searchTerm) || 
-                           genre.includes(searchTerm);
+                           author.includes(searchTerm);
                 });
             }
             

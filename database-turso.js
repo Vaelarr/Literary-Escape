@@ -545,9 +545,10 @@ const bookOperations = {
         try {
             const result = await query(
                 `SELECT * FROM books 
-                 WHERE (title LIKE ? OR author LIKE ? OR description LIKE ?)
-                 AND archived = 0`,
-                [`%${searchTerm}%`, `%${searchTerm}%`, `%${searchTerm}%`]
+                 WHERE (title LIKE ? OR author LIKE ?)
+                 AND archived = 0
+                 ORDER BY title`,
+                [`%${searchTerm}%`, `%${searchTerm}%`]
             );
             const booksWithRatings = await bookOperations.addRatingsToBooks(result.rows);
             callback(null, booksWithRatings);
@@ -1903,11 +1904,12 @@ const adminOperations = {
                 params.push(category);
             }
             
+            // Search only by title and author
             if (search) {
                 const searchPattern = `%${search}%`;
-                countQuery += ' AND (title LIKE ? OR author LIKE ? OR description LIKE ?)';
-                dataQuery += ' AND (title LIKE ? OR author LIKE ? OR description LIKE ?)';
-                params.push(searchPattern, searchPattern, searchPattern);
+                countQuery += ' AND (title LIKE ? OR author LIKE ?)';
+                dataQuery += ' AND (title LIKE ? OR author LIKE ?)';
+                params.push(searchPattern, searchPattern);
             }
             
             dataQuery += ' ORDER BY id DESC LIMIT ? OFFSET ?';

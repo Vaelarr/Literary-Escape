@@ -1,6 +1,6 @@
 /* Common styles for Literary Escape website */
 
-/* Base layout fixes */
+/* Base layout fixes - Ensures footer stays at bottom */
 html, body {
     height: 100%;
     margin: 0;
@@ -8,10 +8,67 @@ html, body {
     overflow-x: hidden;
 }
 
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
 .main-content {
+    flex: 1 0 auto;
     min-height: calc(100vh - 160px);
     padding: 100px 0 40px 0;
 }
+
+/* Footer positioning - ensures footer stays at bottom without overlapping */
+footer {
+    flex-shrink: 0;
+    margin-top: auto;
+    width: 100%;
+}
+
+/* Wrapper for pages without explicit main-content class */
+body > section:first-of-type {
+    padding-top: 80px;
+}
+
+body > nav ~ section:first-of-type,
+body > nav ~ section:first-child {
+    padding-top: 100px;
+}
+
+/* Ensure all sections before footer have proper spacing */
+section:not(.hero):not(#featured-section):not(#dedicated-section) {
+    flex: 1 0 auto;
+}
+
+/* Specific page content wrappers */
+.container,
+.container-fluid {
+    flex: 1 0 auto;
+}
+
+/* Prevent footer overlap with content */
+body > *:not(footer):not(.navbar) {
+    margin-bottom: 0;
+}
+
+body > section:last-of-type:not(footer) {
+    margin-bottom: 40px;
+}
+
+/* Specific overrides for pages with unique layouts */
+.hero,
+#featured-section,
+#showcase-section,
+#dedicated-section,
+.about-us,
+.checkout-container,
+.cart-container,
+.account-container {
+    flex: 0 1 auto;
+}
+
 
 /* Navbar improvements */
 .navbar {
@@ -464,6 +521,15 @@ html, body {
         font-weight: bold;
         color: white;
         margin-left: 0.5rem;
+    }
+    
+    /* Footer adjustments for mobile */
+    footer {
+        padding: 30px 0 15px 0;
+    }
+    
+    body > section:last-of-type:not(footer) {
+        margin-bottom: 20px;
     }
 }
 
