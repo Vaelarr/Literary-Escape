@@ -47,6 +47,8 @@
             <li><a href="#" class="menu-link archived-link" data-section="archived-books">Archived Books</a></li>
             <li><a href="#" class="menu-link archived-link" data-section="archived-users">Archived Users</a></li>
             <li><a href="#" class="menu-link archived-link" data-section="archived-orders">Archived Orders</a></li>
+            <li class="menu-separator">System</li>
+            <li><a href="#" class="menu-link" data-section="audit-trail">Audit Trail</a></li>
             <li><a href="#" class="menu-link" data-section="settings">Security & Settings</a></li>
         </ul>
 
@@ -433,26 +435,90 @@
 
         <!-- Settings Section -->
         <div id="settings-section" class="content-section">
+            <h2 class="section-title">
+                <i class="fas fa-shield-alt me-2"></i>Security & Settings
+            </h2>
+            
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                <!-- Admin Information -->
                 <div>
-                    <h2 class="section-title">LOGO</h2>
+                    <h3 class="section-title" style="font-size: 1.1rem; margin-bottom: 20px;">
+                        <i class="fas fa-user-shield me-2"></i>Admin Information
+                    </h3>
                     <div class="content-card">
-                        <div class="logo-upload-area">
-                            <div>LOGO IMG</div>
+                        <div style="display: flex; flex-direction: column; gap: 15px;">
+                            <div>
+                                <label style="color: rgba(255,255,255,0.6); font-size: 0.85rem; display: block; margin-bottom: 5px;">Username</label>
+                                <div style="color: white; font-size: 1rem;" id="adminUsername">Loading...</div>
+                            </div>
+                            <div>
+                                <label style="color: rgba(255,255,255,0.6); font-size: 0.85rem; display: block; margin-bottom: 5px;">Email</label>
+                                <div style="color: white; font-size: 1rem;" id="adminEmail">Loading...</div>
+                            </div>
+                            <div>
+                                <label style="color: rgba(255,255,255,0.6); font-size: 0.85rem; display: block; margin-bottom: 5px;">Full Name</label>
+                                <div style="color: white; font-size: 1rem;" id="adminFullName">Loading...</div>
+                            </div>
+                            <div>
+                                <label style="color: rgba(255,255,255,0.6); font-size: 0.85rem; display: block; margin-bottom: 5px;">Role</label>
+                                <div style="color: white; font-size: 1rem;">
+                                    <span class="badge bg-success">Administrator</span>
+                                </div>
+                            </div>
                         </div>
-                        <button class="btn-change">CHANGE</button>
                     </div>
                 </div>
                 
+                <!-- Change Password -->
                 <div>
-                    <h2 class="section-title">Permissions</h2>
-                    <div class="permission-card">
-                        <h4 style="color: white; margin-bottom: 20px;">Admin name</h4>
-                        <div style="color: rgba(255,255,255,0.7); margin-bottom: 15px;">Access</div>
-                        <div class="permission-item">Full Access</div>
-                        <div class="permission-item">Books Management</div>
-                        <div class="permission-item">User Management</div>
-                        <div class="permission-item">Orders Management</div>
+                    <h3 class="section-title" style="font-size: 1.1rem; margin-bottom: 20px;">
+                        <i class="fas fa-key me-2"></i>Change Password
+                    </h3>
+                    <div class="content-card">
+                        <form id="changePasswordForm" onsubmit="handleChangePassword(event)">
+                            <div class="mb-3">
+                                <label class="form-label">Current Password</label>
+                                <input type="password" class="form-control" id="currentPassword" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">New Password</label>
+                                <input type="password" class="form-control" id="newPassword" required minlength="6">
+                                <small class="text-muted">Minimum 6 characters</small>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Confirm New Password</label>
+                                <input type="password" class="form-control" id="confirmPassword" required>
+                            </div>
+                            <button type="submit" class="btn-add" style="width: 100%;">
+                                <i class="fas fa-lock me-2"></i>Update Password
+                            </button>
+                        </form>
+                        <div id="passwordChangeMessage" style="margin-top: 15px;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- System Information -->
+            <div style="margin-top: 30px;">
+                <h3 class="section-title" style="font-size: 1.1rem; margin-bottom: 20px;">
+                    <i class="fas fa-info-circle me-2"></i>System Information
+                </h3>
+                <div class="content-card">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                        <div>
+                            <label style="color: rgba(255,255,255,0.6); font-size: 0.85rem; display: block; margin-bottom: 5px;">Database Status</label>
+                            <div style="color: white; font-size: 1rem;">
+                                <span id="dbStatusInfo" class="badge bg-secondary">Checking...</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label style="color: rgba(255,255,255,0.6); font-size: 0.85rem; display: block; margin-bottom: 5px;">Platform</label>
+                            <div style="color: white; font-size: 1rem;">Literary Escape Admin v1.0</div>
+                        </div>
+                        <div>
+                            <label style="color: rgba(255,255,255,0.6); font-size: 0.85rem; display: block; margin-bottom: 5px;">Last Updated</label>
+                            <div style="color: white; font-size: 1rem;">November 2025</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -619,6 +685,67 @@
                 </div>
                 <nav aria-label="Archived Orders pagination">
                     <ul class="pagination" id="archivedOrdersPagination">
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audit Trail Section -->
+    <div id="audit-trail-section" class="content-section">
+        <h2 class="section-title">
+            <i class="fas fa-history me-2"></i>Audit Trail
+            <div style="display: inline-flex; gap: 15px; margin-left: 20px;">
+                <select class="category-filter" id="auditEntityFilter" title="Filter by entity">
+                    <option value="all">All Entities</option>
+                    <option value="book">Books</option>
+                    <option value="user">Users</option>
+                    <option value="order">Orders</option>
+                    <option value="voucher">Vouchers</option>
+                    <option value="admin">Admins</option>
+                </select>
+                <select class="category-filter" id="auditActionFilter" title="Filter by action">
+                    <option value="all">All Actions</option>
+                    <option value="CREATE">Create</option>
+                    <option value="UPDATE">Update</option>
+                    <option value="DELETE">Delete</option>
+                    <option value="ARCHIVE">Archive</option>
+                    <option value="UNARCHIVE">Unarchive</option>
+                    <option value="LOGIN">Login</option>
+                    <option value="LOGOUT">Logout</option>
+                </select>
+            </div>
+        </h2>
+        <div class="content-card">
+            <div style="margin-bottom: 15px; color: rgba(255,255,255,0.7);">
+                <span id="auditCount">Loading...</span> audit logs found
+            </div>
+            <div class="table-container scrollable-content">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 120px;">Date & Time</th>
+                            <th style="width: 100px;">Action</th>
+                            <th style="width: 80px;">Entity</th>
+                            <th>Entity Name</th>
+                            <th style="width: 150px;">Admin</th>
+                            <th>Description</th>
+                            <th style="width: 80px;">Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="auditTrailTable">
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: rgba(255,255,255,0.5);">Loading audit trail...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    Showing <span id="auditRange">0</span> logs
+                </div>
+                <nav aria-label="Audit Trail pagination">
+                    <ul class="pagination" id="auditPagination">
                     </ul>
                 </nav>
             </div>
@@ -993,6 +1120,67 @@
         </div>
     </div>
 
+    <!-- Audit Trail Details Modal -->
+    <div class="modal fade" id="auditDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Audit Log Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <h6 class="text-white mb-2">Action Information</h6>
+                            <div class="card bg-dark text-white p-3">
+                                <p class="mb-2"><strong>Action Type:</strong> <span id="auditDetailAction" class="badge bg-primary">-</span></p>
+                                <p class="mb-2"><strong>Entity Type:</strong> <span id="auditDetailEntity">-</span></p>
+                                <p class="mb-2"><strong>Entity Name:</strong> <span id="auditDetailEntityName">-</span></p>
+                                <p class="mb-0"><strong>Timestamp:</strong> <span id="auditDetailTimestamp">-</span></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-white mb-2">Admin Information</h6>
+                            <div class="card bg-dark text-white p-3">
+                                <p class="mb-2"><strong>Username:</strong> <span id="auditDetailAdminUsername">-</span></p>
+                                <p class="mb-2"><strong>Email:</strong> <span id="auditDetailAdminEmail">-</span></p>
+                                <p class="mb-2"><strong>IP Address:</strong> <span id="auditDetailIP">-</span></p>
+                                <p class="mb-0"><strong>User Agent:</strong> <span id="auditDetailUserAgent" style="font-size: 0.85rem;">-</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <h6 class="text-white mb-2">Description</h6>
+                            <div class="card bg-dark text-white p-3">
+                                <p class="mb-0" id="auditDetailDescription">-</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row" id="auditChangesSection" style="display: none;">
+                        <div class="col-md-6">
+                            <h6 class="text-white mb-2">Old Value</h6>
+                            <div class="card bg-dark text-white p-3" style="max-height: 300px; overflow-y: auto;">
+                                <pre id="auditDetailOldValue" style="margin: 0; color: #ff7675; font-size: 0.85rem; white-space: pre-wrap;">-</pre>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="text-white mb-2">New Value</h6>
+                            <div class="card bg-dark text-white p-3" style="max-height: 300px; overflow-y: auto;">
+                                <pre id="auditDetailNewValue" style="margin: 0; color: #00b894; font-size: 0.85rem; white-space: pre-wrap;">-</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="./js/api-client.js"></script>
     <script>
@@ -1009,6 +1197,7 @@
         let currentArchivedBooksPage = 1;
         let currentArchivedUsersPage = 1;
         let currentArchivedOrdersPage = 1;
+        let currentAuditPage = 1;
         
         // Pagination totals
         let totalBooksPages = 1;
@@ -1017,23 +1206,28 @@
         let totalArchivedBooksPages = 1;
         let totalArchivedUsersPages = 1;
         let totalArchivedOrdersPages = 1;
+        let totalAuditPages = 1;
         let totalBooksItems = 0;
         let totalUsersItems = 0;
         let totalOrdersItems = 0;
         let totalArchivedBooksItems = 0;
         let totalArchivedUsersItems = 0;
         let totalArchivedOrdersItems = 0;
+        let totalAuditItems = 0;
 
         // Archive data storage
         let archivedBooks = [];
         let archivedUsers = [];
         let archivedOrders = [];
+        let auditLogs = [];
 
         // Filter states
         let currentBookCategory = 'all';
         let currentBookSearch = '';
         let currentOrderStatus = 'all';
         let currentOrderSearch = '';
+        let currentAuditEntity = 'all';
+        let currentAuditAction = 'all';
 
         // Database connection management
         let dbConnectionStatus = false;
@@ -1050,6 +1244,7 @@
             setupNavigation();
             setupCategoryFilter();
             setupOrderFilters();
+            setupAuditFilters();
             setupCategoryGenreToggle();
             setupMobileMenu();
             
@@ -3641,6 +3836,336 @@
         document.querySelector('[data-section="vouchers"]')?.addEventListener('click', function() {
             loadVouchersFromAPI(1);
         });
+        
+        // ==================== END VOUCHER MANAGEMENT ====================
+        
+        // ==================== SETTINGS & SECURITY ====================
+        
+        // Load admin information in settings section
+        async function loadAdminSettings() {
+            try {
+                const adminData = JSON.parse(localStorage.getItem('adminData'));
+                
+                if (adminData) {
+                    document.getElementById('adminUsername').textContent = adminData.username || 'N/A';
+                    document.getElementById('adminEmail').textContent = adminData.email || 'N/A';
+                    document.getElementById('adminFullName').textContent = 
+                        `${adminData.first_name || ''} ${adminData.last_name || ''}`.trim() || 'N/A';
+                }
+                
+                // Update database status in settings
+                const dbStatus = document.getElementById('dbStatusInfo');
+                if (dbConnectionStatus) {
+                    dbStatus.textContent = 'Connected';
+                    dbStatus.className = 'badge bg-success';
+                } else {
+                    dbStatus.textContent = 'Disconnected';
+                    dbStatus.className = 'badge bg-danger';
+                }
+            } catch (error) {
+                console.error('Error loading admin settings:', error);
+            }
+        }
+        
+        // Handle password change
+        async function handleChangePassword(event) {
+            event.preventDefault();
+            
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const messageDiv = document.getElementById('passwordChangeMessage');
+            
+            // Clear previous messages
+            messageDiv.innerHTML = '';
+            
+            // Validate new password
+            if (newPassword.length < 6) {
+                messageDiv.innerHTML = '<div class="alert alert-danger">New password must be at least 6 characters long.</div>';
+                return;
+            }
+            
+            // Check if passwords match
+            if (newPassword !== confirmPassword) {
+                messageDiv.innerHTML = '<div class="alert alert-danger">New passwords do not match.</div>';
+                return;
+            }
+            
+            // Check if new password is different from current
+            if (currentPassword === newPassword) {
+                messageDiv.innerHTML = '<div class="alert alert-warning">New password must be different from current password.</div>';
+                return;
+            }
+            
+            try {
+                // Get admin data from localStorage
+                const adminData = JSON.parse(localStorage.getItem('adminData'));
+                if (!adminData || !adminData.id) {
+                    throw new Error('Admin session not found. Please log in again.');
+                }
+                
+                // Call API to change password
+                const response = await api.adminChangePassword({
+                    adminId: adminData.id,
+                    currentPassword: currentPassword,
+                    newPassword: newPassword
+                });
+                
+                if (response && response.success) {
+                    messageDiv.innerHTML = '<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>Password changed successfully!</div>';
+                    document.getElementById('changePasswordForm').reset();
+                    
+                    // Optional: Log out after password change
+                    setTimeout(() => {
+                        if (confirm('Password changed successfully! You will be logged out. Click OK to continue.')) {
+                            logoutAdmin(new Event('click'));
+                        }
+                    }, 2000);
+                } else {
+                    throw new Error(response.message || 'Failed to change password');
+                }
+            } catch (error) {
+                console.error('Error changing password:', error);
+                messageDiv.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-circle me-2"></i>${error.message || 'Failed to change password. Please check your current password.'}</div>`;
+            }
+        }
+        
+        // Load settings when settings section is opened
+        document.querySelector('[data-section="settings"]')?.addEventListener('click', function() {
+            loadAdminSettings();
+        });
+        
+        // ==================== END SETTINGS & SECURITY ====================
+        
+        // ==================== AUDIT TRAIL ====================
+        
+        // Load audit trail from API
+        async function loadAuditTrailFromAPI(page = currentAuditPage, entityFilter = currentAuditEntity, actionFilter = currentAuditAction) {
+            try {
+                currentAuditPage = page;
+                currentAuditEntity = entityFilter;
+                currentAuditAction = actionFilter;
+                
+                let response;
+                
+                // Call appropriate API method based on filters
+                if (entityFilter !== 'all') {
+                    response = await api.adminGetAuditTrailByEntity(entityFilter, page, ITEMS_PER_PAGE);
+                } else if (actionFilter !== 'all') {
+                    response = await api.adminGetAuditTrailByAction(actionFilter, page, ITEMS_PER_PAGE);
+                } else {
+                    response = await api.adminGetAllAuditTrail(page, ITEMS_PER_PAGE);
+                }
+                
+                if (response && response.logs) {
+                    auditLogs = response.logs;
+                    totalAuditItems = response.total || auditLogs.length;
+                    totalAuditPages = Math.ceil(totalAuditItems / ITEMS_PER_PAGE);
+                    
+                    displayAuditTrail();
+                    updateAuditPagination();
+                    
+                    // Update count display
+                    document.getElementById('auditCount').textContent = totalAuditItems;
+                } else {
+                    console.warn('No audit logs found');
+                    auditLogs = [];
+                    displayAuditTrail();
+                    document.getElementById('auditCount').textContent = '0';
+                }
+            } catch (error) {
+                console.error('Error loading audit trail:', error);
+                showErrorMessage('Failed to load audit trail');
+                document.getElementById('auditTrailTable').innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: rgba(255,255,255,0.5);">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.3; color: #ff6b6b;"></i>
+                            Error loading audit trail
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
+        // Display audit trail in table
+        function displayAuditTrail() {
+            const tbody = document.getElementById('auditTrailTable');
+            
+            if (!auditLogs || auditLogs.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: rgba(255,255,255,0.5); padding: 40px;">
+                            <i class="fas fa-inbox" style="font-size: 3rem; display: block; margin-bottom: 15px; opacity: 0.2;"></i>
+                            No audit logs found
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = auditLogs.map(log => {
+                const actionColor = getActionColor(log.action_type);
+                const entityIcon = getEntityIcon(log.entity_type);
+                const timestamp = new Date(log.created_at).toLocaleString();
+                
+                return `
+                    <tr>
+                        <td style="font-size: 0.85rem;">${timestamp}</td>
+                        <td><span class="badge" style="background: ${actionColor};">${log.action_type}</span></td>
+                        <td><i class="${entityIcon}" style="margin-right: 5px;"></i>${log.entity_type || '-'}</td>
+                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">${log.entity_name || '-'}</td>
+                        <td style="font-size: 0.9rem;">
+                            <div><strong>${log.admin_username || 'Unknown'}</strong></div>
+                            <small style="color: rgba(255,255,255,0.6);">${log.admin_email || ''}</small>
+                        </td>
+                        <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; font-size: 0.9rem;">
+                            ${log.description || '-'}
+                        </td>
+                        <td>
+                            <button class="btn-edit" onclick="viewAuditDetails(${log.id})" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        // Get color for action type
+        function getActionColor(action) {
+            const colors = {
+                'CREATE': '#00b894',
+                'UPDATE': '#74b9ff',
+                'DELETE': '#ff7675',
+                'ARCHIVE': '#fdcb6e',
+                'UNARCHIVE': '#a29bfe',
+                'LOGIN': '#55efc4',
+                'LOGOUT': '#dfe6e9'
+            };
+            return colors[action] || '#6c5ce7';
+        }
+        
+        // Get icon for entity type
+        function getEntityIcon(entity) {
+            const icons = {
+                'book': 'fas fa-book',
+                'user': 'fas fa-user',
+                'order': 'fas fa-shopping-cart',
+                'voucher': 'fas fa-ticket-alt',
+                'admin': 'fas fa-user-shield'
+            };
+            return icons[entity] || 'fas fa-cube';
+        }
+        
+        // View audit details in modal
+        function viewAuditDetails(logId) {
+            const log = auditLogs.find(l => l.id === logId);
+            if (!log) return;
+            
+            // Populate modal fields
+            document.getElementById('auditDetailAction').textContent = log.action_type;
+            document.getElementById('auditDetailAction').style.background = getActionColor(log.action_type);
+            document.getElementById('auditDetailEntity').textContent = log.entity_type || '-';
+            document.getElementById('auditDetailEntityName').textContent = log.entity_name || '-';
+            document.getElementById('auditDetailTimestamp').textContent = new Date(log.created_at).toLocaleString();
+            document.getElementById('auditDetailAdminUsername').textContent = log.admin_username || 'Unknown';
+            document.getElementById('auditDetailAdminEmail').textContent = log.admin_email || '-';
+            document.getElementById('auditDetailIP').textContent = log.ip_address || '-';
+            document.getElementById('auditDetailUserAgent').textContent = log.user_agent || '-';
+            document.getElementById('auditDetailDescription').textContent = log.description || '-';
+            
+            // Show/hide changes section based on whether old/new values exist
+            const changesSection = document.getElementById('auditChangesSection');
+            if (log.old_value || log.new_value) {
+                changesSection.style.display = 'block';
+                
+                // Format and display old/new values
+                try {
+                    const oldValue = log.old_value ? JSON.stringify(JSON.parse(log.old_value), null, 2) : '-';
+                    const newValue = log.new_value ? JSON.stringify(JSON.parse(log.new_value), null, 2) : '-';
+                    
+                    document.getElementById('auditDetailOldValue').textContent = oldValue;
+                    document.getElementById('auditDetailNewValue').textContent = newValue;
+                } catch (e) {
+                    // If not JSON, display as plain text
+                    document.getElementById('auditDetailOldValue').textContent = log.old_value || '-';
+                    document.getElementById('auditDetailNewValue').textContent = log.new_value || '-';
+                }
+            } else {
+                changesSection.style.display = 'none';
+            }
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('auditDetailsModal'));
+            modal.show();
+        }
+        
+        // Update audit pagination
+        function updateAuditPagination() {
+            const pagination = document.getElementById('auditPagination');
+            if (!pagination) return;
+            
+            const start = (currentAuditPage - 1) * ITEMS_PER_PAGE + 1;
+            const end = Math.min(currentAuditPage * ITEMS_PER_PAGE, totalAuditItems);
+            
+            document.getElementById('auditRange').textContent = totalAuditItems > 0 ? `${start}-${end} of ${totalAuditItems}` : '0';
+            
+            let paginationHTML = '';
+            
+            // Previous button
+            paginationHTML += `
+                <li class="page-item ${currentAuditPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="loadAuditTrailFromAPI(${currentAuditPage - 1}); return false;">Previous</a>
+                </li>
+            `;
+            
+            // Page numbers
+            for (let i = 1; i <= totalAuditPages; i++) {
+                if (i === 1 || i === totalAuditPages || (i >= currentAuditPage - 2 && i <= currentAuditPage + 2)) {
+                    paginationHTML += `
+                        <li class="page-item ${i === currentAuditPage ? 'active' : ''}">
+                            <a class="page-link" href="#" onclick="loadAuditTrailFromAPI(${i}); return false;">${i}</a>
+                        </li>
+                    `;
+                } else if (i === currentAuditPage - 3 || i === currentAuditPage + 3) {
+                    paginationHTML += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
+                }
+            }
+            
+            // Next button
+            paginationHTML += `
+                <li class="page-item ${currentAuditPage === totalAuditPages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="loadAuditTrailFromAPI(${currentAuditPage + 1}); return false;">Next</a>
+                </li>
+            `;
+            
+            pagination.innerHTML = paginationHTML;
+        }
+        
+        // Setup audit trail filters
+        function setupAuditFilters() {
+            const entityFilter = document.getElementById('auditEntityFilter');
+            const actionFilter = document.getElementById('auditActionFilter');
+            
+            if (entityFilter) {
+                entityFilter.addEventListener('change', function() {
+                    loadAuditTrailFromAPI(1, this.value, currentAuditAction);
+                });
+            }
+            
+            if (actionFilter) {
+                actionFilter.addEventListener('change', function() {
+                    loadAuditTrailFromAPI(1, currentAuditEntity, this.value);
+                });
+            }
+        }
+        
+        // Load audit trail when section is opened
+        document.querySelector('[data-section="audit-trail"]')?.addEventListener('click', function() {
+            loadAuditTrailFromAPI(1);
+        });
+        
+        // ==================== END AUDIT TRAIL ====================
         
         // ==================== END VOUCHER MANAGEMENT ====================
         
