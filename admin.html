@@ -73,28 +73,36 @@
                     <i class="fas fa-bars"></i>
                 </button>
                 <div class="user-menu">
-                    <span id="dbStatus" class="badge bg-secondary">DB: checking...</span>
-                    <div class="notification-icon" id="auditTrailBell">
+                    <span id="dbStatus" class="badge bg-secondary" style="margin-right: 12px;">DB: checking...</span>
+                    <div class="notification-icon" id="notificationDropdown"
+                        style="position: relative; cursor: pointer;">
                         <i class="fas fa-bell"></i>
-                        <span class="badge" id="auditTrailCount">0</span>
-                        <!-- Audit Trail Dropdown -->
-                        <div class="notification-dropdown" id="auditTrailDropdown">
-                            <div class="notification-header">
-                                <h4><i class="fas fa-history me-2"></i>Activity Log</h4>
-                                <span class="mark-all-read" id="viewAllAudit" style="cursor: pointer;">View All</span>
+                        <span class="badge" id="notificationCount">0</span>
+
+                        <!-- Notification Dropdown -->
+                        <div id="notificationPanel"
+                            style="display: none; position: absolute; right: 0; top: 100%; margin-top: 10px; width: 380px; max-height: 500px; background: #1a3329; border: 1px solid rgba(106, 156, 137, 0.3); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000;">
+                            <div
+                                style="padding: 15px; border-bottom: 1px solid rgba(106, 156, 137, 0.2); display: flex; justify-content: space-between; align-items: center;">
+                                <h6 style="margin: 0; color: white; font-size: 0.95rem;">
+                                    <i class="fas fa-history me-2"></i>Recent Activity
+                                </h6>
+                                <button onclick="clearAllNotifications()"
+                                    style="background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; font-size: 0.85rem;"
+                                    title="Clear all">
+                                    <i class="fas fa-trash-alt"></i> Clear
+                                </button>
                             </div>
-                            <div class="notification-list" id="auditTrailList">
-                                <div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.5);">
-                                    <i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i>
-                                    <p style="margin-top: 10px;">Loading activity...</p>
+                            <div id="notificationList" style="max-height: 420px; overflow-y: auto;">
+                                <div style="padding: 40px 20px; text-align: center; color: rgba(255,255,255,0.5);">
+                                    <i class="fas fa-bell-slash"
+                                        style="font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.3;"></i>
+                                    No recent activity
                                 </div>
-                            </div>
-                            <div class="notification-footer"
-                                style="padding: 10px; text-align: center; border-top: 1px solid rgba(255,255,255,0.2);">
-                                <small style="color: rgba(255,255,255,0.6);">Last 10 admin activities</small>
                             </div>
                         </div>
                     </div>
+                    <div class="user-avatar"></div>
                 </div>
             </div>
 
@@ -5233,6 +5241,239 @@
         });
 
         // ==================== END AUDIT TRAIL ====================
+
+        // ==================== NOTIFICATION SYSTEM ====================
+
+        let notifications = [];
+        const MAX_NOTIFICATIONS = 50; // Keep last 50 notifications
+
+        // Toggle notification panel
+        document.getElementById('notificationDropdown')?.addEventListener('click', function (e) {
+            e.stopPropagation();
+            const panel = document.getElementById('notificationPanel');
+            if (panel.style.display === 'none') {
+                panel.style.display = 'block';
+                // Mark all as read
+                notifications.forEach(n => n.read = true);
+                updateNotificationBadge();
+                saveNotifications();
+            } else {
+                panel.style.display = 'none';
+            }
+        });
+
+        // Close notification panel when clicking outside
+        document.addEventListener('click', function (e) {
+            const panel = document.getElementById('notificationPanel');
+            const dropdown = document.getElementById('notificationDropdown');
+            if (panel && !dropdown.contains(e.target)) {
+                panel.style.display = 'none';
+            }
+        });
+
+        // Add notification
+        function addNotification(action, entity, entityName, description = '') {
+            const adminData = JSON.parse(localStorage.getItem('adminData') || '{}');
+
+            const notification = {
+                id: Date.now(),
+                action: action,
+                entity: entity,
+                entityName: entityName,
+                description: description,
+                adminUsername: adminData.username || 'Admin',
+                timestamp: new Date().toISOString(),
+                read: false
+            };
+
+            notifications.unshift(notification);
+
+            // Keep only last MAX_NOTIFICATIONS
+            if (notifications.length > MAX_NOTIFICATIONS) {
+                notifications = notifications.slice(0, MAX_NOTIFICATIONS);
+            }
+
+            updateNotificationUI();
+            saveNotifications();
+
+            // Show toast notification
+            showNotificationToast(action, entityName);
+        }
+
+        // Update notification UI
+        function updateNotificationUI() {
+            const list = document.getElementById('notificationList');
+            if (!list) return;
+
+            if (notifications.length === 0) {
+                list.innerHTML = `
+                    <div style="padding: 40px 20px; text-align: center; color: rgba(255,255,255,0.5);">
+                        <i class="fas fa-bell-slash" style="font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.3;"></i>
+                        No recent activity
+                    </div>
+                `;
+                return;
+            }
+
+            list.innerHTML = notifications.map(notif => {
+                const actionColor = getActionColor(notif.action);
+                const entityIcon = getEntityIcon(notif.entity);
+                const timeAgo = getTimeAgo(new Date(notif.timestamp));
+                const isUnread = !notif.read;
+
+                return `
+                    <div style="padding: 12px 15px; border-bottom: 1px solid rgba(106, 156, 137, 0.1); ${isUnread ? 'background: rgba(106, 156, 137, 0.05);' : ''} transition: background 0.2s;" 
+                         onmouseenter="this.style.background='rgba(106, 156, 137, 0.08)'" 
+                         onmouseleave="this.style.background='${isUnread ? 'rgba(106, 156, 137, 0.05)' : 'transparent'}'">
+                        <div style="display: flex; align-items: start; gap: 10px;">
+                            <div style="flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: ${actionColor}; display: flex; align-items: center; justify-content: center;">
+                                <i class="${entityIcon}" style="font-size: 0.85rem; color: white;"></i>
+                            </div>
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                    <span style="font-weight: 600; color: white; font-size: 0.9rem;">${notif.action}</span>
+                                    <span style="background: ${actionColor}; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.7rem; text-transform: uppercase;">${notif.entity}</span>
+                                </div>
+                                <div style="color: rgba(255,255,255,0.85); font-size: 0.85rem; margin-bottom: 4px; word-break: break-word;">
+                                    <strong>${notif.entityName}</strong>
+                                </div>
+                                ${notif.description ? `<div style="color: rgba(255,255,255,0.6); font-size: 0.8rem; margin-bottom: 6px;">${notif.description}</div>` : ''}
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span style="color: rgba(255,255,255,0.5); font-size: 0.75rem;">
+                                        <i class="fas fa-user" style="margin-right: 4px;"></i>${notif.adminUsername}
+                                    </span>
+                                    <span style="color: rgba(255,255,255,0.5); font-size: 0.75rem;">
+                                        <i class="fas fa-clock" style="margin-right: 4px;"></i>${timeAgo}
+                                    </span>
+                                </div>
+                            </div>
+                            ${isUnread ? '<div style="flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%; background: #00b894;"></div>' : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            updateNotificationBadge();
+        }
+
+        // Update notification badge count
+        function updateNotificationBadge() {
+            const badge = document.getElementById('notificationCount');
+            if (!badge) return;
+
+            const unreadCount = notifications.filter(n => !n.read).length;
+            badge.textContent = unreadCount;
+            badge.style.display = unreadCount > 0 ? 'block' : 'none';
+        }
+
+        // Show toast notification
+        function showNotificationToast(action, entityName) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: linear-gradient(135deg, #4a6b5a, #6a9c89);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+                min-width: 300px;
+            `;
+
+            toast.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-check-circle" style="font-size: 1.2rem;"></i>
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 2px;">${action} Successful</div>
+                        <div style="font-size: 0.85rem; opacity: 0.9;">${entityName}</div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Get time ago text
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+
+            if (seconds < 60) return 'Just now';
+            if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+            if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+            if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+            return date.toLocaleDateString();
+        }
+
+        // Clear all notifications
+        function clearAllNotifications() {
+            if (confirm('Clear all notifications?')) {
+                notifications = [];
+                updateNotificationUI();
+                saveNotifications();
+            }
+        }
+
+        // Save notifications to localStorage
+        function saveNotifications() {
+            try {
+                localStorage.setItem('adminNotifications', JSON.stringify(notifications));
+            } catch (e) {
+                console.error('Failed to save notifications:', e);
+            }
+        }
+
+        // Load notifications from localStorage
+        function loadNotifications() {
+            try {
+                const saved = localStorage.getItem('adminNotifications');
+                if (saved) {
+                    notifications = JSON.parse(saved);
+                    updateNotificationUI();
+                }
+            } catch (e) {
+                console.error('Failed to load notifications:', e);
+                notifications = [];
+            }
+        }
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Load notifications on init
+        loadNotifications();
+
+        // ==================== END NOTIFICATION SYSTEM ====================
 
         // ==================== SECURITY & SETTINGS FUNCTIONS ====================
 
