@@ -1240,14 +1240,14 @@
             // Check if API is available
             if (!window.api) {
                 console.log('API not available, showing login required message');
-                showLoginRequired();
+                showLoginRequiredCard();
                 return;
             }
 
             // Check if user is logged in
             if (!window.api.isLoggedIn()) {
                 console.log('User not logged in, showing login required message');
-                showLoginRequired();
+                showLoginRequiredCard();
                 return;
             }
 
@@ -1268,11 +1268,11 @@
 
         // Show login required message (alternative function for compatibility)
         function displayLoginRequired() {
-            showLoginRequired();
+            showLoginRequiredCard();
         }
 
         // Show login required message
-        function showLoginRequired() {
+        function showLoginRequiredCard() {
             hideAllMessages();
             document.getElementById('loginRequiredMessage').classList.remove('d-none');
             document.getElementById('loginRequiredMessage').classList.add('d-block');
@@ -1286,7 +1286,7 @@
         }
 
         // Show error message
-        function showError() {
+        function showErrorMessage() {
             hideAllMessages();
             document.getElementById('errorMessage').classList.remove('d-none');
             document.getElementById('errorMessage').classList.add('d-block');
@@ -1356,10 +1356,10 @@
                     // Token expired or invalid
                     console.log('Authentication error, logging out...');
                     window.api.logout();
-                    showLoginRequired();
+                    showLoginRequiredCard();
                 } else {
                     console.log('General error occurred, showing error message');
-                    showError();
+                    showErrorMessage();
                 }
             }
         }
@@ -1451,7 +1451,7 @@
             try {
                 if (!window.api || !window.api.isLoggedIn()) {
                     console.log('User not logged in, showing alert');
-                    showLoginRequired();
+                    showLoginRequiredCard();
                     return;
                 }
 
@@ -1481,7 +1481,7 @@
             try {
                 if (!window.api || !window.api.isLoggedIn()) {
                     console.log('User not logged in, showing alert');
-                    showLoginRequired();
+                    showLoginRequiredCard();
                     return;
                 }
 
