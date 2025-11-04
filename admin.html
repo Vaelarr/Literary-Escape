@@ -74,18 +74,43 @@
                 </button>
                 <div class="user-menu">
                     <span id="dbStatus" class="badge bg-secondary" style="margin-right: 12px;">DB: checking...</span>
+                    
+                    <!-- Audit Trail Dropdown (Real-time activity from DB) -->
+                    <div class="notification-icon" id="auditTrailBell" style="position: relative; cursor: pointer; margin-right: 15px;">
+                        <i class="fas fa-history"></i>
+                        <span class="badge" id="auditTrailCount">0</span>
+                        <!-- Audit Trail Dropdown -->
+                        <div class="notification-dropdown" id="auditTrailDropdown">
+                            <div class="notification-header">
+                                <h4><i class="fas fa-history me-2"></i>Activity Log</h4>
+                                <span class="mark-all-read" id="viewAllAudit" style="cursor: pointer;">View All</span>
+                            </div>
+                            <div class="notification-list" id="auditTrailList">
+                                <div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.5);">
+                                    <i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i>
+                                    <p style="margin-top: 10px;">Loading activity...</p>
+                                </div>
+                            </div>
+                            <div class="notification-footer"
+                                style="padding: 10px; text-align: center; border-top: 1px solid rgba(255,255,255,0.2);">
+                                <small style="color: rgba(255,255,255,0.6);">Last 10 admin activities</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notification Dropdown (Local notifications) -->
                     <div class="notification-icon" id="notificationDropdown"
                         style="position: relative; cursor: pointer;">
                         <i class="fas fa-bell"></i>
                         <span class="badge" id="notificationCount">0</span>
 
-                        <!-- Notification Dropdown -->
+                        <!-- Notification Panel -->
                         <div id="notificationPanel"
                             style="display: none; position: absolute; right: 0; top: 100%; margin-top: 10px; width: 380px; max-height: 500px; background: #1a3329; border: 1px solid rgba(106, 156, 137, 0.3); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000;">
                             <div
                                 style="padding: 15px; border-bottom: 1px solid rgba(106, 156, 137, 0.2); display: flex; justify-content: space-between; align-items: center;">
                                 <h6 style="margin: 0; color: white; font-size: 0.95rem;">
-                                    <i class="fas fa-history me-2"></i>Recent Activity
+                                    <i class="fas fa-bell me-2"></i>Recent Activity
                                 </h6>
                                 <button onclick="clearAllNotifications()"
                                     style="background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; font-size: 0.85rem;"
@@ -2539,6 +2564,11 @@
                     bootstrap.Modal.getInstance(document.getElementById('addBookModal')).hide();
                     document.getElementById('bookForm').reset();
 
+                    // Add notification
+                    const action = id ? 'UPDATE' : 'CREATE';
+                    const bookTitle = payload.title;
+                    addNotification(action, 'book', bookTitle, `${action === 'UPDATE' ? 'Updated' : 'Added'} book to inventory`);
+
                     // Refresh all data including dashboard
                     await refreshAllData();
 
@@ -2565,6 +2595,9 @@
                 const result = await api.adminUpdateOrder(orderId, { status });
 
                 if (result) {
+                    // Add notification
+                    addNotification('UPDATE', 'order', `Order #${orderId}`, `Status changed to ${status}`);
+
                     // Refresh all data including dashboard statistics
                     await refreshAllData();
 
@@ -2632,6 +2665,16 @@
                 if (result) {
                     showSuccessMessage(`Book ${action}d successfully!`);
 
+                    // Add notification
+                    const actionType = isUnarchive ? 'UNARCHIVE' : 'ARCHIVE';
+                    const bookTitle = result.title || `Book #${bookId}`;
+                    addNotification(
+                        actionType,
+                        'book',
+                        bookTitle,
+                        `Book "${bookTitle}" was ${action}d successfully`
+                    );
+
                     // Refresh all data including dashboard
                     await refreshAllData();
 
@@ -2671,6 +2714,16 @@
                 if (result) {
                     showSuccessMessage(`User ${action}d successfully!`);
 
+                    // Add notification
+                    const actionType = isUnarchive ? 'UNARCHIVE' : 'ARCHIVE';
+                    const userName = result.username || `User #${userId}`;
+                    addNotification(
+                        actionType,
+                        'user',
+                        userName,
+                        `User "${userName}" was ${action}d successfully`
+                    );
+
                     // Refresh all data including dashboard
                     await refreshAllData();
 
@@ -2709,6 +2762,15 @@
 
                 if (result) {
                     showSuccessMessage(`Order ${action}d successfully!`);
+
+                    // Add notification
+                    const actionType = isUnarchive ? 'UNARCHIVE' : 'ARCHIVE';
+                    addNotification(
+                        actionType,
+                        'order',
+                        `Order #${orderId}`,
+                        `Order #${orderId} was ${action}d successfully`
+                    );
 
                     // Refresh all data including dashboard
                     await refreshAllData();
@@ -4205,6 +4267,29 @@
             if (!dropdown.contains(e.target) && !bell.contains(e.target)) {
                 dropdown.classList.remove('show');
             }
+        });
+
+        // Handle "View All" audit trail button
+        document.getElementById('viewAllAudit')?.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Close the dropdown
+            document.getElementById('auditTrailDropdown').classList.remove('show');
+            
+            // Switch to audit trail section
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.menu-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            document.getElementById('audit-trail-section').classList.add('active');
+            document.querySelector('[data-section="audit-trail"]').classList.add('active');
+            
+            // Load the full audit trail
+            loadAuditTrailFromAPI(1);
         });
 
         // ==================== ADMIN MANAGEMENT FUNCTIONS (SUPER ADMIN ONLY) ====================
