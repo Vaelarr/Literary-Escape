@@ -284,6 +284,31 @@ class APIClient {
         localStorage.removeItem('isAdminSession');
     }
 
+    // Password Reset Methods
+    async requestPasswordReset(email) {
+        console.log('Requesting password reset for:', email);
+        return this.makeRequest('/forgot-password', {
+            method: 'POST',
+            body: JSON.stringify({ email })
+        });
+    }
+
+    async resetPassword(token, newPassword) {
+        console.log('Resetting password with token');
+        return this.makeRequest('/reset-password', {
+            method: 'POST',
+            body: JSON.stringify({ token, newPassword })
+        });
+    }
+
+    async verifyResetToken(token) {
+        console.log('Verifying reset token');
+        return this.makeRequest('/verify-reset-token', {
+            method: 'POST',
+            body: JSON.stringify({ token })
+        });
+    }
+
     // Check if token is expired (24 hour expiration)
     // NOTE: Admin sessions do not expire based on time - only on explicit logout
     isTokenExpired() {

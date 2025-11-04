@@ -1620,6 +1620,12 @@
                 totalArchivedBooksPages = result.pagination?.totalPages || 1;
                 totalArchivedBooksItems = result.pagination?.totalItems || archivedBooks.length;
                 
+                // Update the filter dropdown to show current selection
+                const categoryFilter = document.getElementById('archivedBookCategoryFilter');
+                if (categoryFilter && categoryFilter.value !== category) {
+                    categoryFilter.value = category;
+                }
+                
                 displayArchivedBooks(category);
                 
             } catch (error) {

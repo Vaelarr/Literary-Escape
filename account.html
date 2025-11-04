@@ -246,8 +246,28 @@
                             </div>
                             <button type="submit" class="btn btn-primary w-100">Login</button>
                         </form>
-                        <p class="text-center mt-3">
+                        <p class="text-center mt-3 mb-2">
+                            <a href="#" id="showForgotPassword" class="text-muted">Forgot Password?</a>
+                        </p>
+                        <p class="text-center mt-2">
                             Don't have an account? <a href="#" id="showSignup">Sign up</a>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Forgot Password Form -->
+                <div class="card d-none" style="margin-top: 100px;" id="forgotPasswordForm">
+                    <div class="card-body">
+                        <h3 class="card-title text-center mb-4">Reset Password</h3>
+                        <p class="text-center text-muted mb-4">Enter your email address and we'll send you a link to reset your password.</p>
+                        <form id="forgot-password-form">
+                            <div class="mb-3">
+                                <input type="email" class="form-control" id="forgotPasswordEmail" placeholder="Email" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Send Reset Link</button>
+                        </form>
+                        <p class="text-center mt-3">
+                            Remember your password? <a href="#" id="backToLogin">Login</a>
                         </p>
                     </div>
                 </div>
@@ -403,20 +423,108 @@
 
             const loginForm = document.getElementById('login-form');
             const signupForm = document.getElementById('signup-form');
+            const forgotPasswordForm = document.getElementById('forgot-password-form');
             const showSignupLink = document.getElementById('showSignup');
             const showLoginLink = document.getElementById('showLogin');
+            const showForgotPasswordLink = document.getElementById('showForgotPassword');
+            const backToLoginLink = document.getElementById('backToLogin');
 
             // Toggle between login and signup forms
             showSignupLink?.addEventListener('click', function (e) {
                 e.preventDefault();
                 document.getElementById('loginForm').classList.add('d-none');
                 document.getElementById('signupForm').classList.remove('d-none');
+                document.getElementById('forgotPasswordForm').classList.add('d-none');
             });
 
             showLoginLink?.addEventListener('click', function (e) {
                 e.preventDefault();
                 document.getElementById('signupForm').classList.add('d-none');
                 document.getElementById('loginForm').classList.remove('d-none');
+                document.getElementById('forgotPasswordForm').classList.add('d-none');
+            });
+
+            // Toggle to forgot password form
+            showForgotPasswordLink?.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.getElementById('loginForm').classList.add('d-none');
+                document.getElementById('signupForm').classList.add('d-none');
+                document.getElementById('forgotPasswordForm').classList.remove('d-none');
+            });
+
+            // Back to login from forgot password
+            backToLoginLink?.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.getElementById('forgotPasswordForm').classList.add('d-none');
+                document.getElementById('loginForm').classList.remove('d-none');
+                document.getElementById('signupForm').classList.add('d-none');
+            });
+
+            // Handle Forgot Password with email verification
+            forgotPasswordForm?.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.textContent;
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Sending...';
+
+                try {
+                    const email = document.getElementById('forgotPasswordEmail').value.trim();
+
+                    if (!email) {
+                        dbBookDisplay.showMessage('Please enter your email address', 'warning');
+                        return;
+                    }
+
+                    // Email validation
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(email)) {
+                        dbBookDisplay.showMessage('Please enter a valid email address', 'warning');
+                        return;
+                    }
+
+                    console.log('Requesting password reset for:', email);
+
+                    // Call API to send reset email
+                    const response = await api.requestPasswordReset(email);
+                    console.log('Password reset response:', response);
+
+                    // Show success message
+                    dbBookDisplay.showMessage(
+                        'Password reset link has been sent to your email. Please check your inbox and spam folder.',
+                        'success'
+                    );
+
+                    // Clear form and go back to login after delay
+                    forgotPasswordForm.reset();
+                    setTimeout(() => {
+                        document.getElementById('forgotPasswordForm').classList.add('d-none');
+                        document.getElementById('loginForm').classList.remove('d-none');
+                    }, 3000);
+
+                } catch (error) {
+                    console.error('Password reset request error:', error);
+
+                    let errorMessage = 'Failed to send reset link. Please try again.';
+
+                    if (error.message) {
+                        if (error.message.toLowerCase().includes('no account found') || 
+                            error.message.toLowerCase().includes('not found')) {
+                            errorMessage = 'No account found with this email address. Please check and try again.';
+                        } else if (error.message.toLowerCase().includes('network') || 
+                                   error.message.toLowerCase().includes('fetch')) {
+                            errorMessage = 'Network error. Please check your connection and try again.';
+                        } else if (error.message.length > 10 && !error.message.includes('Request failed')) {
+                            errorMessage = error.message;
+                        }
+                    }
+
+                    dbBookDisplay.showMessage(errorMessage, 'error');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                }
             });
 
             // Handle Signup with enhanced API integration and validation
@@ -515,16 +623,63 @@
                 } catch (error) {
                     console.error('Registration error:', error);
 
-                    // Handle specific error types
+                    // Handle specific error types with detailed messages
                     let errorMessage = 'Registration failed. Please try again.';
 
                     if (error.message) {
-                        if (error.message.includes('already exists') || error.message.includes('duplicate')) {
-                            errorMessage = 'Email already registered. Please use a different email or try logging in.';
-                        } else if (error.message.includes('network') || error.message.includes('fetch')) {
-                            errorMessage = 'Network error. Please check your connection and try again.';
-                        } else if (error.message.includes('validation')) {
-                            errorMessage = 'Invalid data provided. Please check your information.';
+                        // Check for duplicate email/user exists error
+                        if (error.message.toLowerCase().includes('account already exists with the email')) {
+                            errorMessage = error.message; // Use the specific message from server with email
+                        }
+                        // Check for duplicate username error
+                        else if (error.message.toLowerCase().includes('username') && 
+                                 (error.message.toLowerCase().includes('already taken') || 
+                                  error.message.toLowerCase().includes('already exists'))) {
+                            errorMessage = error.message; // Use the specific message from server with username
+                        }
+                        // Generic user already exists error
+                        else if (error.message.toLowerCase().includes('user already exists') || 
+                                 error.message.toLowerCase().includes('already exists')) {
+                            errorMessage = `An account already exists with the email: ${email}. Please use a different email or try logging in.`;
+                        } 
+                        // Check for duplicate/unique constraint errors
+                        else if (error.message.toLowerCase().includes('duplicate') || 
+                                 error.message.toLowerCase().includes('unique constraint')) {
+                            if (error.message.toLowerCase().includes('email')) {
+                                errorMessage = `An account already exists with the email: ${email}. Please try logging in instead.`;
+                            } else if (error.message.toLowerCase().includes('username')) {
+                                errorMessage = `The username you entered is already taken. Please choose a different username.`;
+                            } else {
+                                errorMessage = `An account already exists with this information. Please try logging in instead.`;
+                            }
+                        }
+                        // Password validation errors
+                        else if (error.message.toLowerCase().includes('password requirements')) {
+                            errorMessage = error.message; // Use the specific password error from server
+                        }
+                        // Network errors
+                        else if (error.message.toLowerCase().includes('network') || 
+                                 error.message.toLowerCase().includes('fetch') ||
+                                 error.message.toLowerCase().includes('failed to fetch')) {
+                            errorMessage = 'Network error. Please check your internet connection and try again.';
+                        }
+                        // Validation errors
+                        else if (error.message.toLowerCase().includes('validation')) {
+                            errorMessage = 'Invalid data provided. Please check your information and try again.';
+                        }
+                        // Email format errors
+                        else if (error.message.toLowerCase().includes('email') && 
+                                 error.message.toLowerCase().includes('invalid')) {
+                            errorMessage = 'Please provide a valid email address.';
+                        }
+                        // Server errors
+                        else if (error.message.toLowerCase().includes('server') || 
+                                 error.message.toLowerCase().includes('500')) {
+                            errorMessage = 'Server error. Please try again later or contact support.';
+                        }
+                        // Use the error message from server if it's descriptive
+                        else if (error.message.length > 10 && !error.message.includes('Request failed')) {
+                            errorMessage = error.message;
                         }
                     }
 

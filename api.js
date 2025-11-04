@@ -4,10 +4,12 @@ require('dotenv').config();
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const path = require('path');
 const {
     bookOperations,
     userOperations,
+    passwordResetOperations,
     cartOperations,
     favoritesOperations,
     orderOperations,
@@ -18,6 +20,7 @@ const {
     auditTrailOperations,
     initializeDatabase
 } = require('./database-config');
+const { sendPasswordResetEmail, verifyEmailConfig } = require('./email-service');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -353,22 +356,52 @@ app.post('/api/register', async (req, res) => {
             });
         }
 
-        // Check if user already exists
-        userOperations.getByEmail(email, async (err, existingUser) => {
+        // Check if email already exists
+        userOperations.getByEmail(email, async (err, existingUserByEmail) => {
             if (err) return res.status(500).json({ error: err.message });
-            if (existingUser) return res.status(400).json({ error: 'User already exists' });
+            
+            if (existingUserByEmail) {
+                return res.status(400).json({ 
+                    error: `An account already exists with the email: ${email}. Please use a different email or try logging in.` 
+                });
+            }
 
-            // Hash password with enhanced security
-            const saltRounds = 12; // Increased from default 10 for better security
-            const password_hash = await bcrypt.hash(password, saltRounds);
-
-            const newUser = {
-                username, email, password_hash, first_name, last_name, address, phone
-            };
-
-            userOperations.register(newUser, (err) => {
+            // Check if username already exists
+            userOperations.getByUsername(username, async (err, existingUserByUsername) => {
                 if (err) return res.status(500).json({ error: err.message });
-                res.status(201).json({ message: 'User registered successfully' });
+                
+                if (existingUserByUsername) {
+                    return res.status(400).json({ 
+                        error: `The username "${username}" is already taken. Please choose a different username.` 
+                    });
+                }
+
+                // Hash password with enhanced security
+                const saltRounds = 12; // Increased from default 10 for better security
+                const password_hash = await bcrypt.hash(password, saltRounds);
+
+                const newUser = {
+                    username, email, password_hash, first_name, last_name, address, phone
+                };
+
+                userOperations.register(newUser, (err) => {
+                    if (err) {
+                        // Check for database constraint errors
+                        if (err.message && err.message.toLowerCase().includes('unique')) {
+                            if (err.message.toLowerCase().includes('email')) {
+                                return res.status(400).json({ 
+                                    error: `An account already exists with the email: ${email}. Please use a different email or try logging in.` 
+                                });
+                            } else if (err.message.toLowerCase().includes('username')) {
+                                return res.status(400).json({ 
+                                    error: `The username "${username}" is already taken. Please choose a different username.` 
+                                });
+                            }
+                        }
+                        return res.status(500).json({ error: err.message });
+                    }
+                    res.status(201).json({ message: 'User registered successfully' });
+                });
             });
         });
     } catch (error) {
@@ -467,6 +500,7 @@ app.post('/api/admin/login', async (req, res) => {
             const token = jwt.sign(
                 {
                     userId: admin.id,
+                    username: admin.username,
                     email: admin.email,
                     role: 'admin',
                     isAdmin: true,
@@ -514,6 +548,169 @@ app.post('/api/admin/login', async (req, res) => {
     } catch (error) {
         console.error('Error during admin login:', error);
         res.status(500).json({ error: 'Login failed' });
+    }
+});
+
+// Password Reset Endpoints
+
+// Request password reset - sends email with reset link
+app.post('/api/forgot-password', async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ error: 'Email is required' });
+        }
+
+        console.log('Password reset requested for:', email);
+
+        // Check if user exists
+        userOperations.getByEmail(email, async (err, user) => {
+            if (err) {
+                console.error('Database error during password reset:', err);
+                return res.status(500).json({ error: 'Database error' });
+            }
+
+            if (!user) {
+                // For security, don't reveal if email exists or not
+                // Return success message anyway to prevent email enumeration
+                console.log('Password reset requested for non-existent email:', email);
+                return res.json({ 
+                    message: 'If an account exists with this email, a password reset link has been sent.' 
+                });
+            }
+
+            // Generate secure random token
+            const resetToken = crypto.randomBytes(32).toString('hex');
+            
+            // Token expires in 1 hour
+            const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+
+            // Delete any existing tokens for this user
+            passwordResetOperations.deleteUserTokens(user.id, async (err) => {
+                if (err) {
+                    console.error('Error deleting old tokens:', err);
+                }
+
+                // Save reset token to database
+                passwordResetOperations.createResetToken(user.id, resetToken, expiresAt, async (err) => {
+                    if (err) {
+                        console.error('Error creating reset token:', err);
+                        return res.status(500).json({ error: 'Failed to create reset token' });
+                    }
+
+                    // Send email with reset link
+                    try {
+                        await sendPasswordResetEmail(user.email, resetToken, user.username);
+                        console.log('Password reset email sent to:', user.email);
+                        
+                        res.json({ 
+                            message: 'Password reset link has been sent to your email address.' 
+                        });
+                    } catch (emailError) {
+                        console.error('Error sending password reset email:', emailError);
+                        
+                        // Check if it's an email configuration error
+                        if (emailError.message && emailError.message.includes('auth')) {
+                            return res.status(500).json({ 
+                                error: 'Email service is not configured. Please contact support.' 
+                            });
+                        }
+                        
+                        return res.status(500).json({ 
+                            error: 'Failed to send reset email. Please try again later.' 
+                        });
+                    }
+                });
+            });
+        });
+    } catch (error) {
+        console.error('Password reset request error:', error);
+        res.status(500).json({ error: 'Failed to process password reset request' });
+    }
+});
+
+// Verify reset token
+app.post('/api/verify-reset-token', async (req, res) => {
+    try {
+        const { token } = req.body;
+
+        if (!token) {
+            return res.status(400).json({ error: 'Token is required' });
+        }
+
+        passwordResetOperations.verifyToken(token, (err, tokenData) => {
+            if (err) {
+                if (err.message.includes('Invalid or expired')) {
+                    return res.status(400).json({ error: 'Invalid or expired reset token' });
+                }
+                return res.status(500).json({ error: 'Failed to verify token' });
+            }
+
+            res.json({ 
+                valid: true, 
+                message: 'Token is valid' 
+            });
+        });
+    } catch (error) {
+        console.error('Token verification error:', error);
+        res.status(500).json({ error: 'Failed to verify token' });
+    }
+});
+
+// Reset password with token
+app.post('/api/reset-password', async (req, res) => {
+    try {
+        const { token, newPassword } = req.body;
+
+        if (!token || !newPassword) {
+            return res.status(400).json({ error: 'Token and new password are required' });
+        }
+
+        // Validate password
+        const passwordValidation = validatePasswordServer(newPassword);
+        if (!passwordValidation.isValid) {
+            return res.status(400).json({
+                error: `Password requirements not met: ${passwordValidation.errors.join(', ')}`
+            });
+        }
+
+        // Verify token
+        passwordResetOperations.verifyToken(token, async (err, tokenData) => {
+            if (err) {
+                if (err.message.includes('Invalid or expired')) {
+                    return res.status(400).json({ error: 'Invalid or expired reset token' });
+                }
+                return res.status(500).json({ error: 'Failed to verify token' });
+            }
+
+            // Hash new password
+            const saltRounds = 12;
+            const password_hash = await bcrypt.hash(newPassword, saltRounds);
+
+            // Update user password
+            userOperations.changePassword(tokenData.user_id, password_hash, (err) => {
+                if (err) {
+                    console.error('Error updating password:', err);
+                    return res.status(500).json({ error: 'Failed to update password' });
+                }
+
+                // Mark token as used
+                passwordResetOperations.markTokenAsUsed(token, (err) => {
+                    if (err) {
+                        console.error('Error marking token as used:', err);
+                    }
+
+                    console.log('Password successfully reset for user ID:', tokenData.user_id);
+                    res.json({ 
+                        message: 'Password has been successfully reset. You can now login with your new password.' 
+                    });
+                });
+            });
+        });
+    } catch (error) {
+        console.error('Password reset error:', error);
+        res.status(500).json({ error: 'Failed to reset password' });
     }
 });
 
@@ -1206,10 +1403,11 @@ app.post('/api/admin/orders/:id/unarchive', authenticateAdmin, (req, res) => {
 app.get('/api/admin/books/archived', authenticateAdmin, (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
+    const category = req.query.category || null;
 
-    console.log('Admin fetching archived books, page:', page, 'limit:', limit);
+    console.log('Admin fetching archived books, page:', page, 'limit:', limit, 'category:', category);
 
-    archiveOperations.getArchivedBooks(page, limit, (err, result) => {
+    archiveOperations.getArchivedBooks(page, limit, category, (err, result) => {
         if (err) {
             console.error('Error fetching archived books:', err);
             return res.status(500).json({ error: err.message });
@@ -2479,9 +2677,10 @@ function logAuditTrail(req, actionType, entityType, entityId, entityName, oldVal
         entity_type: entityType,
         entity_id: entityId || null,
         entity_name: entityName || null,
-        old_value: oldValue || null,
-        new_value: newValue || null,
+        old_value: oldValue ? JSON.stringify(oldValue) : null,
+        new_value: newValue ? JSON.stringify(newValue) : null,
         admin_id: adminId,
+        admin_username: adminUsername,
         admin_email: adminEmail,
         ip_address: req.ip || req.connection?.remoteAddress || null,
         user_agent: req.headers?.['user-agent'] || null,
@@ -2492,7 +2691,9 @@ function logAuditTrail(req, actionType, entityType, entityId, entityName, oldVal
         action: actionType,
         entity: `${entityType} #${entityId}`,
         admin_id: adminId,
-        admin_email: adminEmail
+        admin_username: adminUsername,
+        admin_email: adminEmail,
+        role: req.user.isSuperAdmin ? 'super-admin' : 'moderator'
     });
 
     auditTrailOperations.add(auditData, (err) => {

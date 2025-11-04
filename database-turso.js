@@ -263,6 +263,19 @@ async function initializeDatabase(callback) {
             )
         `);
 
+        // Create password_reset_tokens table
+        await query(`
+            CREATE TABLE IF NOT EXISTS password_reset_tokens (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                token TEXT NOT NULL UNIQUE,
+                expires_at DATETIME NOT NULL,
+                used INTEGER DEFAULT 0,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )
+        `);
+
         // Create indexes for better performance
         await query('CREATE INDEX IF NOT EXISTS idx_books_category ON books(category)');
         await query('CREATE INDEX IF NOT EXISTS idx_books_genre ON books(genre)');
@@ -278,6 +291,8 @@ async function initializeDatabase(callback) {
         await query('CREATE INDEX IF NOT EXISTS idx_audit_trail_admin ON audit_trail(admin_id)');
         await query('CREATE INDEX IF NOT EXISTS idx_audit_trail_action ON audit_trail(action_type)');
         await query('CREATE INDEX IF NOT EXISTS idx_audit_trail_created ON audit_trail(created_at)');
+        await query('CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_token ON password_reset_tokens(token)');
+        await query('CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_user_id ON password_reset_tokens(user_id)');
 
         // Migration: Add missing columns to existing tables
         try {
@@ -842,6 +857,19 @@ const userOperations = {
         }
     },
 
+    // Change password (for password reset)
+    changePassword: async (userId, newPasswordHash, callback) => {
+        try {
+            await query(
+                `UPDATE users SET password_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+                [newPasswordHash, userId]
+            );
+            callback(null, { success: true, message: 'Password updated successfully' });
+        } catch (error) {
+            callback(error);
+        }
+    },
+
     // Get user addresses
     getUserAddresses: async (userId, callback) => {
         try {
@@ -913,6 +941,81 @@ const userOperations = {
                 [addressId, userId]
             );
             callback(null, { message: 'Address deleted successfully' });
+        } catch (error) {
+            callback(error);
+        }
+    }
+};
+
+// Password Reset Operations
+const passwordResetOperations = {
+    // Create password reset token
+    createResetToken: async (userId, token, expiresAt, callback) => {
+        try {
+            await query(
+                `INSERT INTO password_reset_tokens (user_id, token, expires_at)
+                 VALUES (?, ?, ?)`,
+                [userId, token, expiresAt]
+            );
+            callback(null, { success: true, message: 'Reset token created' });
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Verify reset token
+    verifyToken: async (token, callback) => {
+        try {
+            const result = await query(
+                `SELECT * FROM password_reset_tokens 
+                 WHERE token = ? AND used = 0 AND expires_at > datetime('now')`,
+                [token]
+            );
+            
+            if (result.rows.length === 0) {
+                callback(new Error('Invalid or expired reset token'));
+                return;
+            }
+            
+            callback(null, result.rows[0]);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Mark token as used
+    markTokenAsUsed: async (token, callback) => {
+        try {
+            await query(
+                `UPDATE password_reset_tokens SET used = 1 WHERE token = ?`,
+                [token]
+            );
+            callback(null, { success: true });
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Delete expired tokens (cleanup)
+    deleteExpiredTokens: async (callback) => {
+        try {
+            await query(
+                `DELETE FROM password_reset_tokens WHERE expires_at < datetime('now')`
+            );
+            callback(null, { success: true, message: 'Expired tokens deleted' });
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Delete all tokens for a user
+    deleteUserTokens: async (userId, callback) => {
+        try {
+            await query(
+                `DELETE FROM password_reset_tokens WHERE user_id = ?`,
+                [userId]
+            );
+            callback(null, { success: true });
         } catch (error) {
             callback(error);
         }
@@ -1986,16 +2089,26 @@ const archiveOperations = {
     },
 
     // Get archived books with pagination
-    getArchivedBooks: async (page = 1, limit = 10, callback) => {
+    getArchivedBooks: async (page = 1, limit = 10, category = null, callback) => {
         try {
             const offset = (page - 1) * limit;
             
-            const countQuery = 'SELECT COUNT(*) as total FROM books WHERE archived = 1';
-            const dataQuery = 'SELECT * FROM books WHERE archived = 1 ORDER BY updated_at DESC LIMIT ? OFFSET ?';
+            // Build query with optional category filter
+            let countQuery = 'SELECT COUNT(*) as total FROM books WHERE archived = 1';
+            let dataQuery = 'SELECT * FROM books WHERE archived = 1';
+            const params = [];
+            
+            if (category) {
+                countQuery += ' AND category = ?';
+                dataQuery += ' AND category = ?';
+                params.push(category);
+            }
+            
+            dataQuery += ' ORDER BY updated_at DESC LIMIT ? OFFSET ?';
             
             const [countResult, booksResult] = await Promise.all([
-                query(countQuery),
-                query(dataQuery, [limit, offset])
+                query(countQuery, category ? [category] : []),
+                query(dataQuery, [...params, limit, offset])
             ]);
             
             const total = countResult.rows[0].total;
@@ -2467,6 +2580,7 @@ module.exports = {
     initializeDatabase,
     bookOperations,
     userOperations,
+    passwordResetOperations,
     cartOperations,
     favoritesOperations,
     orderOperations,
