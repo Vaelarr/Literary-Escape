@@ -3076,30 +3076,31 @@
                 } catch (apiError) {
                     console.warn('⚠️ Failed to fetch dashboard stats from API, using fallback data:', apiError);
                     // Fallback: Use data from pagination totals (less accurate but better than nothing)
+                    // Note: Category counts will only reflect currently loaded books
                     stats = {
                         books: {
-                            total: totalBooksItems || 0,
-                            totalStock: adminBooks.reduce((sum, book) => sum + (parseInt(book.stock) || 0), 0),
-                            lowStock: adminBooks.filter(book => (parseInt(book.stock) || 0) <= 10).length,
-                            fiction: adminBooks.filter(book => book.category === 'Fiction').length,
-                            nonFiction: adminBooks.filter(book => book.category === 'Non - Fiction' || book.category === 'Non-Fiction').length
+                            total: totalBooksItems || 0, // Accurate from pagination
+                            totalStock: adminBooks.reduce((sum, book) => sum + (parseInt(book.stock) || 0), 0), // Only from loaded books
+                            lowStock: adminBooks.filter(book => (parseInt(book.stock) || 0) <= 10).length, // Only from loaded books
+                            fiction: 0, // Cannot determine accurately without API
+                            nonFiction: 0 // Cannot determine accurately without API
                         },
                         orders: {
-                            total: totalOrdersItems || 0,
-                            pending: allOrders.filter(order => order.status === 'pending').length,
+                            total: totalOrdersItems || 0, // Accurate from pagination
+                            pending: allOrders.filter(order => order.status === 'pending').length, // Only from loaded orders
                             processing: allOrders.filter(order => order.status === 'processing').length,
                             shipped: allOrders.filter(order => order.status === 'shipped').length,
                             completed: allOrders.filter(order => order.status === 'completed').length,
                             cancelled: allOrders.filter(order => order.status === 'cancelled').length,
                             totalRevenue: allOrders
                                 .filter(order => ['completed', 'shipped', 'delivered'].includes(order.status))
-                                .reduce((sum, order) => sum + (parseFloat(order.total_amount) || 0), 0)
+                                .reduce((sum, order) => sum + (parseFloat(order.total_amount) || 0), 0) // Only from loaded orders
                         },
                         users: {
-                            total: totalUsersItems || 0
+                            total: totalUsersItems || 0 // Accurate from pagination
                         }
                     };
-                    console.log('📊 Using fallback statistics:', stats);
+                    console.warn('⚠️ Using fallback statistics (category counts unavailable):', stats);
                 }
                 
                 if (!stats) {
