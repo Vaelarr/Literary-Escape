@@ -433,90 +433,26 @@
 
         <!-- Settings Section -->
         <div id="settings-section" class="content-section">
-            <h2 class="section-title">
-                <i class="fas fa-shield-alt me-2"></i>Security & Settings
-            </h2>
-            
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-                <!-- Admin Information -->
                 <div>
-                    <h3 class="section-title" style="font-size: 1.1rem; margin-bottom: 20px;">
-                        <i class="fas fa-user-shield me-2"></i>Admin Information
-                    </h3>
+                    <h2 class="section-title">LOGO</h2>
                     <div class="content-card">
-                        <div style="display: flex; flex-direction: column; gap: 15px;">
-                            <div>
-                                <label style="color: rgba(255,255,255,0.6); font-size: 0.85rem; display: block; margin-bottom: 5px;">Username</label>
-                                <div style="color: white; font-size: 1rem;" id="adminUsername">Loading...</div>
-                            </div>
-                            <div>
-                                <label style="color: rgba(255,255,255,0.6); font-size: 0.85rem; display: block; margin-bottom: 5px;">Email</label>
-                                <div style="color: white; font-size: 1rem;" id="adminEmail">Loading...</div>
-                            </div>
-                            <div>
-                                <label style="color: rgba(255,255,255,0.6); font-size: 0.85rem; display: block; margin-bottom: 5px;">Full Name</label>
-                                <div style="color: white; font-size: 1rem;" id="adminFullName">Loading...</div>
-                            </div>
-                            <div>
-                                <label style="color: rgba(255,255,255,0.6); font-size: 0.85rem; display: block; margin-bottom: 5px;">Role</label>
-                                <div style="color: white; font-size: 1rem;">
-                                    <span class="badge bg-success">Administrator</span>
-                                </div>
-                            </div>
+                        <div class="logo-upload-area">
+                            <div>LOGO IMG</div>
                         </div>
+                        <button class="btn-change">CHANGE</button>
                     </div>
                 </div>
                 
-                <!-- Change Password -->
                 <div>
-                    <h3 class="section-title" style="font-size: 1.1rem; margin-bottom: 20px;">
-                        <i class="fas fa-key me-2"></i>Change Password
-                    </h3>
-                    <div class="content-card">
-                        <form id="changePasswordForm" onsubmit="handleChangePassword(event)">
-                            <div class="mb-3">
-                                <label class="form-label">Current Password</label>
-                                <input type="password" class="form-control" id="currentPassword" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">New Password</label>
-                                <input type="password" class="form-control" id="newPassword" required minlength="6">
-                                <small class="text-muted">Minimum 6 characters</small>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Confirm New Password</label>
-                                <input type="password" class="form-control" id="confirmPassword" required>
-                            </div>
-                            <button type="submit" class="btn-add" style="width: 100%;">
-                                <i class="fas fa-lock me-2"></i>Update Password
-                            </button>
-                        </form>
-                        <div id="passwordChangeMessage" style="margin-top: 15px;"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- System Information -->
-            <div style="margin-top: 30px;">
-                <h3 class="section-title" style="font-size: 1.1rem; margin-bottom: 20px;">
-                    <i class="fas fa-info-circle me-2"></i>System Information
-                </h3>
-                <div class="content-card">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
-                        <div>
-                            <label style="color: rgba(255,255,255,0.6); font-size: 0.85rem; display: block; margin-bottom: 5px;">Database Status</label>
-                            <div style="color: white; font-size: 1rem;">
-                                <span id="dbStatusInfo" class="badge bg-secondary">Checking...</span>
-                            </div>
-                        </div>
-                        <div>
-                            <label style="color: rgba(255,255,255,0.6); font-size: 0.85rem; display: block; margin-bottom: 5px;">Platform</label>
-                            <div style="color: white; font-size: 1rem;">Literary Escape Admin v1.0</div>
-                        </div>
-                        <div>
-                            <label style="color: rgba(255,255,255,0.6); font-size: 0.85rem; display: block; margin-bottom: 5px;">Last Updated</label>
-                            <div style="color: white; font-size: 1rem;">November 2025</div>
-                        </div>
+                    <h2 class="section-title">Permissions</h2>
+                    <div class="permission-card">
+                        <h4 style="color: white; margin-bottom: 20px;">Admin name</h4>
+                        <div style="color: rgba(255,255,255,0.7); margin-bottom: 15px;">Access</div>
+                        <div class="permission-item">Full Access</div>
+                        <div class="permission-item">Books Management</div>
+                        <div class="permission-item">User Management</div>
+                        <div class="permission-item">Orders Management</div>
                     </div>
                 </div>
             </div>
@@ -683,67 +619,6 @@
                 </div>
                 <nav aria-label="Archived Orders pagination">
                     <ul class="pagination" id="archivedOrdersPagination">
-                    </ul>
-                </nav>
-            </div>
-        </div>
-    </div>
-
-    <!-- Audit Trail Section -->
-    <div id="audit-trail-section" class="content-section">
-        <h2 class="section-title">
-            <i class="fas fa-history me-2"></i>Audit Trail
-            <div style="display: inline-flex; gap: 15px; margin-left: 20px;">
-                <select class="category-filter" id="auditEntityFilter" title="Filter by entity">
-                    <option value="all">All Entities</option>
-                    <option value="book">Books</option>
-                    <option value="user">Users</option>
-                    <option value="order">Orders</option>
-                    <option value="voucher">Vouchers</option>
-                    <option value="admin">Admins</option>
-                </select>
-                <select class="category-filter" id="auditActionFilter" title="Filter by action">
-                    <option value="all">All Actions</option>
-                    <option value="CREATE">Create</option>
-                    <option value="UPDATE">Update</option>
-                    <option value="DELETE">Delete</option>
-                    <option value="ARCHIVE">Archive</option>
-                    <option value="UNARCHIVE">Unarchive</option>
-                    <option value="LOGIN">Login</option>
-                    <option value="LOGOUT">Logout</option>
-                </select>
-            </div>
-        </h2>
-        <div class="content-card">
-            <div style="margin-bottom: 15px; color: rgba(255,255,255,0.7);">
-                <span id="auditCount">Loading...</span> audit logs found
-            </div>
-            <div class="table-container scrollable-content">
-                <table class="custom-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 120px;">Date & Time</th>
-                            <th style="width: 100px;">Action</th>
-                            <th style="width: 80px;">Entity</th>
-                            <th>Entity Name</th>
-                            <th style="width: 150px;">Admin</th>
-                            <th>Description</th>
-                            <th style="width: 80px;">Details</th>
-                        </tr>
-                    </thead>
-                    <tbody id="auditTrailTable">
-                        <tr>
-                            <td colspan="7" style="text-align: center; color: rgba(255,255,255,0.5);">Loading audit trail...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="pagination-container">
-                <div class="pagination-info">
-                    Showing <span id="auditRange">0</span> logs
-                </div>
-                <nav aria-label="Audit Trail pagination">
-                    <ul class="pagination" id="auditPagination">
                     </ul>
                 </nav>
             </div>
@@ -1118,67 +993,6 @@
         </div>
     </div>
 
-    <!-- Audit Trail Details Modal -->
-    <div class="modal fade" id="auditDetailsModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Audit Log Details</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <h6 class="text-white mb-2">Action Information</h6>
-                            <div class="card bg-dark text-white p-3">
-                                <p class="mb-2"><strong>Action Type:</strong> <span id="auditDetailAction" class="badge bg-primary">-</span></p>
-                                <p class="mb-2"><strong>Entity Type:</strong> <span id="auditDetailEntity">-</span></p>
-                                <p class="mb-2"><strong>Entity Name:</strong> <span id="auditDetailEntityName">-</span></p>
-                                <p class="mb-0"><strong>Timestamp:</strong> <span id="auditDetailTimestamp">-</span></p>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <h6 class="text-white mb-2">Admin Information</h6>
-                            <div class="card bg-dark text-white p-3">
-                                <p class="mb-2"><strong>Username:</strong> <span id="auditDetailAdminUsername">-</span></p>
-                                <p class="mb-2"><strong>Email:</strong> <span id="auditDetailAdminEmail">-</span></p>
-                                <p class="mb-2"><strong>IP Address:</strong> <span id="auditDetailIP">-</span></p>
-                                <p class="mb-0"><strong>User Agent:</strong> <span id="auditDetailUserAgent" style="font-size: 0.85rem;">-</span></p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-12">
-                            <h6 class="text-white mb-2">Description</h6>
-                            <div class="card bg-dark text-white p-3">
-                                <p class="mb-0" id="auditDetailDescription">-</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="row" id="auditChangesSection" style="display: none;">
-                        <div class="col-md-6">
-                            <h6 class="text-white mb-2">Old Value</h6>
-                            <div class="card bg-dark text-white p-3" style="max-height: 300px; overflow-y: auto;">
-                                <pre id="auditDetailOldValue" style="margin: 0; color: #ff7675; font-size: 0.85rem; white-space: pre-wrap;">-</pre>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <h6 class="text-white mb-2">New Value</h6>
-                            <div class="card bg-dark text-white p-3" style="max-height: 300px; overflow-y: auto;">
-                                <pre id="auditDetailNewValue" style="margin: 0; color: #00b894; font-size: 0.85rem; white-space: pre-wrap;">-</pre>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="./js/api-client.js"></script>
     <script>
@@ -1195,7 +1009,6 @@
         let currentArchivedBooksPage = 1;
         let currentArchivedUsersPage = 1;
         let currentArchivedOrdersPage = 1;
-        let currentAuditPage = 1;
         
         // Pagination totals
         let totalBooksPages = 1;
@@ -1204,28 +1017,23 @@
         let totalArchivedBooksPages = 1;
         let totalArchivedUsersPages = 1;
         let totalArchivedOrdersPages = 1;
-        let totalAuditPages = 1;
         let totalBooksItems = 0;
         let totalUsersItems = 0;
         let totalOrdersItems = 0;
         let totalArchivedBooksItems = 0;
         let totalArchivedUsersItems = 0;
         let totalArchivedOrdersItems = 0;
-        let totalAuditItems = 0;
 
         // Archive data storage
         let archivedBooks = [];
         let archivedUsers = [];
         let archivedOrders = [];
-        let auditLogs = [];
 
         // Filter states
         let currentBookCategory = 'all';
         let currentBookSearch = '';
         let currentOrderStatus = 'all';
         let currentOrderSearch = '';
-        let currentAuditEntity = 'all';
-        let currentAuditAction = 'all';
 
         // Database connection management
         let dbConnectionStatus = false;
@@ -1242,7 +1050,6 @@
             setupNavigation();
             setupCategoryFilter();
             setupOrderFilters();
-            setupAuditFilters();
             setupCategoryGenreToggle();
             setupMobileMenu();
             
@@ -1284,40 +1091,23 @@
             try {
                 // Check if API client is available first
                 if (typeof window.api === 'undefined' || !window.api) {
-                    console.warn('API client not yet initialized, waiting...');
-                    // Wait for API client to initialize
-                    await new Promise((resolve, reject) => {
-                        let attempts = 0;
-                        const maxAttempts = 20;
-                        const checkInterval = setInterval(() => {
-                            attempts++;
-                            if (window.api) {
-                                clearInterval(checkInterval);
-                                resolve();
-                            } else if (attempts >= maxAttempts) {
-                                clearInterval(checkInterval);
-                                reject(new Error('API client failed to initialize'));
-                            }
-                        }, 100);
-                    });
+                    throw new Error('API client not initialized');
                 }
                 
                 // Test basic API connectivity and database connection
                 // The testConnection endpoint doesn't require authentication
-                console.log('🔌 Testing database connection...');
                 const testResult = await Promise.race([
-                    window.api.testConnection(),
+                    api.testConnection(),
                     new Promise((_, reject) => 
-                        setTimeout(() => reject(new Error('Connection timeout after 10 seconds')), 10000)
+                        setTimeout(() => reject(new Error('Connection timeout')), 10000)
                     )
                 ]);
                 
                 if (!testResult) {
-                    throw new Error('API connection test failed - no response');
+                    throw new Error('API connection test failed');
                 }
 
                 // Connection successful
-                console.log('✅ Database connection verified successfully');
                 dbConnectionStatus = true;
                 dbConnectionRetries = 0;
                 updateDbStatusUI(true);
@@ -1340,12 +1130,7 @@
             // Check database status every 30 seconds
             dbStatusCheckInterval = setInterval(async () => {
                 try {
-                    if (!window.api) {
-                        console.warn('API client not available for monitoring');
-                        return;
-                    }
-                    
-                    const isConnected = await window.api.testConnection();
+                    const isConnected = await api.testConnection();
                     
                     if (isConnected !== dbConnectionStatus) {
                         dbConnectionStatus = isConnected;
@@ -1608,7 +1393,7 @@
                 if (category !== 'all') filters.category = category;
                 if (search) filters.search = search;
                 
-                const result = await safeApiCall(() => window.api.getAllBooksForAdmin(page, itemsPerPage, filters.category, filters.search));
+                const result = await safeApiCall(() => api.getAllBooksForAdmin(page, itemsPerPage, filters.category, filters.search));
                 
                 if (!result || !result.books) {
                     throw new Error('Invalid response from books API');
@@ -1662,7 +1447,7 @@
                 console.log(`👥 Loading users - Page: ${page}`);
                 showLoadingState('accountListTable', 4, 'Loading users...');
                 
-                const result = await safeApiCall(() => window.api.getAllUsersForAdmin(page, itemsPerPage));
+                const result = await safeApiCall(() => api.getAllUsersForAdmin(page, itemsPerPage));
                 
                 if (!result || !result.users) {
                     throw new Error('Invalid response from users API');
@@ -1699,7 +1484,7 @@
                 if (status !== 'all') filters.status = status;
                 if (search) filters.search = search;
                 
-                const result = await safeApiCall(() => window.api.getAllOrdersForAdmin(page, itemsPerPage, filters));
+                const result = await safeApiCall(() => api.getAllOrdersForAdmin(page, itemsPerPage, filters));
                 
                 if (!result || !result.orders) {
                     throw new Error('Invalid response from orders API');
@@ -1811,7 +1596,7 @@
                 showLoadingState('archivedBooksTable', 6, 'Loading archived books...');
                 
                 const apiCategory = category === 'all' ? null : category;
-                const result = await window.api.getArchivedBooks(page, itemsPerPage, apiCategory);
+                const result = await api.getArchivedBooks(page, itemsPerPage, apiCategory);
                 
                 if (!result || !result.books) {
                     throw new Error('Invalid response from archived books API');
@@ -1835,12 +1620,6 @@
                 totalArchivedBooksPages = result.pagination?.totalPages || 1;
                 totalArchivedBooksItems = result.pagination?.totalItems || archivedBooks.length;
                 
-                // Update the filter dropdown to show current selection
-                const categoryFilter = document.getElementById('archivedBookCategoryFilter');
-                if (categoryFilter && categoryFilter.value !== category) {
-                    categoryFilter.value = category;
-                }
-                
                 displayArchivedBooks(category);
                 
             } catch (error) {
@@ -1854,7 +1633,7 @@
                 console.log(`👥 Loading archived users - Page: ${page}`);
                 showLoadingState('archivedUsersTable', 4, 'Loading archived users...');
                 
-                const result = await window.api.getArchivedUsers(page, itemsPerPage);
+                const result = await api.getArchivedUsers(page, itemsPerPage);
                 
                 if (!result || !result.users) {
                     throw new Error('Invalid response from archived users API');
@@ -1883,7 +1662,7 @@
                 const filters = {};
                 if (status !== 'all') filters.status = status;
                 
-                const result = await window.api.getArchivedOrders(page, itemsPerPage, filters);
+                const result = await api.getArchivedOrders(page, itemsPerPage, filters);
                 
                 if (!result || !result.orders) {
                     throw new Error('Invalid response from archived orders API');
@@ -2039,7 +1818,7 @@
                 const id = document.getElementById('bookId').value;
                 
                 // Check if user is logged in and has valid token
-                if (!window.api.isLoggedIn()) {
+                if (!api.isLoggedIn()) {
                     showErrorMessage('Session expired. Please login again.');
                     setTimeout(() => {
                         window.location.href = 'admin.html';
@@ -2048,7 +1827,7 @@
                 }
                 
                 // Verify current user is admin
-                const currentUser = window.api.getCurrentUser();
+                const currentUser = api.getCurrentUser();
                 if (!currentUser || currentUser.role !== 'admin') {
                     showErrorMessage('Admin access required');
                     return;
@@ -2143,11 +1922,6 @@
                     bootstrap.Modal.getInstance(document.getElementById('addBookModal')).hide();
                     document.getElementById('bookForm').reset();
                     
-                    // Add notification
-                    const action = id ? 'UPDATE' : 'CREATE';
-                    const bookTitle = payload.title;
-                    addNotification(action, 'book', bookTitle, `${action === 'UPDATE' ? 'Updated' : 'Added'} book to inventory`);
-                    
                     // Refresh all data including dashboard
                     await refreshAllData();
                     
@@ -2171,9 +1945,6 @@
                 const result = await api.adminUpdateOrder(orderId, { status });
                 
                 if (result) {
-                    // Add notification
-                    addNotification('UPDATE', 'order', `Order #${orderId}`, `Status changed to ${status}`);
-                    
                     // Refresh all data including dashboard statistics
                     await refreshAllData();
                     showSuccessMessage('Order status updated successfully');
@@ -2201,15 +1972,6 @@
                     // Refresh all data
                     await refreshAllData();
                     showSuccessMessage('User role updated successfully');
-                    
-                    // Add notification
-                    const userName = result.username || `User #${userId}`;
-                    addNotification(
-                        'UPDATE',
-                        'user',
-                        userName,
-                        `User "${userName}" role changed to ${newRole}`
-                    );
                 } else {
                     throw new Error('Failed to update user role');
                 }
@@ -2241,16 +2003,6 @@
 
                 if (result) {
                     showSuccessMessage(`Book ${action}d successfully!`);
-                    
-                    // Add notification
-                    const actionType = isUnarchive ? 'UNARCHIVE' : 'ARCHIVE';
-                    const bookTitle = result.title || `Book #${bookId}`;
-                    addNotification(
-                        actionType,
-                        'book',
-                        bookTitle,
-                        `Book "${bookTitle}" was ${action}d successfully`
-                    );
                     
                     // Refresh all data including dashboard
                     await refreshAllData();
@@ -2288,16 +2040,6 @@
                 if (result) {
                     showSuccessMessage(`User ${action}d successfully!`);
                     
-                    // Add notification
-                    const actionType = isUnarchive ? 'UNARCHIVE' : 'ARCHIVE';
-                    const userName = result.username || `User #${userId}`;
-                    addNotification(
-                        actionType,
-                        'user',
-                        userName,
-                        `User "${userName}" was ${action}d successfully`
-                    );
-                    
                     // Refresh all data including dashboard
                     await refreshAllData();
                     
@@ -2333,15 +2075,6 @@
 
                 if (result) {
                     showSuccessMessage(`Order ${action}d successfully!`);
-                    
-                    // Add notification
-                    const actionType = isUnarchive ? 'UNARCHIVE' : 'ARCHIVE';
-                    addNotification(
-                        actionType,
-                        'order',
-                        `Order #${orderId}`,
-                        `Order #${orderId} was ${action}d successfully`
-                    );
                     
                     // Refresh all data including dashboard
                     await refreshAllData();
@@ -3794,18 +3527,7 @@
                 }
                 
                 if (response) {
-                    const actionType = voucherId ? 'UPDATE' : 'CREATE';
-                    const actionText = voucherId ? 'updated' : 'created';
-                    showSuccessMessage(`Voucher ${actionText} successfully!`);
-                    
-                    // Add notification
-                    addNotification(
-                        actionType,
-                        'voucher',
-                        code,
-                        `Voucher "${code}" was ${actionText} successfully`
-                    );
-                    
+                    showSuccessMessage(voucherId ? 'Voucher updated successfully!' : 'Voucher created successfully!');
                     bootstrap.Modal.getInstance(document.getElementById('addVoucherModal')).hide();
                     
                     // Refresh vouchers list
@@ -3871,14 +3593,6 @@
                 if (response && response.success) {
                     showSuccessMessage('Voucher deleted successfully!');
                     
-                    // Add notification
-                    addNotification(
-                        'DELETE',
-                        'voucher',
-                        voucherCode,
-                        `Voucher "${voucherCode}" was deleted successfully`
-                    );
-                    
                     // Refresh vouchers list
                     await loadVouchersFromAPI(currentVouchersPage);
                 } else {
@@ -3924,605 +3638,23 @@
         
         // ==================== END VOUCHER MANAGEMENT ====================
         
-        // ==================== SETTINGS & SECURITY ====================
-        
-        // Load admin information in settings section
-        async function loadAdminSettings() {
-            try {
-                const adminData = JSON.parse(localStorage.getItem('adminData'));
-                
-                if (adminData) {
-                    document.getElementById('adminUsername').textContent = adminData.username || 'N/A';
-                    document.getElementById('adminEmail').textContent = adminData.email || 'N/A';
-                    document.getElementById('adminFullName').textContent = 
-                        `${adminData.first_name || ''} ${adminData.last_name || ''}`.trim() || 'N/A';
-                }
-                
-                // Update database status in settings
-                const dbStatus = document.getElementById('dbStatusInfo');
-                if (dbConnectionStatus) {
-                    dbStatus.textContent = 'Connected';
-                    dbStatus.className = 'badge bg-success';
-                } else {
-                    dbStatus.textContent = 'Disconnected';
-                    dbStatus.className = 'badge bg-danger';
-                }
-            } catch (error) {
-                console.error('Error loading admin settings:', error);
-            }
-        }
-        
-        // Handle password change
-        async function handleChangePassword(event) {
-            event.preventDefault();
-            
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const messageDiv = document.getElementById('passwordChangeMessage');
-            
-            // Clear previous messages
-            messageDiv.innerHTML = '';
-            
-            // Validate new password
-            if (newPassword.length < 6) {
-                messageDiv.innerHTML = '<div class="alert alert-danger">New password must be at least 6 characters long.</div>';
-                return;
-            }
-            
-            // Check if passwords match
-            if (newPassword !== confirmPassword) {
-                messageDiv.innerHTML = '<div class="alert alert-danger">New passwords do not match.</div>';
-                return;
-            }
-            
-            // Check if new password is different from current
-            if (currentPassword === newPassword) {
-                messageDiv.innerHTML = '<div class="alert alert-warning">New password must be different from current password.</div>';
-                return;
-            }
-            
-            try {
-                // Get admin data from localStorage
-                const adminData = JSON.parse(localStorage.getItem('adminData'));
-                if (!adminData || !adminData.id) {
-                    throw new Error('Admin session not found. Please log in again.');
-                }
-                
-                // Call API to change password
-                const response = await api.adminChangePassword({
-                    adminId: adminData.id,
-                    currentPassword: currentPassword,
-                    newPassword: newPassword
-                });
-                
-                if (response && response.success) {
-                    messageDiv.innerHTML = '<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>Password changed successfully!</div>';
-                    document.getElementById('changePasswordForm').reset();
-                    
-                    // Optional: Log out after password change
-                    setTimeout(() => {
-                        if (confirm('Password changed successfully! You will be logged out. Click OK to continue.')) {
-                            logoutAdmin(new Event('click'));
-                        }
-                    }, 2000);
-                } else {
-                    throw new Error(response.message || 'Failed to change password');
-                }
-            } catch (error) {
-                console.error('Error changing password:', error);
-                messageDiv.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-circle me-2"></i>${error.message || 'Failed to change password. Please check your current password.'}</div>`;
-            }
-        }
-        
-        // Load settings when settings section is opened
-        document.querySelector('[data-section="settings"]')?.addEventListener('click', function() {
-            loadAdminSettings();
-        });
-        
-        // ==================== END SETTINGS & SECURITY ====================
-        
-        // ==================== AUDIT TRAIL ====================
-        
-        // Load audit trail from API
-        async function loadAuditTrailFromAPI(page = currentAuditPage, entityFilter = currentAuditEntity, actionFilter = currentAuditAction) {
-            try {
-                currentAuditPage = page;
-                currentAuditEntity = entityFilter;
-                currentAuditAction = actionFilter;
-                
-                let response;
-                
-                // Call appropriate API method based on filters
-                if (entityFilter !== 'all') {
-                    response = await api.adminGetAuditTrailByEntity(entityFilter, page, ITEMS_PER_PAGE);
-                } else if (actionFilter !== 'all') {
-                    response = await api.adminGetAuditTrailByAction(actionFilter, page, ITEMS_PER_PAGE);
-                } else {
-                    response = await api.adminGetAllAuditTrail(page, ITEMS_PER_PAGE);
-                }
-                
-                if (response && response.logs) {
-                    auditLogs = response.logs;
-                    totalAuditItems = response.total || auditLogs.length;
-                    totalAuditPages = Math.ceil(totalAuditItems / ITEMS_PER_PAGE);
-                    
-                    displayAuditTrail();
-                    updateAuditPagination();
-                    
-                    // Update count display
-                    document.getElementById('auditCount').textContent = totalAuditItems;
-                } else {
-                    console.warn('No audit logs found');
-                    auditLogs = [];
-                    displayAuditTrail();
-                    document.getElementById('auditCount').textContent = '0';
-                }
-            } catch (error) {
-                console.error('Error loading audit trail:', error);
-                showErrorMessage('Failed to load audit trail');
-                document.getElementById('auditTrailTable').innerHTML = `
-                    <tr>
-                        <td colspan="7" style="text-align: center; color: rgba(255,255,255,0.5);">
-                            <i class="fas fa-exclamation-triangle" style="font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.3; color: #ff6b6b;"></i>
-                            Error loading audit trail
-                        </td>
-                    </tr>
-                `;
-            }
-        }
-        
-        // Display audit trail in table
-        function displayAuditTrail() {
-            const tbody = document.getElementById('auditTrailTable');
-            
-            if (!auditLogs || auditLogs.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" style="text-align: center; color: rgba(255,255,255,0.5); padding: 40px;">
-                            <i class="fas fa-inbox" style="font-size: 3rem; display: block; margin-bottom: 15px; opacity: 0.2;"></i>
-                            No audit logs found
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            tbody.innerHTML = auditLogs.map(log => {
-                const actionColor = getActionColor(log.action_type);
-                const entityIcon = getEntityIcon(log.entity_type);
-                const timestamp = new Date(log.created_at).toLocaleString();
-                
-                return `
-                    <tr>
-                        <td style="font-size: 0.85rem;">${timestamp}</td>
-                        <td><span class="badge" style="background: ${actionColor};">${log.action_type}</span></td>
-                        <td><i class="${entityIcon}" style="margin-right: 5px;"></i>${log.entity_type || '-'}</td>
-                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">${log.entity_name || '-'}</td>
-                        <td style="font-size: 0.9rem;">
-                            <div><strong>${log.admin_username || 'Unknown'}</strong></div>
-                            <small style="color: rgba(255,255,255,0.6);">${log.admin_email || ''}</small>
-                        </td>
-                        <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; font-size: 0.9rem;">
-                            ${log.description || '-'}
-                        </td>
-                        <td>
-                            <button class="btn-edit" onclick="viewAuditDetails(${log.id})" title="View Details">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-        
-        // Get color for action type
-        function getActionColor(action) {
-            const colors = {
-                'CREATE': '#00b894',
-                'UPDATE': '#74b9ff',
-                'DELETE': '#ff7675',
-                'ARCHIVE': '#fdcb6e',
-                'UNARCHIVE': '#a29bfe',
-                'LOGIN': '#55efc4',
-                'LOGOUT': '#dfe6e9'
-            };
-            return colors[action] || '#6c5ce7';
-        }
-        
-        // Get icon for entity type
-        function getEntityIcon(entity) {
-            const icons = {
-                'book': 'fas fa-book',
-                'user': 'fas fa-user',
-                'order': 'fas fa-shopping-cart',
-                'voucher': 'fas fa-ticket-alt',
-                'admin': 'fas fa-user-shield'
-            };
-            return icons[entity] || 'fas fa-cube';
-        }
-        
-        // View audit details in modal
-        function viewAuditDetails(logId) {
-            const log = auditLogs.find(l => l.id === logId);
-            if (!log) return;
-            
-            // Populate modal fields
-            document.getElementById('auditDetailAction').textContent = log.action_type;
-            document.getElementById('auditDetailAction').style.background = getActionColor(log.action_type);
-            document.getElementById('auditDetailEntity').textContent = log.entity_type || '-';
-            document.getElementById('auditDetailEntityName').textContent = log.entity_name || '-';
-            document.getElementById('auditDetailTimestamp').textContent = new Date(log.created_at).toLocaleString();
-            document.getElementById('auditDetailAdminUsername').textContent = log.admin_username || 'Unknown';
-            document.getElementById('auditDetailAdminEmail').textContent = log.admin_email || '-';
-            document.getElementById('auditDetailIP').textContent = log.ip_address || '-';
-            document.getElementById('auditDetailUserAgent').textContent = log.user_agent || '-';
-            document.getElementById('auditDetailDescription').textContent = log.description || '-';
-            
-            // Show/hide changes section based on whether old/new values exist
-            const changesSection = document.getElementById('auditChangesSection');
-            if (log.old_value || log.new_value) {
-                changesSection.style.display = 'block';
-                
-                // Format and display old/new values
-                try {
-                    const oldValue = log.old_value ? JSON.stringify(JSON.parse(log.old_value), null, 2) : '-';
-                    const newValue = log.new_value ? JSON.stringify(JSON.parse(log.new_value), null, 2) : '-';
-                    
-                    document.getElementById('auditDetailOldValue').textContent = oldValue;
-                    document.getElementById('auditDetailNewValue').textContent = newValue;
-                } catch (e) {
-                    // If not JSON, display as plain text
-                    document.getElementById('auditDetailOldValue').textContent = log.old_value || '-';
-                    document.getElementById('auditDetailNewValue').textContent = log.new_value || '-';
-                }
-            } else {
-                changesSection.style.display = 'none';
-            }
-            
-            // Show modal
-            const modal = new bootstrap.Modal(document.getElementById('auditDetailsModal'));
-            modal.show();
-        }
-        
-        // Update audit pagination
-        function updateAuditPagination() {
-            const pagination = document.getElementById('auditPagination');
-            if (!pagination) return;
-            
-            const start = (currentAuditPage - 1) * ITEMS_PER_PAGE + 1;
-            const end = Math.min(currentAuditPage * ITEMS_PER_PAGE, totalAuditItems);
-            
-            document.getElementById('auditRange').textContent = totalAuditItems > 0 ? `${start}-${end} of ${totalAuditItems}` : '0';
-            
-            let paginationHTML = '';
-            
-            // Previous button
-            paginationHTML += `
-                <li class="page-item ${currentAuditPage === 1 ? 'disabled' : ''}">
-                    <a class="page-link" href="#" onclick="loadAuditTrailFromAPI(${currentAuditPage - 1}); return false;">Previous</a>
-                </li>
-            `;
-            
-            // Page numbers
-            for (let i = 1; i <= totalAuditPages; i++) {
-                if (i === 1 || i === totalAuditPages || (i >= currentAuditPage - 2 && i <= currentAuditPage + 2)) {
-                    paginationHTML += `
-                        <li class="page-item ${i === currentAuditPage ? 'active' : ''}">
-                            <a class="page-link" href="#" onclick="loadAuditTrailFromAPI(${i}); return false;">${i}</a>
-                        </li>
-                    `;
-                } else if (i === currentAuditPage - 3 || i === currentAuditPage + 3) {
-                    paginationHTML += `<li class="page-item disabled"><span class="page-link">...</span></li>`;
-                }
-            }
-            
-            // Next button
-            paginationHTML += `
-                <li class="page-item ${currentAuditPage === totalAuditPages ? 'disabled' : ''}">
-                    <a class="page-link" href="#" onclick="loadAuditTrailFromAPI(${currentAuditPage + 1}); return false;">Next</a>
-                </li>
-            `;
-            
-            pagination.innerHTML = paginationHTML;
-        }
-        
-        // Setup audit trail filters
-        function setupAuditFilters() {
-            const entityFilter = document.getElementById('auditEntityFilter');
-            const actionFilter = document.getElementById('auditActionFilter');
-            
-            if (entityFilter) {
-                entityFilter.addEventListener('change', function() {
-                    loadAuditTrailFromAPI(1, this.value, currentAuditAction);
-                });
-            }
-            
-            if (actionFilter) {
-                actionFilter.addEventListener('change', function() {
-                    loadAuditTrailFromAPI(1, currentAuditEntity, this.value);
-                });
-            }
-        }
-        
-        // Load audit trail when section is opened
-        document.querySelector('[data-section="audit-trail"]')?.addEventListener('click', function() {
-            loadAuditTrailFromAPI(1);
-        });
-        
-        // ==================== END AUDIT TRAIL ====================
-        
-        // ==================== NOTIFICATION SYSTEM ====================
-        
-        let notifications = [];
-        const MAX_NOTIFICATIONS = 50; // Keep last 50 notifications
-        
-        // Toggle notification panel
-        document.getElementById('notificationDropdown')?.addEventListener('click', function(e) {
-            e.stopPropagation();
-            const panel = document.getElementById('notificationPanel');
-            if (panel.style.display === 'none') {
-                panel.style.display = 'block';
-                // Mark all as read
-                notifications.forEach(n => n.read = true);
-                updateNotificationBadge();
-                saveNotifications();
-            } else {
-                panel.style.display = 'none';
-            }
-        });
-        
-        // Close notification panel when clicking outside
-        document.addEventListener('click', function(e) {
-            const panel = document.getElementById('notificationPanel');
-            const dropdown = document.getElementById('notificationDropdown');
-            if (panel && !dropdown.contains(e.target)) {
-                panel.style.display = 'none';
-            }
-        });
-        
-        // Add notification
-        function addNotification(action, entity, entityName, description = '') {
-            const adminData = JSON.parse(localStorage.getItem('adminData') || '{}');
-            
-            const notification = {
-                id: Date.now(),
-                action: action,
-                entity: entity,
-                entityName: entityName,
-                description: description,
-                adminUsername: adminData.username || 'Admin',
-                timestamp: new Date().toISOString(),
-                read: false
-            };
-            
-            notifications.unshift(notification);
-            
-            // Keep only last MAX_NOTIFICATIONS
-            if (notifications.length > MAX_NOTIFICATIONS) {
-                notifications = notifications.slice(0, MAX_NOTIFICATIONS);
-            }
-            
-            updateNotificationUI();
-            saveNotifications();
-            
-            // Show toast notification
-            showNotificationToast(action, entityName);
-        }
-        
-        // Update notification UI
-        function updateNotificationUI() {
-            const list = document.getElementById('notificationList');
-            if (!list) return;
-            
-            if (notifications.length === 0) {
-                list.innerHTML = `
-                    <div style="padding: 40px 20px; text-align: center; color: rgba(255,255,255,0.5);">
-                        <i class="fas fa-bell-slash" style="font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.3;"></i>
-                        No recent activity
-                    </div>
-                `;
-                return;
-            }
-            
-            list.innerHTML = notifications.map(notif => {
-                const actionColor = getActionColor(notif.action);
-                const entityIcon = getEntityIcon(notif.entity);
-                const timeAgo = getTimeAgo(new Date(notif.timestamp));
-                const isUnread = !notif.read;
-                
-                return `
-                    <div style="padding: 12px 15px; border-bottom: 1px solid rgba(106, 156, 137, 0.1); ${isUnread ? 'background: rgba(106, 156, 137, 0.05);' : ''} transition: background 0.2s;" 
-                         onmouseenter="this.style.background='rgba(106, 156, 137, 0.08)'" 
-                         onmouseleave="this.style.background='${isUnread ? 'rgba(106, 156, 137, 0.05)' : 'transparent'}'">
-                        <div style="display: flex; align-items: start; gap: 10px;">
-                            <div style="flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: ${actionColor}; display: flex; align-items: center; justify-content: center;">
-                                <i class="${entityIcon}" style="font-size: 0.85rem; color: white;"></i>
-                            </div>
-                            <div style="flex: 1; min-width: 0;">
-                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                                    <span style="font-weight: 600; color: white; font-size: 0.9rem;">${notif.action}</span>
-                                    <span style="background: ${actionColor}; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.7rem; text-transform: uppercase;">${notif.entity}</span>
-                                </div>
-                                <div style="color: rgba(255,255,255,0.85); font-size: 0.85rem; margin-bottom: 4px; word-break: break-word;">
-                                    <strong>${notif.entityName}</strong>
-                                </div>
-                                ${notif.description ? `<div style="color: rgba(255,255,255,0.6); font-size: 0.8rem; margin-bottom: 6px;">${notif.description}</div>` : ''}
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <span style="color: rgba(255,255,255,0.5); font-size: 0.75rem;">
-                                        <i class="fas fa-user" style="margin-right: 4px;"></i>${notif.adminUsername}
-                                    </span>
-                                    <span style="color: rgba(255,255,255,0.5); font-size: 0.75rem;">
-                                        <i class="fas fa-clock" style="margin-right: 4px;"></i>${timeAgo}
-                                    </span>
-                                </div>
-                            </div>
-                            ${isUnread ? '<div style="flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%; background: #00b894;"></div>' : ''}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            
-            updateNotificationBadge();
-        }
-        
-        // Update notification badge count
-        function updateNotificationBadge() {
-            const badge = document.getElementById('notificationCount');
-            if (!badge) return;
-            
-            const unreadCount = notifications.filter(n => !n.read).length;
-            badge.textContent = unreadCount;
-            badge.style.display = unreadCount > 0 ? 'block' : 'none';
-        }
-        
-        // Show toast notification
-        function showNotificationToast(action, entityName) {
-            const toast = document.createElement('div');
-            toast.style.cssText = `
-                position: fixed;
-                top: 80px;
-                right: 20px;
-                background: linear-gradient(135deg, #4a6b5a, #6a9c89);
-                color: white;
-                padding: 12px 20px;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-                z-index: 10000;
-                animation: slideIn 0.3s ease;
-                min-width: 300px;
-            `;
-            
-            toast.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <i class="fas fa-check-circle" style="font-size: 1.2rem;"></i>
-                    <div>
-                        <div style="font-weight: 600; margin-bottom: 2px;">${action} Successful</div>
-                        <div style="font-size: 0.85rem; opacity: 0.9;">${entityName}</div>
-                    </div>
-                </div>
-            `;
-            
-            document.body.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.style.animation = 'slideOut 0.3s ease';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-        
-        // Get time ago text
-        function getTimeAgo(date) {
-            const seconds = Math.floor((new Date() - date) / 1000);
-            
-            if (seconds < 60) return 'Just now';
-            if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-            if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-            if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
-            return date.toLocaleDateString();
-        }
-        
-        // Clear all notifications
-        function clearAllNotifications() {
-            if (confirm('Clear all notifications?')) {
-                notifications = [];
-                updateNotificationUI();
-                saveNotifications();
-            }
-        }
-        
-        // Save notifications to localStorage
-        function saveNotifications() {
-            try {
-                localStorage.setItem('adminNotifications', JSON.stringify(notifications));
-            } catch (e) {
-                console.error('Failed to save notifications:', e);
-            }
-        }
-        
-        // Load notifications from localStorage
-        function loadNotifications() {
-            try {
-                const saved = localStorage.getItem('adminNotifications');
-                if (saved) {
-                    notifications = JSON.parse(saved);
-                    updateNotificationUI();
-                }
-            } catch (e) {
-                console.error('Failed to load notifications:', e);
-                notifications = [];
-            }
-        }
-        
-        // Add CSS animations
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideIn {
-                from {
-                    transform: translateX(400px);
-                    opacity: 0;
-                }
-                to {
-                    transform: translateX(0);
-                    opacity: 1;
-                }
-            }
-            @keyframes slideOut {
-                from {
-                    transform: translateX(0);
-                    opacity: 1;
-                }
-                to {
-                    transform: translateX(400px);
-                    opacity: 0;
-                }
-            }
-        `;
-        document.head.appendChild(style);
-        
-        // Load notifications on init
-        loadNotifications();
-        
-        // ==================== END NOTIFICATION SYSTEM ====================
-        
-        // ==================== END AUDIT TRAIL ====================
-        
-        // ==================== END VOUCHER MANAGEMENT ====================
-        
         // Wait for API client to be ready before checking access
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 DOM loaded, initializing admin panel...');
-            
             // Give API client time to initialize
             setTimeout(() => {
                 if (typeof window.api !== 'undefined' && window.api) {
                     console.log('✅ API client ready, checking admin access...');
                     checkInitialAccess();
                 } else {
-                    console.warn('⚠️ API client not available after 100ms, retrying...');
+                    console.error('❌ API client not available after initialization');
                     // Try again after a longer delay
                     setTimeout(() => {
                         if (typeof window.api !== 'undefined' && window.api) {
                             console.log('✅ API client ready on retry, checking admin access...');
                             checkInitialAccess();
                         } else {
-                            console.error('❌ API client still not available after 2 seconds');
-                            console.log('Attempting to create API client manually...');
-                            
-                            // Try to create API client manually as a last resort
-                            try {
-                                if (typeof APIClient !== 'undefined') {
-                                    window.api = new APIClient();
-                                    console.log('✅ API client created manually');
-                                    checkInitialAccess();
-                                } else {
-                                    console.error('❌ APIClient class not found, showing login form');
-                                    showAdminLogin();
-                                }
-                            } catch (error) {
-                                console.error('❌ Error creating API client:', error);
-                                showAdminLogin();
-                            }
+                            console.error('❌ API client still not available, showing login form');
+                            showAdminLogin();
                         }
                     }, 2000);
                 }
