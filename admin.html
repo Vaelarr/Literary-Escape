@@ -3064,32 +3064,14 @@
                     lastUpdatedEl.textContent = timeStr;
                 }
                 
-                // Calculate statistics from loaded data
-                const stats = {
-                    books: {
-                        total: adminBooks.length || 0,
-                        totalStock: adminBooks.reduce((sum, book) => sum + (parseInt(book.stock) || 0), 0),
-                        lowStock: adminBooks.filter(book => (parseInt(book.stock) || 0) <= 10).length,
-                        fiction: adminBooks.filter(book => book.category === 'Fiction').length,
-                        nonFiction: adminBooks.filter(book => book.category === 'Non - Fiction' || book.category === 'Non-Fiction').length
-                    },
-                    orders: {
-                        total: allOrders.length || 0,
-                        pending: allOrders.filter(order => order.status === 'pending').length,
-                        processing: allOrders.filter(order => order.status === 'processing').length,
-                        shipped: allOrders.filter(order => order.status === 'shipped').length,
-                        completed: allOrders.filter(order => order.status === 'completed').length,
-                        cancelled: allOrders.filter(order => order.status === 'cancelled').length,
-                        totalRevenue: allOrders
-                            .filter(order => ['completed', 'shipped', 'delivered'].includes(order.status))
-                            .reduce((sum, order) => sum + (parseFloat(order.total_amount) || 0), 0)
-                    },
-                    users: {
-                        total: allUsers.length || 0
-                    }
-                };
+                // Fetch comprehensive statistics from API
+                const stats = await api.getDashboardStats();
                 
-                console.log('📊 Dashboard statistics calculated:', stats);
+                if (!stats) {
+                    throw new Error('Failed to fetch dashboard statistics');
+                }
+                
+                console.log('📊 Dashboard statistics received:', stats);
                 
                 // === Update Book Statistics ===
                 const booksNumberEl = document.getElementById('booksNumber');
@@ -3926,13 +3908,27 @@
         // Load admin information in settings section
         async function loadAdminSettings() {
             try {
-                const adminData = JSON.parse(localStorage.getItem('adminData'));
+                // Try to get admin data from either 'adminUser' or 'user' in localStorage
+                let adminData = null;
+                const adminUserData = localStorage.getItem('adminUser');
+                const userData = localStorage.getItem('user');
+                
+                if (adminUserData) {
+                    adminData = JSON.parse(adminUserData);
+                } else if (userData) {
+                    adminData = JSON.parse(userData);
+                }
                 
                 if (adminData) {
                     document.getElementById('adminUsername').textContent = adminData.username || 'N/A';
                     document.getElementById('adminEmail').textContent = adminData.email || 'N/A';
                     document.getElementById('adminFullName').textContent = 
                         `${adminData.first_name || ''} ${adminData.last_name || ''}`.trim() || 'N/A';
+                } else {
+                    console.warn('No admin data found in localStorage');
+                    document.getElementById('adminUsername').textContent = 'N/A';
+                    document.getElementById('adminEmail').textContent = 'N/A';
+                    document.getElementById('adminFullName').textContent = 'N/A';
                 }
                 
                 // Update database status in settings

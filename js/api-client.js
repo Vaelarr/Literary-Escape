@@ -801,6 +801,15 @@ class APIClient {
         });
     }
 
+    // ==================== ADMIN DASHBOARD STATS ====================
+
+    async getDashboardStats() {
+        console.log('📊 Fetching dashboard statistics...');
+        return this.makeRequest('/admin/dashboard/stats', {
+            method: 'GET'
+        });
+    }
+
 }
 
 // Create global API client instance
