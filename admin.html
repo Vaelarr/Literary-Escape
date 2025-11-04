@@ -47,6 +47,7 @@
             <li><a href="#" class="menu-link archived-link" data-section="archived-books">Archived Books</a></li>
             <li><a href="#" class="menu-link archived-link" data-section="archived-users">Archived Users</a></li>
             <li><a href="#" class="menu-link archived-link" data-section="archived-orders">Archived Orders</a></li>
+            <li class="menu-separator">System</li>
             <li><a href="#" class="menu-link" data-section="settings">Security & Settings</a></li>
         </ul>
 
@@ -60,9 +61,27 @@
             </button>
             <div class="user-menu">
                 <span id="dbStatus" class="badge bg-secondary" style="margin-right: 12px;">DB: checking...</span>
-                <div class="notification-icon">
+                <div class="notification-icon" id="notificationDropdown" style="position: relative; cursor: pointer;">
                     <i class="fas fa-bell"></i>
-                    <span class="badge">5</span>
+                    <span class="badge" id="notificationCount">0</span>
+                    
+                    <!-- Notification Dropdown -->
+                    <div id="notificationPanel" style="display: none; position: absolute; right: 0; top: 100%; margin-top: 10px; width: 380px; max-height: 500px; background: #1a3329; border: 1px solid rgba(106, 156, 137, 0.3); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000;">
+                        <div style="padding: 15px; border-bottom: 1px solid rgba(106, 156, 137, 0.2); display: flex; justify-content: space-between; align-items: center;">
+                            <h6 style="margin: 0; color: white; font-size: 0.95rem;">
+                                <i class="fas fa-history me-2"></i>Recent Activity
+                            </h6>
+                            <button onclick="clearAllNotifications()" style="background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; font-size: 0.85rem;" title="Clear all">
+                                <i class="fas fa-trash-alt"></i> Clear
+                            </button>
+                        </div>
+                        <div id="notificationList" style="max-height: 420px; overflow-y: auto;">
+                            <div style="padding: 40px 20px; text-align: center; color: rgba(255,255,255,0.5);">
+                                <i class="fas fa-bell-slash" style="font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.3;"></i>
+                                No recent activity
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="user-avatar"></div>
             </div>
@@ -1284,40 +1303,23 @@
             try {
                 // Check if API client is available first
                 if (typeof window.api === 'undefined' || !window.api) {
-                    console.warn('API client not yet initialized, waiting...');
-                    // Wait for API client to initialize
-                    await new Promise((resolve, reject) => {
-                        let attempts = 0;
-                        const maxAttempts = 20;
-                        const checkInterval = setInterval(() => {
-                            attempts++;
-                            if (window.api) {
-                                clearInterval(checkInterval);
-                                resolve();
-                            } else if (attempts >= maxAttempts) {
-                                clearInterval(checkInterval);
-                                reject(new Error('API client failed to initialize'));
-                            }
-                        }, 100);
-                    });
+                    throw new Error('API client not initialized');
                 }
                 
                 // Test basic API connectivity and database connection
                 // The testConnection endpoint doesn't require authentication
-                console.log('🔌 Testing database connection...');
                 const testResult = await Promise.race([
-                    window.api.testConnection(),
+                    api.testConnection(),
                     new Promise((_, reject) => 
-                        setTimeout(() => reject(new Error('Connection timeout after 10 seconds')), 10000)
+                        setTimeout(() => reject(new Error('Connection timeout')), 10000)
                     )
                 ]);
                 
                 if (!testResult) {
-                    throw new Error('API connection test failed - no response');
+                    throw new Error('API connection test failed');
                 }
 
                 // Connection successful
-                console.log('✅ Database connection verified successfully');
                 dbConnectionStatus = true;
                 dbConnectionRetries = 0;
                 updateDbStatusUI(true);
@@ -1340,12 +1342,7 @@
             // Check database status every 30 seconds
             dbStatusCheckInterval = setInterval(async () => {
                 try {
-                    if (!window.api) {
-                        console.warn('API client not available for monitoring');
-                        return;
-                    }
-                    
-                    const isConnected = await window.api.testConnection();
+                    const isConnected = await api.testConnection();
                     
                     if (isConnected !== dbConnectionStatus) {
                         dbConnectionStatus = isConnected;
@@ -1608,7 +1605,7 @@
                 if (category !== 'all') filters.category = category;
                 if (search) filters.search = search;
                 
-                const result = await safeApiCall(() => window.api.getAllBooksForAdmin(page, itemsPerPage, filters.category, filters.search));
+                const result = await safeApiCall(() => api.getAllBooksForAdmin(page, itemsPerPage, filters.category, filters.search));
                 
                 if (!result || !result.books) {
                     throw new Error('Invalid response from books API');
@@ -1662,7 +1659,7 @@
                 console.log(`👥 Loading users - Page: ${page}`);
                 showLoadingState('accountListTable', 4, 'Loading users...');
                 
-                const result = await safeApiCall(() => window.api.getAllUsersForAdmin(page, itemsPerPage));
+                const result = await safeApiCall(() => api.getAllUsersForAdmin(page, itemsPerPage));
                 
                 if (!result || !result.users) {
                     throw new Error('Invalid response from users API');
@@ -1699,7 +1696,7 @@
                 if (status !== 'all') filters.status = status;
                 if (search) filters.search = search;
                 
-                const result = await safeApiCall(() => window.api.getAllOrdersForAdmin(page, itemsPerPage, filters));
+                const result = await safeApiCall(() => api.getAllOrdersForAdmin(page, itemsPerPage, filters));
                 
                 if (!result || !result.orders) {
                     throw new Error('Invalid response from orders API');
@@ -1811,7 +1808,7 @@
                 showLoadingState('archivedBooksTable', 6, 'Loading archived books...');
                 
                 const apiCategory = category === 'all' ? null : category;
-                const result = await window.api.getArchivedBooks(page, itemsPerPage, apiCategory);
+                const result = await api.getArchivedBooks(page, itemsPerPage, apiCategory);
                 
                 if (!result || !result.books) {
                     throw new Error('Invalid response from archived books API');
@@ -1854,7 +1851,7 @@
                 console.log(`👥 Loading archived users - Page: ${page}`);
                 showLoadingState('archivedUsersTable', 4, 'Loading archived users...');
                 
-                const result = await window.api.getArchivedUsers(page, itemsPerPage);
+                const result = await api.getArchivedUsers(page, itemsPerPage);
                 
                 if (!result || !result.users) {
                     throw new Error('Invalid response from archived users API');
@@ -1883,7 +1880,7 @@
                 const filters = {};
                 if (status !== 'all') filters.status = status;
                 
-                const result = await window.api.getArchivedOrders(page, itemsPerPage, filters);
+                const result = await api.getArchivedOrders(page, itemsPerPage, filters);
                 
                 if (!result || !result.orders) {
                     throw new Error('Invalid response from archived orders API');
@@ -2039,7 +2036,7 @@
                 const id = document.getElementById('bookId').value;
                 
                 // Check if user is logged in and has valid token
-                if (!window.api.isLoggedIn()) {
+                if (!api.isLoggedIn()) {
                     showErrorMessage('Session expired. Please login again.');
                     setTimeout(() => {
                         window.location.href = 'admin.html';
@@ -2048,7 +2045,7 @@
                 }
                 
                 // Verify current user is admin
-                const currentUser = window.api.getCurrentUser();
+                const currentUser = api.getCurrentUser();
                 if (!currentUser || currentUser.role !== 'admin') {
                     showErrorMessage('Admin access required');
                     return;
@@ -4491,38 +4488,21 @@
         
         // Wait for API client to be ready before checking access
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 DOM loaded, initializing admin panel...');
-            
             // Give API client time to initialize
             setTimeout(() => {
                 if (typeof window.api !== 'undefined' && window.api) {
                     console.log('✅ API client ready, checking admin access...');
                     checkInitialAccess();
                 } else {
-                    console.warn('⚠️ API client not available after 100ms, retrying...');
+                    console.error('❌ API client not available after initialization');
                     // Try again after a longer delay
                     setTimeout(() => {
                         if (typeof window.api !== 'undefined' && window.api) {
                             console.log('✅ API client ready on retry, checking admin access...');
                             checkInitialAccess();
                         } else {
-                            console.error('❌ API client still not available after 2 seconds');
-                            console.log('Attempting to create API client manually...');
-                            
-                            // Try to create API client manually as a last resort
-                            try {
-                                if (typeof APIClient !== 'undefined') {
-                                    window.api = new APIClient();
-                                    console.log('✅ API client created manually');
-                                    checkInitialAccess();
-                                } else {
-                                    console.error('❌ APIClient class not found, showing login form');
-                                    showAdminLogin();
-                                }
-                            } catch (error) {
-                                console.error('❌ Error creating API client:', error);
-                                showAdminLogin();
-                            }
+                            console.error('❌ API client still not available, showing login form');
+                            showAdminLogin();
                         }
                     }, 2000);
                 }
