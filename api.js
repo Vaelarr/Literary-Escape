@@ -2178,8 +2178,7 @@ app.get('/api/admin/dashboard/stats', authenticateAdmin, (req, res) => {
     console.log('📊 Fetching comprehensive dashboard statistics...');
 
     // Get database instance from database-config
-    const database = require('./database-config');
-    const dbInstance = database.db;
+    const { db: dbInstance } = require('./database-config');
 
     const stats = {
         books: { total: 0, active: 0, totalStock: 0, lowStock: 0, fiction: 0, nonFiction: 0 },
