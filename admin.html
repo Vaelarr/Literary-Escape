@@ -1255,6 +1255,9 @@
         function initAdmin() {
             console.log('🚀 Initializing admin panel...');
             
+            // Load admin settings immediately
+            loadAdminSettings();
+            
             // Start database connection monitoring
             startDbStatusMonitoring();
             
@@ -3066,8 +3069,38 @@
                     lastUpdatedEl.textContent = timeStr;
                 }
                 
-                // Fetch comprehensive statistics from API
-                const stats = await api.getDashboardStats();
+                // Try to fetch comprehensive statistics from API
+                let stats = null;
+                try {
+                    stats = await api.getDashboardStats();
+                } catch (apiError) {
+                    console.warn('⚠️ Failed to fetch dashboard stats from API, using fallback data:', apiError);
+                    // Fallback: Use data from pagination totals (less accurate but better than nothing)
+                    stats = {
+                        books: {
+                            total: totalBooksItems || 0,
+                            totalStock: adminBooks.reduce((sum, book) => sum + (parseInt(book.stock) || 0), 0),
+                            lowStock: adminBooks.filter(book => (parseInt(book.stock) || 0) <= 10).length,
+                            fiction: adminBooks.filter(book => book.category === 'Fiction').length,
+                            nonFiction: adminBooks.filter(book => book.category === 'Non - Fiction' || book.category === 'Non-Fiction').length
+                        },
+                        orders: {
+                            total: totalOrdersItems || 0,
+                            pending: allOrders.filter(order => order.status === 'pending').length,
+                            processing: allOrders.filter(order => order.status === 'processing').length,
+                            shipped: allOrders.filter(order => order.status === 'shipped').length,
+                            completed: allOrders.filter(order => order.status === 'completed').length,
+                            cancelled: allOrders.filter(order => order.status === 'cancelled').length,
+                            totalRevenue: allOrders
+                                .filter(order => ['completed', 'shipped', 'delivered'].includes(order.status))
+                                .reduce((sum, order) => sum + (parseFloat(order.total_amount) || 0), 0)
+                        },
+                        users: {
+                            total: totalUsersItems || 0
+                        }
+                    };
+                    console.log('📊 Using fallback statistics:', stats);
+                }
                 
                 if (!stats) {
                     throw new Error('Failed to fetch dashboard statistics');
