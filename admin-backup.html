@@ -51,16 +51,7 @@
                 <li><a href="#" class="menu-link archived-link" data-section="archived-books">Archived Books</a></li>
                 <li><a href="#" class="menu-link archived-link" data-section="archived-users">Archived Users</a></li>
                 <li><a href="#" class="menu-link archived-link" data-section="archived-orders">Archived Orders</a></li>
-                <!-- Super Admin Only Section -->
-                <li id="superAdminSeparator" class="menu-separator super-admin-only" style="display:none;">Super Admin
-                </li>
-                <li id="adminManagementLink" class="super-admin-only" style="display:none;">
-                    <a href="#" class="menu-link" data-section="admin-management">
-                        <i class="fas fa-user-shield"></i> Admin Management
-                    </a>
-                </li>
                 <li class="menu-separator">System</li>
-                <li><a href="#" class="menu-link" data-section="audit-trail">Audit Trail</a></li>
                 <li><a href="#" class="menu-link" data-section="settings">Security & Settings</a></li>
             </ul>
 
@@ -73,28 +64,36 @@
                     <i class="fas fa-bars"></i>
                 </button>
                 <div class="user-menu">
-                    <span id="dbStatus" class="badge bg-secondary">DB: checking...</span>
-                    <div class="notification-icon" id="auditTrailBell">
+                    <span id="dbStatus" class="badge bg-secondary" style="margin-right: 12px;">DB: checking...</span>
+                    <div class="notification-icon" id="notificationDropdown"
+                        style="position: relative; cursor: pointer;">
                         <i class="fas fa-bell"></i>
-                        <span class="badge" id="auditTrailCount">0</span>
-                        <!-- Audit Trail Dropdown -->
-                        <div class="notification-dropdown" id="auditTrailDropdown">
-                            <div class="notification-header">
-                                <h4><i class="fas fa-history me-2"></i>Activity Log</h4>
-                                <span class="mark-all-read" id="viewAllAudit" style="cursor: pointer;">View All</span>
+                        <span class="badge" id="notificationCount">0</span>
+
+                        <!-- Notification Dropdown -->
+                        <div id="notificationPanel"
+                            style="display: none; position: absolute; right: 0; top: 100%; margin-top: 10px; width: 380px; max-height: 500px; background: #1a3329; border: 1px solid rgba(106, 156, 137, 0.3); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 1000;">
+                            <div
+                                style="padding: 15px; border-bottom: 1px solid rgba(106, 156, 137, 0.2); display: flex; justify-content: space-between; align-items: center;">
+                                <h6 style="margin: 0; color: white; font-size: 0.95rem;">
+                                    <i class="fas fa-history me-2"></i>Recent Activity
+                                </h6>
+                                <button onclick="clearAllNotifications()"
+                                    style="background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; font-size: 0.85rem;"
+                                    title="Clear all">
+                                    <i class="fas fa-trash-alt"></i> Clear
+                                </button>
                             </div>
-                            <div class="notification-list" id="auditTrailList">
-                                <div style="text-align: center; padding: 20px; color: rgba(255,255,255,0.5);">
-                                    <i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i>
-                                    <p style="margin-top: 10px;">Loading activity...</p>
+                            <div id="notificationList" style="max-height: 420px; overflow-y: auto;">
+                                <div style="padding: 40px 20px; text-align: center; color: rgba(255,255,255,0.5);">
+                                    <i class="fas fa-bell-slash"
+                                        style="font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.3;"></i>
+                                    No recent activity
                                 </div>
-                            </div>
-                            <div class="notification-footer"
-                                style="padding: 10px; text-align: center; border-top: 1px solid rgba(255,255,255,0.2);">
-                                <small style="color: rgba(255,255,255,0.6);">Last 10 admin activities</small>
                             </div>
                         </div>
                     </div>
+                    <div class="user-avatar"></div>
                 </div>
             </div>
 
@@ -518,204 +517,101 @@
             <!-- Settings Section -->
             <div id="settings-section" class="content-section">
                 <h2 class="section-title">
-                    <i class="fas fa-lock me-2"></i>Security & Settings
+                    <i class="fas fa-shield-alt me-2"></i>Security & Settings
                 </h2>
 
-                <!-- Security Settings -->
-                <div class="content-card" style="margin-bottom: 30px;">
-                    <h3 style="color: rgba(255,255,255,0.9); margin-bottom: 20px; font-size: 1.2rem;">
-                        <i class="fas fa-shield-alt me-2"></i>Security
-                    </h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                    <!-- Admin Information -->
+                    <div>
+                        <h3 class="section-title" style="font-size: 1.1rem; margin-bottom: 20px;">
+                            <i class="fas fa-user-shield me-2"></i>Admin Information
+                        </h3>
+                        <div class="content-card">
+                            <div style="display: flex; flex-direction: column; gap: 15px;">
+                                <div>
+                                    <label
+                                        style="color: rgba(255,255,255,0.6); font-size: 0.85rem; display: block; margin-bottom: 5px;">Username</label>
+                                    <div style="color: white; font-size: 1rem;" id="adminUsername">Loading...</div>
+                                </div>
+                                <div>
+                                    <label
+                                        style="color: rgba(255,255,255,0.6); font-size: 0.85rem; display: block; margin-bottom: 5px;">Email</label>
+                                    <div style="color: white; font-size: 1rem;" id="adminEmail">Loading...</div>
+                                </div>
+                                <div>
+                                    <label
+                                        style="color: rgba(255,255,255,0.6); font-size: 0.85rem; display: block; margin-bottom: 5px;">Full
+                                        Name</label>
+                                    <div style="color: white; font-size: 1rem;" id="adminFullName">Loading...</div>
+                                </div>
+                                <div>
+                                    <label
+                                        style="color: rgba(255,255,255,0.6); font-size: 0.85rem; display: block; margin-bottom: 5px;">Role</label>
+                                    <div style="color: white; font-size: 1rem;">
+                                        <span class="badge bg-success">Administrator</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                    <div style="display: grid; gap: 20px;">
-                        <!-- Change Password -->
-                        <div
-                            style="padding: 20px; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid rgba(106, 156, 137, 0.3);">
-                            <h4 style="color: rgba(255,255,255,0.9); margin-bottom: 15px; font-size: 1rem;">
-                                <i class="fas fa-key me-2"></i>Change Password
-                            </h4>
+                    <!-- Change Password -->
+                    <div>
+                        <h3 class="section-title" style="font-size: 1.1rem; margin-bottom: 20px;">
+                            <i class="fas fa-key me-2"></i>Change Password
+                        </h3>
+                        <div class="content-card">
                             <form id="changePasswordForm" onsubmit="handleChangePassword(event)">
                                 <div class="mb-3">
-                                    <label class="form-label" style="color: rgba(255,255,255,0.8);">Current
-                                        Password</label>
-                                    <input type="password" class="form-control" id="currentPassword" required
-                                        style="background: rgba(0,0,0,0.3); border: 1px solid rgba(106, 156, 137, 0.3); color: white;">
+                                    <label class="form-label">Current Password</label>
+                                    <input type="password" class="form-control" id="currentPassword" required>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label" style="color: rgba(255,255,255,0.8);">New Password</label>
-                                    <input type="password" class="form-control" id="newPassword" required minlength="6"
-                                        style="background: rgba(0,0,0,0.3); border: 1px solid rgba(106, 156, 137, 0.3); color: white;">
-                                    <small style="color: rgba(255,255,255,0.6);">Minimum 6 characters</small>
+                                    <label class="form-label">New Password</label>
+                                    <input type="password" class="form-control" id="newPassword" required minlength="6">
+                                    <small class="text-muted">Minimum 6 characters</small>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label" style="color: rgba(255,255,255,0.8);">Confirm New
-                                        Password</label>
-                                    <input type="password" class="form-control" id="confirmPassword" required
-                                        minlength="6"
-                                        style="background: rgba(0,0,0,0.3); border: 1px solid rgba(106, 156, 137, 0.3); color: white;">
+                                    <label class="form-label">Confirm New Password</label>
+                                    <input type="password" class="form-control" id="confirmPassword" required>
                                 </div>
-                                <button type="submit" class="btn-add">
-                                    <i class="fas fa-save me-2"></i>Update Password
+                                <button type="submit" class="btn-add" style="width: 100%;">
+                                    <i class="fas fa-lock me-2"></i>Update Password
                                 </button>
                             </form>
-                        </div>
-
-                        <!-- Session Management -->
-                        <div
-                            style="padding: 20px; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid rgba(106, 156, 137, 0.3);">
-                            <h4 style="color: rgba(255,255,255,0.9); margin-bottom: 15px; font-size: 1rem;">
-                                <i class="fas fa-clock me-2"></i>Session Information
-                            </h4>
-                            <div style="color: rgba(255,255,255,0.7); margin-bottom: 10px;">
-                                <strong>Last Login:</strong> <span id="lastLoginTime">Loading...</span>
-                            </div>
-                            <div style="color: rgba(255,255,255,0.7); margin-bottom: 10px;">
-                                <strong>Session Expires:</strong> <span id="sessionExpiry">Loading...</span>
-                            </div>
-                            <div style="color: rgba(255,255,255,0.7); margin-bottom: 20px;">
-                                <strong>Admin Since:</strong> <span id="adminSince">Loading...</span>
-                            </div>
-                            <button class="btn-archive" onclick="handleLogoutAllSessions()"
-                                style="background: rgba(214, 48, 49, 0.3); border-color: rgba(214, 48, 49, 0.5);">
-                                <i class="fas fa-sign-out-alt me-2"></i>Logout All Sessions
-                            </button>
+                            <div id="passwordChangeMessage" style="margin-top: 15px;"></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Admin Profile Settings -->
-                <div class="content-card" style="margin-bottom: 30px;">
-                    <h3 style="color: rgba(255,255,255,0.9); margin-bottom: 20px; font-size: 1.2rem;">
-                        <i class="fas fa-user-cog me-2"></i>Profile Settings
+                <!-- System Information -->
+                <div style="margin-top: 30px;">
+                    <h3 class="section-title" style="font-size: 1.1rem; margin-bottom: 20px;">
+                        <i class="fas fa-info-circle me-2"></i>System Information
                     </h3>
-
-                    <form id="profileSettingsForm" onsubmit="handleUpdateProfile(event)">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label" style="color: rgba(255,255,255,0.8);">Username</label>
-                                <input type="text" class="form-control" id="profileUsername"
-                                    style="background: rgba(0,0,0,0.3); border: 1px solid rgba(106, 156, 137, 0.3); color: white;">
-                                <small style="color: rgba(255,255,255,0.5);">You can now change your username</small>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label" style="color: rgba(255,255,255,0.8);">Email</label>
-                                <input type="email" class="form-control" id="profileEmail" required
-                                    style="background: rgba(0,0,0,0.3); border: 1px solid rgba(106, 156, 137, 0.3); color: white;">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label" style="color: rgba(255,255,255,0.8);">First Name</label>
-                                <input type="text" class="form-control" id="profileFirstName"
-                                    style="background: rgba(0,0,0,0.3); border: 1px solid rgba(106, 156, 137, 0.3); color: white;">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label" style="color: rgba(255,255,255,0.8);">Last Name</label>
-                                <input type="text" class="form-control" id="profileLastName"
-                                    style="background: rgba(0,0,0,0.3); border: 1px solid rgba(106, 156, 137, 0.3); color: white;">
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label" style="color: rgba(255,255,255,0.8);">Phone Number</label>
-                            <input type="tel" class="form-control" id="profilePhone"
-                                style="background: rgba(0,0,0,0.3); border: 1px solid rgba(106, 156, 137, 0.3); color: white;">
-                        </div>
-                        <button type="submit" class="btn-add">
-                            <i class="fas fa-save me-2"></i>Update Profile
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Account Information -->
-                <div class="content-card">
-                    <h3 style="color: rgba(255,255,255,0.9); margin-bottom: 20px; font-size: 1.2rem;">
-                        <i class="fas fa-info-circle me-2"></i>Account Information
-                    </h3>
-
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                    <div class="content-card">
                         <div
-                            style="padding: 15px; background: rgba(0,0,0,0.2); border-radius: 8px; border-left: 3px solid rgba(106, 156, 137, 0.8);">
-                            <div style="color: rgba(255,255,255,0.6); font-size: 0.85rem; margin-bottom: 5px;">Role
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                            <div>
+                                <label
+                                    style="color: rgba(255,255,255,0.6); font-size: 0.85rem; display: block; margin-bottom: 5px;">Database
+                                    Status</label>
+                                <div style="color: white; font-size: 1rem;">
+                                    <span id="dbStatusInfo" class="badge bg-secondary">Checking...</span>
+                                </div>
                             </div>
-                            <div style="color: white; font-size: 1.1rem;" id="accountRole">Loading...</div>
-                        </div>
-                        <div
-                            style="padding: 15px; background: rgba(0,0,0,0.2); border-radius: 8px; border-left: 3px solid rgba(106, 156, 137, 0.8);">
-                            <div style="color: rgba(255,255,255,0.6); font-size: 0.85rem; margin-bottom: 5px;">Account
-                                ID</div>
-                            <div style="color: white; font-size: 1.1rem; font-family: monospace;" id="accountId">
-                                Loading...</div>
-                        </div>
-                        <div
-                            style="padding: 15px; background: rgba(0,0,0,0.2); border-radius: 8px; border-left: 3px solid rgba(106, 156, 137, 0.8);">
-                            <div style="color: rgba(255,255,255,0.6); font-size: 0.85rem; margin-bottom: 5px;">Status
+                            <div>
+                                <label
+                                    style="color: rgba(255,255,255,0.6); font-size: 0.85rem; display: block; margin-bottom: 5px;">Platform</label>
+                                <div style="color: white; font-size: 1rem;">Literary Escape Admin v1.0</div>
                             </div>
-                            <div style="color: #4caf50; font-size: 1.1rem;">
-                                <i class="fas fa-check-circle me-1"></i>Active
+                            <div>
+                                <label
+                                    style="color: rgba(255,255,255,0.6); font-size: 0.85rem; display: block; margin-bottom: 5px;">Last
+                                    Updated</label>
+                                <div style="color: white; font-size: 1rem;">November 2025</div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Audit Trail Section -->
-            <div id="audit-trail-section" class="content-section">
-                <h2 class="section-title">
-                    <i class="fas fa-history me-2"></i>Audit Trail
-                    <div style="display: inline-flex; gap: 15px; margin-left: 20px;">
-                        <select class="category-filter" id="auditEntityFilter" title="Filter by entity">
-                            <option value="all">All Entities</option>
-                            <option value="book">Books</option>
-                            <option value="user">Users</option>
-                            <option value="order">Orders</option>
-                            <option value="voucher">Vouchers</option>
-                            <option value="admin">Admins</option>
-                        </select>
-                        <select class="category-filter" id="auditActionFilter" title="Filter by action">
-                            <option value="all">All Actions</option>
-                            <option value="CREATE">Create</option>
-                            <option value="UPDATE">Update</option>
-                            <option value="DELETE">Delete</option>
-                            <option value="ARCHIVE">Archive</option>
-                            <option value="UNARCHIVE">Unarchive</option>
-                            <option value="LOGIN">Login</option>
-                            <option value="LOGOUT">Logout</option>
-                        </select>
-                    </div>
-                </h2>
-                <div class="content-card">
-                    <div style="margin-bottom: 15px; color: rgba(255,255,255,0.7);">
-                        <span id="auditCount">Loading...</span> audit logs found
-                    </div>
-                    <div class="table-container scrollable-content">
-                        <table class="custom-table">
-                            <thead>
-                                <tr>
-                                    <th style="width: 120px;">Date & Time</th>
-                                    <th style="width: 100px;">Action</th>
-                                    <th style="width: 80px;">Entity</th>
-                                    <th>Entity Name</th>
-                                    <th style="width: 150px;">Admin</th>
-                                    <th>Description</th>
-                                    <th style="width: 80px;">Details</th>
-                                </tr>
-                            </thead>
-                            <tbody id="auditTrailTable">
-                                <tr>
-                                    <td colspan="7" style="text-align: center; color: rgba(255,255,255,0.5);">Loading audit
-                                        trail...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="pagination-container">
-                        <div class="pagination-info">
-                            Showing <span id="auditRange">0</span> logs
-                        </div>
-                        <nav aria-label="Audit Trail pagination">
-                            <ul class="pagination" id="auditPagination">
-                            </ul>
-                        </nav>
                     </div>
                 </div>
             </div>
@@ -774,7 +670,7 @@
                             onchange="loadArchivedBooksFromAPI(1, this.value)" title="Archived Books Category Filter">
                             <option value="all">All Categories</option>
                             <option value="Fiction">Fiction</option>
-                            <option value="Non-Fiction">Non-Fiction</option>
+                            <option value="Non - Fiction">Non - Fiction</option>
                         </select>
                     </div>
                     <div class="table-container scrollable-content">
@@ -1020,172 +916,235 @@
             </div>
         </div>
 
-        <!-- Add Book Modal -->
-        <div class="modal fade" id="addBookModal" tabindex="-1">
-            <div class="modal-dialog modal-xl">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Add New Book</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                            aria-label="Close"></button>
+        <!-- Audit Trail Section -->
+        <div id="audit-trail-section" class="content-section">
+            <h2 class="section-title">
+                <i class="fas fa-history me-2"></i>Audit Trail
+                <div style="display: inline-flex; gap: 15px; margin-left: 20px;">
+                    <select class="category-filter" id="auditEntityFilter" title="Filter by entity">
+                        <option value="all">All Entities</option>
+                        <option value="book">Books</option>
+                        <option value="user">Users</option>
+                        <option value="order">Orders</option>
+                        <option value="voucher">Vouchers</option>
+                        <option value="admin">Admins</option>
+                    </select>
+                    <select class="category-filter" id="auditActionFilter" title="Filter by action">
+                        <option value="all">All Actions</option>
+                        <option value="CREATE">Create</option>
+                        <option value="UPDATE">Update</option>
+                        <option value="DELETE">Delete</option>
+                        <option value="ARCHIVE">Archive</option>
+                        <option value="UNARCHIVE">Unarchive</option>
+                        <option value="LOGIN">Login</option>
+                        <option value="LOGOUT">Logout</option>
+                    </select>
+                </div>
+            </h2>
+            <div class="content-card">
+                <div style="margin-bottom: 15px; color: rgba(255,255,255,0.7);">
+                    <span id="auditCount">Loading...</span> audit logs found
+                </div>
+                <div class="table-container scrollable-content">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 120px;">Date & Time</th>
+                                <th style="width: 100px;">Action</th>
+                                <th style="width: 80px;">Entity</th>
+                                <th>Entity Name</th>
+                                <th style="width: 150px;">Admin</th>
+                                <th>Description</th>
+                                <th style="width: 80px;">Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="auditTrailTable">
+                            <tr>
+                                <td colspan="7" style="text-align: center; color: rgba(255,255,255,0.5);">Loading audit
+                                    trail...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination-container">
+                    <div class="pagination-info">
+                        Showing <span id="auditRange">0</span> logs
                     </div>
-                    <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
-                        <form id="bookForm">
-                            <input type="hidden" id="bookId">
-
-                            <!-- Basic Information Section -->
-                            <h6 class="text-white mb-3 pb-2 border-bottom"><i class="fas fa-book me-2"></i>Basic
-                                Information</h6>
-                            <div class="row">
-                                <div class="col-md-12 mb-3">
-                                    <label class="form-label">Title <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="bookTitle" aria-label="Title"
-                                        placeholder="Enter book title" required>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Author <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="bookAuthor" aria-label="Author"
-                                        placeholder="Author name" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Publisher</label>
-                                    <input type="text" class="form-control" id="bookPublisher" aria-label="Publisher"
-                                        placeholder="Publisher name">
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Description <span class="text-danger">*</span></label>
-                                <textarea class="form-control" id="bookDescription" rows="3" aria-label="Description"
-                                    placeholder="Detailed description of the book" required></textarea>
-                            </div>
-
-                            <!-- Classification Section -->
-                            <h6 class="text-white mb-3 pb-2 border-bottom mt-4"><i
-                                    class="fas fa-tags me-2"></i>Classification</h6>
-                            <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Category <span class="text-danger">*</span></label>
-                                    <select class="form-select" id="bookCategory" aria-label="Category" required>
-                                        <option value="" disabled selected>Select Category</option>
-                                        <option value="Fiction">Fiction</option>
-                                        <option value="Non - Fiction">Non-Fiction</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Genre <span class="text-danger">*</span></label>
-                                    <select class="form-select" id="bookGenre" aria-label="Genre" required>
-                                        <option value="" disabled selected>Select Genre</option>
-                                    </select>
-                                    <!-- Hidden genre templates -->
-                                    <div id="Non-FictionGenres" style="display: none;">
-                                        <option value="" style="color: gray;" disabled selected>Select Genre</option>
-                                        <option value="True Crime">True Crime</option>
-                                        <option value="Politics">Politics</option>
-                                        <option value="Self - Help">Self - Help</option>
-                                        <option value="Educational">Educational</option>
-                                        <option value="Cookbook">Cookbook</option>
-                                        <option value="Business">Business</option>
-                                        <option value="Philosophy">Philosophy</option>
-                                        <option value="Religion">Religion</option>
-                                        <option value="Health & Wellness">Health & Wellness</option>
-                                    </div>
-                                    <div id="FictionGenres" style="display: none;">
-                                        <option value="" style="color: gray;" disabled selected>Select Genre</option>
-                                        <option value="Science Fiction">Science Fiction</option>
-                                        <option value="Mystery">Mystery</option>
-                                        <option value="LGBTQ+">LGBTQ+</option>
-                                        <option value="Magic Realism">Magic Realism</option>
-                                        <option value="Crime">Crime</option>
-                                        <option value="Dystopian">Dystopian</option>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Status <span class="text-danger">*</span></label>
-                                    <select class="form-select" id="bookStatus" aria-label="Status" required>
-                                        <option value="active" selected>Active (Available for Sale)</option>
-                                        <option value="inactive">Inactive (Not Available)</option>
-                                        <option value="coming-soon">Coming Soon</option>
-                                        <option value="discontinued">Discontinued</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <!-- Inventory & Pricing Section -->
-                            <h6 class="text-white mb-3 pb-2 border-bottom mt-4"><i
-                                    class="fas fa-boxes me-2"></i>Inventory & Pricing</h6>
-                            <div class="row">
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Current Stock <span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" id="bookStock" aria-label="Stock Quantity"
-                                        min="0" value="0" required>
-                                    <small class="text-muted">Available quantity</small>
-                                </div>
-                                <div class="col-md-4 mb-3" id="addStockContainer" style="display: none;">
-                                    <label class="form-label">Add Stock</label>
-                                    <input type="number" class="form-control" id="bookAddStock" aria-label="Add Stock"
-                                        min="0" value="0" placeholder="0">
-                                    <small class="text-muted">Additional stock to add</small>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Selling Price (₱) <span
-                                            class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" id="bookPrice" aria-label="Price"
-                                        step="0.01" min="0.01" placeholder="0.00" required>
-                                    <small class="text-muted">Retail price</small>
-                                </div>
-                                <div class="col-md-4 mb-3">
-                                    <label class="form-label">Discount (%)</label>
-                                    <input type="number" class="form-control" id="bookDiscount" aria-label="Discount"
-                                        step="0.01" min="0" max="100" value="0" placeholder="0.00">
-                                    <small class="text-muted">Optional discount</small>
-                                </div>
-                            </div>
-
-                            <!-- Product Media Section -->
-                            <h6 class="text-white mb-3 pb-2 border-bottom mt-4"><i class="fas fa-image me-2"></i>Book
-                                Cover Image</h6>
-
-                            <!-- File Upload Section -->
-                            <div class="mb-3">
-                                <label class="form-label">Upload Cover Image <span class="text-danger">*</span></label>
-                                <input type="file" class="form-control" id="bookCoverFile" accept="image/*"
-                                    aria-label="Cover Image File">
-                                <small class="text-muted">Accepted formats: JPG, PNG, WebP, GIF (Max 5MB)</small>
-                            </div>
-
-                            <!-- Image URL Input (hidden by default, for backend compatibility) -->
-                            <input type="hidden" id="bookCover" value="">
-
-                            <!-- Image Preview -->
-                            <div class="mb-3">
-                                <label class="form-label">Preview</label>
-                                <div id="imagePreviewContainer"
-                                    style="min-height: 200px; max-height: 300px; background: rgba(0,0,0,0.3); border: 2px dashed rgba(255,255,255,0.3); border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
-                                    <img id="imagePreview" src="" alt="Preview"
-                                        style="max-width: 100%; max-height: 300px; display: none; object-fit: contain;">
-                                    <span id="previewPlaceholder" style="color: rgba(255,255,255,0.5);">
-                                        <i class="fas fa-image"
-                                            style="font-size: 48px; display: block; margin-bottom: 10px; text-align: center;"></i>
-                                        No image selected
-                                    </span>
-                                </div>
-                            </div>
-
-                            <!-- Hidden field to store the final cover data -->
-                            <input type="hidden" id="bookCoverData" aria-label="Book Cover Data">
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn-add" onclick="saveBook()">
-                            <i class="fas fa-save me-2"></i>Save Book
-                        </button>
-                    </div>
+                    <nav aria-label="Audit Trail pagination">
+                        <ul class="pagination" id="auditPagination">
+                        </ul>
+                    </nav>
                 </div>
             </div>
         </div>
+
+    </div>
+
+    <!-- Add Book Modal -->
+    <div class="modal fade" id="addBookModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Book</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                    <form id="bookForm">
+                        <input type="hidden" id="bookId">
+
+                        <!-- Basic Information Section -->
+                        <h6 class="text-white mb-3 pb-2 border-bottom"><i class="fas fa-book me-2"></i>Basic Information
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Title <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="bookTitle" aria-label="Title"
+                                    placeholder="Enter book title" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Author <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="bookAuthor" aria-label="Author"
+                                    placeholder="Author name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Publisher</label>
+                                <input type="text" class="form-control" id="bookPublisher" aria-label="Publisher"
+                                    placeholder="Publisher name">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="bookDescription" rows="3" aria-label="Description"
+                                placeholder="Detailed description of the book" required></textarea>
+                        </div>
+
+                        <!-- Classification Section -->
+                        <h6 class="text-white mb-3 pb-2 border-bottom mt-4"><i
+                                class="fas fa-tags me-2"></i>Classification</h6>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Category <span class="text-danger">*</span></label>
+                                <select class="form-select" id="bookCategory" aria-label="Category" required>
+                                    <option value="" disabled selected>Select Category</option>
+                                    <option value="Fiction">Fiction</option>
+                                    <option value="Non - Fiction">Non - Fiction</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Genre <span class="text-danger">*</span></label>
+                                <select class="form-select" id="bookGenre" aria-label="Genre" required>
+                                    <option value="" disabled selected>Select Genre</option>
+                                </select>
+                                <!-- Hidden genre templates -->
+                                <div id="Non-FictionGenres" style="display: none;">
+                                    <option value="" style="color: gray;" disabled selected>Select Genre</option>
+                                    <option value="True Crime">True Crime</option>
+                                    <option value="Politics">Politics</option>
+                                    <option value="Self - Help">Self - Help</option>
+                                    <option value="Educational">Educational</option>
+                                    <option value="Cookbook">Cookbook</option>
+                                    <option value="Business">Business</option>
+                                    <option value="Philosophy">Philosophy</option>
+                                    <option value="Religion">Religion</option>
+                                    <option value="Health & Wellness">Health & Wellness</option>
+                                </div>
+                                <div id="FictionGenres" style="display: none;">
+                                    <option value="" style="color: gray;" disabled selected>Select Genre</option>
+                                    <option value="Science Fiction">Science Fiction</option>
+                                    <option value="Mystery">Mystery</option>
+                                    <option value="LGBTQ+">LGBTQ+</option>
+                                    <option value="Magic Realism">Magic Realism</option>
+                                    <option value="Crime">Crime</option>
+                                    <option value="Dystopian">Dystopian</option>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Status <span class="text-danger">*</span></label>
+                                <select class="form-select" id="bookStatus" aria-label="Status" required>
+                                    <option value="active" selected>Active (Available for Sale)</option>
+                                    <option value="inactive">Inactive (Not Available)</option>
+                                    <option value="coming-soon">Coming Soon</option>
+                                    <option value="discontinued">Discontinued</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Inventory & Pricing Section -->
+                        <h6 class="text-white mb-3 pb-2 border-bottom mt-4"><i class="fas fa-boxes me-2"></i>Inventory &
+                            Pricing</h6>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Current Stock <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="bookStock" aria-label="Stock Quantity"
+                                    min="0" value="0" required>
+                                <small class="text-muted">Available quantity</small>
+                            </div>
+                            <div class="col-md-4 mb-3" id="addStockContainer" style="display: none;">
+                                <label class="form-label">Add Stock</label>
+                                <input type="number" class="form-control" id="bookAddStock" aria-label="Add Stock"
+                                    min="0" value="0" placeholder="0">
+                                <small class="text-muted">Additional stock to add</small>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Selling Price (₱) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="bookPrice" aria-label="Price" step="0.01"
+                                    min="0.01" placeholder="0.00" required>
+                                <small class="text-muted">Retail price</small>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Discount (%)</label>
+                                <input type="number" class="form-control" id="bookDiscount" aria-label="Discount"
+                                    step="0.01" min="0" max="100" value="0" placeholder="0.00">
+                                <small class="text-muted">Optional discount</small>
+                            </div>
+                        </div>
+
+                        <!-- Product Media Section -->
+                        <h6 class="text-white mb-3 pb-2 border-bottom mt-4"><i class="fas fa-image me-2"></i>Book Cover
+                            Image</h6>
+
+                        <!-- File Upload Section -->
+                        <div class="mb-3">
+                            <label class="form-label">Upload Cover Image <span class="text-danger">*</span></label>
+                            <input type="file" class="form-control" id="bookCoverFile" accept="image/*"
+                                aria-label="Cover Image File">
+                            <small class="text-muted">Accepted formats: JPG, PNG, WebP, GIF (Max 5MB)</small>
+                        </div>
+
+                        <!-- Image URL Input (hidden by default, for backend compatibility) -->
+                        <input type="hidden" id="bookCover" value="">
+
+                        <!-- Image Preview -->
+                        <div class="mb-3">
+                            <label class="form-label">Preview</label>
+                            <div id="imagePreviewContainer"
+                                style="min-height: 200px; max-height: 300px; background: rgba(0,0,0,0.3); border: 2px dashed rgba(255,255,255,0.3); border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                <img id="imagePreview" src="" alt="Preview"
+                                    style="max-width: 100%; max-height: 300px; display: none; object-fit: contain;">
+                                <span id="previewPlaceholder" style="color: rgba(255,255,255,0.5);">
+                                    <i class="fas fa-image"
+                                        style="font-size: 48px; display: block; margin-bottom: 10px; text-align: center;"></i>
+                                    No image selected
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Hidden field to store the final cover data -->
+                        <input type="hidden" id="bookCoverData" aria-label="Book Cover Data">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn-add" onclick="saveBook()">
+                        <i class="fas fa-save me-2"></i>Save Book
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     </div>
 
     <!-- User Orders Modal -->
@@ -1488,17 +1447,11 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="./js/custom-notifications.js"></script>
     <script src="./js/api-client.js"></script>
     <script>
         let adminBooks = [];
         let allUsers = [];
         let allOrders = [];
-
-        // Store ALL books for dashboard statistics (not paginated)
-        let allBooksForStats = [];
-        let allUsersForStats = [];
-        let allOrdersForStats = [];
 
         // Pagination variables
         const ITEMS_PER_PAGE = 10;
@@ -1509,6 +1462,7 @@
         let currentArchivedBooksPage = 1;
         let currentArchivedUsersPage = 1;
         let currentArchivedOrdersPage = 1;
+        let currentAuditPage = 1;
 
         // Pagination totals
         let totalBooksPages = 1;
@@ -1517,31 +1471,28 @@
         let totalArchivedBooksPages = 1;
         let totalArchivedUsersPages = 1;
         let totalArchivedOrdersPages = 1;
+        let totalAuditPages = 1;
         let totalBooksItems = 0;
         let totalUsersItems = 0;
         let totalOrdersItems = 0;
         let totalArchivedBooksItems = 0;
         let totalArchivedUsersItems = 0;
         let totalArchivedOrdersItems = 0;
-
-        // Audit Trail variables
-        let auditLogs = [];
-        let currentAuditPage = 1;
-        let totalAuditPages = 1;
         let totalAuditItems = 0;
-        let currentAuditEntity = 'all';
-        let currentAuditAction = 'all';
 
         // Archive data storage
         let archivedBooks = [];
         let archivedUsers = [];
         let archivedOrders = [];
+        let auditLogs = [];
 
         // Filter states
         let currentBookCategory = 'all';
         let currentBookSearch = '';
         let currentOrderStatus = 'all';
         let currentOrderSearch = '';
+        let currentAuditEntity = 'all';
+        let currentAuditAction = 'all';
 
         // Database connection management
         let dbConnectionStatus = false;
@@ -1552,18 +1503,18 @@
         function initAdmin() {
             console.log('🚀 Initializing admin panel...');
 
+            // Load admin settings immediately
+            loadAdminSettings();
+
             // Start database connection monitoring
             startDbStatusMonitoring();
 
             setupNavigation();
             setupCategoryFilter();
             setupOrderFilters();
+            setupAuditFilters();
             setupCategoryGenreToggle();
             setupMobileMenu();
-            setupAuditFilters();
-
-            // Refresh audit trail every 30 seconds
-            setInterval(loadAuditTrail, 30000);
 
             // Only load data if database is connected
             checkDbConnectionAndLoadData();
@@ -1834,28 +1785,12 @@
         async function loadInitialData() {
             try {
                 console.log('🔄 Loading initial admin data...');
-
-                // First, load all data for statistics
-                await Promise.all([
-                    loadAllBooksForDashboard(),
-                    loadAllUsersForDashboard(),
-                    loadAllOrdersForDashboard()
-                ]);
-
-                console.log('✅ All statistics data loaded');
-
-                // Then load paginated data (without calling updateDashboard)
                 await Promise.all([
                     loadBooksFromAPI(),
                     loadUsersFromAPI(),
                     loadOrdersFromAPI(),
-                    loadDashboardUsers(),
-                    loadAuditTrail() // Load audit trail after authentication
+                    loadDashboardUsers()
                 ]);
-
-                // Finally, update the dashboard with the complete stats
-                await updateDashboard();
-
                 console.log('✅ Initial data loaded successfully');
             } catch (error) {
                 console.error('❌ Error loading initial data:', error);
@@ -1872,12 +1807,7 @@
                 const activeSection = document.querySelector('.content-section.active');
                 const sectionId = activeSection ? activeSection.id : 'dashboard-section';
 
-                // Always refresh dashboard statistics with ALL data
-                await Promise.all([
-                    loadAllBooksForDashboard(),
-                    loadAllUsersForDashboard(),
-                    loadAllOrdersForDashboard()
-                ]);
+                // Always refresh dashboard statistics
                 await updateDashboard();
 
                 // Refresh the active section's data
@@ -1960,7 +1890,7 @@
                 }
 
                 displayBooks();
-                // Don't call updateDashboard here - it will be called after all stats are loaded
+                await updateDashboard();
 
             } catch (error) {
                 console.error('❌ Error loading books:', error);
@@ -2122,82 +2052,6 @@
             }
         }
 
-        // Load ALL books for accurate dashboard statistics (not paginated)
-        async function loadAllBooksForDashboard() {
-            try {
-                console.log('📊 Loading all books for dashboard statistics...');
-
-                // Request a very large limit to get all books at once
-                // Most bookstores won't have more than 10000 books
-                const result = await safeApiCall(() => api.getAllBooksForAdmin(1, 10000, null, null));
-
-                if (!result || !result.books) {
-                    throw new Error('Invalid response from books API');
-                }
-
-                allBooksForStats = result.books.map(b => ({
-                    id: b.id,
-                    title: b.title || 'Untitled',
-                    author: b.author || 'Unknown Author',
-                    category: b.category || '',
-                    genre: b.genre || '',
-                    price: parseFloat(b.price) || 0,
-                    stock: parseInt(b.stock_quantity) || 0
-                }));
-
-                console.log(`📊 All books loaded for stats: ${allBooksForStats.length} total books`);
-
-            } catch (error) {
-                console.error('❌ Error loading all books for dashboard:', error);
-                // Don't fail completely - just use empty array
-                allBooksForStats = [];
-            }
-        }
-
-        // Load ALL users for accurate dashboard statistics (not paginated)
-        async function loadAllUsersForDashboard() {
-            try {
-                console.log('📊 Loading all users for dashboard statistics...');
-
-                const result = await safeApiCall(() => api.getAllUsersForAdmin(1, 10000));
-
-                if (!result || !result.users) {
-                    throw new Error('Invalid response from users API');
-                }
-
-                allUsersForStats = result.users.filter(user =>
-                    !user.role || user.role.toLowerCase() === 'user'
-                );
-
-                console.log(`📊 All users loaded for stats: ${allUsersForStats.length} total users`);
-
-            } catch (error) {
-                console.error('❌ Error loading all users for dashboard:', error);
-                allUsersForStats = [];
-            }
-        }
-
-        // Load ALL orders for accurate dashboard statistics (not paginated)
-        async function loadAllOrdersForDashboard() {
-            try {
-                console.log('📊 Loading all orders for dashboard statistics...');
-
-                const result = await safeApiCall(() => api.getAllOrdersForAdmin(1, 10000, {}));
-
-                if (!result || !result.orders) {
-                    throw new Error('Invalid response from orders API');
-                }
-
-                allOrdersForStats = result.orders;
-
-                console.log(`📊 All orders loaded for stats: ${allOrdersForStats.length} total orders`);
-
-            } catch (error) {
-                console.error('❌ Error loading all orders for dashboard:', error);
-                allOrdersForStats = [];
-            }
-        }
-
         // Archive loading functions with proper error handling
         async function loadArchivedBooksFromAPI(page = currentArchivedBooksPage, category = 'all') {
             try {
@@ -2228,6 +2082,12 @@
                 currentArchivedBooksPage = page;
                 totalArchivedBooksPages = result.pagination?.totalPages || 1;
                 totalArchivedBooksItems = result.pagination?.totalItems || archivedBooks.length;
+
+                // Update the filter dropdown to show current selection
+                const categoryFilter = document.getElementById('archivedBookCategoryFilter');
+                if (categoryFilter && categoryFilter.value !== category) {
+                    categoryFilter.value = category;
+                }
 
                 displayArchivedBooks(category);
 
@@ -2531,11 +2391,13 @@
                     bootstrap.Modal.getInstance(document.getElementById('addBookModal')).hide();
                     document.getElementById('bookForm').reset();
 
+                    // Add notification
+                    const action = id ? 'UPDATE' : 'CREATE';
+                    const bookTitle = payload.title;
+                    addNotification(action, 'book', bookTitle, `${action === 'UPDATE' ? 'Updated' : 'Added'} book to inventory`);
+
                     // Refresh all data including dashboard
                     await refreshAllData();
-
-                    // Reload audit trail to show the new action
-                    await loadAuditTrail();
 
                     // Show success message
                     const successMsg = `Book ${id ? 'updated' : 'created'} successfully!`;
@@ -2557,12 +2419,11 @@
                 const result = await api.adminUpdateOrder(orderId, { status });
 
                 if (result) {
+                    // Add notification
+                    addNotification('UPDATE', 'order', `Order #${orderId}`, `Status changed to ${status}`);
+
                     // Refresh all data including dashboard statistics
                     await refreshAllData();
-
-                    // Reload audit trail to show the new action
-                    await loadAuditTrail();
-
                     showSuccessMessage('Order status updated successfully');
                 } else {
                     throw new Error('Failed to update order status');
@@ -2587,11 +2448,16 @@
                 if (result) {
                     // Refresh all data
                     await refreshAllData();
-
-                    // Reload audit trail to show the new action
-                    await loadAuditTrail();
-
                     showSuccessMessage('User role updated successfully');
+
+                    // Add notification
+                    const userName = result.username || `User #${userId}`;
+                    addNotification(
+                        'UPDATE',
+                        'user',
+                        userName,
+                        `User "${userName}" role changed to ${newRole}`
+                    );
                 } else {
                     throw new Error('Failed to update user role');
                 }
@@ -2624,11 +2490,18 @@
                 if (result) {
                     showSuccessMessage(`Book ${action}d successfully!`);
 
+                    // Add notification
+                    const actionType = isUnarchive ? 'UNARCHIVE' : 'ARCHIVE';
+                    const bookTitle = result.title || `Book #${bookId}`;
+                    addNotification(
+                        actionType,
+                        'book',
+                        bookTitle,
+                        `Book "${bookTitle}" was ${action}d successfully`
+                    );
+
                     // Refresh all data including dashboard
                     await refreshAllData();
-
-                    // Reload audit trail to show the new action
-                    await loadAuditTrail();
 
                     // If we're viewing archived books, make sure to reload that as well
                     const archivedSection = document.getElementById('archived-books-section');
@@ -2663,11 +2536,18 @@
                 if (result) {
                     showSuccessMessage(`User ${action}d successfully!`);
 
+                    // Add notification
+                    const actionType = isUnarchive ? 'UNARCHIVE' : 'ARCHIVE';
+                    const userName = result.username || `User #${userId}`;
+                    addNotification(
+                        actionType,
+                        'user',
+                        userName,
+                        `User "${userName}" was ${action}d successfully`
+                    );
+
                     // Refresh all data including dashboard
                     await refreshAllData();
-
-                    // Reload audit trail to show the new action
-                    await loadAuditTrail();
 
                     // If we're viewing archived users, make sure to reload that as well
                     const archivedSection = document.getElementById('archived-users-section');
@@ -2702,11 +2582,17 @@
                 if (result) {
                     showSuccessMessage(`Order ${action}d successfully!`);
 
+                    // Add notification
+                    const actionType = isUnarchive ? 'UNARCHIVE' : 'ARCHIVE';
+                    addNotification(
+                        actionType,
+                        'order',
+                        `Order #${orderId}`,
+                        `Order #${orderId} was ${action}d successfully`
+                    );
+
                     // Refresh all data including dashboard
                     await refreshAllData();
-
-                    // Reload audit trail to show the new action
-                    await loadAuditTrail();
 
                     // If we're viewing archived orders, make sure to reload that as well
                     const archivedSection = document.getElementById('archived-orders-section');
@@ -2888,18 +2774,6 @@
             hideLoadingMessage();
         }
 
-        function showNotification(message, type = 'info') {
-            console.log(`${type.toUpperCase()}: ${message}`);
-            if (type === 'error') {
-                alert(message);
-            } else if (type === 'success') {
-                alert(message); // You can implement a better toast notification
-            } else {
-                console.log(message);
-            }
-            hideLoadingMessage();
-        }
-
         function showLoadingMessage(message) {
             console.log('⏳ ' + message);
             // You can implement a loading overlay here
@@ -2913,23 +2787,9 @@
             document.querySelectorAll('.menu-link').forEach(link => {
                 link.addEventListener('click', function (e) {
                     e.preventDefault();
-
-                    const section = this.getAttribute('data-section');
-
-                    // Check if trying to access admin management section
-                    if (section === 'admin-management') {
-                        const userData = JSON.parse(localStorage.getItem('adminUser') || '{}');
-                        const isSuperAdmin = userData.isSuperAdmin === true;
-
-                        if (!isSuperAdmin) {
-                            // Show error message and prevent access
-                            showErrorMessage('Access Denied: Super Admin privileges required');
-                            return;
-                        }
-                    }
-
                     document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active'));
                     this.classList.add('active');
+                    const section = this.getAttribute('data-section');
                     document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
                     document.getElementById(section + '-section').classList.add('active');
 
@@ -2940,6 +2800,8 @@
                         loadArchivedUsersFromAPI();
                     } else if (section === 'archived-orders') {
                         loadArchivedOrdersFromAPI();
+                    } else if (section === 'settings') {
+                        loadAdminSettings();
                     }
                 });
             });
@@ -2993,19 +2855,6 @@
             const sidebar = document.querySelector('.sidebar');
             const mainContent = document.querySelector('.main-content');
 
-            // Safety check - ensure elements exist
-            if (!mobileToggle || !sidebar || !mainContent) {
-                console.warn('Mobile menu elements not found, skipping setup');
-                return;
-            }
-
-            const toggleIcon = mobileToggle.querySelector('i');
-
-            if (!toggleIcon) {
-                console.warn('Mobile toggle icon not found');
-                return;
-            }
-
             // Create overlay if it doesn't exist
             let overlay = document.querySelector('.sidebar-overlay');
             if (!overlay) {
@@ -3014,27 +2863,11 @@
                 document.body.appendChild(overlay);
             }
 
-            // Remove any existing event listeners by cloning and replacing
-            const newToggle = mobileToggle.cloneNode(true);
-            mobileToggle.parentNode.replaceChild(newToggle, mobileToggle);
-            const newToggleIcon = newToggle.querySelector('i');
-
             // Toggle mobile menu
-            newToggle.addEventListener('click', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
+            mobileToggle.addEventListener('click', function () {
                 sidebar.classList.toggle('mobile-open');
                 overlay.classList.toggle('show');
                 document.body.style.overflow = sidebar.classList.contains('mobile-open') ? 'hidden' : '';
-
-                // Change icon between bars and times
-                if (sidebar.classList.contains('mobile-open')) {
-                    newToggleIcon.classList.remove('fa-bars');
-                    newToggleIcon.classList.add('fa-times');
-                } else {
-                    newToggleIcon.classList.remove('fa-times');
-                    newToggleIcon.classList.add('fa-bars');
-                }
             });
 
             // Close menu when clicking overlay
@@ -3042,8 +2875,6 @@
                 sidebar.classList.remove('mobile-open');
                 overlay.classList.remove('show');
                 document.body.style.overflow = '';
-                newToggleIcon.classList.remove('fa-times');
-                newToggleIcon.classList.add('fa-bars');
             });
 
             // Close menu when clicking a menu item on mobile
@@ -3053,8 +2884,6 @@
                         sidebar.classList.remove('mobile-open');
                         overlay.classList.remove('show');
                         document.body.style.overflow = '';
-                        newToggleIcon.classList.remove('fa-times');
-                        newToggleIcon.classList.add('fa-bars');
                     }
                 });
             });
@@ -3065,12 +2894,8 @@
                     sidebar.classList.remove('mobile-open');
                     overlay.classList.remove('show');
                     document.body.style.overflow = '';
-                    newToggleIcon.classList.remove('fa-times');
-                    newToggleIcon.classList.add('fa-bars');
                 }
             });
-
-            console.log('✅ Mobile menu setup complete');
         }
 
         // Initialize category-genre toggle when modal is shown
@@ -3137,28 +2962,27 @@
                 // Verify user is admin
                 if (userData.role !== 'admin') {
                     console.log('⛔ User is not admin, clearing session');
-                    api.logout();
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('user');
                     showAdminLogin();
                     return;
                 }
 
-                // Store admin user data for super-admin checks
-                localStorage.setItem('adminUser', user);
-                localStorage.setItem('isAdminSession', 'true'); // Ensure admin session flag is set
-
-                // Admin session is valid - show admin panel
-                console.log('✅ Admin session is valid, showing admin panel');
-                showAdminApp();
-                checkSuperAdminAccess(); // Check super admin status and show/hide menu
-                initAdmin();
-
+                // Verify token is still valid by checking database connection
+                // The token will be sent with API calls automatically
+                const isConnected = await verifyDatabaseConnection();
+                if (isConnected) {
+                    console.log('✅ Admin session is valid, showing admin panel');
+                    showAdminApp();
+                    initAdmin();
+                } else {
+                    console.log('❌ Database connection failed, showing login');
+                    showAdminLogin();
+                }
             } catch (error) {
                 console.error('❌ Error checking admin access:', error);
-                // Only clear session if there's a parsing error or critical failure
-                if (error.message && error.message.includes('JSON')) {
-                    console.error('Invalid user data stored, clearing session');
-                    api.logout();
-                }
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('user');
                 showAdminLogin();
             }
         }
@@ -3198,7 +3022,6 @@
                 if (response.token) {
                     console.log('✅ Admin login successful');
                     showAdminApp();
-                    checkSuperAdminAccess(); // Check super admin status and show/hide menu
                     initAdmin();
                 } else {
                     throw new Error('Login failed');
@@ -3242,15 +3065,8 @@
                 document.getElementById('bookTitle').value = book.title;
                 document.getElementById('bookAuthor').value = book.author;
                 document.getElementById('bookDescription').value = book.description;
-
-                // Normalize category value to match dropdown (handle both "Non-Fiction" and "Non - Fiction")
-                let categoryValue = book.category;
-                if (categoryValue === 'Non-Fiction') {
-                    categoryValue = 'Non - Fiction'; // Use the format with spaces to match dropdown
-                }
-                document.getElementById('bookCategory').value = categoryValue;
-                console.log('📝 Setting category:', categoryValue, 'for book:', book.title);
-
+                document.getElementById('bookCategory').value = book.category;
+                document.getElementById('bookGenre').value = book.genre;
                 document.getElementById('bookPrice').value = book.price;
                 document.getElementById('bookStock').value = book.stock || book.stock_quantity || 0;
                 document.getElementById('bookPublisher').value = book.publisher || '';
@@ -3271,35 +3087,15 @@
                     showImagePreview(book.cover);
                 }
 
-                // Setup category-genre relationship
+                // Trigger category change to populate genres
                 const categorySelect = document.getElementById('bookCategory');
-                const genreSelect = document.getElementById('bookGenre');
-
-                // Store the original genre for later
-                const originalGenre = book.genre;
-
-                // First, trigger category change to populate genres
-                const changeEvent = new Event('change', { bubbles: true });
+                const changeEvent = new Event('change');
                 categorySelect.dispatchEvent(changeEvent);
 
-                console.log('📝 Triggered category change. Current value:', categoryValue);
-
-                // Wait for genre options to be populated, then set the genre value
+                // Set genre after category is set
                 setTimeout(() => {
-                    const genreOptions = Array.from(genreSelect.options).map(opt => opt.value);
-                    console.log('📝 Available genres:', genreOptions);
-                    console.log('📝 Trying to set genre to:', originalGenre);
-
-                    if (genreOptions.includes(originalGenre)) {
-                        genreSelect.value = originalGenre;
-                        console.log('✅ Genre set successfully:', originalGenre);
-                    } else {
-                        console.warn('⚠️ Genre not found in dropdown:', originalGenre);
-                        console.warn('   Available genres:', genreOptions);
-                        // Try to set it anyway - some browsers may allow this
-                        genreSelect.value = originalGenre;
-                    }
-                }, 200);
+                    document.getElementById('bookGenre').value = book.genre;
+                }, 100);
 
                 // Update modal title
                 document.querySelector('#addBookModal .modal-title').textContent = 'Edit Book';
@@ -3512,9 +3308,6 @@
         async function updateDashboard() {
             try {
                 console.log('📊 Updating dashboard statistics...');
-                console.log('📊 allBooksForStats.length:', allBooksForStats.length);
-                console.log('📊 allUsersForStats.length:', allUsersForStats.length);
-                console.log('📊 allOrdersForStats.length:', allOrdersForStats.length);
 
                 // Update last updated time
                 const now = new Date();
@@ -3524,32 +3317,45 @@
                     lastUpdatedEl.textContent = timeStr;
                 }
 
-                // Calculate statistics from ALL loaded data (not just current page)
-                const stats = {
-                    books: {
-                        total: allBooksForStats.length || 0,
-                        totalStock: allBooksForStats.reduce((sum, book) => sum + (parseInt(book.stock) || 0), 0),
-                        lowStock: allBooksForStats.filter(book => (parseInt(book.stock) || 0) <= 10).length,
-                        fiction: allBooksForStats.filter(book => book.category === 'Fiction').length,
-                        nonFiction: allBooksForStats.filter(book => book.category === 'Non - Fiction' || book.category === 'Non-Fiction').length
-                    },
-                    orders: {
-                        total: allOrdersForStats.length || 0,
-                        pending: allOrdersForStats.filter(order => order.status === 'pending').length,
-                        processing: allOrdersForStats.filter(order => order.status === 'processing').length,
-                        shipped: allOrdersForStats.filter(order => order.status === 'shipped').length,
-                        completed: allOrdersForStats.filter(order => order.status === 'completed').length,
-                        cancelled: allOrdersForStats.filter(order => order.status === 'cancelled').length,
-                        totalRevenue: allOrdersForStats
-                            .filter(order => ['completed', 'shipped', 'delivered'].includes(order.status))
-                            .reduce((sum, order) => sum + (parseFloat(order.total_amount) || 0), 0)
-                    },
-                    users: {
-                        total: allUsersForStats.length || 0
-                    }
-                };
+                // Try to fetch comprehensive statistics from API
+                let stats = null;
+                try {
+                    stats = await api.getDashboardStats();
+                } catch (apiError) {
+                    console.warn('⚠️ Failed to fetch dashboard stats from API, using fallback data:', apiError);
+                    // Fallback: Use data from pagination totals (less accurate but better than nothing)
+                    // Note: Category counts will only reflect currently loaded books
+                    stats = {
+                        books: {
+                            total: totalBooksItems || 0, // Accurate from pagination
+                            totalStock: adminBooks.reduce((sum, book) => sum + (parseInt(book.stock) || 0), 0), // Only from loaded books
+                            lowStock: adminBooks.filter(book => (parseInt(book.stock) || 0) <= 10).length, // Only from loaded books
+                            fiction: 0, // Cannot determine accurately without API
+                            nonFiction: 0 // Cannot determine accurately without API
+                        },
+                        orders: {
+                            total: totalOrdersItems || 0, // Accurate from pagination
+                            pending: allOrders.filter(order => order.status === 'pending').length, // Only from loaded orders
+                            processing: allOrders.filter(order => order.status === 'processing').length,
+                            shipped: allOrders.filter(order => order.status === 'shipped').length,
+                            completed: allOrders.filter(order => order.status === 'completed').length,
+                            cancelled: allOrders.filter(order => order.status === 'cancelled').length,
+                            totalRevenue: allOrders
+                                .filter(order => ['completed', 'shipped', 'delivered'].includes(order.status))
+                                .reduce((sum, order) => sum + (parseFloat(order.total_amount) || 0), 0) // Only from loaded orders
+                        },
+                        users: {
+                            total: totalUsersItems || 0 // Accurate from pagination
+                        }
+                    };
+                    console.warn('⚠️ Using fallback statistics (category counts unavailable):', stats);
+                }
 
-                console.log('📊 Dashboard statistics calculated:', stats);
+                if (!stats) {
+                    throw new Error('Failed to fetch dashboard statistics');
+                }
+
+                console.log('📊 Dashboard statistics received:', stats);
 
                 // === Update Book Statistics ===
                 const booksNumberEl = document.getElementById('booksNumber');
@@ -3628,16 +3434,16 @@
 
                 console.log('👥 User Statistics:', stats.users);
 
-                // === Update Low Stock Table (from ALL books) ===
+                // === Update Low Stock Table (from currently loaded books) ===
                 const LOW_STOCK_THRESHOLD = 10;
-                const lowStockBooks = allBooksForStats.filter(book => {
+                const lowStockBooks = adminBooks.filter(book => {
                     const stock = parseInt(book.stock) || 0;
                     return stock <= LOW_STOCK_THRESHOLD && stock >= 0;
                 });
 
                 updateLowStockTable(lowStockBooks);
 
-                console.log('⚠️ Low Stock from all books:', lowStockBooks.length);
+                console.log('⚠️ Low Stock from loaded books:', lowStockBooks.length);
 
                 console.log('✅ Dashboard updated successfully');
 
@@ -4022,630 +3828,7 @@
             document.getElementById('bookCoverData').value = '';
         });
 
-        // ==================== AUDIT TRAIL FUNCTIONS ====================
-
-        let auditTrailLogs = [];
-
-        // Load recent audit trail logs
-        async function loadAuditTrail() {
-            try {
-                console.log('📜 Loading audit trail logs...');
-                const logs = await api.adminGetAuditTrail(10); // Get last 10 logs
-
-                console.log('📜 Audit trail response:', logs);
-                console.log('📜 Is array?', Array.isArray(logs));
-                console.log('📜 Logs length:', logs?.length);
-
-                if (logs && Array.isArray(logs)) {
-                    auditTrailLogs = logs;
-                    displayAuditTrail();
-                    updateAuditTrailBadge(logs.length);
-                    console.log('✅ Audit trail loaded successfully:', logs.length, 'logs');
-                } else {
-                    console.warn('⚠️ No audit trail logs received or invalid format:', logs);
-                    auditTrailLogs = [];
-                    displayAuditTrail();
-                    updateAuditTrailBadge(0);
-                }
-            } catch (error) {
-                console.error('❌ Error loading audit trail:', error);
-                console.error('❌ Error details:', error.message, error.stack);
-                showAuditTrailError();
-            }
-        }
-
-        // Display audit trail in dropdown
-        function displayAuditTrail() {
-            const listElement = document.getElementById('auditTrailList');
-
-            if (!auditTrailLogs || auditTrailLogs.length === 0) {
-                listElement.innerHTML = `
-                    <div style="text-align: center; padding: 30px; color: rgba(255,255,255,0.5);">
-                        <i class="fas fa-inbox" style="font-size: 32px; margin-bottom: 10px; opacity: 0.3;"></i>
-                        <p>No recent activity</p>
-                        <small style="font-size: 0.8rem; display: block; margin-top: 10px;">
-                            Action logs will appear here when admins perform operations
-                        </small>
-                    </div>
-                `;
-                return;
-            }
-
-            console.log('📜 Displaying audit trail logs:', auditTrailLogs.length);
-
-            listElement.innerHTML = auditTrailLogs.map(log => {
-                const timeAgo = formatTimeAgo(log.created_at || log.date || new Date());
-                const icon = getAuditIcon(log.action_type);
-                const color = getAuditColor(log.action_type);
-                const actionType = log.action_type || 'UNKNOWN';
-                const entityType = log.entity_type || 'item';
-                const entityName = log.entity_name || '';
-                const adminEmail = log.admin_email || 'Unknown';
-                const description = log.description || '';
-
-                return `
-                    <div class="notification-item" data-log-id="${log.id || ''}">
-                        <div class="notification-icon-circle" style="background: ${color};">
-                            <i class="${icon}"></i>
-                        </div>
-                        <div class="notification-content-area">
-                            <div class="notification-text">
-                                <strong>${escapeHtml(actionType)}</strong> ${escapeHtml(entityType)}
-                                ${entityName ? `<span class="entity-name">"${escapeHtml(entityName)}"</span>` : ''}
-                            </div>
-                            <div class="notification-description">
-                                ${description ? escapeHtml(description) : ''}
-                            </div>
-                            <div class="notification-meta">
-                                <span><i class="fas fa-user"></i> ${escapeHtml(adminEmail)}</span>
-                                <span><i class="fas fa-clock"></i> ${timeAgo}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Update audit trail badge
-        function updateAuditTrailBadge(count) {
-            const badge = document.getElementById('auditTrailCount');
-            if (badge) {
-                badge.textContent = count > 0 ? (count > 99 ? '99+' : count) : '0';
-                badge.style.display = count > 0 ? 'flex' : 'none';
-            }
-        }
-
-        // Show error in audit trail
-        function showAuditTrailError() {
-            const listElement = document.getElementById('auditTrailList');
-            listElement.innerHTML = `
-                <div style="text-align: center; padding: 20px; color: #ff6b6b;">
-                    <i class="fas fa-exclamation-triangle" style="font-size: 24px; margin-bottom: 10px;"></i>
-                    <p>Failed to load activity log</p>
-                </div>
-            `;
-        }
-
-        // Get icon for audit action type
-        function getAuditIcon(actionType) {
-            const icons = {
-                'CREATE': 'fas fa-plus-circle',
-                'UPDATE': 'fas fa-edit',
-                'DELETE': 'fas fa-trash-alt',
-                'ARCHIVE': 'fas fa-archive',
-                'UNARCHIVE': 'fas fa-box-open',
-                'LOGIN': 'fas fa-sign-in-alt',
-                'LOGOUT': 'fas fa-sign-out-alt'
-            };
-            return icons[actionType] || 'fas fa-circle';
-        }
-
-        // Get color for audit action type
-        function getAuditColor(actionType) {
-            const colors = {
-                'CREATE': 'rgba(40, 167, 69, 0.8)',
-                'UPDATE': 'rgba(0, 123, 255, 0.8)',
-                'DELETE': 'rgba(220, 53, 69, 0.8)',
-                'ARCHIVE': 'rgba(255, 193, 7, 0.8)',
-                'UNARCHIVE': 'rgba(23, 162, 184, 0.8)',
-                'LOGIN': 'rgba(40, 167, 69, 0.8)',
-                'LOGOUT': 'rgba(108, 117, 125, 0.8)'
-            };
-            return colors[actionType] || 'rgba(108, 117, 125, 0.8)';
-        }
-
-        // Format time ago
-        function formatTimeAgo(dateString) {
-            const date = new Date(dateString);
-            const now = new Date();
-            const seconds = Math.floor((now - date) / 1000);
-
-            if (seconds < 60) return 'just now';
-            const minutes = Math.floor(seconds / 60);
-            if (minutes < 60) return `${minutes}m ago`;
-            const hours = Math.floor(minutes / 60);
-            if (hours < 24) return `${hours}h ago`;
-            const days = Math.floor(hours / 24);
-            if (days < 7) return `${days}d ago`;
-            const weeks = Math.floor(days / 7);
-            if (weeks < 4) return `${weeks}w ago`;
-            return date.toLocaleDateString();
-        }
-
-        // Toggle audit trail dropdown
-        function toggleAuditTrailDropdown() {
-            const dropdown = document.getElementById('auditTrailDropdown');
-            dropdown.classList.toggle('show');
-
-            // Reload audit trail when opening
-            if (dropdown.classList.contains('show')) {
-                loadAuditTrail();
-            }
-        }
-
-        // Setup audit trail bell click handler
-        document.getElementById('auditTrailBell').addEventListener('click', function (e) {
-            e.stopPropagation();
-            toggleAuditTrailDropdown();
-        });
-
-        // Close audit trail dropdown when clicking outside
-        document.addEventListener('click', function (e) {
-            const dropdown = document.getElementById('auditTrailDropdown');
-            const bell = document.getElementById('auditTrailBell');
-
-            if (!dropdown.contains(e.target) && !bell.contains(e.target)) {
-                dropdown.classList.remove('show');
-            }
-        });
-
-        // ==================== ADMIN MANAGEMENT FUNCTIONS (SUPER ADMIN ONLY) ====================
-
-        let allAdmins = [];
-
-        // Load admins list
-        async function loadAdmins() {
-            try {
-                const response = await window.api.superAdminGetAdmins();
-
-                console.log('📋 Super Admin - Admins response:', response);
-
-                // The API returns the admins array directly, not wrapped in a success object
-                if (Array.isArray(response)) {
-                    allAdmins = response;
-                    displayAdmins();
-                } else if (response.success && response.admins) {
-                    // Fallback for wrapped response
-                    allAdmins = response.admins;
-                    displayAdmins();
-                } else {
-                    throw new Error('Invalid response format from server');
-                }
-            } catch (error) {
-                console.error('Error loading admins:', error);
-                document.getElementById('adminsTable').innerHTML = `
-                    <tr>
-                        <td colspan="6" style="text-align: center; color: #ff6b6b; padding: 40px;">
-                            <i class="fas fa-exclamation-triangle" style="font-size: 24px;"></i>
-                            <p style="margin-top: 10px;">Error loading admins: ${error.message}</p>
-                        </td>
-                    </tr>
-                `;
-            }
-        }
-
-        // Display admins in table
-        function displayAdmins() {
-            const tableBody = document.getElementById('adminsTable');
-
-            if (allAdmins.length === 0) {
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="6" style="text-align: center; color: rgba(255,255,255,0.5); padding: 40px;">
-                            <i class="fas fa-users-slash" style="font-size: 24px;"></i>
-                            <p style="margin-top: 10px;">No admin accounts found</p>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            tableBody.innerHTML = allAdmins.map(admin => {
-                const createdDate = new Date(admin.created_at).toLocaleDateString();
-                const roleBadge = admin.is_super_admin
-                    ? '<span style="background: #ff6b6b; padding: 4px 8px; border-radius: 8px; font-size: 0.75rem; font-weight: 600;">SUPER ADMIN</span>'
-                    : '<span style="background: #4dabf7; padding: 4px 8px; border-radius: 8px; font-size: 0.75rem; font-weight: 600;">ADMIN</span>';
-
-                const fullName = [admin.first_name, admin.last_name].filter(Boolean).join(' ') || '-';
-
-                // Check if this is the current logged-in admin
-                const userData = JSON.parse(localStorage.getItem('adminUser') || '{}');
-                const isCurrentUser = userData.id === admin.id;
-
-                // Count super admins
-                const superAdminCount = allAdmins.filter(a => a.is_super_admin).length;
-                const canDelete = !isCurrentUser && !(admin.is_super_admin && superAdminCount <= 1);
-
-                return `
-                    <tr>
-                        <td>
-                            ${admin.username}
-                            ${isCurrentUser ? '<span style="color: #51cf66; margin-left: 8px; font-size: 0.7rem;">(You)</span>' : ''}
-                        </td>
-                        <td>${admin.email}</td>
-                        <td>${fullName}</td>
-                        <td>${roleBadge}</td>
-                        <td>${createdDate}</td>
-                        <td>
-                            <button class="btn-icon" onclick="openEditAdminModal(${admin.id})" title="Edit Admin">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn-icon" onclick="resetAdminPasswordPrompt(${admin.id}, '${admin.username}')" title="Reset Password">
-                                <i class="fas fa-key"></i>
-                            </button>
-                            ${canDelete ? `
-                                <button class="btn-icon btn-delete" onclick="deleteAdminPrompt(${admin.id}, '${admin.username}')" title="Delete Admin">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            ` : `
-                                <button class="btn-icon" disabled title="${isCurrentUser ? 'Cannot delete yourself' : 'Cannot delete last super admin'}" style="opacity: 0.3; cursor: not-allowed;">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            `}
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        // Open add admin modal
-        async function openAddAdminModal() {
-            console.log('📝 Opening Add Admin Modal');
-
-            const modalElement = document.getElementById('addAdminModal');
-            const form = document.getElementById('adminForm');
-
-            // Reset the entire form
-            form.reset();
-
-            // Aggressively clear each field
-            const fields = ['adminId', 'adminUsername', 'adminEmail', 'adminFirstName', 'adminLastName', 'adminPhone', 'adminPassword'];
-            fields.forEach(fieldId => {
-                const field = document.getElementById(fieldId);
-                if (field) {
-                    field.value = '';
-                    field.defaultValue = '';
-                }
-            });
-
-            document.getElementById('adminIsSuperAdmin').checked = false;
-
-            // Update modal title
-            document.querySelector('#addAdminModal .modal-title').textContent = 'Add New Admin';
-
-            // Handle password field
-            const passwordField = document.getElementById('passwordField');
-            const smallText = passwordField.querySelector('small');
-            if (smallText) {
-                smallText.style.display = 'none';
-            }
-            document.getElementById('adminPassword').required = true;
-
-            // Refresh admin list
-            try {
-                console.log('🔄 Refreshing admin list before opening add modal...');
-                const response = await window.api.superAdminGetAdmins();
-                if (Array.isArray(response)) {
-                    allAdmins = response;
-                } else if (response.success && response.admins && Array.isArray(response.admins)) {
-                    allAdmins = response.admins;
-                }
-                console.log('📋 Admin list refreshed:', allAdmins.length, 'admins');
-            } catch (error) {
-                console.warn('⚠️ Could not refresh admin list:', error);
-            }
-
-            // Show the modal
-            const modal = new bootstrap.Modal(modalElement);
-            modal.show();
-
-            // Combat browser autofill ONLY - check if fields got auto-populated
-            // This runs ONCE after modal is shown, checking for autofill
-            modalElement.addEventListener('shown.bs.modal', function handleAutofill() {
-                // Small delay to let browser autofill kick in (if it's going to)
-                setTimeout(() => {
-                    const emailField = document.getElementById('adminEmail');
-                    const usernameField = document.getElementById('adminUsername');
-
-                    // Check if the email was autofilled with a known admin email
-                    const emailValue = emailField.value.trim().toLowerCase();
-                    const isAutofilled = allAdmins.some(admin =>
-                        admin.email && admin.email.toLowerCase() === emailValue
-                    );
-
-                    if (isAutofilled) {
-                        console.log('🧹 Detected autofill, clearing fields');
-                        emailField.value = '';
-                        usernameField.value = '';
-                        document.getElementById('adminPassword').value = '';
-                    } else {
-                        console.log('✅ No autofill detected');
-                    }
-
-                    // Focus on username field if empty
-                    if (!usernameField.value) {
-                        usernameField.focus();
-                    }
-                }, 100);
-
-                // Remove this listener after first use
-                modalElement.removeEventListener('shown.bs.modal', handleAutofill);
-            });
-        }
-        // Open edit admin modal
-        function openEditAdminModal(adminId) {
-            const admin = allAdmins.find(a => a.id === adminId);
-            if (!admin) return;
-
-            document.getElementById('adminId').value = admin.id;
-            document.getElementById('adminUsername').value = admin.username;
-            document.getElementById('adminEmail').value = admin.email;
-            document.getElementById('adminFirstName').value = admin.first_name || '';
-            document.getElementById('adminLastName').value = admin.last_name || '';
-            document.getElementById('adminPhone').value = admin.phone || '';
-            document.getElementById('adminPassword').value = '';
-            document.getElementById('adminIsSuperAdmin').checked = admin.is_super_admin;
-
-            document.querySelector('#addAdminModal .modal-title').textContent = 'Edit Admin';
-            document.getElementById('passwordField').querySelector('small').style.display = 'block';
-            document.getElementById('adminPassword').required = false;
-
-            const modal = new bootstrap.Modal(document.getElementById('addAdminModal'));
-            modal.show();
-        }
-
-        // Save admin (create or update)
-        async function saveAdmin() {
-            const form = document.getElementById('adminForm');
-            const formData = new FormData(form);
-
-            const adminId = document.getElementById('adminId').value;
-            const username = formData.get('username')?.trim() || '';
-            const email = formData.get('email')?.trim() || '';
-            const firstName = formData.get('firstname')?.trim() || '';
-            const lastName = formData.get('lastname')?.trim() || '';
-            const phone = formData.get('phone')?.trim() || '';
-            const password = formData.get('password') || '';
-            const isSuperAdmin = document.getElementById('adminIsSuperAdmin').checked;
-
-            console.log('📦 Form values:', { username, email, password: password ? '***' : 'EMPTY' });
-
-            // Validation
-            if (!username || !email) {
-                showNotification('Username and email are required', 'error');
-                return;
-            }
-
-            // Validate email format
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                showNotification('Please enter a valid email address', 'error');
-                return;
-            }
-
-            // Validate username (alphanumeric, underscore, dash, min 3 chars)
-            const usernameRegex = /^[a-zA-Z0-9_-]{3,}$/;
-            if (!usernameRegex.test(username)) {
-                showNotification('Username must be at least 3 characters and contain only letters, numbers, underscores, or dashes', 'error');
-                return;
-            }
-
-            if (!adminId && !password) {
-                showNotification('Password is required for new admins', 'error');
-                return;
-            }
-
-            if (password && password.length < 6) {
-                showNotification('Password must be at least 6 characters', 'error');
-                return;
-            }
-
-            // Check for duplicates (only for new admins)
-            if (!adminId) {
-                // Ensure we have the latest admin list
-                try {
-                    const response = await window.api.superAdminGetAdmins();
-                    console.log('📋 Checking for duplicates, allAdmins before:', allAdmins.length);
-
-                    if (Array.isArray(response)) {
-                        allAdmins = response;
-                        console.log('📋 Refreshed admin list:', allAdmins.length, 'admins');
-                    } else if (response.success && response.admins && Array.isArray(response.admins)) {
-                        allAdmins = response.admins;
-                        console.log('📋 Refreshed admin list from wrapped response:', allAdmins.length, 'admins');
-                    }
-
-                    console.log('🔍 Checking for duplicates with username:', username, 'and email:', email);
-
-                    const existingAdmin = allAdmins.find(admin => {
-                        const usernameMatch = admin.username && username &&
-                            admin.username.toLowerCase().trim() === username.toLowerCase().trim();
-                        const emailMatch = admin.email && email &&
-                            admin.email.toLowerCase().trim() === email.toLowerCase().trim();
-
-                        if (usernameMatch) {
-                            console.log('⚠️ Duplicate username found:', admin.username);
-                        }
-                        if (emailMatch) {
-                            console.log('⚠️ Duplicate email found:', admin.email);
-                        }
-
-                        return usernameMatch || emailMatch;
-                    });
-
-                    if (existingAdmin) {
-                        console.error('❌ Duplicate found:', existingAdmin);
-                        const duplicateType = existingAdmin.username.toLowerCase().trim() === username.toLowerCase().trim()
-                            ? 'username' : 'email';
-                        showNotification(`An admin with this ${duplicateType} already exists. Please use a different ${duplicateType}.`, 'error');
-                        return;
-                    }
-
-                    console.log('✅ No duplicates found, proceeding with creation');
-                } catch (error) {
-                    console.warn('Could not refresh admin list for duplicate check:', error);
-                    // Continue anyway - server will catch actual duplicates
-                }
-            }
-
-            try {
-                const adminData = {
-                    username,
-                    email,
-                    first_name: firstName,
-                    last_name: lastName,
-                    phone,
-                    is_super_admin: isSuperAdmin ? 1 : 0
-                };
-
-                if (password) {
-                    adminData.password = password;
-                }
-
-                let response;
-                if (adminId) {
-                    // Update existing admin
-                    response = await window.api.superAdminUpdateAdmin(adminId, adminData);
-                } else {
-                    // Create new admin
-                    response = await window.api.superAdminCreateAdmin(adminData);
-                }
-
-                console.log('📝 Admin save response:', response);
-
-                if (response && response.success) {
-                    showNotification(adminId ? 'Admin updated successfully' : 'Admin created successfully', 'success');
-                    bootstrap.Modal.getInstance(document.getElementById('addAdminModal')).hide();
-                    await loadAdmins();
-
-                    // Reload audit trail to show the new action
-                    await loadAuditTrail();
-                } else {
-                    const errorMsg = response?.error || response?.message || 'Failed to save admin';
-                    throw new Error(errorMsg);
-                }
-            } catch (error) {
-                console.error('Error saving admin:', error);
-                // Show user-friendly error for duplicate username/email
-                if (error.message && error.message.match(/already exists|UNIQUE constraint failed/i)) {
-                    showNotification('An admin with this username or email already exists. Please use a different username and email.', 'error');
-                } else {
-                    showNotification(error.message, 'error');
-                }
-            }
-        }
-
-        // Delete admin with confirmation
-        async function deleteAdminPrompt(adminId, username) {
-            if (!confirm(`Are you sure you want to delete admin "${username}"?\n\nThis action cannot be undone.`)) {
-                return;
-            }
-
-            try {
-                const response = await window.api.superAdminDeleteAdmin(adminId);
-
-                if (response && response.success) {
-                    showNotification('Admin deleted successfully', 'success');
-                    await loadAdmins();
-
-                    // Reload audit trail to show the new action
-                    await loadAuditTrail();
-                } else {
-                    const errorMsg = response?.error || response?.message || 'Failed to delete admin';
-                    throw new Error(errorMsg);
-                }
-            } catch (error) {
-                console.error('Error deleting admin:', error);
-                showNotification(error.message, 'error');
-            }
-        }
-
-        // Reset admin password
-        async function resetAdminPasswordPrompt(adminId, username) {
-            const newPassword = prompt(`Enter new password for "${username}":\n\n(Minimum 6 characters)`);
-
-            if (!newPassword) return;
-
-            if (newPassword.length < 6) {
-                showNotification('Password must be at least 6 characters', 'error');
-                return;
-            }
-
-            try {
-                const response = await window.api.superAdminResetPassword(adminId, newPassword);
-
-                if (response && response.success) {
-                    showNotification('Password reset successfully', 'success');
-
-                    // Reload audit trail to show the new action
-                    await loadAuditTrail();
-                } else {
-                    const errorMsg = response?.error || response?.message || 'Failed to reset password';
-                    throw new Error(errorMsg);
-                }
-            } catch (error) {
-                console.error('Error resetting password:', error);
-                showNotification(error.message, 'error');
-            }
-        }
-
-        // Check if user is super admin and show/hide menu
-        function checkSuperAdminAccess() {
-            const userData = JSON.parse(localStorage.getItem('adminUser') || '{}');
-            const isSuperAdmin = userData.isSuperAdmin === true;
-
-            console.log('🔍 Checking super admin access:');
-            console.log('   adminUser data:', userData);
-            console.log('   isSuperAdmin:', isSuperAdmin);
-
-            // Show/hide super admin menu items
-            const superAdminElements = document.querySelectorAll('.super-admin-only');
-            console.log('   Found super-admin-only elements:', superAdminElements.length);
-
-            superAdminElements.forEach(element => {
-                element.style.display = isSuperAdmin ? '' : 'none';
-                console.log('   Element display set to:', isSuperAdmin ? 'visible' : 'hidden', element);
-            });
-
-            if (isSuperAdmin) {
-                console.log('✅ Super admin access granted - Admin Management should be visible');
-            } else {
-                console.log('❌ Super admin access denied - Admin Management hidden');
-            }
-
-            // If on admin management section and not super admin, redirect to dashboard
-            const currentSection = document.querySelector('.content-section.active');
-            if (currentSection && currentSection.id === 'admin-management-section' && !isSuperAdmin) {
-                // Hide admin management section
-                currentSection.classList.remove('active');
-
-                // Show dashboard section
-                const dashboardSection = document.getElementById('dashboard-section');
-                if (dashboardSection) {
-                    dashboardSection.classList.add('active');
-                }
-
-                // Update active menu link
-                document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active'));
-                const dashboardLink = document.querySelector('[data-section="dashboard"]');
-                if (dashboardLink) {
-                    dashboardLink.classList.add('active');
-                }
-            }
-        }
-
-        // Call on page load and after login
-        checkSuperAdminAccess();
+        setupMobileMenu();
 
         // ==================== VOUCHER MANAGEMENT FUNCTIONS ====================
 
@@ -4874,14 +4057,22 @@
                 }
 
                 if (response) {
-                    showSuccessMessage(voucherId ? 'Voucher updated successfully!' : 'Voucher created successfully!');
+                    const actionType = voucherId ? 'UPDATE' : 'CREATE';
+                    const actionText = voucherId ? 'updated' : 'created';
+                    showSuccessMessage(`Voucher ${actionText} successfully!`);
+
+                    // Add notification
+                    addNotification(
+                        actionType,
+                        'voucher',
+                        code,
+                        `Voucher "${code}" was ${actionText} successfully`
+                    );
+
                     bootstrap.Modal.getInstance(document.getElementById('addVoucherModal')).hide();
 
                     // Refresh vouchers list
                     await loadVouchersFromAPI(currentVouchersPage);
-
-                    // Reload audit trail to show the new action
-                    await loadAuditTrail();
                 } else {
                     throw new Error('Failed to save voucher');
                 }
@@ -4943,11 +4134,16 @@
                 if (response && response.success) {
                     showSuccessMessage('Voucher deleted successfully!');
 
+                    // Add notification
+                    addNotification(
+                        'DELETE',
+                        'voucher',
+                        voucherCode,
+                        `Voucher "${voucherCode}" was deleted successfully`
+                    );
+
                     // Refresh vouchers list
                     await loadVouchersFromAPI(currentVouchersPage);
-
-                    // Reload audit trail to show the new action
-                    await loadAuditTrail();
                 } else {
                     throw new Error(response.message || 'Failed to delete voucher');
                 }
@@ -4989,22 +4185,587 @@
             loadVouchersFromAPI(1);
         });
 
-        // Load admins when admin management section is opened (super admin only)
-        document.querySelector('[data-section="admin-management"]')?.addEventListener('click', function () {
-            const userData = JSON.parse(localStorage.getItem('adminUser') || '{}');
-            const isSuperAdmin = userData.isSuperAdmin === true;
+        // ==================== END VOUCHER MANAGEMENT ====================
 
-            if (!isSuperAdmin) {
-                showErrorMessage('Access Denied: Super Admin privileges required');
+        // ==================== ADMIN MANAGEMENT FUNCTIONS (SUPER ADMIN ONLY) ====================
+
+        let allAdmins = [];
+
+        // Load admins list
+        async function loadAdmins() {
+            try {
+                const response = await window.api.superAdminGetAdmins();
+
+                console.log('📋 Super Admin - Admins response:', response);
+
+                // The API returns the admins array directly, not wrapped in a success object
+                if (Array.isArray(response)) {
+                    allAdmins = response;
+                    displayAdmins();
+                } else if (response.success && response.admins) {
+                    // Fallback for wrapped response
+                    allAdmins = response.admins;
+                    displayAdmins();
+                } else {
+                    throw new Error('Invalid response format from server');
+                }
+            } catch (error) {
+                console.error('Error loading admins:', error);
+                document.getElementById('adminsTable').innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: #ff6b6b; padding: 40px;">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 24px;"></i>
+                            <p style="margin-top: 10px;">Error loading admins: ${error.message}</p>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Display admins in table
+        function displayAdmins() {
+            const tableBody = document.getElementById('adminsTable');
+
+            if (allAdmins.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: rgba(255,255,255,0.5); padding: 40px;">
+                            <i class="fas fa-users-slash" style="font-size: 24px;"></i>
+                            <p style="margin-top: 10px;">No admin accounts found</p>
+                        </td>
+                    </tr>
+                `;
                 return;
             }
 
-            loadAdmins();
+            tableBody.innerHTML = allAdmins.map(admin => {
+                const createdDate = new Date(admin.created_at).toLocaleDateString();
+                const roleBadge = admin.is_super_admin
+                    ? '<span style="background: #ff6b6b; padding: 4px 8px; border-radius: 8px; font-size: 0.75rem; font-weight: 600;">SUPER ADMIN</span>'
+                    : '<span style="background: #4dabf7; padding: 4px 8px; border-radius: 8px; font-size: 0.75rem; font-weight: 600;">ADMIN</span>';
+
+                const fullName = [admin.first_name, admin.last_name].filter(Boolean).join(' ') || '-';
+
+                // Check if this is the current logged-in admin
+                const userData = JSON.parse(localStorage.getItem('adminUser') || '{}');
+                const isCurrentUser = userData.id === admin.id;
+
+                // Count super admins
+                const superAdminCount = allAdmins.filter(a => a.is_super_admin).length;
+                const canDelete = !isCurrentUser && !(admin.is_super_admin && superAdminCount <= 1);
+
+                return `
+                    <tr>
+                        <td>
+                            ${admin.username}
+                            ${isCurrentUser ? '<span style="color: #51cf66; margin-left: 8px; font-size: 0.7rem;">(You)</span>' : ''}
+                        </td>
+                        <td>${admin.email}</td>
+                        <td>${fullName}</td>
+                        <td>${roleBadge}</td>
+                        <td>${createdDate}</td>
+                        <td>
+                            <button class="btn-icon" onclick="openEditAdminModal(${admin.id})" title="Edit Admin">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-icon" onclick="resetAdminPasswordPrompt(${admin.id}, '${admin.username}')" title="Reset Password">
+                                <i class="fas fa-key"></i>
+                            </button>
+                            ${canDelete ? `
+                                <button class="btn-icon btn-delete" onclick="deleteAdminPrompt(${admin.id}, '${admin.username}')" title="Delete Admin">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            ` : `
+                                <button class="btn-icon" disabled title="${isCurrentUser ? 'Cannot delete yourself' : 'Cannot delete last super admin'}" style="opacity: 0.3; cursor: not-allowed;">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            `}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Open add admin modal
+        async function openAddAdminModal() {
+            console.log('📝 Opening Add Admin Modal');
+
+            const modalElement = document.getElementById('addAdminModal');
+            const form = document.getElementById('adminForm');
+
+            // Reset the entire form
+            form.reset();
+
+            // Aggressively clear each field
+            const fields = ['adminId', 'adminUsername', 'adminEmail', 'adminFirstName', 'adminLastName', 'adminPhone', 'adminPassword'];
+            fields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.value = '';
+                    field.defaultValue = '';
+                }
+            });
+
+            document.getElementById('adminIsSuperAdmin').checked = false;
+
+            // Update modal title
+            document.querySelector('#addAdminModal .modal-title').textContent = 'Add New Admin';
+
+            // Handle password field
+            const passwordField = document.getElementById('passwordField');
+            const smallText = passwordField.querySelector('small');
+            if (smallText) {
+                smallText.style.display = 'none';
+            }
+            document.getElementById('adminPassword').required = true;
+
+            // Refresh admin list
+            try {
+                console.log('🔄 Refreshing admin list before opening add modal...');
+                const response = await window.api.superAdminGetAdmins();
+                if (Array.isArray(response)) {
+                    allAdmins = response;
+                } else if (response.success && response.admins && Array.isArray(response.admins)) {
+                    allAdmins = response.admins;
+                }
+                console.log('📋 Admin list refreshed:', allAdmins.length, 'admins');
+            } catch (error) {
+                console.warn('⚠️ Could not refresh admin list:', error);
+            }
+
+            // Show the modal
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+
+            // Combat browser autofill ONLY - check if fields got auto-populated
+            // This runs ONCE after modal is shown, checking for autofill
+            modalElement.addEventListener('shown.bs.modal', function handleAutofill() {
+                // Small delay to let browser autofill kick in (if it's going to)
+                setTimeout(() => {
+                    const emailField = document.getElementById('adminEmail');
+                    const usernameField = document.getElementById('adminUsername');
+
+                    // Check if the email was autofilled with a known admin email
+                    const emailValue = emailField.value.trim().toLowerCase();
+                    const isAutofilled = allAdmins.some(admin =>
+                        admin.email && admin.email.toLowerCase() === emailValue
+                    );
+
+                    if (isAutofilled) {
+                        console.log('🧹 Detected autofill, clearing fields');
+                        emailField.value = '';
+                        usernameField.value = '';
+                        document.getElementById('adminPassword').value = '';
+                    } else {
+                        console.log('✅ No autofill detected');
+                    }
+
+                    // Focus on username field if empty
+                    if (!usernameField.value) {
+                        usernameField.focus();
+                    }
+                }, 100);
+
+                // Remove this listener after first use
+                modalElement.removeEventListener('shown.bs.modal', handleAutofill);
+            });
+        }
+
+        // Open edit admin modal
+        function openEditAdminModal(adminId) {
+            const admin = allAdmins.find(a => a.id === adminId);
+            if (!admin) return;
+
+            document.getElementById('adminId').value = admin.id;
+            document.getElementById('adminUsername').value = admin.username;
+            document.getElementById('adminEmail').value = admin.email;
+            document.getElementById('adminFirstName').value = admin.first_name || '';
+            document.getElementById('adminLastName').value = admin.last_name || '';
+            document.getElementById('adminPhone').value = admin.phone || '';
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('adminIsSuperAdmin').checked = admin.is_super_admin;
+
+            document.querySelector('#addAdminModal .modal-title').textContent = 'Edit Admin';
+            document.getElementById('passwordField').querySelector('small').style.display = 'block';
+            document.getElementById('adminPassword').required = false;
+
+            const modal = new bootstrap.Modal(document.getElementById('addAdminModal'));
+            modal.show();
+        }
+
+        // Save admin (create or update)
+        async function saveAdmin() {
+            const form = document.getElementById('adminForm');
+            const formData = new FormData(form);
+
+            const adminId = document.getElementById('adminId').value;
+            const username = formData.get('username')?.trim() || '';
+            const email = formData.get('email')?.trim() || '';
+            const firstName = formData.get('firstname')?.trim() || '';
+            const lastName = formData.get('lastname')?.trim() || '';
+            const phone = formData.get('phone')?.trim() || '';
+            const password = formData.get('password') || '';
+            const isSuperAdmin = document.getElementById('adminIsSuperAdmin').checked;
+
+            console.log('📦 Form values:', { username, email, password: password ? '***' : 'EMPTY' });
+
+            // Validation
+            if (!username || !email) {
+                showErrorMessage('Username and email are required');
+                return;
+            }
+
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showErrorMessage('Please enter a valid email address');
+                return;
+            }
+
+            // Validate username (alphanumeric, underscore, dash, min 3 chars)
+            const usernameRegex = /^[a-zA-Z0-9_-]{3,}$/;
+            if (!usernameRegex.test(username)) {
+                showErrorMessage('Username must be at least 3 characters and contain only letters, numbers, underscores, or dashes');
+                return;
+            }
+
+            if (!adminId && !password) {
+                showErrorMessage('Password is required for new admins');
+                return;
+            }
+
+            if (password && password.length < 6) {
+                showErrorMessage('Password must be at least 6 characters');
+                return;
+            }
+
+            // Check for duplicates (only for new admins)
+            if (!adminId) {
+                // Ensure we have the latest admin list
+                try {
+                    const response = await window.api.superAdminGetAdmins();
+                    console.log('📋 Checking for duplicates, allAdmins before:', allAdmins.length);
+
+                    if (Array.isArray(response)) {
+                        allAdmins = response;
+                        console.log('📋 Refreshed admin list:', allAdmins.length, 'admins');
+                    } else if (response.success && response.admins && Array.isArray(response.admins)) {
+                        allAdmins = response.admins;
+                        console.log('📋 Refreshed admin list from wrapped response:', allAdmins.length, 'admins');
+                    }
+
+                    console.log('🔍 Checking for duplicates with username:', username, 'and email:', email);
+
+                    const existingAdmin = allAdmins.find(admin => {
+                        const usernameMatch = admin.username && username &&
+                            admin.username.toLowerCase().trim() === username.toLowerCase().trim();
+                        const emailMatch = admin.email && email &&
+                            admin.email.toLowerCase().trim() === email.toLowerCase().trim();
+
+                        if (usernameMatch) {
+                            console.log('⚠️ Duplicate username found:', admin.username);
+                        }
+                        if (emailMatch) {
+                            console.log('⚠️ Duplicate email found:', admin.email);
+                        }
+
+                        return usernameMatch || emailMatch;
+                    });
+
+                    if (existingAdmin) {
+                        console.error('❌ Duplicate found:', existingAdmin);
+                        const duplicateType = existingAdmin.username.toLowerCase().trim() === username.toLowerCase().trim()
+                            ? 'username' : 'email';
+                        showErrorMessage(`An admin with this ${duplicateType} already exists. Please use a different ${duplicateType}.`);
+                        return;
+                    }
+
+                    console.log('✅ No duplicates found, proceeding with creation');
+                } catch (error) {
+                    console.warn('Could not refresh admin list for duplicate check:', error);
+                    // Continue anyway - server will catch actual duplicates
+                }
+            }
+
+            try {
+                const adminData = {
+                    username,
+                    email,
+                    first_name: firstName,
+                    last_name: lastName,
+                    phone,
+                    is_super_admin: isSuperAdmin ? 1 : 0
+                };
+
+                if (password) {
+                    adminData.password = password;
+                }
+
+                let response;
+                if (adminId) {
+                    // Update existing admin
+                    response = await window.api.superAdminUpdateAdmin(adminId, adminData);
+                } else {
+                    // Create new admin
+                    response = await window.api.superAdminCreateAdmin(adminData);
+                }
+
+                console.log('📝 Admin save response:', response);
+
+                if (response && response.success) {
+                    showSuccessMessage(adminId ? 'Admin updated successfully' : 'Admin created successfully');
+                    bootstrap.Modal.getInstance(document.getElementById('addAdminModal')).hide();
+                    await loadAdmins();
+
+                    // Reload audit trail if available
+                    if (typeof loadAuditTrailFromAPI === 'function') {
+                        await loadAuditTrailFromAPI();
+                    }
+                } else {
+                    const errorMsg = response?.error || response?.message || 'Failed to save admin';
+                    throw new Error(errorMsg);
+                }
+            } catch (error) {
+                console.error('Error saving admin:', error);
+                // Show user-friendly error for duplicate username/email
+                if (error.message && error.message.match(/already exists|UNIQUE constraint failed/i)) {
+                    showErrorMessage('An admin with this username or email already exists. Please use a different username and email.');
+                } else {
+                    showErrorMessage(error.message);
+                }
+            }
+        }
+
+        // Delete admin with confirmation
+        async function deleteAdminPrompt(adminId, username) {
+            if (!confirm(`Are you sure you want to delete admin "${username}"?\n\nThis action cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const response = await window.api.superAdminDeleteAdmin(adminId);
+
+                if (response && response.success) {
+                    showSuccessMessage('Admin deleted successfully');
+                    await loadAdmins();
+
+                    // Reload audit trail if available
+                    if (typeof loadAuditTrailFromAPI === 'function') {
+                        await loadAuditTrailFromAPI();
+                    }
+                } else {
+                    const errorMsg = response?.error || response?.message || 'Failed to delete admin';
+                    throw new Error(errorMsg);
+                }
+            } catch (error) {
+                console.error('Error deleting admin:', error);
+                showErrorMessage(error.message);
+            }
+        }
+
+        // Reset admin password
+        async function resetAdminPasswordPrompt(adminId, username) {
+            const newPassword = prompt(`Enter new password for "${username}":\n\n(Minimum 6 characters)`);
+
+            if (!newPassword) return;
+
+            if (newPassword.length < 6) {
+                showErrorMessage('Password must be at least 6 characters');
+                return;
+            }
+
+            try {
+                const response = await window.api.superAdminResetPassword(adminId, newPassword);
+
+                if (response && response.success) {
+                    showSuccessMessage('Password reset successfully');
+
+                    // Reload audit trail if available
+                    if (typeof loadAuditTrailFromAPI === 'function') {
+                        await loadAuditTrailFromAPI();
+                    }
+                } else {
+                    const errorMsg = response?.error || response?.message || 'Failed to reset password';
+                    throw new Error(errorMsg);
+                }
+            } catch (error) {
+                console.error('Error resetting password:', error);
+                showErrorMessage(error.message);
+            }
+        }
+
+        // Check if user is super admin and show/hide menu
+        function checkSuperAdminAccess() {
+            const userData = JSON.parse(localStorage.getItem('adminUser') || '{}');
+            const isSuperAdmin = userData.isSuperAdmin === true;
+
+            console.log('🔍 Checking super admin access:');
+            console.log('   adminUser data:', userData);
+            console.log('   isSuperAdmin:', isSuperAdmin);
+
+            // Show/hide super admin menu items
+            const superAdminElements = document.querySelectorAll('.super-admin-only');
+            console.log('   Found super-admin-only elements:', superAdminElements.length);
+
+            superAdminElements.forEach(element => {
+                element.style.display = isSuperAdmin ? '' : 'none';
+                console.log('   Element display set to:', isSuperAdmin ? 'visible' : 'hidden', element);
+            });
+
+            if (isSuperAdmin) {
+                console.log('✅ Super admin access granted - Admin Management should be visible');
+            } else {
+                console.log('❌ Super admin access denied - Admin Management hidden');
+            }
+
+            // If on admin management section and not super admin, redirect to dashboard
+            const currentSection = document.querySelector('.content-section.active');
+            if (currentSection && currentSection.id === 'admin-management-section' && !isSuperAdmin) {
+                // Hide admin management section
+                currentSection.classList.remove('active');
+
+                // Show dashboard section
+                const dashboardSection = document.getElementById('dashboard-section');
+                if (dashboardSection) {
+                    dashboardSection.classList.add('active');
+                }
+
+                // Update active menu link
+                document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active'));
+                const dashboardLink = document.querySelector('[data-section="dashboard"]');
+                if (dashboardLink) {
+                    dashboardLink.classList.add('active');
+                }
+            }
+        }
+
+        // Call on page load and after login
+        checkSuperAdminAccess();
+
+        // Load admins when admin management section is opened (super admin only)
+        document.querySelector('[data-section="admin-management"]')?.addEventListener('click', function () {
+            // Double-check super admin status
+            const userData = JSON.parse(localStorage.getItem('adminUser') || '{}');
+            if (userData.isSuperAdmin) {
+                loadAdmins();
+            }
         });
 
-        // ==================== END VOUCHER MANAGEMENT ====================
+        // ==================== END ADMIN MANAGEMENT ====================
 
-        // ==================== AUDIT TRAIL FUNCTIONS ====================
+        // ==================== SETTINGS & SECURITY ====================
+
+        // Load admin information in settings section
+        async function loadAdminSettings() {
+            try {
+                // Try to get admin data from either 'adminUser' or 'user' in localStorage
+                let adminData = null;
+                const adminUserData = localStorage.getItem('adminUser');
+                const userData = localStorage.getItem('user');
+
+                if (adminUserData) {
+                    adminData = JSON.parse(adminUserData);
+                } else if (userData) {
+                    adminData = JSON.parse(userData);
+                }
+
+                if (adminData) {
+                    document.getElementById('adminUsername').textContent = adminData.username || 'N/A';
+                    document.getElementById('adminEmail').textContent = adminData.email || 'N/A';
+                    document.getElementById('adminFullName').textContent =
+                        `${adminData.first_name || ''} ${adminData.last_name || ''}`.trim() || 'N/A';
+                } else {
+                    console.warn('No admin data found in localStorage');
+                    document.getElementById('adminUsername').textContent = 'N/A';
+                    document.getElementById('adminEmail').textContent = 'N/A';
+                    document.getElementById('adminFullName').textContent = 'N/A';
+                }
+
+                // Update database status in settings
+                const dbStatus = document.getElementById('dbStatusInfo');
+                if (dbConnectionStatus) {
+                    dbStatus.textContent = 'Connected';
+                    dbStatus.className = 'badge bg-success';
+                } else {
+                    dbStatus.textContent = 'Disconnected';
+                    dbStatus.className = 'badge bg-danger';
+                }
+            } catch (error) {
+                console.error('Error loading admin settings:', error);
+            }
+        }
+
+        // Handle password change
+        async function handleChangePassword(event) {
+            event.preventDefault();
+
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const messageDiv = document.getElementById('passwordChangeMessage');
+
+            // Clear previous messages
+            messageDiv.innerHTML = '';
+
+            // Validate new password
+            if (newPassword.length < 6) {
+                messageDiv.innerHTML = '<div class="alert alert-danger">New password must be at least 6 characters long.</div>';
+                return;
+            }
+
+            // Check if passwords match
+            if (newPassword !== confirmPassword) {
+                messageDiv.innerHTML = '<div class="alert alert-danger">New passwords do not match.</div>';
+                return;
+            }
+
+            // Check if new password is different from current
+            if (currentPassword === newPassword) {
+                messageDiv.innerHTML = '<div class="alert alert-warning">New password must be different from current password.</div>';
+                return;
+            }
+
+            try {
+                // Get admin data from localStorage
+                const adminData = JSON.parse(localStorage.getItem('adminData'));
+                if (!adminData || !adminData.id) {
+                    throw new Error('Admin session not found. Please log in again.');
+                }
+
+                // Call API to change password
+                const response = await api.adminChangePassword({
+                    adminId: adminData.id,
+                    currentPassword: currentPassword,
+                    newPassword: newPassword
+                });
+
+                if (response && response.success) {
+                    messageDiv.innerHTML = '<div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>Password changed successfully!</div>';
+                    document.getElementById('changePasswordForm').reset();
+
+                    // Optional: Log out after password change
+                    setTimeout(() => {
+                        if (confirm('Password changed successfully! You will be logged out. Click OK to continue.')) {
+                            logoutAdmin(new Event('click'));
+                        }
+                    }, 2000);
+                } else {
+                    throw new Error(response.message || 'Failed to change password');
+                }
+            } catch (error) {
+                console.error('Error changing password:', error);
+                messageDiv.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-circle me-2"></i>${error.message || 'Failed to change password. Please check your current password.'}</div>`;
+            }
+        }
+
+        // Load settings when settings section is opened
+        document.querySelector('[data-section="settings"]')?.addEventListener('click', function () {
+            loadAdminSettings();
+        });
+
+        // ==================== END SETTINGS & SECURITY ====================
+
+        // ==================== AUDIT TRAIL ====================
 
         // Load audit trail from API
         async function loadAuditTrailFromAPI(page = currentAuditPage, entityFilter = currentAuditEntity, actionFilter = currentAuditAction) {
@@ -5234,216 +4995,242 @@
 
         // ==================== END AUDIT TRAIL ====================
 
-        // ==================== SECURITY & SETTINGS FUNCTIONS ====================
+        // ==================== NOTIFICATION SYSTEM ====================
 
-        // Load admin profile data into settings form
-        async function loadProfileSettings() {
-            try {
-                const userData = JSON.parse(localStorage.getItem('adminUser') || '{}');
+        let notifications = [];
+        const MAX_NOTIFICATIONS = 50; // Keep last 50 notifications
 
-                // Populate profile form
-                document.getElementById('profileUsername').value = userData.username || '';
-                document.getElementById('profileEmail').value = userData.email || '';
-                document.getElementById('profileFirstName').value = userData.firstName || '';
-                document.getElementById('profileLastName').value = userData.lastName || '';
-                document.getElementById('profilePhone').value = userData.phone || '';
-
-                // Populate account information
-                document.getElementById('accountRole').textContent = userData.isSuperAdmin ? 'Super Admin' : 'Admin';
-                document.getElementById('accountId').textContent = userData.id || 'N/A';
-
-                // Load session information
-                const token = localStorage.getItem('authToken');
-                if (token) {
-                    try {
-                        // Decode JWT to get expiration (simple base64 decode)
-                        const payload = JSON.parse(atob(token.split('.')[1]));
-                        const expiryDate = new Date(payload.exp * 1000);
-                        document.getElementById('sessionExpiry').textContent = expiryDate.toLocaleString();
-                    } catch (e) {
-                        document.getElementById('sessionExpiry').textContent = 'Unknown';
-                    }
-                }
-
-                // Set last login time (you can store this when user logs in)
-                const lastLogin = localStorage.getItem('lastLogin');
-                if (lastLogin) {
-                    document.getElementById('lastLoginTime').textContent = new Date(lastLogin).toLocaleString();
-                } else {
-                    document.getElementById('lastLoginTime').textContent = 'Current session';
-                }
-
-                // Set admin since date
-                document.getElementById('adminSince').textContent = userData.createdAt
-                    ? new Date(userData.createdAt).toLocaleDateString()
-                    : 'N/A';
-
-            } catch (error) {
-                console.error('Error loading profile settings:', error);
-                showErrorMessage('Failed to load profile settings');
+        // Toggle notification panel
+        document.getElementById('notificationDropdown')?.addEventListener('click', function (e) {
+            e.stopPropagation();
+            const panel = document.getElementById('notificationPanel');
+            if (panel.style.display === 'none') {
+                panel.style.display = 'block';
+                // Mark all as read
+                notifications.forEach(n => n.read = true);
+                updateNotificationBadge();
+                saveNotifications();
+            } else {
+                panel.style.display = 'none';
             }
-        }
-
-        // Handle password change
-        async function handleChangePassword(event) {
-            event.preventDefault();
-
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-
-            // Validation
-            if (newPassword !== confirmPassword) {
-                alert('New passwords do not match!');
-                return;
-            }
-
-            if (newPassword.length < 6) {
-                alert('Password must be at least 6 characters long!');
-                return;
-            }
-
-            if (currentPassword === newPassword) {
-                alert('New password must be different from current password!');
-                return;
-            }
-
-            try {
-                showLoadingMessage('Changing password...');
-
-                const userData = JSON.parse(localStorage.getItem('adminUser') || '{}');
-                const response = await api.adminChangePassword({
-                    adminId: userData.id,
-                    currentPassword: currentPassword,
-                    newPassword: newPassword
-                });
-
-                if (response && response.success) {
-                    showSuccessMessage('Password changed successfully!');
-                    document.getElementById('changePasswordForm').reset();
-
-                    // Optional: logout user to re-login with new password
-                    setTimeout(() => {
-                        if (confirm('Password changed successfully! You will be logged out. Click OK to continue.')) {
-                            logoutAdmin(new Event('click'));
-                        }
-                    }, 1000);
-                } else {
-                    throw new Error(response?.error || 'Failed to change password');
-                }
-
-            } catch (error) {
-                console.error('Error changing password:', error);
-                showErrorMessage(error.message || 'Failed to change password. Please check your current password.');
-            }
-        }
-
-        // Handle profile update
-        async function handleUpdateProfile(event) {
-            event.preventDefault();
-            const username = document.getElementById('profileUsername').value.trim();
-            const email = document.getElementById('profileEmail').value.trim();
-            const firstName = document.getElementById('profileFirstName').value.trim();
-            const lastName = document.getElementById('profileLastName').value.trim();
-            const phone = document.getElementById('profilePhone').value.trim();
-
-            // Validation
-            if (!username) {
-                alert('Username is required!');
-                return;
-            }
-            if (!email) {
-                alert('Email is required!');
-                return;
-            }
-
-            try {
-                showLoadingMessage('Updating profile...');
-                const userData = JSON.parse(localStorage.getItem('adminUser') || '{}');
-                const response = await api.adminUpdateProfile({
-                    adminId: userData.id,
-                    username: username,
-                    email: email,
-                    firstName: firstName,
-                    lastName: lastName,
-                    phone: phone
-                });
-                if (response && (response.success || response.message === 'Profile updated successfully' || response.message === 'Admin updated successfully')) {
-                    // Update local storage
-                    const updatedUser = {
-                        ...userData,
-                        username: username,
-                        email: email,
-                        firstName: firstName,
-                        lastName: lastName,
-                        phone: phone
-                    };
-                    localStorage.setItem('adminUser', JSON.stringify(updatedUser));
-                    showSuccessMessage('Profile updated successfully!');
-                } else {
-                    throw new Error(response?.error || 'Failed to update profile');
-                }
-            } catch (error) {
-                console.error('Error updating profile:', error);
-                showErrorMessage(error.message || 'Failed to update profile');
-            }
-        }
-
-        // Handle logout all sessions
-        function handleLogoutAllSessions() {
-            if (confirm('This will log you out from all devices. Continue?')) {
-                // Clear all auth data
-                localStorage.removeItem('authToken');
-                localStorage.removeItem('user');
-                localStorage.removeItem('adminUser');
-                localStorage.removeItem('lastLogin');
-
-                // Optional: call API to invalidate all tokens
-                // await api.adminLogoutAllSessions();
-
-                // Redirect to login
-                window.location.reload();
-            }
-        }
-
-        // Load settings when settings section is opened
-        document.querySelector('[data-section="settings"]')?.addEventListener('click', function () {
-            loadProfileSettings();
         });
 
-        // ==================== END SECURITY & SETTINGS ====================
-
-        // ==================== TEST AUDIT TRAIL FUNCTION ====================
-        // This function can be called from the console to test audit trail
-        window.testAuditTrail = async function () {
-            console.log('🧪 Testing audit trail...');
-
-            try {
-                // Load audit trail
-                const logs = await api.adminGetAuditTrail(10);
-                console.log('📜 Audit trail loaded:', logs);
-
-                if (logs && Array.isArray(logs)) {
-                    console.log('✅ Audit trail is working! Found', logs.length, 'entries');
-
-                    if (logs.length > 0) {
-                        console.log('📝 Sample entries:');
-                        logs.forEach((log, index) => {
-                            console.log(`  ${index + 1}. ${log.action_type} ${log.entity_type} - ${log.entity_name} (${log.created_at})`);
-                        });
-                    } else {
-                        console.warn('⚠️ No audit trail entries found. Try creating/updating a book to generate one.');
-                    }
-                } else {
-                    console.error('❌ Invalid audit trail response format');
-                }
-
-                return logs;
-            } catch (error) {
-                console.error('❌ Error testing audit trail:', error);
-                throw error;
+        // Close notification panel when clicking outside
+        document.addEventListener('click', function (e) {
+            const panel = document.getElementById('notificationPanel');
+            const dropdown = document.getElementById('notificationDropdown');
+            if (panel && !dropdown.contains(e.target)) {
+                panel.style.display = 'none';
             }
-        };
+        });
+
+        // Add notification
+        function addNotification(action, entity, entityName, description = '') {
+            const adminData = JSON.parse(localStorage.getItem('adminData') || '{}');
+
+            const notification = {
+                id: Date.now(),
+                action: action,
+                entity: entity,
+                entityName: entityName,
+                description: description,
+                adminUsername: adminData.username || 'Admin',
+                timestamp: new Date().toISOString(),
+                read: false
+            };
+
+            notifications.unshift(notification);
+
+            // Keep only last MAX_NOTIFICATIONS
+            if (notifications.length > MAX_NOTIFICATIONS) {
+                notifications = notifications.slice(0, MAX_NOTIFICATIONS);
+            }
+
+            updateNotificationUI();
+            saveNotifications();
+
+            // Show toast notification
+            showNotificationToast(action, entityName);
+        }
+
+        // Update notification UI
+        function updateNotificationUI() {
+            const list = document.getElementById('notificationList');
+            if (!list) return;
+
+            if (notifications.length === 0) {
+                list.innerHTML = `
+                    <div style="padding: 40px 20px; text-align: center; color: rgba(255,255,255,0.5);">
+                        <i class="fas fa-bell-slash" style="font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.3;"></i>
+                        No recent activity
+                    </div>
+                `;
+                return;
+            }
+
+            list.innerHTML = notifications.map(notif => {
+                const actionColor = getActionColor(notif.action);
+                const entityIcon = getEntityIcon(notif.entity);
+                const timeAgo = getTimeAgo(new Date(notif.timestamp));
+                const isUnread = !notif.read;
+
+                return `
+                    <div style="padding: 12px 15px; border-bottom: 1px solid rgba(106, 156, 137, 0.1); ${isUnread ? 'background: rgba(106, 156, 137, 0.05);' : ''} transition: background 0.2s;" 
+                         onmouseenter="this.style.background='rgba(106, 156, 137, 0.08)'" 
+                         onmouseleave="this.style.background='${isUnread ? 'rgba(106, 156, 137, 0.05)' : 'transparent'}'">
+                        <div style="display: flex; align-items: start; gap: 10px;">
+                            <div style="flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: ${actionColor}; display: flex; align-items: center; justify-content: center;">
+                                <i class="${entityIcon}" style="font-size: 0.85rem; color: white;"></i>
+                            </div>
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                    <span style="font-weight: 600; color: white; font-size: 0.9rem;">${notif.action}</span>
+                                    <span style="background: ${actionColor}; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.7rem; text-transform: uppercase;">${notif.entity}</span>
+                                </div>
+                                <div style="color: rgba(255,255,255,0.85); font-size: 0.85rem; margin-bottom: 4px; word-break: break-word;">
+                                    <strong>${notif.entityName}</strong>
+                                </div>
+                                ${notif.description ? `<div style="color: rgba(255,255,255,0.6); font-size: 0.8rem; margin-bottom: 6px;">${notif.description}</div>` : ''}
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span style="color: rgba(255,255,255,0.5); font-size: 0.75rem;">
+                                        <i class="fas fa-user" style="margin-right: 4px;"></i>${notif.adminUsername}
+                                    </span>
+                                    <span style="color: rgba(255,255,255,0.5); font-size: 0.75rem;">
+                                        <i class="fas fa-clock" style="margin-right: 4px;"></i>${timeAgo}
+                                    </span>
+                                </div>
+                            </div>
+                            ${isUnread ? '<div style="flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%; background: #00b894;"></div>' : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            updateNotificationBadge();
+        }
+
+        // Update notification badge count
+        function updateNotificationBadge() {
+            const badge = document.getElementById('notificationCount');
+            if (!badge) return;
+
+            const unreadCount = notifications.filter(n => !n.read).length;
+            badge.textContent = unreadCount;
+            badge.style.display = unreadCount > 0 ? 'block' : 'none';
+        }
+
+        // Show toast notification
+        function showNotificationToast(action, entityName) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: linear-gradient(135deg, #4a6b5a, #6a9c89);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+                min-width: 300px;
+            `;
+
+            toast.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-check-circle" style="font-size: 1.2rem;"></i>
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 2px;">${action} Successful</div>
+                        <div style="font-size: 0.85rem; opacity: 0.9;">${entityName}</div>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Get time ago text
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+
+            if (seconds < 60) return 'Just now';
+            if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+            if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+            if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+            return date.toLocaleDateString();
+        }
+
+        // Clear all notifications
+        function clearAllNotifications() {
+            if (confirm('Clear all notifications?')) {
+                notifications = [];
+                updateNotificationUI();
+                saveNotifications();
+            }
+        }
+
+        // Save notifications to localStorage
+        function saveNotifications() {
+            try {
+                localStorage.setItem('adminNotifications', JSON.stringify(notifications));
+            } catch (e) {
+                console.error('Failed to save notifications:', e);
+            }
+        }
+
+        // Load notifications from localStorage
+        function loadNotifications() {
+            try {
+                const saved = localStorage.getItem('adminNotifications');
+                if (saved) {
+                    notifications = JSON.parse(saved);
+                    updateNotificationUI();
+                }
+            } catch (e) {
+                console.error('Failed to load notifications:', e);
+                notifications = [];
+            }
+        }
+
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Load notifications on init
+        loadNotifications();
+
+        // ==================== END NOTIFICATION SYSTEM ====================
+
+        // ==================== END AUDIT TRAIL ====================
+
+        // ==================== END VOUCHER MANAGEMENT ====================
 
         // Wait for API client to be ready before checking access
         document.addEventListener('DOMContentLoaded', function () {
@@ -5466,28 +5253,6 @@
                     }, 2000);
                 }
             }, 100);
-        });
-
-        // Prevent form submission on Enter key
-        document.addEventListener('DOMContentLoaded', function () {
-            const adminForm = document.getElementById('adminForm');
-            if (adminForm) {
-                // Prevent form submission
-                adminForm.addEventListener('submit', function (e) {
-                    e.preventDefault();
-                    console.log('⚠️ Form submit prevented - use Save button instead');
-                    return false;
-                });
-
-                // Also prevent Enter key from submitting
-                adminForm.addEventListener('keypress', function (e) {
-                    if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
-                        e.preventDefault();
-                        console.log('⚠️ Enter key pressed - prevented form submission');
-                        return false;
-                    }
-                });
-            }
         });
     </script>
 </body>
