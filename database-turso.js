@@ -158,6 +158,8 @@ async function initializeDatabase(callback) {
                 status TEXT DEFAULT 'pending',
                 shipping_address TEXT,
                 payment_method TEXT,
+                received_by_user BOOLEAN DEFAULT 0,
+                received_at DATETIME,
                 archived BOOLEAN DEFAULT 0,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -273,6 +275,23 @@ async function initializeDatabase(callback) {
                 used INTEGER DEFAULT 0,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )
+        `);
+
+        // Create admin_notifications table for new order notifications
+        await query(`
+            CREATE TABLE IF NOT EXISTS admin_notifications (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                notification_type TEXT NOT NULL,
+                entity_type TEXT NOT NULL,
+                entity_id INTEGER NOT NULL,
+                entity_name TEXT,
+                message TEXT NOT NULL,
+                is_read BOOLEAN DEFAULT 0,
+                read_by_admin_id INTEGER,
+                read_at DATETIME,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (read_by_admin_id) REFERENCES admins(id)
             )
         `);
 
@@ -400,6 +419,46 @@ async function runMigrations() {
                     console.log('  ✅ Admins.is_super_admin column verified (already exists)');
                 } catch (verifyError) {
                     console.error('  ❌ Admins.is_super_admin column does not exist and could not be added:', verifyError.message);
+                }
+            }
+        }
+        
+        // Try to add received_by_user column to orders table
+        try {
+            console.log('  → Attempting to add received_by_user column to orders table...');
+            await query('ALTER TABLE orders ADD COLUMN received_by_user INTEGER DEFAULT 0');
+            console.log('  ✅ Added received_by_user column to orders table');
+        } catch (error) {
+            const errorMsg = error.message ? error.message.toLowerCase() : '';
+            if (errorMsg.includes('duplicate') || errorMsg.includes('already exists')) {
+                console.log('  ℹ️  Orders table already has received_by_user column');
+            } else {
+                console.warn('  ⚠️  Orders table migration error:', error.message);
+                try {
+                    await query('SELECT received_by_user FROM orders LIMIT 1');
+                    console.log('  ✅ Orders.received_by_user column verified (already exists)');
+                } catch (verifyError) {
+                    console.error('  ❌ Orders.received_by_user column does not exist and could not be added:', verifyError.message);
+                }
+            }
+        }
+        
+        // Try to add received_at column to orders table
+        try {
+            console.log('  → Attempting to add received_at column to orders table...');
+            await query('ALTER TABLE orders ADD COLUMN received_at DATETIME');
+            console.log('  ✅ Added received_at column to orders table');
+        } catch (error) {
+            const errorMsg = error.message ? error.message.toLowerCase() : '';
+            if (errorMsg.includes('duplicate') || errorMsg.includes('already exists')) {
+                console.log('  ℹ️  Orders table already has received_at column');
+            } else {
+                console.warn('  ⚠️  Orders table migration error:', error.message);
+                try {
+                    await query('SELECT received_at FROM orders LIMIT 1');
+                    console.log('  ✅ Orders.received_at column verified (already exists)');
+                } catch (verifyError) {
+                    console.error('  ❌ Orders.received_at column does not exist and could not be added:', verifyError.message);
                 }
             }
         }
@@ -1496,6 +1555,14 @@ const orderOperations = {
                 updates.push('shipping_address = ?');
                 values.push(fields.shipping_address);
             }
+            if (typeof fields.received_by_user !== 'undefined') {
+                updates.push('received_by_user = ?');
+                values.push(fields.received_by_user ? 1 : 0);
+            }
+            if (typeof fields.received_at !== 'undefined') {
+                updates.push('received_at = ?');
+                values.push(fields.received_at);
+            }
             
             if (updates.length === 0) {
                 return callback(null, { message: 'No fields to update' });
@@ -1523,6 +1590,38 @@ const orderOperations = {
             // Then delete the order
             await query('DELETE FROM orders WHERE id = ?', [orderId]);
             callback(null, { message: 'Order deleted successfully' });
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Get top selling books
+    getTopSellingBooks: async (limit = 10, callback) => {
+        try {
+            const result = await query(
+                `SELECT 
+                    b.id,
+                    b.title,
+                    b.author,
+                    b.cover,
+                    b.price,
+                    b.category,
+                    b.genre,
+                    SUM(oi.quantity) as total_sold,
+                    SUM(oi.quantity * oi.price) as total_revenue,
+                    COUNT(DISTINCT o.id) as order_count
+                 FROM order_items oi
+                 INNER JOIN books b ON oi.book_id = b.id
+                 INNER JOIN orders o ON oi.order_id = o.id
+                 WHERE o.status IN ('completed', 'shipped', 'delivered')
+                   AND (o.archived = 0 OR o.archived IS NULL)
+                   AND (b.archived = 0 OR b.archived IS NULL)
+                 GROUP BY b.id, b.title, b.author, b.cover, b.price, b.category, b.genre
+                 ORDER BY total_sold DESC
+                 LIMIT ?`,
+                [limit]
+            );
+            callback(null, result.rows);
         } catch (error) {
             callback(error);
         }
@@ -2608,6 +2707,112 @@ const auditTrailOperations = {
     }
 };
 
+// Admin Notifications Operations
+const adminNotificationOperations = {
+    // Create a new notification
+    create: async (notificationType, entityType, entityId, entityName, message, callback) => {
+        try {
+            await query(
+                `INSERT INTO admin_notifications (notification_type, entity_type, entity_id, entity_name, message)
+                 VALUES (?, ?, ?, ?, ?)`,
+                [notificationType, entityType, entityId, entityName, message]
+            );
+            const result = await query(
+                'SELECT * FROM admin_notifications WHERE id = last_insert_rowid()'
+            );
+            callback(null, result.rows[0]);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Get unread notifications for admin
+    getUnread: async (callback) => {
+        try {
+            const result = await query(
+                `SELECT * FROM admin_notifications 
+                 WHERE is_read = 0 
+                 ORDER BY created_at DESC`
+            );
+            callback(null, result.rows);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Get unread count
+    getUnreadCount: async (callback) => {
+        try {
+            const result = await query(
+                'SELECT COUNT(*) as count FROM admin_notifications WHERE is_read = 0'
+            );
+            callback(null, result.rows[0].count);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Mark notification as read
+    markAsRead: async (notificationId, adminId, callback) => {
+        try {
+            await query(
+                `UPDATE admin_notifications 
+                 SET is_read = 1, read_by_admin_id = ?, read_at = CURRENT_TIMESTAMP 
+                 WHERE id = ?`,
+                [adminId, notificationId]
+            );
+            callback(null, { message: 'Notification marked as read' });
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Mark all notifications as read
+    markAllAsRead: async (adminId, callback) => {
+        try {
+            await query(
+                `UPDATE admin_notifications 
+                 SET is_read = 1, read_by_admin_id = ?, read_at = CURRENT_TIMESTAMP 
+                 WHERE is_read = 0`,
+                [adminId]
+            );
+            callback(null, { message: 'All notifications marked as read' });
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Get recent notifications (read and unread)
+    getRecent: async (limit = 50, callback) => {
+        try {
+            const result = await query(
+                `SELECT * FROM admin_notifications 
+                 ORDER BY created_at DESC 
+                 LIMIT ?`,
+                [limit]
+            );
+            callback(null, result.rows);
+        } catch (error) {
+            callback(error);
+        }
+    },
+
+    // Delete old read notifications (cleanup)
+    deleteOldRead: async (daysOld = 30, callback) => {
+        try {
+            await query(
+                `DELETE FROM admin_notifications 
+                 WHERE is_read = 1 
+                 AND read_at < datetime('now', '-' || ? || ' days')`,
+                [daysOld]
+            );
+            callback(null, { message: 'Old notifications cleaned up' });
+        } catch (error) {
+            callback(error);
+        }
+    }
+};
+
 // Health check function
 async function checkDatabaseHealth(callback) {
     try {
@@ -2638,6 +2843,7 @@ module.exports = {
     archiveOperations,
     voucherOperations,
     auditTrailOperations,
+    adminNotificationOperations,
     checkDatabaseHealth
 };
 

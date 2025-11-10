@@ -18,6 +18,7 @@ const {
     archiveOperations,
     voucherOperations,
     auditTrailOperations,
+    adminNotificationOperations,
     initializeDatabase
 } = require('./database-config');
 const { sendPasswordResetEmail, verifyEmailConfig } = require('./email-service');
@@ -958,6 +959,24 @@ app.post('/api/orders', authenticateToken, (req, res) => {
 
                 console.log('✅ Order items added successfully');
 
+                // Create admin notification for new order
+                const orderMessage = `New order #${orderId} placed by user (${cartItems.length} items, ₱${totalAmount.toFixed(2)})`;
+                adminNotificationOperations.create(
+                    'NEW_ORDER',
+                    'order',
+                    orderId,
+                    `Order #${orderId}`,
+                    orderMessage,
+                    (notifErr) => {
+                        if (notifErr) {
+                            console.error('⚠️ Failed to create admin notification:', notifErr);
+                            // Don't fail the order if notification fails
+                        } else {
+                            console.log('📬 Admin notification created for new order');
+                        }
+                    }
+                );
+
                 // Clear cart (remove selected items)
                 cartOperations.clearCart(req.user.userId, (err) => {
                     if (err) {
@@ -1010,6 +1029,14 @@ app.put('/api/admin/orders/:id', authenticateAdmin, (req, res) => {
 
         if (!oldOrder) {
             return res.status(404).json({ error: 'Order not found' });
+        }
+
+        // Check if admin is trying to mark order as completed
+        if (status === 'completed' && !oldOrder.received_by_user) {
+            return res.status(400).json({ 
+                error: 'Order cannot be marked as completed until the customer marks it as received',
+                requiresUserConfirmation: true
+            });
         }
 
         orderOperations.updateOrder(orderId, { status, shipping_address }, (err, result) => {
@@ -1743,6 +1770,57 @@ app.get('/api/orders/:id', authenticateToken, (req, res) => {
     });
 });
 
+// Mark order as received by user
+app.put('/api/orders/:id/receive', authenticateToken, (req, res) => {
+    const orderId = parseInt(req.params.id);
+
+    if (isNaN(orderId)) {
+        return res.status(400).json({ error: 'Invalid order ID' });
+    }
+
+    console.log('User marking order as received:', orderId);
+
+    // Get order details to verify ownership and status
+    orderOperations.getOrderDetails(orderId, (getErr, order) => {
+        if (getErr) {
+            console.error('Error fetching order:', getErr);
+            return res.status(500).json({ error: getErr.message });
+        }
+
+        if (!order) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+
+        // Verify order belongs to user
+        if (order.user_id !== req.user.userId) {
+            return res.status(403).json({ error: 'Access denied' });
+        }
+
+        // Check if order is in delivered status
+        if (order.status !== 'delivered') {
+            return res.status(400).json({ error: 'Order must be in delivered status to mark as received' });
+        }
+
+        // Check if already marked as received
+        if (order.received_by_user) {
+            return res.status(400).json({ error: 'Order has already been marked as received' });
+        }
+
+        // Mark order as received
+        orderOperations.updateOrder(orderId, { 
+            received_by_user: true, 
+            received_at: new Date().toISOString() 
+        }, (err, result) => {
+            if (err) {
+                console.error('Error marking order as received:', err);
+                return res.status(500).json({ error: err.message });
+            }
+            console.log('Order marked as received successfully');
+            res.json({ message: 'Order marked as received', order: result });
+        });
+    });
+});
+
 // Initialize database and start server
 initializeDatabase((err) => {
     if (err) {
@@ -2274,6 +2352,23 @@ app.get('/api/admin/dashboard/stats', authenticateAdmin, (req, res) => {
         });
 });
 
+// Get top selling books
+app.get('/api/admin/dashboard/top-selling-books', authenticateAdmin, (req, res) => {
+    console.log('📊 Fetching top selling books...');
+
+    const limit = parseInt(req.query.limit) || 10;
+
+    orderOperations.getTopSellingBooks(limit, (err, books) => {
+        if (err) {
+            console.error('❌ Error fetching top selling books:', err);
+            return res.status(500).json({ error: err.message });
+        }
+
+        console.log(`✅ Retrieved ${books.length} top selling books`);
+        res.json(books);
+    });
+});
+
 // ==================== SUPER ADMIN - ADMIN MANAGEMENT API ENDPOINTS ====================
 
 // Get all admin accounts (super admin only)
@@ -2781,6 +2876,78 @@ app.get('/api/admin/audit-trail/admin/:adminId', authenticateAdmin, (req, res) =
             console.error('Error fetching audit logs by admin:', err);
             return res.status(500).json({ error: err.message });
         }
+        res.json(result);
+    });
+});
+
+// ==================== ADMIN NOTIFICATIONS API ENDPOINTS ====================
+
+// Get unread notifications
+app.get('/api/admin/notifications/unread', authenticateAdmin, (req, res) => {
+    console.log('📬 Fetching unread admin notifications...');
+
+    adminNotificationOperations.getUnread((err, notifications) => {
+        if (err) {
+            console.error('❌ Error fetching unread notifications:', err);
+            return res.status(500).json({ error: err.message });
+        }
+
+        console.log(`✅ Retrieved ${notifications.length} unread notifications`);
+        res.json(notifications);
+    });
+});
+
+// Get unread count
+app.get('/api/admin/notifications/unread/count', authenticateAdmin, (req, res) => {
+    adminNotificationOperations.getUnreadCount((err, count) => {
+        if (err) {
+            console.error('❌ Error fetching unread count:', err);
+            return res.status(500).json({ error: err.message });
+        }
+
+        res.json({ count: count });
+    });
+});
+
+// Get recent notifications (all)
+app.get('/api/admin/notifications/recent', authenticateAdmin, (req, res) => {
+    const limit = parseInt(req.query.limit) || 50;
+
+    adminNotificationOperations.getRecent(limit, (err, notifications) => {
+        if (err) {
+            console.error('❌ Error fetching recent notifications:', err);
+            return res.status(500).json({ error: err.message });
+        }
+
+        res.json(notifications);
+    });
+});
+
+// Mark notification as read
+app.put('/api/admin/notifications/:id/read', authenticateAdmin, (req, res) => {
+    const notificationId = parseInt(req.params.id);
+    const adminId = req.user.id;
+
+    adminNotificationOperations.markAsRead(notificationId, adminId, (err, result) => {
+        if (err) {
+            console.error('❌ Error marking notification as read:', err);
+            return res.status(500).json({ error: err.message });
+        }
+
+        res.json(result);
+    });
+});
+
+// Mark all notifications as read
+app.put('/api/admin/notifications/read-all', authenticateAdmin, (req, res) => {
+    const adminId = req.user.id;
+
+    adminNotificationOperations.markAllAsRead(adminId, (err, result) => {
+        if (err) {
+            console.error('❌ Error marking all notifications as read:', err);
+            return res.status(500).json({ error: err.message });
+        }
+
         res.json(result);
     });
 });

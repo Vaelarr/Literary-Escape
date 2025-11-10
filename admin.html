@@ -110,7 +110,7 @@
                             <div
                                 style="padding: 15px; border-bottom: 1px solid rgba(106, 156, 137, 0.2); display: flex; justify-content: space-between; align-items: center;">
                                 <h6 style="margin: 0; color: white; font-size: 0.95rem;">
-                                    <i class="fas fa-bell me-2"></i>Recent Activity
+                                    <i class="fas fa-bell me-2"></i>New Order Notifications
                                 </h6>
                                 <button onclick="clearAllNotifications()"
                                     style="background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; font-size: 0.85rem;"
@@ -1721,7 +1721,7 @@
             const tables = [
                 { id: 'booksTable', cols: 6 },
                 { id: 'accountListTable', cols: 4 },
-                { id: 'ordersTable', cols: 7 },
+                { id: 'ordersTable', cols: 6 },
                 { id: 'userAccountsTable', cols: 4 }
             ];
 
@@ -1883,11 +1883,18 @@
                     loadUsersFromAPI(),
                     loadOrdersFromAPI(),
                     loadDashboardUsers(),
-                    loadAuditTrail() // Load audit trail after authentication
+                    loadAuditTrail(), // Load audit trail after authentication
+                    loadNotifications() // Load unread notifications
                 ]);
 
                 // Finally, update the dashboard with the complete stats
                 await updateDashboard();
+                
+                // Update top selling books
+                await updateTopSellingBooks();
+
+                // Auto-refresh notifications every 30 seconds
+                setInterval(loadNotifications, 30000);
 
                 console.log('✅ Initial data loaded successfully');
             } catch (error) {
@@ -1912,6 +1919,9 @@
                     loadAllOrdersForDashboard()
                 ]);
                 await updateDashboard();
+                
+                // Update top selling books
+                await updateTopSellingBooks();
 
                 // Refresh the active section's data
                 switch (sectionId) {
@@ -2043,7 +2053,7 @@
         async function loadOrdersFromAPI(page = currentOrdersPage, status = currentOrderStatus, search = currentOrderSearch) {
             try {
                 console.log(`📋 Loading orders - Page: ${page}, Status: ${status}, Search: ${search}`);
-                showLoadingState('ordersTable', 7, 'Loading orders...');
+                showLoadingState('ordersTable', 6, 'Loading orders...');
 
                 // Build filters object
                 const filters = {};
@@ -2075,7 +2085,7 @@
 
             } catch (error) {
                 console.error('❌ Error loading orders:', error);
-                showErrorInTable('ordersTable', 7, `Failed to load orders: ${error.message}`);
+                showErrorInTable('ordersTable', 6, `Failed to load orders: ${error.message}`);
                 document.getElementById('orderCount').textContent = '0';
                 showErrorMessage('Failed to load orders from database');
             }
@@ -2417,9 +2427,16 @@
                     'pending': '#8b7355',
                     'processing': '#5a7a6b',
                     'shipped': '#6a9c89',
+                    'delivered': '#4a7c59',
                     'completed': '#2d4a3e',
                     'cancelled': '#8b4a4a'
                 };
+                
+                // Check if order can be completed
+                const canComplete = o.received_by_user || o.status !== 'delivered';
+                const receivedBadge = o.received_by_user 
+                    ? '<span style="display: inline-block; margin-left: 5px; padding: 2px 6px; background: #2d4a3e; color: #90EE90; border-radius: 3px; font-size: 10px;" title="Received on ' + formatDate(o.received_at) + '"><i class="fas fa-check-circle"></i> Received</span>'
+                    : (o.status === 'delivered' ? '<span style="display: inline-block; margin-left: 5px; padding: 2px 6px; background: #8b4a4a; color: #ffcccc; border-radius: 3px; font-size: 10px;" title="Waiting for customer confirmation"><i class="fas fa-clock"></i> Pending</span>' : '');
 
                 return `
                     <tr>
@@ -2429,10 +2446,14 @@
                         <td>
                             <select onchange="updateOrderStatus(${o.id}, this.value)" 
                                     style="padding: 4px 8px; border-radius: 4px; background: ${statusColors[o.status] || '#2d4a3e'}; color: white; border: 1px solid rgba(255,255,255,0.3); font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-                                ${['pending', 'processing', 'shipped', 'completed', 'cancelled'].map(s =>
-                    `<option value="${s}" ${o.status === s ? 'selected' : ''}>${s.charAt(0).toUpperCase() + s.slice(1)}</option>`
-                ).join('')}
+                                ${['pending', 'processing', 'shipped', 'delivered', 'completed', 'cancelled'].map(s => {
+                                    // Disable completed option if user hasn't received the order
+                                    const disabled = (s === 'completed' && !o.received_by_user) ? 'disabled' : '';
+                                    const title = (s === 'completed' && !o.received_by_user) ? 'title="Customer must mark order as received first"' : '';
+                                    return `<option value="${s}" ${o.status === s ? 'selected' : ''} ${disabled} ${title}>${s.charAt(0).toUpperCase() + s.slice(1)}</option>`;
+                                }).join('')}
                             </select>
+                            ${receivedBadge}
                         </td>
                         <td>${orderDate}</td>
                         <td>
@@ -2590,6 +2611,16 @@
         async function updateOrderStatus(orderId, status) {
             try {
                 console.log(`📊 Updating order ${orderId} status to: ${status}`);
+                
+                // If trying to mark as completed, check if user has received it
+                if (status === 'completed') {
+                    const order = allOrders.find(o => o.id === orderId);
+                    if (order && !order.received_by_user) {
+                        showErrorMessage('Order cannot be marked as completed until the customer marks it as received');
+                        return;
+                    }
+                }
+                
                 showLoadingMessage('Updating order status...');
 
                 const result = await api.adminUpdateOrder(orderId, { status });
@@ -2611,7 +2642,14 @@
 
             } catch (error) {
                 console.error('❌ Error updating order status:', error);
-                showErrorMessage(`Failed to update order status: ${error.message}`);
+                
+                // Check if it's the user confirmation error
+                if (error.message && error.message.includes('customer marks it as received')) {
+                    showErrorMessage('Order cannot be marked as completed until the customer marks it as received');
+                } else {
+                    showErrorMessage(`Failed to update order status: ${error.message}`);
+                }
+                
                 // Reload to revert any UI changes
                 await loadOrdersFromAPI(currentOrdersPage, currentOrderStatus, currentOrderSearch);
             }
@@ -3445,6 +3483,14 @@
                 document.getElementById('orderStatus').textContent = orderDetails.status.charAt(0).toUpperCase() + orderDetails.status.slice(1);
                 document.getElementById('orderTotal').textContent = `₱${formatPrice(orderDetails.total_amount)}`;
                 document.getElementById('orderDate').textContent = formatDate(orderDetails.created_at);
+                
+                // Show received status if applicable
+                const statusElement = document.getElementById('orderStatus');
+                if (orderDetails.received_by_user) {
+                    statusElement.innerHTML = `${orderDetails.status.charAt(0).toUpperCase() + orderDetails.status.slice(1)} <span style="display: inline-block; margin-left: 8px; padding: 3px 8px; background: #2d4a3e; color: #90EE90; border-radius: 4px; font-size: 11px;"><i class="fas fa-check-circle"></i> Received by customer on ${formatDate(orderDetails.received_at)}</span>`;
+                } else if (orderDetails.status === 'delivered') {
+                    statusElement.innerHTML = `${orderDetails.status.charAt(0).toUpperCase() + orderDetails.status.slice(1)} <span style="display: inline-block; margin-left: 8px; padding: 3px 8px; background: #8b4a4a; color: #ffcccc; border-radius: 4px; font-size: 11px;"><i class="fas fa-clock"></i> Awaiting customer confirmation</span>`;
+                }
 
                 // Populate shipping address
                 const address = `${orderDetails.address || ''}, ${orderDetails.city || ''}, ${orderDetails.state || ''} ${orderDetails.zip_code || ''}`.replace(/,\s*,/g, ',').replace(/^,\s*|,\s*$/g, '');
@@ -3772,28 +3818,65 @@
             try {
                 const tbody = document.getElementById('topBooksTable');
 
-                // Calculate book sales from order items
-                const bookSales = {};
-
-                allOrders.forEach(order => {
-                    if (order.status === 'completed' || order.status === 'shipped' || order.status === 'delivered') {
-                        // Note: This is a simplified version. In a real app, you'd need order_items data
-                        // For now, we'll just show placeholder data
-                    }
-                });
-
-                // Since we don't have order_items in the current structure, show a message
+                // Show loading state
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="3" style="text-align: center; color: rgba(255,255,255,0.5); padding: 20px;">
-                            <i class="fas fa-chart-bar" style="font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.3;"></i>
-                            Sales analytics require order items data
+                            <i class="fas fa-spinner fa-spin" style="font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.3;"></i>
+                            Loading top selling books...
                         </td>
                     </tr>
                 `;
 
+                // Fetch top selling books from API
+                const response = await apiClient.get('/api/admin/dashboard/top-selling-books?limit=10');
+
+                if (!response || response.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="3" style="text-align: center; color: rgba(255,255,255,0.5); padding: 20px;">
+                                <i class="fas fa-info-circle" style="font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.3;"></i>
+                                No sales data available yet
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                // Display top selling books
+                tbody.innerHTML = response.map((book, index) => `
+                    <tr>
+                        <td style="font-weight: 600; color: ${index === 0 ? '#ffd700' : index === 1 ? '#c0c0c0' : index === 2 ? '#cd7f32' : 'rgba(255,255,255,0.7)'};">
+                            ${index + 1}
+                        </td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                ${book.cover ? `<img src="${escapeHtml(book.cover)}" alt="${escapeHtml(book.title)}" style="width: 30px; height: 45px; object-fit: cover; border-radius: 3px;">` : ''}
+                                <div>
+                                    <div style="font-weight: 500; margin-bottom: 2px;">${escapeHtml(book.title)}</div>
+                                    <small style="color: rgba(255,255,255,0.6);">${escapeHtml(book.author)}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="text-align: right; font-weight: 600; color: #4caf50;">
+                            ${book.total_sold || 0} sold
+                        </td>
+                    </tr>
+                `).join('');
+
+                console.log(`✅ Top selling books updated: ${response.length} books`);
+
             } catch (error) {
-                console.error('Error updating top selling books:', error);
+                console.error('❌ Error updating top selling books:', error);
+                const tbody = document.getElementById('topBooksTable');
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: rgba(255,107,107,0.8); padding: 20px;">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                            Failed to load sales data
+                        </td>
+                    </tr>
+                `;
             }
         }
 
@@ -3919,23 +4002,30 @@
             const endIndex = Math.min(currentArchivedOrdersPage * itemsPerPage, totalArchivedOrdersItems);
             updateRangeDisplay('archivedOrdersRange', startIndex, endIndex, totalArchivedOrdersItems);
 
-            tbody.innerHTML = archivedOrders.map(order => `
-                <tr>
-                    <td style="font-weight: bold;">#${order.id}</td>
-                    <td title="${escapeHtml(formatCustomerName(order))}">${truncateText(escapeHtml(formatCustomerName(order)), 20)}</td>
-                    <td title="${escapeHtml(order.email || 'N/A')}">${truncateText(escapeHtml(order.email || 'N/A'), 25)}</td>
-                    <td style="font-weight: bold; color: #6a9c89;">₱${formatPrice(order.total_amount)}</td>
-                    <td>
-                        <span style="padding: 4px 8px; border-radius: 4px; background: #2d4a3e; color: white; font-size: 12px;">
-                            ${order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                        </span>
-                    </td>
-                    <td>${formatDate(order.created_at)}</td>
-                    <td>
-                        <button class="btn-change" onclick="handleArchiveOrder(${order.id}, true)" title="Unarchive"><i class="fas fa-undo"></i></button>
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = archivedOrders.map(order => {
+                const receivedBadge = order.received_by_user 
+                    ? '<span style="display: inline-block; margin-left: 5px; padding: 2px 6px; background: #2d4a3e; color: #90EE90; border-radius: 3px; font-size: 10px;" title="Received on ' + formatDate(order.received_at) + '"><i class="fas fa-check-circle"></i> Received</span>'
+                    : '';
+                
+                return `
+                    <tr>
+                        <td style="font-weight: bold;">#${order.id}</td>
+                        <td title="${escapeHtml(formatCustomerName(order))}">${truncateText(escapeHtml(formatCustomerName(order)), 20)}</td>
+                        <td title="${escapeHtml(order.email || 'N/A')}">${truncateText(escapeHtml(order.email || 'N/A'), 25)}</td>
+                        <td style="font-weight: bold; color: #6a9c89;">₱${formatPrice(order.total_amount)}</td>
+                        <td>
+                            <span style="padding: 4px 8px; border-radius: 4px; background: #2d4a3e; color: white; font-size: 12px;">
+                                ${order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                            </span>
+                            ${receivedBadge}
+                        </td>
+                        <td>${formatDate(order.created_at)}</td>
+                        <td>
+                            <button class="btn-change" onclick="handleArchiveOrder(${order.id}, true)" title="Unarchive"><i class="fas fa-undo"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
 
             generatePagination('archivedOrdersPagination', totalArchivedOrdersPages, currentArchivedOrdersPage, paginateArchivedOrders);
         }
@@ -5338,7 +5428,24 @@
         // ==================== NOTIFICATION SYSTEM ====================
 
         let notifications = [];
-        const MAX_NOTIFICATIONS = 50; // Keep last 50 notifications
+
+        // Load unread notifications from database
+        async function loadNotifications() {
+            try {
+                console.log('📬 Loading unread notifications from database...');
+                const unreadNotifications = await apiClient.get('/api/admin/notifications/unread');
+                
+                notifications = unreadNotifications || [];
+                updateNotificationUI();
+                updateNotificationBadge();
+                
+                console.log(`✅ Loaded ${notifications.length} unread notifications`);
+            } catch (error) {
+                console.error('❌ Error loading notifications:', error);
+                notifications = [];
+                updateNotificationUI();
+            }
+        }
 
         // Toggle notification panel
         document.getElementById('notificationDropdown')?.addEventListener('click', function (e) {
@@ -5346,10 +5453,8 @@
             const panel = document.getElementById('notificationPanel');
             if (panel.style.display === 'none') {
                 panel.style.display = 'block';
-                // Mark all as read
-                notifications.forEach(n => n.read = true);
-                updateNotificationBadge();
-                saveNotifications();
+                // Load latest notifications when opening panel
+                loadNotifications();
             } else {
                 panel.style.display = 'none';
             }
@@ -5364,36 +5469,17 @@
             }
         });
 
-        // Add notification to local storage
-        // NOTE: Database audit trail entries are automatically created by the backend
-        // when API operations (create, update, delete, archive, etc.) are performed.
-        // This function only manages the local notification panel in the admin UI.
-        function addNotification(action, entity, entityName, description = '') {
-            const adminData = JSON.parse(localStorage.getItem('adminData') || '{}');
-
-            const notification = {
-                id: Date.now(),
-                action: action,
-                entity: entity,
-                entityName: entityName,
-                description: description,
-                adminUsername: adminData.username || 'Admin',
-                timestamp: new Date().toISOString(),
-                read: false
-            };
-
-            notifications.unshift(notification);
-
-            // Keep only last MAX_NOTIFICATIONS
-            if (notifications.length > MAX_NOTIFICATIONS) {
-                notifications = notifications.slice(0, MAX_NOTIFICATIONS);
+        // Mark notification as read
+        async function markNotificationAsRead(notificationId) {
+            try {
+                await apiClient.put(`/api/admin/notifications/${notificationId}/read`);
+                // Remove from local array
+                notifications = notifications.filter(n => n.id !== notificationId);
+                updateNotificationUI();
+                updateNotificationBadge();
+            } catch (error) {
+                console.error('❌ Error marking notification as read:', error);
             }
-
-            updateNotificationUI();
-            saveNotifications();
-
-            // Show toast notification
-            showNotificationToast(action, entityName);
         }
 
         // Update notification UI
@@ -5405,45 +5491,44 @@
                 list.innerHTML = `
                     <div style="padding: 40px 20px; text-align: center; color: rgba(255,255,255,0.5);">
                         <i class="fas fa-bell-slash" style="font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.3;"></i>
-                        No recent activity
+                        No new notifications
                     </div>
                 `;
                 return;
             }
 
             list.innerHTML = notifications.map(notif => {
-                const actionColor = getActionColor(notif.action);
-                const entityIcon = getEntityIcon(notif.entity);
-                const timeAgo = getTimeAgo(new Date(notif.timestamp));
-                const isUnread = !notif.read;
+                const actionColor = getNotificationColor(notif.notification_type);
+                const entityIcon = getEntityIcon(notif.entity_type);
+                const timeAgo = formatTimeAgo(notif.created_at);
 
                 return `
-                    <div style="padding: 12px 15px; border-bottom: 1px solid rgba(106, 156, 137, 0.1); ${isUnread ? 'background: rgba(106, 156, 137, 0.05);' : ''} transition: background 0.2s;" 
+                    <div style="padding: 12px 15px; border-bottom: 1px solid rgba(106, 156, 137, 0.1); background: rgba(106, 156, 137, 0.05); transition: background 0.2s;" 
                          onmouseenter="this.style.background='rgba(106, 156, 137, 0.08)'" 
-                         onmouseleave="this.style.background='${isUnread ? 'rgba(106, 156, 137, 0.05)' : 'transparent'}'">
+                         onmouseleave="this.style.background='rgba(106, 156, 137, 0.05)'">
                         <div style="display: flex; align-items: start; gap: 10px;">
                             <div style="flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: ${actionColor}; display: flex; align-items: center; justify-content: center;">
                                 <i class="${entityIcon}" style="font-size: 0.85rem; color: white;"></i>
                             </div>
                             <div style="flex: 1; min-width: 0;">
                                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                                    <span style="font-weight: 600; color: white; font-size: 0.9rem;">${notif.action}</span>
-                                    <span style="background: ${actionColor}; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.7rem; text-transform: uppercase;">${notif.entity}</span>
+                                    <span style="background: ${actionColor}; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.7rem; text-transform: uppercase;">${notif.notification_type.replace('_', ' ')}</span>
                                 </div>
                                 <div style="color: rgba(255,255,255,0.85); font-size: 0.85rem; margin-bottom: 4px; word-break: break-word;">
-                                    <strong>${notif.entityName}</strong>
+                                    ${escapeHtml(notif.message)}
                                 </div>
-                                ${notif.description ? `<div style="color: rgba(255,255,255,0.6); font-size: 0.8rem; margin-bottom: 6px;">${notif.description}</div>` : ''}
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <span style="color: rgba(255,255,255,0.5); font-size: 0.75rem;">
-                                        <i class="fas fa-user" style="margin-right: 4px;"></i>${notif.adminUsername}
-                                    </span>
+                                <div style="display: flex; align-items: center; gap: 10px; justify-content: space-between;">
                                     <span style="color: rgba(255,255,255,0.5); font-size: 0.75rem;">
                                         <i class="fas fa-clock" style="margin-right: 4px;"></i>${timeAgo}
                                     </span>
+                                    <button onclick="markNotificationAsRead(${notif.id}); event.stopPropagation();" 
+                                            style="background: rgba(76, 175, 80, 0.2); border: 1px solid rgba(76, 175, 80, 0.5); color: #4caf50; padding: 2px 8px; border-radius: 3px; font-size: 0.7rem; cursor: pointer;"
+                                            title="Mark as read">
+                                        <i class="fas fa-check"></i> Mark Read
+                                    </button>
                                 </div>
                             </div>
-                            ${isUnread ? '<div style="flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%; background: #00b894;"></div>' : ''}
+                            <div style="flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%; background: #00b894;"></div>
                         </div>
                     </div>
                 `;
@@ -5457,86 +5542,37 @@
             const badge = document.getElementById('notificationCount');
             if (!badge) return;
 
-            const unreadCount = notifications.filter(n => !n.read).length;
-            badge.textContent = unreadCount;
-            badge.style.display = unreadCount > 0 ? 'block' : 'none';
+            const count = notifications.length;
+            badge.textContent = count > 0 ? (count > 99 ? '99+' : count) : '0';
+            badge.style.display = count > 0 ? 'flex' : 'none';
         }
 
-        // Show toast notification
-        function showNotificationToast(action, entityName) {
-            const toast = document.createElement('div');
-            toast.style.cssText = `
-                position: fixed;
-                top: 80px;
-                right: 20px;
-                background: linear-gradient(135deg, #4a6b5a, #6a9c89);
-                color: white;
-                padding: 12px 20px;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-                z-index: 10000;
-                animation: slideIn 0.3s ease;
-                min-width: 300px;
-            `;
-
-            toast.innerHTML = `
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <i class="fas fa-check-circle" style="font-size: 1.2rem;"></i>
-                    <div>
-                        <div style="font-weight: 600; margin-bottom: 2px;">${action} Successful</div>
-                        <div style="font-size: 0.85rem; opacity: 0.9;">${entityName}</div>
-                    </div>
-                </div>
-            `;
-
-            document.body.appendChild(toast);
-
-            setTimeout(() => {
-                toast.style.animation = 'slideOut 0.3s ease';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+        // Get color for notification type
+        function getNotificationColor(notificationType) {
+            const colors = {
+                'NEW_ORDER': '#00b894',
+                'ORDER_UPDATE': '#74b9ff',
+                'LOW_STOCK': '#fdcb6e',
+                'SYSTEM': '#6c5ce7'
+            };
+            return colors[notificationType] || '#00b894';
         }
 
-        // Get time ago text
-        function getTimeAgo(date) {
-            const seconds = Math.floor((new Date() - date) / 1000);
+        // Clear all notifications (mark all as read)
+        async function clearAllNotifications() {
+            if (notifications.length === 0) return;
+            
+            if (!confirm('Mark all notifications as read?')) return;
 
-            if (seconds < 60) return 'Just now';
-            if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-            if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
-            if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
-            return date.toLocaleDateString();
-        }
-
-        // Clear all notifications
-        function clearAllNotifications() {
-            if (confirm('Clear all notifications?')) {
+            try {
+                await apiClient.put('/api/admin/notifications/read-all');
                 notifications = [];
                 updateNotificationUI();
-                saveNotifications();
-            }
-        }
-
-        // Save notifications to localStorage
-        function saveNotifications() {
-            try {
-                localStorage.setItem('adminNotifications', JSON.stringify(notifications));
-            } catch (e) {
-                console.error('Failed to save notifications:', e);
-            }
-        }
-
-        // Load notifications from localStorage
-        function loadNotifications() {
-            try {
-                const saved = localStorage.getItem('adminNotifications');
-                if (saved) {
-                    notifications = JSON.parse(saved);
-                    updateNotificationUI();
-                }
-            } catch (e) {
-                console.error('Failed to load notifications:', e);
-                notifications = [];
+                updateNotificationBadge();
+                showSuccessMessage('All notifications marked as read');
+            } catch (error) {
+                console.error('❌ Error clearing notifications:', error);
+                showErrorMessage('Failed to clear notifications');
             }
         }
 
