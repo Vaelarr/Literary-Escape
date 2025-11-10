@@ -5480,16 +5480,21 @@
         });
 
         // Mark notification as read
-        async function markNotificationAsRead(notificationId) {
+        async function markNotificationAsRead(notificationId, eventTarget) {
+            let notificationElement = null;
             try {
                 // Update UI immediately for better UX
-                const notificationElement = event.target.closest('[style*="border-bottom"]');
-                if (notificationElement) {
-                    notificationElement.style.opacity = '0.5';
-                    notificationElement.style.transition = 'opacity 0.3s';
+                if (eventTarget) {
+                    notificationElement = eventTarget.closest('[style*="border-bottom"]');
+                    if (notificationElement) {
+                        notificationElement.style.opacity = '0.5';
+                        notificationElement.style.transition = 'opacity 0.3s';
+                    }
                 }
                 
-                await apiClient.put(`/api/admin/notifications/${notificationId}/read`);
+                await window.api.makeRequest(`/admin/notifications/${notificationId}/read`, {
+                    method: 'PUT'
+                });
                 
                 // Remove from local array
                 notifications = notifications.filter(n => n.id !== notificationId);
@@ -5549,7 +5554,7 @@
                                     <span style="color: rgba(255,255,255,0.5); font-size: 0.75rem;">
                                         <i class="fas fa-clock" style="margin-right: 4px;"></i>${timeAgo}
                                     </span>
-                                    <button onclick="markNotificationAsRead(${notif.id}); return false;" 
+                                    <button onclick="markNotificationAsRead(${notif.id}, this); return false;" 
                                             style="background: rgba(76, 175, 80, 0.2); border: 1px solid rgba(76, 175, 80, 0.5); color: #4caf50; padding: 2px 8px; border-radius: 3px; font-size: 0.7rem; cursor: pointer; transition: all 0.2s;"
                                             onmouseenter="this.style.background='rgba(76, 175, 80, 0.3)'"
                                             onmouseleave="this.style.background='rgba(76, 175, 80, 0.2)'"
@@ -5608,7 +5613,9 @@
             if (!confirm('Mark all notifications as read?')) return;
 
             try {
-                await apiClient.put('/api/admin/notifications/read-all');
+                await window.api.makeRequest('/admin/notifications/read-all', {
+                    method: 'PUT'
+                });
                 
                 // Clear local array
                 notifications = [];

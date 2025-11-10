@@ -1356,7 +1356,7 @@
 
             try {
                 // Use the API client which handles token management properly
-                const result = await api.makeAuthenticatedRequest(`/api/orders/${orderId}/receive`, {
+                const result = await api.makeRequest(`/orders/${orderId}/receive`, {
                     method: 'PUT'
                 });
 
