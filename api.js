@@ -1152,17 +1152,21 @@ app.post('/api/admin/books/:id/archive', authenticateAdmin, (req, res) => {
                 return res.status(404).json({ error: 'Book not found' });
             }
 
-            // Log audit trail
-            logAuditTrail(
-                req,
-                'ARCHIVE',
-                'Book',
-                bookId,
-                book.title,
-                null,
-                null,
-                `Archived book "${book.title}"`
-            );
+            // Log audit trail (fire and forget, don't block response)
+            try {
+                logAuditTrail(
+                    req,
+                    'ARCHIVE',
+                    'Book',
+                    bookId,
+                    book.title,
+                    null,
+                    null,
+                    `Archived book "${book.title}"`
+                );
+            } catch (auditError) {
+                console.error('❌ Failed to log audit trail:', auditError);
+            }
 
             console.log('Book archived successfully');
             res.json({ message: 'Book archived successfully' });
@@ -1408,17 +1412,21 @@ app.post('/api/admin/orders/:id/unarchive', authenticateAdmin, (req, res) => {
                 return res.status(404).json({ error: 'Order not found' });
             }
 
-            // Log audit trail
-            logAuditTrail(
-                req,
-                'UNARCHIVE',
-                'Order',
-                orderId,
-                `Order #${orderId}`,
-                null,
-                null,
-                `Unarchived order #${orderId}`
-            );
+            // Log audit trail (fire and forget, don't block response)
+            try {
+                logAuditTrail(
+                    req,
+                    'UNARCHIVE',
+                    'Order',
+                    orderId,
+                    `Order #${orderId}`,
+                    null,
+                    null,
+                    `Unarchived order #${orderId}`
+                );
+            } catch (auditError) {
+                console.error('❌ Failed to log audit trail:', auditError);
+            }
 
             console.log('Order unarchived successfully');
             res.json({ message: 'Order unarchived successfully' });
@@ -2747,7 +2755,7 @@ app.put('/api/admin/profile/update', authenticateAdmin, (req, res) => {
 // ==================== AUDIT TRAIL API ENDPOINTS ====================
 
 // Helper function to log audit trail
-async function logAuditTrail(req, actionType, entityType, entityId, entityName, oldValue, newValue, description) {
+function logAuditTrail(req, actionType, entityType, entityId, entityName, oldValue, newValue, description) {
     // Validate that req and req.user exist
     if (!req || !req.user) {
         console.error('⚠️ Cannot log audit trail - req or req.user is undefined');
@@ -2790,7 +2798,7 @@ async function logAuditTrail(req, actionType, entityType, entityId, entityName, 
         role: req.user.isSuperAdmin ? 'super-admin' : 'moderator'
     });
 
-    // Fire and forget - don't block the response
+    // Call the add operation and handle callback
     auditTrailOperations.add(auditData, (err, result) => {
         if (err) {
             console.error('❌ Error logging audit trail:', err);
@@ -2798,9 +2806,6 @@ async function logAuditTrail(req, actionType, entityType, entityId, entityName, 
         } else {
             console.log('✅ Audit trail logged successfully:', result);
         }
-    }).catch(err => {
-        // Catch any promise rejections from the async function
-        console.error('❌ Uncaught error in audit trail logging:', err);
     });
 }
 
