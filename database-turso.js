@@ -2755,14 +2755,27 @@ const adminNotificationOperations = {
     // Mark notification as read
     markAsRead: async (notificationId, adminId, callback) => {
         try {
+            console.log('📝 Marking notification as read:', { notificationId, adminId, types: { notificationId: typeof notificationId, adminId: typeof adminId } });
+            
+            // Ensure values are integers
+            const notifId = parseInt(notificationId);
+            const adId = parseInt(adminId);
+            
+            if (isNaN(notifId) || isNaN(adId)) {
+                throw new Error(`Invalid parameters: notificationId=${notificationId}, adminId=${adminId}`);
+            }
+            
             await query(
                 `UPDATE admin_notifications 
                  SET is_read = 1, read_by_admin_id = ?, read_at = CURRENT_TIMESTAMP 
                  WHERE id = ?`,
-                [adminId, notificationId]
+                [adId, notifId]
             );
+            
+            console.log('✅ Notification marked as read successfully');
             callback(null, { message: 'Notification marked as read' });
         } catch (error) {
+            console.error('❌ Error in markAsRead:', error);
             callback(error);
         }
     },

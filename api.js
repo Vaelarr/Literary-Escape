@@ -2936,13 +2936,26 @@ app.get('/api/admin/notifications/recent', authenticateAdmin, (req, res) => {
 app.put('/api/admin/notifications/:id/read', authenticateAdmin, (req, res) => {
     const notificationId = parseInt(req.params.id);
     const adminId = req.user.id;
+    
+    console.log('📝 Mark notification as read request:', { 
+        notificationId, 
+        adminId, 
+        hasUser: !!req.user,
+        userObject: req.user 
+    });
+
+    if (!adminId) {
+        console.error('❌ Admin ID is missing from request');
+        return res.status(400).json({ error: 'Admin ID is required' });
+    }
 
     adminNotificationOperations.markAsRead(notificationId, adminId, (err, result) => {
         if (err) {
             console.error('❌ Error marking notification as read:', err);
-            return res.status(500).json({ error: err.message });
+            return res.status(500).json({ error: err.message || 'Failed to mark notification as read' });
         }
 
+        console.log('✅ Notification marked as read successfully');
         res.json(result);
     });
 });
