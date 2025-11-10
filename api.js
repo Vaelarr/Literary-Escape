@@ -2747,7 +2747,7 @@ app.put('/api/admin/profile/update', authenticateAdmin, (req, res) => {
 // ==================== AUDIT TRAIL API ENDPOINTS ====================
 
 // Helper function to log audit trail
-function logAuditTrail(req, actionType, entityType, entityId, entityName, oldValue, newValue, description) {
+async function logAuditTrail(req, actionType, entityType, entityId, entityName, oldValue, newValue, description) {
     // Validate that req and req.user exist
     if (!req || !req.user) {
         console.error('⚠️ Cannot log audit trail - req or req.user is undefined');
@@ -2790,13 +2790,17 @@ function logAuditTrail(req, actionType, entityType, entityId, entityName, oldVal
         role: req.user.isSuperAdmin ? 'super-admin' : 'moderator'
     });
 
-    auditTrailOperations.add(auditData, (err) => {
+    // Fire and forget - don't block the response
+    auditTrailOperations.add(auditData, (err, result) => {
         if (err) {
             console.error('❌ Error logging audit trail:', err);
             console.error('   Audit data:', auditData);
         } else {
-            console.log('✅ Audit trail logged successfully');
+            console.log('✅ Audit trail logged successfully:', result);
         }
+    }).catch(err => {
+        // Catch any promise rejections from the async function
+        console.error('❌ Uncaught error in audit trail logging:', err);
     });
 }
 
