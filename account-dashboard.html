@@ -1355,18 +1355,10 @@
             }
 
             try {
-                const response = await fetch(`/api/orders/${orderId}/receive`, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                        'Content-Type': 'application/json'
-                    }
+                // Use the API client which handles token management properly
+                const result = await api.makeAuthenticatedRequest(`/api/orders/${orderId}/receive`, {
+                    method: 'PUT'
                 });
-
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.error || 'Failed to mark order as received');
-                }
 
                 dbBookDisplay.showMessage('Order marked as received successfully!', 'success');
                 

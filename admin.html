@@ -5482,13 +5482,31 @@
         // Mark notification as read
         async function markNotificationAsRead(notificationId) {
             try {
+                // Update UI immediately for better UX
+                const notificationElement = event.target.closest('[style*="border-bottom"]');
+                if (notificationElement) {
+                    notificationElement.style.opacity = '0.5';
+                    notificationElement.style.transition = 'opacity 0.3s';
+                }
+                
                 await apiClient.put(`/api/admin/notifications/${notificationId}/read`);
+                
                 // Remove from local array
                 notifications = notifications.filter(n => n.id !== notificationId);
+                
+                // Update UI and badge count
                 updateNotificationUI();
                 updateNotificationBadge();
+                
+                console.log('✅ Notification marked as read. Remaining:', notifications.length);
             } catch (error) {
                 console.error('❌ Error marking notification as read:', error);
+                showErrorMessage('Failed to mark notification as read');
+                
+                // Restore opacity if failed
+                if (notificationElement) {
+                    notificationElement.style.opacity = '1';
+                }
             }
         }
 
@@ -5531,8 +5549,10 @@
                                     <span style="color: rgba(255,255,255,0.5); font-size: 0.75rem;">
                                         <i class="fas fa-clock" style="margin-right: 4px;"></i>${timeAgo}
                                     </span>
-                                    <button onclick="markNotificationAsRead(${notif.id}); event.stopPropagation();" 
-                                            style="background: rgba(76, 175, 80, 0.2); border: 1px solid rgba(76, 175, 80, 0.5); color: #4caf50; padding: 2px 8px; border-radius: 3px; font-size: 0.7rem; cursor: pointer;"
+                                    <button onclick="markNotificationAsRead(${notif.id}); return false;" 
+                                            style="background: rgba(76, 175, 80, 0.2); border: 1px solid rgba(76, 175, 80, 0.5); color: #4caf50; padding: 2px 8px; border-radius: 3px; font-size: 0.7rem; cursor: pointer; transition: all 0.2s;"
+                                            onmouseenter="this.style.background='rgba(76, 175, 80, 0.3)'"
+                                            onmouseleave="this.style.background='rgba(76, 175, 80, 0.2)'"
                                             title="Mark as read">
                                         <i class="fas fa-check"></i> Mark Read
                                     </button>
@@ -5550,11 +5570,24 @@
         // Update notification badge count
         function updateNotificationBadge() {
             const badge = document.getElementById('notificationCount');
-            if (!badge) return;
+            if (!badge) {
+                console.warn('⚠️ Notification badge element not found');
+                return;
+            }
 
             const count = notifications.length;
-            badge.textContent = count > 0 ? (count > 99 ? '99+' : count) : '0';
-            badge.style.display = count > 0 ? 'flex' : 'none';
+            const displayCount = count > 99 ? '99+' : count.toString();
+            
+            badge.textContent = displayCount;
+            
+            // Show/hide badge based on count
+            if (count > 0) {
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+            
+            console.log(`🔔 Notification badge updated: ${count} notification(s)`);
         }
 
         // Get color for notification type
@@ -5576,9 +5609,15 @@
 
             try {
                 await apiClient.put('/api/admin/notifications/read-all');
+                
+                // Clear local array
                 notifications = [];
+                
+                // Update UI and badge count
                 updateNotificationUI();
                 updateNotificationBadge();
+                
+                console.log('✅ All notifications cleared. Badge count should be 0');
                 showSuccessMessage('All notifications marked as read');
             } catch (error) {
                 console.error('❌ Error clearing notifications:', error);
