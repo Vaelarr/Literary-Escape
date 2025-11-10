@@ -4108,13 +4108,13 @@
 
                 if (logs && Array.isArray(logs)) {
                     auditTrailLogs = logs;
-                    displayAuditTrail();
+                    displayAuditTrailDropdown();
                     updateAuditTrailBadge(logs.length);
                     console.log('✅ Audit trail loaded successfully:', logs.length, 'logs');
                 } else {
                     console.warn('⚠️ No audit trail logs received or invalid format:', logs);
                     auditTrailLogs = [];
-                    displayAuditTrail();
+                    displayAuditTrailDropdown();
                     updateAuditTrailBadge(0);
                 }
             } catch (error) {
@@ -4125,7 +4125,7 @@
         }
 
         // Display audit trail in dropdown
-        function displayAuditTrail() {
+        function displayAuditTrailDropdown() {
             const listElement = document.getElementById('auditTrailList');
 
             if (!auditTrailLogs || auditTrailLogs.length === 0) {
@@ -5147,7 +5147,7 @@
             }
         }
 
-        // Display audit trail in table
+        // Display audit trail in table (full page section)
         function displayAuditTrail() {
             const tbody = document.getElementById('auditTrailTable');
 
@@ -5160,8 +5160,16 @@
                         </td>
                     </tr>
                 `;
+                
+                // Update range display
+                updateRangeDisplay('auditRange', 0, 0, 0);
                 return;
             }
+
+            // Calculate range for display
+            const startIndex = (currentAuditPage - 1) * ITEMS_PER_PAGE + 1;
+            const endIndex = Math.min(currentAuditPage * ITEMS_PER_PAGE, totalAuditItems);
+            updateRangeDisplay('auditRange', startIndex, endIndex, totalAuditItems);
 
             tbody.innerHTML = auditLogs.map(log => {
                 const actionColor = getActionColor(log.action_type);
@@ -5170,16 +5178,16 @@
 
                 return `
                     <tr>
-                        <td style="font-size: 0.85rem;">${timestamp}</td>
-                        <td><span class="badge" style="background: ${actionColor};">${log.action_type}</span></td>
-                        <td><i class="${entityIcon}" style="margin-right: 5px;"></i>${log.entity_type || '-'}</td>
-                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">${log.entity_name || '-'}</td>
+                        <td style="font-size: 0.85rem;">${escapeHtml(timestamp)}</td>
+                        <td><span class="badge" style="background: ${actionColor};">${escapeHtml(log.action_type)}</span></td>
+                        <td><i class="${entityIcon}" style="margin-right: 5px;"></i>${escapeHtml(log.entity_type || '-')}</td>
+                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;" title="${escapeHtml(log.entity_name || '-')}">${escapeHtml(truncateText(log.entity_name || '-', 30))}</td>
                         <td style="font-size: 0.9rem;">
-                            <div><strong>${log.admin_username || 'Unknown'}</strong></div>
-                            <small style="color: rgba(255,255,255,0.6);">${log.admin_email || ''}</small>
+                            <div><strong>${escapeHtml(log.admin_username || 'Unknown')}</strong></div>
+                            <small style="color: rgba(255,255,255,0.6);">${escapeHtml(log.admin_email || '')}</small>
                         </td>
-                        <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; font-size: 0.9rem;">
-                            ${log.description || '-'}
+                        <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; font-size: 0.9rem;" title="${escapeHtml(log.description || '-')}">
+                            ${escapeHtml(truncateText(log.description || '-', 50))}
                         </td>
                         <td>
                             <button class="btn-edit" onclick="viewAuditDetails(${log.id})" title="View Details">

@@ -2511,50 +2511,97 @@ const auditTrailOperations = {
     },
 
     // Get audit logs by entity
-    getByEntityType: async (entityType, entityId = null, callback) => {
+    getByEntityType: async (entityType, page = 1, limit = 50, callback) => {
         try {
-            let sql = 'SELECT * FROM audit_trail WHERE entity_type = ?';
+            const offset = (page - 1) * limit;
+            
+            let countSql = 'SELECT COUNT(*) as total FROM audit_trail WHERE entity_type = ?';
             let params = [entityType];
             
-            if (entityId !== null) {
-                sql += ' AND entity_id = ?';
-                params.push(entityId);
-            }
+            const countResult = await query(countSql, params);
+            const total = countResult.rows[0].total;
             
-            sql += ' ORDER BY created_at DESC';
+            let sql = 'SELECT * FROM audit_trail WHERE entity_type = ?';
+            sql += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
+            params.push(limit, offset);
             
             const result = await query(sql, params);
-            callback(null, result.rows);
+            callback(null, {
+                logs: result.rows,
+                total: total,
+                pagination: {
+                    currentPage: page,
+                    totalPages: Math.ceil(total / limit),
+                    totalItems: total,
+                    itemsPerPage: limit
+                }
+            });
         } catch (error) {
             callback(error);
         }
     },
 
     // Get audit logs by action type
-    getByActionType: async (actionType, callback) => {
+    getByActionType: async (actionType, page = 1, limit = 50, callback) => {
         try {
+            const offset = (page - 1) * limit;
+            
+            const countResult = await query(
+                'SELECT COUNT(*) as total FROM audit_trail WHERE action_type = ?',
+                [actionType]
+            );
+            const total = countResult.rows[0].total;
+            
             const result = await query(
                 `SELECT * FROM audit_trail 
                  WHERE action_type = ? 
-                 ORDER BY created_at DESC`,
-                [actionType]
+                 ORDER BY created_at DESC
+                 LIMIT ? OFFSET ?`,
+                [actionType, limit, offset]
             );
-            callback(null, result.rows);
+            callback(null, {
+                logs: result.rows,
+                total: total,
+                pagination: {
+                    currentPage: page,
+                    totalPages: Math.ceil(total / limit),
+                    totalItems: total,
+                    itemsPerPage: limit
+                }
+            });
         } catch (error) {
             callback(error);
         }
     },
 
     // Get audit logs by admin
-    getByAdmin: async (adminId, callback) => {
+    getByAdmin: async (adminId, page = 1, limit = 50, callback) => {
         try {
+            const offset = (page - 1) * limit;
+            
+            const countResult = await query(
+                'SELECT COUNT(*) as total FROM audit_trail WHERE admin_id = ?',
+                [adminId]
+            );
+            const total = countResult.rows[0].total;
+            
             const result = await query(
                 `SELECT * FROM audit_trail 
                  WHERE admin_id = ? 
-                 ORDER BY created_at DESC`,
-                [adminId]
+                 ORDER BY created_at DESC
+                 LIMIT ? OFFSET ?`,
+                [adminId, limit, offset]
             );
-            callback(null, result.rows);
+            callback(null, {
+                logs: result.rows,
+                total: total,
+                pagination: {
+                    currentPage: page,
+                    totalPages: Math.ceil(total / limit),
+                    totalItems: total,
+                    itemsPerPage: limit
+                }
+            });
         } catch (error) {
             callback(error);
         }
