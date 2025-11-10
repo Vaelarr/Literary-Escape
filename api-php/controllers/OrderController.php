@@ -11,6 +11,43 @@ class OrderController {
         $this->db = Database::getInstance()->getConnection();
     }
 
+	public function receiveOrder($orderId) {
+		$user = AuthMiddleware::authenticateToken();
+
+		// Get old order data for audit trail
+		$stmt = $this->db->prepare("SELECT * FROM orders WHERE id = ?");
+		$stmt->execute([$orderId]);
+		$oldOrder = $stmt->fetch();
+
+		if (!$oldOrder) {
+			http_response_code(404);
+			echo json_encode(['error' => 'Order not found']);
+			return;
+		}
+
+		try {
+			$stmt = $this->db->prepare("UPDATE orders SET status = 'received' WHERE id = ?");
+			$stmt->execute([$orderId]);
+
+			// Log audit trail
+			$this->logAuditTrail(
+				[ 'userId' => $user['userId'], 'email' => $user['email'] ],
+				'UPDATE',
+				'order',
+				$orderId,
+				"Order #$orderId",
+				['status' => $oldOrder['status']],
+				['status' => 'received'],
+				"User marked order #$orderId as received"
+			);
+
+			echo json_encode(['message' => 'Order marked as received']);
+		} catch (PDOException $e) {
+			http_response_code(500);
+			echo json_encode(['error' => $e->getMessage()]);
+		}
+	}
+
     public function create() {
         $user = AuthMiddleware::authenticateToken();
         $data = json_decode(file_get_contents('php://input'), true);

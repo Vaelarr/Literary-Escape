@@ -28,6 +28,7 @@ require_once __DIR__ . '/controllers/UserController.php';
 require_once __DIR__ . '/controllers/AdminController.php';
 require_once __DIR__ . '/controllers/VoucherController.php';
 require_once __DIR__ . '/controllers/AuditController.php';
+require_once __DIR__ . '/controllers/AdminNotificationController.php';
 
 // Get request method and URI
 $method = $_SERVER['REQUEST_METHOD'];
@@ -171,6 +172,9 @@ try {
             $orderController->getAll();
         } elseif ($method === 'POST' && !$orderId) {
             $orderController->create();
+        } elseif ($method === 'PUT' && $orderId && $action === 'receive') {
+            // Mark order as received (parity with Node API)
+            $orderController->receiveOrder($orderId);
         }
         exit;
     }
@@ -324,6 +328,23 @@ try {
             exit;
         }
 
+        // Dashboard top-selling books (parity with Node API)
+        if ($action === 'dashboard/top-selling-books') {
+            // Fallback: derive top-selling from order_items
+            $stmt = Database::getInstance()->getConnection()->query(
+                "SELECT b.id, b.title, b.author, b.cover, b.category, b.genre,
+                        SUM(oi.quantity) as total_sold
+                 FROM order_items oi
+                 JOIN books b ON oi.book_id = b.id
+                 GROUP BY b.id
+                 ORDER BY total_sold DESC
+                 LIMIT 10"
+            );
+            $rows = $stmt->fetchAll();
+            echo json_encode($rows);
+            exit;
+        }
+
         // Audit trail
         if (preg_match('#^audit-trail(/(.+))?$#', $action, $auditMatches)) {
             $auditController = new AuditController();
@@ -339,6 +360,28 @@ try {
                 $auditController->getByAdmin($idMatch[1]);
             } else {
                 $auditController->getAll();
+            }
+            exit;
+        }
+
+        // Admin notifications
+        if (preg_match('#^notifications(/(.+))?$#', $action, $notifMatches)) {
+            $notifController = new AdminNotificationController();
+            $subAction = $notifMatches[2] ?? null;
+
+            if ($method === 'GET' && $subAction === 'unread') {
+                $notifController->getUnread();
+            } elseif ($method === 'GET' && $subAction === 'unread/count') {
+                $notifController->getUnreadCount();
+            } elseif ($method === 'GET' && $subAction === 'recent') {
+                $notifController->getRecent();
+            } elseif ($method === 'PUT' && preg_match('#^(\d+)/read$#', $subAction, $idMatch)) {
+                $notifController->markRead($idMatch[1]);
+            } elseif ($method === 'PUT' && $subAction === 'read-all') {
+                $notifController->markAllRead();
+            } else {
+                http_response_code(404);
+                echo json_encode(['error' => 'Notifications endpoint not found']);
             }
             exit;
         }
