@@ -1498,17 +1498,15 @@
 
                     <div class="row" id="auditChangesSection" style="display: none;">
                         <div class="col-md-6">
-                            <h6 class="text-white mb-2">Old Value</h6>
-                            <div class="card bg-dark text-white p-3" style="max-height: 300px; overflow-y: auto;">
-                                <pre id="auditDetailOldValue"
-                                    style="margin: 0; color: #ff7675; font-size: 0.85rem; white-space: pre-wrap;">-</pre>
+                            <h6 class="text-white mb-2">Previous Value</h6>
+                            <div class="card bg-dark text-white p-3" style="max-height: 400px; overflow-y: auto;">
+                                <div id="auditDetailOldValue" style="margin: 0; color: #ff7675; font-size: 0.9rem;">-</div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <h6 class="text-white mb-2">New Value</h6>
-                            <div class="card bg-dark text-white p-3" style="max-height: 300px; overflow-y: auto;">
-                                <pre id="auditDetailNewValue"
-                                    style="margin: 0; color: #00b894; font-size: 0.85rem; white-space: pre-wrap;">-</pre>
+                            <h6 class="text-white mb-2">Updated Value</h6>
+                            <div class="card bg-dark text-white p-3" style="max-height: 400px; overflow-y: auto;">
+                                <div id="auditDetailNewValue" style="margin: 0; color: #00b894; font-size: 0.9rem;">-</div>
                             </div>
                         </div>
                     </div>
@@ -5345,18 +5343,12 @@
             if (log.old_value || log.new_value) {
                 changesSection.style.display = 'block';
 
-                // Format and display old/new values
-                try {
-                    const oldValue = log.old_value ? JSON.stringify(JSON.parse(log.old_value), null, 2) : '-';
-                    const newValue = log.new_value ? JSON.stringify(JSON.parse(log.new_value), null, 2) : '-';
+                // Format and display old/new values in human-readable format
+                const oldValueElement = document.getElementById('auditDetailOldValue');
+                const newValueElement = document.getElementById('auditDetailNewValue');
 
-                    document.getElementById('auditDetailOldValue').textContent = oldValue;
-                    document.getElementById('auditDetailNewValue').textContent = newValue;
-                } catch (e) {
-                    // If not JSON, display as plain text
-                    document.getElementById('auditDetailOldValue').textContent = log.old_value || '-';
-                    document.getElementById('auditDetailNewValue').textContent = log.new_value || '-';
-                }
+                oldValueElement.innerHTML = formatAuditValue(log.old_value, log.entity_type);
+                newValueElement.innerHTML = formatAuditValue(log.new_value, log.entity_type);
             } else {
                 changesSection.style.display = 'none';
             }
@@ -5364,6 +5356,106 @@
             // Show modal
             const modal = new bootstrap.Modal(document.getElementById('auditDetailsModal'));
             modal.show();
+        }
+
+        // Format audit log values into human-readable format
+        function formatAuditValue(value, entityType) {
+            if (!value) return '<span style="color: rgba(255,255,255,0.5);">No data</span>';
+
+            try {
+                const data = JSON.parse(value);
+                
+                // If it's a simple value, just display it
+                if (typeof data !== 'object') {
+                    return escapeHtml(String(data));
+                }
+
+                // Format based on entity type
+                let html = '<div style="line-height: 1.8;">';
+
+                // Common field formatting
+                const fieldLabels = {
+                    // Book fields
+                    title: 'Title',
+                    author: 'Author',
+                    description: 'Description',
+                    category: 'Category',
+                    genre: 'Genre',
+                    price: 'Price',
+                    publisher: 'Publisher',
+                    stock_quantity: 'Stock Quantity',
+                    status: 'Status',
+                    discount_percentage: 'Discount',
+                    
+                    // User fields
+                    username: 'Username',
+                    email: 'Email',
+                    first_name: 'First Name',
+                    last_name: 'Last Name',
+                    phone: 'Phone',
+                    address: 'Address',
+                    role: 'Role',
+                    
+                    // Order fields
+                    order_id: 'Order ID',
+                    order_status: 'Order Status',
+                    total_amount: 'Total Amount',
+                    payment_method: 'Payment Method',
+                    shipping_address: 'Shipping Address',
+                    
+                    // Admin fields
+                    is_super_admin: 'Super Admin',
+                    
+                    // Voucher fields
+                    code: 'Voucher Code',
+                    discount_type: 'Discount Type',
+                    discount_value: 'Discount Value',
+                    min_purchase: 'Minimum Purchase',
+                    max_uses: 'Maximum Uses',
+                    valid_from: 'Valid From',
+                    valid_until: 'Valid Until',
+                    
+                    // Common fields
+                    archived: 'Archived',
+                    created_at: 'Created',
+                    updated_at: 'Updated'
+                };
+
+                for (const [key, val] of Object.entries(data)) {
+                    // Skip null/undefined values
+                    if (val === null || val === undefined) continue;
+                    
+                    const label = fieldLabels[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    let displayValue = val;
+
+                    // Format specific value types
+                    if (key === 'price' || key === 'total_amount' || key === 'discount_value') {
+                        displayValue = `£${parseFloat(val).toFixed(2)}`;
+                    } else if (key === 'discount_percentage') {
+                        displayValue = `${val}%`;
+                    } else if (key === 'archived' || key === 'is_super_admin') {
+                        displayValue = val ? 'Yes' : 'No';
+                    } else if (key.includes('_at') || key.includes('date')) {
+                        displayValue = new Date(val).toLocaleString();
+                    } else if (key === 'status' || key === 'order_status') {
+                        displayValue = val.toUpperCase();
+                    } else if (typeof val === 'object') {
+                        displayValue = JSON.stringify(val);
+                    }
+
+                    html += `<div style="margin-bottom: 8px;">
+                        <strong style="color: rgba(255,255,255,0.7);">${escapeHtml(label)}:</strong> 
+                        <span style="color: white;">${escapeHtml(String(displayValue))}</span>
+                    </div>`;
+                }
+
+                html += '</div>';
+                return html;
+
+            } catch (e) {
+                // If not JSON, display as plain text
+                return `<span style="color: white;">${escapeHtml(String(value))}</span>`;
+            }
         }
 
         // Update audit pagination
