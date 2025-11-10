@@ -3829,7 +3829,9 @@
                 `;
 
                 // Fetch top selling books from API
-                const response = await window.api.get('/api/admin/dashboard/top-selling-books?limit=10');
+                const response = await window.api.makeRequest('/admin/dashboard/top-selling-books?limit=10', {
+                    method: 'GET'
+                });
 
                 if (!response || response.length === 0) {
                     tbody.innerHTML = `
