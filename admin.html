@@ -4313,10 +4313,21 @@
 
         // Format time ago
         function formatTimeAgo(dateString) {
-            const date = new Date(dateString);
+            // Handle UTC timestamps from SQLite (format: YYYY-MM-DD HH:MM:SS)
+            // SQLite CURRENT_TIMESTAMP returns UTC time
+            let date;
+            if (dateString.includes(' ') && !dateString.includes('T')) {
+                // SQLite format: "2025-11-10 06:07:44" (UTC)
+                // Convert to ISO format and explicitly mark as UTC
+                date = new Date(dateString.replace(' ', 'T') + 'Z');
+            } else {
+                date = new Date(dateString);
+            }
+            
             const now = new Date();
             const seconds = Math.floor((now - date) / 1000);
 
+            if (seconds < 0) return 'just now'; // Handle future timestamps
             if (seconds < 60) return 'just now';
             const minutes = Math.floor(seconds / 60);
             if (minutes < 60) return `${minutes}m ago`;
