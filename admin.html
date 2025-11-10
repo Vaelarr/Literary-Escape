@@ -2593,6 +2593,9 @@
                     // Refresh all data including dashboard
                     await refreshAllData();
 
+                    // Wait a moment for the audit trail to be written to the database
+                    await new Promise(resolve => setTimeout(resolve, 500));
+
                     // Reload audit trail to show the new action
                     await loadAuditTrail();
 
@@ -2631,6 +2634,9 @@
 
                     // Refresh all data including dashboard statistics
                     await refreshAllData();
+
+                    // Wait a moment for the audit trail to be written to the database
+                    await new Promise(resolve => setTimeout(resolve, 500));
 
                     // Reload audit trail to show the new action
                     await loadAuditTrail();
@@ -2703,18 +2709,11 @@
                 if (result) {
                     showSuccessMessage(`Book ${action}d successfully!`);
 
-                    // Add notification (TODO: Implement notification system)
-                    // const actionType = isUnarchive ? 'UNARCHIVE' : 'ARCHIVE';
-                    // const bookTitle = result.title || `Book #${bookId}`;
-                    // addNotification(
-                    //     actionType,
-                    //     'book',
-                    //     bookTitle,
-                    //     `Book "${bookTitle}" was ${action}d successfully`
-                    // );
-
                     // Refresh all data including dashboard
                     await refreshAllData();
+
+                    // Wait a moment for the audit trail to be written to the database
+                    await new Promise(resolve => setTimeout(resolve, 500));
 
                     // Reload audit trail to show the new action
                     await loadAuditTrail();
@@ -2752,18 +2751,11 @@
                 if (result) {
                     showSuccessMessage(`User ${action}d successfully!`);
 
-                    // Add notification (TODO: Implement notification system)
-                    // const actionType = isUnarchive ? 'UNARCHIVE' : 'ARCHIVE';
-                    // const userName = result.username || `User #${userId}`;
-                    // addNotification(
-                    //     actionType,
-                    //     'user',
-                    //     userName,
-                    //     `User "${userName}" was ${action}d successfully`
-                    // );
-
                     // Refresh all data including dashboard
                     await refreshAllData();
+
+                    // Wait a moment for the audit trail to be written to the database
+                    await new Promise(resolve => setTimeout(resolve, 500));
 
                     // Reload audit trail to show the new action
                     await loadAuditTrail();
@@ -2812,6 +2804,9 @@
 
                     // Refresh all data including dashboard
                     await refreshAllData();
+
+                    // Wait a moment for the audit trail to be written to the database
+                    await new Promise(resolve => setTimeout(resolve, 500));
 
                     // Reload audit trail to show the new action
                     await loadAuditTrail();
