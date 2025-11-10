@@ -2935,7 +2935,7 @@ app.get('/api/admin/notifications/recent', authenticateAdmin, (req, res) => {
 // Mark notification as read
 app.put('/api/admin/notifications/:id/read', authenticateAdmin, (req, res) => {
     const notificationId = parseInt(req.params.id);
-    const adminId = req.user.id;
+    const adminId = req.user.userId; // Use userId from token payload
     
     console.log('📝 Mark notification as read request:', { 
         notificationId, 
@@ -2962,7 +2962,7 @@ app.put('/api/admin/notifications/:id/read', authenticateAdmin, (req, res) => {
 
 // Mark all notifications as read
 app.put('/api/admin/notifications/read-all', authenticateAdmin, (req, res) => {
-    const adminId = req.user.id;
+    const adminId = req.user.userId; // Use userId from token payload
 
     adminNotificationOperations.markAllAsRead(adminId, (err, result) => {
         if (err) {
