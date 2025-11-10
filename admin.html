@@ -2585,10 +2585,10 @@
                     bootstrap.Modal.getInstance(document.getElementById('addBookModal')).hide();
                     document.getElementById('bookForm').reset();
 
-                    // Add notification
-                    const action = id ? 'UPDATE' : 'CREATE';
-                    const bookTitle = payload.title;
-                    addNotification(action, 'book', bookTitle, `${action === 'UPDATE' ? 'Updated' : 'Added'} book to inventory`);
+                    // Add notification (TODO: Implement notification system)
+                    // const action = id ? 'UPDATE' : 'CREATE';
+                    // const bookTitle = payload.title;
+                    // addNotification(action, 'book', bookTitle, `${action === 'UPDATE' ? 'Updated' : 'Added'} book to inventory`);
 
                     // Refresh all data including dashboard
                     await refreshAllData();
@@ -2626,8 +2626,8 @@
                 const result = await api.adminUpdateOrder(orderId, { status });
 
                 if (result) {
-                    // Add notification
-                    addNotification('UPDATE', 'order', `Order #${orderId}`, `Status changed to ${status}`);
+                    // Add notification (TODO: Implement notification system)
+                    // addNotification('UPDATE', 'order', `Order #${orderId}`, `Status changed to ${status}`);
 
                     // Refresh all data including dashboard statistics
                     await refreshAllData();
@@ -2703,15 +2703,15 @@
                 if (result) {
                     showSuccessMessage(`Book ${action}d successfully!`);
 
-                    // Add notification
-                    const actionType = isUnarchive ? 'UNARCHIVE' : 'ARCHIVE';
-                    const bookTitle = result.title || `Book #${bookId}`;
-                    addNotification(
-                        actionType,
-                        'book',
-                        bookTitle,
-                        `Book "${bookTitle}" was ${action}d successfully`
-                    );
+                    // Add notification (TODO: Implement notification system)
+                    // const actionType = isUnarchive ? 'UNARCHIVE' : 'ARCHIVE';
+                    // const bookTitle = result.title || `Book #${bookId}`;
+                    // addNotification(
+                    //     actionType,
+                    //     'book',
+                    //     bookTitle,
+                    //     `Book "${bookTitle}" was ${action}d successfully`
+                    // );
 
                     // Refresh all data including dashboard
                     await refreshAllData();
@@ -2752,15 +2752,15 @@
                 if (result) {
                     showSuccessMessage(`User ${action}d successfully!`);
 
-                    // Add notification
-                    const actionType = isUnarchive ? 'UNARCHIVE' : 'ARCHIVE';
-                    const userName = result.username || `User #${userId}`;
-                    addNotification(
-                        actionType,
-                        'user',
-                        userName,
-                        `User "${userName}" was ${action}d successfully`
-                    );
+                    // Add notification (TODO: Implement notification system)
+                    // const actionType = isUnarchive ? 'UNARCHIVE' : 'ARCHIVE';
+                    // const userName = result.username || `User #${userId}`;
+                    // addNotification(
+                    //     actionType,
+                    //     'user',
+                    //     userName,
+                    //     `User "${userName}" was ${action}d successfully`
+                    // );
 
                     // Refresh all data including dashboard
                     await refreshAllData();
@@ -2801,14 +2801,14 @@
                 if (result) {
                     showSuccessMessage(`Order ${action}d successfully!`);
 
-                    // Add notification
-                    const actionType = isUnarchive ? 'UNARCHIVE' : 'ARCHIVE';
-                    addNotification(
-                        actionType,
-                        'order',
-                        `Order #${orderId}`,
-                        `Order #${orderId} was ${action}d successfully`
-                    );
+                    // Add notification (TODO: Implement notification system)
+                    // const actionType = isUnarchive ? 'UNARCHIVE' : 'ARCHIVE';
+                    // addNotification(
+                    //     actionType,
+                    //     'order',
+                    //     `Order #${orderId}`,
+                    //     `Order #${orderId} was ${action}d successfully`
+                    // );
 
                     // Refresh all data including dashboard
                     await refreshAllData();
@@ -5435,7 +5435,9 @@
         async function loadNotifications() {
             try {
                 console.log('📬 Loading unread notifications from database...');
-                const unreadNotifications = await apiClient.get('/api/admin/notifications/unread');
+                const unreadNotifications = await window.api.makeRequest('/admin/notifications/unread', {
+                    method: 'GET'
+                });
                 
                 notifications = unreadNotifications || [];
                 updateNotificationUI();
