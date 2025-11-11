@@ -3486,7 +3486,7 @@
                 }
 
                 // Populate shipping address
-                const address = `${orderDetails.address || ''}, ${orderDetails.city || ''}, ${orderDetails.state || ''} ${orderDetails.zip_code || ''}`.replace(/,\s*,/g, ',').replace(/^,\s*|,\s*$/g, '');
+                const address = `${orderDetails.address || ''}, ${orderDetails.city || ''}, ${orderDetails.zip_code || ''}`.replace(/,\s*,/g, ',').replace(/^,\s*|,\s*$/g, '');
                 document.getElementById('shippingAddress').textContent = address || 'No address provided';
 
                 // Populate order items

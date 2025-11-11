@@ -1354,6 +1354,9 @@
                     if (userProfile.last_name) {
                         document.getElementById('lastName').value = userProfile.last_name;
                     }
+                    if (userProfile.middle_initial) {
+                        document.getElementById('middleInitial').value = userProfile.middle_initial;
+                    }
 
                     // Auto-fill address information if available
                     if (userProfile.address) {
