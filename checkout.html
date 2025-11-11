@@ -1310,8 +1310,8 @@
                 toggleFormFields(true);
             } else {
                 const address = userAddresses.find(addr => addr.id == addressId);
-                clearAddressForm();
                 selectedAddress = address;
+                populateUserInfo();
                 populateAddressForm(address);
                 toggleFormFields(false);
             }
