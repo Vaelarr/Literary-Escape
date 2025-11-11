@@ -74,9 +74,10 @@
                 </button>
                 <div class="user-menu">
                     <span id="dbStatus" class="badge bg-secondary" style="margin-right: 12px;">DB: checking...</span>
-                    
+
                     <!-- Audit Trail Dropdown (Real-time activity from DB) -->
-                    <div class="notification-icon" id="auditTrailBell" style="position: relative; cursor: pointer; margin-right: 15px;">
+                    <div class="notification-icon" id="auditTrailBell"
+                        style="position: relative; cursor: pointer; margin-right: 15px;">
                         <i class="fas fa-history"></i>
                         <span class="badge" id="auditTrailCount">0</span>
                         <!-- Audit Trail Dropdown -->
@@ -735,7 +736,8 @@
                             </thead>
                             <tbody id="auditTrailTable">
                                 <tr>
-                                    <td colspan="7" style="text-align: center; color: rgba(255,255,255,0.5);">Loading audit
+                                    <td colspan="7" style="text-align: center; color: rgba(255,255,255,0.5);">Loading
+                                        audit
                                         trail...</td>
                                 </tr>
                             </tbody>
@@ -1500,13 +1502,15 @@
                         <div class="col-md-6">
                             <h6 class="text-white mb-2">Previous Value</h6>
                             <div class="card bg-dark text-white p-3" style="max-height: 400px; overflow-y: auto;">
-                                <div id="auditDetailOldValue" style="margin: 0; color: #ff7675; font-size: 0.9rem;">-</div>
+                                <div id="auditDetailOldValue" style="margin: 0; color: #ff7675; font-size: 0.9rem;">-
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <h6 class="text-white mb-2">Updated Value</h6>
                             <div class="card bg-dark text-white p-3" style="max-height: 400px; overflow-y: auto;">
-                                <div id="auditDetailNewValue" style="margin: 0; color: #00b894; font-size: 0.9rem;">-</div>
+                                <div id="auditDetailNewValue" style="margin: 0; color: #00b894; font-size: 0.9rem;">-
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1580,25 +1584,148 @@
         const MAX_DB_RETRIES = 3;
         let dbStatusCheckInterval;
 
-        function initAdmin() {
-            console.log('🚀 Initializing admin panel...');
+        function showAdminLoadingScreen(message = "Connecting to database...") {
+            let loader = document.getElementById("loading-screen");
+            if (!loader) {
+                loader = document.createElement("div");
+                loader.id = "loading-screen";
+                loader.innerHTML = `
+            <div class="loader-container">
+                <div class="spinner">
+                    <img src="media/admin-logo.png" alt="Admin Logo" class="loader-logo">
+                </div>
+                <p>${message}</p>
+            </div>
+        `;
+                document.body.appendChild(loader);
 
-            // Start database connection monitoring
-            startDbStatusMonitoring();
+                // Inline styles for admin version
+                const style = document.createElement("style");
+                style.innerHTML = `
+            #loading-screen {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: #16423C;
+                overflow-x: hidden;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 9999;
+                font-family: 'Segoe UI', sans-serif;
+                transition: opacity 0.3s ease;
+            }
 
-            setupNavigation();
-            setupCategoryFilter();
-            setupOrderFilters();
-            setupCategoryGenreToggle();
-            setupMobileMenu();
-            setupAuditFilters();
+            .loader-container {
+                text-align: center;
+                color: white;
+            }
 
-            // Refresh audit trail every 30 seconds
-            setInterval(loadAuditTrail, 30000);
+            .spinner {
+                position: relative;
+                width: 120px;
+                height: 120px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: conic-gradient(
+                    from 0deg,
+                    #00d4ff,
+                    #00ffa3,
+                    #00d4ff
+                );
+                animation: spin 1.2s linear infinite, glow 2s ease-in-out infinite alternate;
+                box-shadow: 0 0 25px rgba(0, 255, 195, 0.5);
+                margin: 0 auto 15px;
+            }
 
-            // Only load data if database is connected
-            checkDbConnectionAndLoadData();
+            .spinner::before {
+                content: "";
+                position: absolute;
+                inset: 8px;
+                background-color: rgba(22, 66, 60, 0.9);
+                border-radius: 50%;
+            }
+
+            .loader-logo {
+                position: relative;
+                width: 70px;
+                height: 70px;
+                border-radius: 50%;
+                object-fit: contain;
+                z-index: 1;
+            }
+
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+
+            @keyframes glow {
+                0% { box-shadow: 0 0 10px rgba(0, 255, 195, 0.3); }
+                100% { box-shadow: 0 0 40px rgba(0, 255, 195, 0.8); }
+            }
+
+            #loading-screen.fade-out {
+                opacity: 0;
+                pointer-events: none;
+            }
+        `;
+                document.head.appendChild(style);
+            } else {
+                loader.querySelector("p").textContent = message;
+                loader.style.display = "flex";
+            }
         }
+
+        function hideAdminLoadingScreen() {
+            const loader = document.getElementById("loading-screen");
+            if (loader) {
+                loader.classList.add("fade-out");
+                setTimeout(() => loader.remove(), 300);
+            }
+        }
+
+        async function initAdmin() {
+            console.log('🚀 Initializing admin panel...');
+            showAdminLoadingScreen("Connecting to database...");
+
+            try {
+                // Start monitoring DB connection early
+                startDbStatusMonitoring();
+
+                // Setup UI and navigation while loading
+                setupNavigation();
+                setupCategoryFilter();
+                setupOrderFilters();
+                setupCategoryGenreToggle();
+                setupMobileMenu();
+                setupAuditFilters();
+
+                // Start background refreshes (audit trail)
+                setInterval(loadAuditTrail, 30000);
+
+                // Attempt initial DB connection and load all data
+                const connected = await verifyDatabaseConnection();
+                if (connected) {
+                    console.log('✅ Database connected, loading data...');
+                    await loadInitialData();
+                    hideAdminLoadingScreen();
+                } else {
+                    console.warn('⚠️ Database not connected at startup.');
+                    hideAdminLoadingScreen();
+                    showDatabaseError('Unable to connect to database');
+                }
+            } catch (error) {
+                console.error('❌ Error initializing admin panel:', error);
+                hideAdminLoadingScreen();
+                showDatabaseError('Initialization failed');
+            }
+        }
+
 
         async function checkDbConnectionAndLoadData() {
             try {
@@ -1887,7 +2014,7 @@
 
                 // Finally, update the dashboard with the complete stats
                 await updateDashboard();
-                
+
                 // Update top selling books
                 await updateTopSellingBooks();
 
@@ -1917,7 +2044,7 @@
                     loadAllOrdersForDashboard()
                 ]);
                 await updateDashboard();
-                
+
                 // Update top selling books
                 await updateTopSellingBooks();
 
@@ -2429,10 +2556,10 @@
                     'completed': '#2d4a3e',
                     'cancelled': '#8b4a4a'
                 };
-                
+
                 // Check if order can be completed
                 const canComplete = o.received_by_user || o.status !== 'delivered';
-                const receivedBadge = o.received_by_user 
+                const receivedBadge = o.received_by_user
                     ? '<span style="display: inline-block; margin-left: 5px; padding: 2px 6px; background: #2d4a3e; color: #90EE90; border-radius: 3px; font-size: 10px;" title="Received on ' + formatDate(o.received_at) + '"><i class="fas fa-check-circle"></i> Received</span>'
                     : (o.status === 'delivered' ? '<span style="display: inline-block; margin-left: 5px; padding: 2px 6px; background: #8b4a4a; color: #ffcccc; border-radius: 3px; font-size: 10px;" title="Waiting for customer confirmation"><i class="fas fa-clock"></i> Pending</span>' : '');
 
@@ -2445,11 +2572,11 @@
                             <select onchange="updateOrderStatus(${o.id}, this.value)" 
                                     style="padding: 4px 8px; border-radius: 4px; background: ${statusColors[o.status] || '#2d4a3e'}; color: white; border: 1px solid rgba(255,255,255,0.3); font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
                                 ${['pending', 'processing', 'shipped', 'delivered', 'completed', 'cancelled'].map(s => {
-                                    // Disable completed option if user hasn't received the order
-                                    const disabled = (s === 'completed' && !o.received_by_user) ? 'disabled' : '';
-                                    const title = (s === 'completed' && !o.received_by_user) ? 'title="Customer must mark order as received first"' : '';
-                                    return `<option value="${s}" ${o.status === s ? 'selected' : ''} ${disabled} ${title}>${s.charAt(0).toUpperCase() + s.slice(1)}</option>`;
-                                }).join('')}
+                    // Disable completed option if user hasn't received the order
+                    const disabled = (s === 'completed' && !o.received_by_user) ? 'disabled' : '';
+                    const title = (s === 'completed' && !o.received_by_user) ? 'title="Customer must mark order as received first"' : '';
+                    return `<option value="${s}" ${o.status === s ? 'selected' : ''} ${disabled} ${title}>${s.charAt(0).toUpperCase() + s.slice(1)}</option>`;
+                }).join('')}
                             </select>
                             ${receivedBadge}
                         </td>
@@ -2612,7 +2739,7 @@
         async function updateOrderStatus(orderId, status) {
             try {
                 console.log(`📊 Updating order ${orderId} status to: ${status}`);
-                
+
                 // If trying to mark as completed, check if user has received it
                 if (status === 'completed') {
                     const order = allOrders.find(o => o.id === orderId);
@@ -2621,7 +2748,7 @@
                         return;
                     }
                 }
-                
+
                 showLoadingMessage('Updating order status...');
 
                 const result = await api.adminUpdateOrder(orderId, { status });
@@ -2646,14 +2773,14 @@
 
             } catch (error) {
                 console.error('❌ Error updating order status:', error);
-                
+
                 // Check if it's the user confirmation error
                 if (error.message && error.message.includes('customer marks it as received')) {
                     showErrorMessage('Order cannot be marked as completed until the customer marks it as received');
                 } else {
                     showErrorMessage(`Failed to update order status: ${error.message}`);
                 }
-                
+
                 // Reload to revert any UI changes
                 await loadOrdersFromAPI(currentOrdersPage, currentOrderStatus, currentOrderSearch);
             }
@@ -3476,7 +3603,7 @@
                 document.getElementById('orderStatus').textContent = orderDetails.status.charAt(0).toUpperCase() + orderDetails.status.slice(1);
                 document.getElementById('orderTotal').textContent = `₱${formatPrice(orderDetails.total_amount)}`;
                 document.getElementById('orderDate').textContent = formatDate(orderDetails.created_at);
-                
+
                 // Show received status if applicable
                 const statusElement = document.getElementById('orderStatus');
                 if (orderDetails.received_by_user) {
@@ -3998,10 +4125,10 @@
             updateRangeDisplay('archivedOrdersRange', startIndex, endIndex, totalArchivedOrdersItems);
 
             tbody.innerHTML = archivedOrders.map(order => {
-                const receivedBadge = order.received_by_user 
+                const receivedBadge = order.received_by_user
                     ? '<span style="display: inline-block; margin-left: 5px; padding: 2px 6px; background: #2d4a3e; color: #90EE90; border-radius: 3px; font-size: 10px;" title="Received on ' + formatDate(order.received_at) + '"><i class="fas fa-check-circle"></i> Received</span>'
                     : '';
-                
+
                 return `
                     <tr>
                         <td style="font-weight: bold;">#${order.id}</td>
@@ -4321,7 +4448,7 @@
             } else {
                 date = new Date(dateString);
             }
-            
+
             const now = new Date();
             const seconds = Math.floor((now - date) / 1000);
 
@@ -4369,10 +4496,10 @@
         document.getElementById('viewAllAudit')?.addEventListener('click', function (e) {
             e.preventDefault();
             e.stopPropagation();
-            
+
             // Close the dropdown
             document.getElementById('auditTrailDropdown').classList.remove('show');
-            
+
             // Switch to audit trail section
             document.querySelectorAll('.content-section').forEach(section => {
                 section.classList.remove('active');
@@ -4380,10 +4507,10 @@
             document.querySelectorAll('.menu-link').forEach(link => {
                 link.classList.remove('active');
             });
-            
+
             document.getElementById('audit-trail-section').classList.add('active');
             document.querySelector('[data-section="audit-trail"]').classList.add('active');
-            
+
             // Load the full audit trail
             loadAuditTrailFromAPI(1);
         });
@@ -5256,7 +5383,7 @@
                         </td>
                     </tr>
                 `;
-                
+
                 // Update range display
                 updateRangeDisplay('auditRange', 0, 0, 0);
                 return;
@@ -5364,7 +5491,7 @@
 
             try {
                 const data = JSON.parse(value);
-                
+
                 // If it's a simple value, just display it
                 if (typeof data !== 'object') {
                     return escapeHtml(String(data));
@@ -5386,7 +5513,7 @@
                     stock_quantity: 'Stock Quantity',
                     status: 'Status',
                     discount_percentage: 'Discount',
-                    
+
                     // User fields
                     username: 'Username',
                     email: 'Email',
@@ -5395,17 +5522,17 @@
                     phone: 'Phone',
                     address: 'Address',
                     role: 'Role',
-                    
+
                     // Order fields
                     order_id: 'Order ID',
                     order_status: 'Order Status',
                     total_amount: 'Total Amount',
                     payment_method: 'Payment Method',
                     shipping_address: 'Shipping Address',
-                    
+
                     // Admin fields
                     is_super_admin: 'Super Admin',
-                    
+
                     // Voucher fields
                     code: 'Voucher Code',
                     discount_type: 'Discount Type',
@@ -5414,7 +5541,7 @@
                     max_uses: 'Maximum Uses',
                     valid_from: 'Valid From',
                     valid_until: 'Valid Until',
-                    
+
                     // Common fields
                     archived: 'Archived',
                     created_at: 'Created',
@@ -5424,7 +5551,7 @@
                 for (const [key, val] of Object.entries(data)) {
                     // Skip null/undefined values
                     if (val === null || val === undefined) continue;
-                    
+
                     const label = fieldLabels[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                     let displayValue = val;
 
@@ -5536,11 +5663,11 @@
                 const unreadNotifications = await window.api.makeRequest('/admin/notifications/unread', {
                     method: 'GET'
                 });
-                
+
                 notifications = unreadNotifications || [];
                 updateNotificationUI();
                 updateNotificationBadge();
-                
+
                 console.log(`✅ Loaded ${notifications.length} unread notifications`);
             } catch (error) {
                 console.error('❌ Error loading notifications:', error);
@@ -5583,23 +5710,23 @@
                         notificationElement.style.transition = 'opacity 0.3s';
                     }
                 }
-                
+
                 await window.api.makeRequest(`/admin/notifications/${notificationId}/read`, {
                     method: 'PUT'
                 });
-                
+
                 // Remove from local array
                 notifications = notifications.filter(n => n.id !== notificationId);
-                
+
                 // Update UI and badge count
                 updateNotificationUI();
                 updateNotificationBadge();
-                
+
                 console.log('✅ Notification marked as read. Remaining:', notifications.length);
             } catch (error) {
                 console.error('❌ Error marking notification as read:', error);
                 showErrorMessage('Failed to mark notification as read');
-                
+
                 // Restore opacity if failed
                 if (notificationElement) {
                     notificationElement.style.opacity = '1';
@@ -5674,16 +5801,16 @@
 
             const count = notifications.length;
             const displayCount = count > 99 ? '99+' : count.toString();
-            
+
             badge.textContent = displayCount;
-            
+
             // Show/hide badge based on count
             if (count > 0) {
                 badge.style.display = 'flex';
             } else {
                 badge.style.display = 'none';
             }
-            
+
             console.log(`🔔 Notification badge updated: ${count} notification(s)`);
         }
 
@@ -5701,21 +5828,21 @@
         // Clear all notifications (mark all as read)
         async function clearAllNotifications() {
             if (notifications.length === 0) return;
-            
+
             if (!confirm('Mark all notifications as read?')) return;
 
             try {
                 await window.api.makeRequest('/admin/notifications/read-all', {
                     method: 'PUT'
                 });
-                
+
                 // Clear local array
                 notifications = [];
-                
+
                 // Update UI and badge count
                 updateNotificationUI();
                 updateNotificationBadge();
-                
+
                 console.log('✅ All notifications cleared. Badge count should be 0');
                 showSuccessMessage('All notifications marked as read');
             } catch (error) {
