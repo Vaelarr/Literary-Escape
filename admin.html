@@ -3433,7 +3433,7 @@
                     tbody.innerHTML = orders.map(order => `
                         <tr>
                             <td style="font-weight: bold;">#${order.id}</td>
-                            <td style="color: #6a9c89; font-weight: bold;">₱${formatPrice(order.total_amount)}</td>
+                            <td style="color: white; font-weight: bold;">₱${formatPrice(order.total_amount)}</td>
                             <td>
                                 <span style="padding: 4px 8px; border-radius: 4px; background: #2d4a3e; color: white; font-size: 12px;">
                                     ${order.status.charAt(0).toUpperCase() + order.status.slice(1)}
@@ -3853,7 +3853,7 @@
                                 </div>
                             </div>
                         </td>
-                        <td style="text-align: right; font-weight: 600; color: #4caf50;">
+                        <td style="text-align: right; font-weight: 600; color: white;">
                             ${book.total_sold || 0} sold
                         </td>
                     </tr>
