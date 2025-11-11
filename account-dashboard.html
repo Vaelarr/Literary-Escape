@@ -881,7 +881,7 @@
                 await dbBookDisplay.updateCartCount();
             } catch (error) {
                 console.error('Error initializing account page:', error);
-                
+
                 // If it's a session expiration error, the handleInvalidToken will handle redirect
                 // Otherwise, show an error message
                 if (!error.message.includes('session has expired')) {
@@ -935,11 +935,13 @@
                 const profile = await api.getUserProfile();
 
                 // Populate form fields
-                document.getElementById('firstName').value = profile.first_name || '';
                 document.getElementById('lastName').value = profile.last_name || '';
                 document.getElementById('email').value = profile.email || '';
                 document.getElementById('phone').value = profile.phone || '';
+                document.getElementById('address').value = profile.address || '';
                 document.getElementById('birthdate').value = profile.birthdate || '';
+                document.getElementById('city').value = profile.city || '';
+                document.getElementById('zipCode').value = profile.zip_code || '';
 
                 // Update activity log
                 document.getElementById('accountCreated').textContent = new Date(profile.created_at).toLocaleDateString();
@@ -948,7 +950,7 @@
 
             } catch (error) {
                 console.error('Failed to load user profile:', error);
-                
+
                 // Don't show error if it's a session expiration (handleInvalidToken handles it)
                 if (!error.message.includes('session has expired')) {
                     if (typeof showNotification === 'function') {
@@ -957,7 +959,7 @@
                         dbBookDisplay.showMessage('Failed to load profile data', 'error');
                     }
                 }
-                
+
                 // Re-throw to allow caller to handle
                 throw error;
             }
@@ -969,7 +971,7 @@
                 displayOrders();
             } catch (error) {
                 console.error('Failed to load orders:', error);
-                
+
                 // Don't show error if it's a session expiration
                 if (!error.message.includes('session has expired')) {
                     document.getElementById('ordersContainer').innerHTML =
@@ -1104,7 +1106,7 @@
                 displayAddresses();
             } catch (error) {
                 console.error('Failed to load addresses:', error);
-                
+
                 // Don't show error if it's a session expiration
                 if (!error.message.includes('session has expired')) {
                     document.getElementById('addressesContainer').innerHTML =
@@ -1219,11 +1221,13 @@
         async function updateProfile() {
             try {
                 const formData = {
-                    first_name: document.getElementById('firstName').value,
                     last_name: document.getElementById('lastName').value,
                     email: document.getElementById('email').value,
                     phone: document.getElementById('phone').value,
+                    address: document.getElementById('address').value,
                     birthdate: document.getElementById('birthdate').value,
+                    city: document.getElementById('city').value,
+                    zip_code: document.getElementById('zipCode').value
                 };
 
                 await api.updateUserProfile(formData);
@@ -1337,7 +1341,7 @@
                 });
 
                 dbBookDisplay.showMessage('Order marked as received successfully!', 'success');
-                
+
                 // Reload orders to reflect the change
                 await loadUserOrders();
             } catch (error) {
