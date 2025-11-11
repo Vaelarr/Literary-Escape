@@ -1622,56 +1622,63 @@
                 color: white;
             }
 
-            .spinner {
-                position: relative;
-                width: 120px;
-                height: 120px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                background: conic-gradient(
-                    from 0deg,
-                    #00d4ff,
-                    #00ffa3,
-                    #00d4ff
-                );
-                animation: spin 1.2s linear infinite, glow 2s ease-in-out infinite alternate;
-                box-shadow: 0 0 25px rgba(0, 255, 195, 0.5);
-                margin: 0 auto 15px;
-            }
+        .spinner-ring {
+            position: relative;
+            width: 110px;
+            height: 110px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+        }
 
-            .spinner::before {
-                content: "";
-                position: absolute;
-                inset: 8px;
-                background-color: rgba(22, 66, 60, 0.9);
-                border-radius: 50%;
-            }
+        .spinner-rotation {
+            position: absolute;
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: conic-gradient(
+                from 0deg,
+                #00d4ff,
+                #00ffa3,
+                #00d4ff
+            );
+            animation: spin 1.2s linear infinite, glow 2s ease-in-out infinite alternate;
+            box-shadow: 0 0 20px rgba(0, 255, 195, 0.5);
+            z-index: 0;
+        }
 
-            .loader-logo {
-                position: relative;
-                width: 100px;
-                height: 100px;
-                border-radius: 50%;
-                object-fit: contain;
-                z-index: 1;
-            }
+        .spinner-rotation::before {
+            content: "";
+            position: absolute;
+            inset: 8px;
+            background-color: rgba(22, 66, 60, 0.9);
+            border-radius: 50%;
+        }
 
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
+        .loader-logo {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: contain;
+            z-index: 1;
+        }
 
-            @keyframes glow {
-                0% { box-shadow: 0 0 10px rgba(0, 255, 195, 0.3); }
-                100% { box-shadow: 0 0 40px rgba(0, 255, 195, 0.8); }
-            }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-            #loading-screen.fade-out {
-                opacity: 0;
-                pointer-events: none;
-            }
+        @keyframes glow {
+            0% { box-shadow: 0 0 10px rgba(0, 255, 195, 0.3); }
+            100% { box-shadow: 0 0 30px rgba(0, 255, 195, 0.8); }
+        }
+
+        #loading-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
         `;
                 document.head.appendChild(style);
             } else {
