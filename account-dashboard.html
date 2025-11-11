@@ -935,6 +935,7 @@
                 const profile = await api.getUserProfile();
 
                 // Populate form fields
+                document.getElementById('firstName').value = profile.first_name || '';
                 document.getElementById('lastName').value = profile.last_name || '';
                 document.getElementById('email').value = profile.email || '';
                 document.getElementById('phone').value = profile.phone || '';
