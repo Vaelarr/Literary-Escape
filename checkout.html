@@ -936,86 +936,90 @@
                 loader = document.createElement("div");
                 loader.id = "loading-screen";
                 loader.innerHTML = `
-            <div class="loader-container">
+        <div class="loader-container">
+            <div class="spinner">
                 <img src="media/icon.png" alt="Literary Escape Logo" class="loader-logo">
-                <div class="spinner"></div>
-                <p>${message}</p>
             </div>
+            <p>${message}</p>
+        </div>
         `;
                 document.body.appendChild(loader);
 
                 // Inline CSS for simplicity
                 const style = document.createElement("style");
                 style.innerHTML = `
-            #loading-screen {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-color: rgba(22, 66, 60, 0.9);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 9999;
-                font-family: 'Segoe UI', sans-serif;
-                transition: opacity 0.3s ease;
-            }
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(22, 66, 60, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            font-family: 'Segoe UI', sans-serif;
+            transition: opacity 0.3s ease;
+        }
 
-            .loader-container {
-                text-align: center;
-                color: white;
-            }
+        .loader-container {
+            text-align: center;
+            color: white;
+        }
 
-            .spinner {
-                position: relative;
-                width: 110px;
-                height: 110px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                background: conic-gradient(
-                    from 0deg,
-                    #00d4ff,
-                    #00ffa3,
-                    #00d4ff
-                );
-                animation: spin 1.2s linear infinite, glow 2s ease-in-out infinite alternate;
-                box-shadow: 0 0 20px rgba(0, 255, 195, 0.5);
-                margin: 0 auto 15px;
-            }
+        .spinner {
+            position: relative;
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: conic-gradient(
+                from 0deg,
+                #00d4ff,
+                #00ffa3,
+                #00d4ff
+            );
+            animation: spin 1.2s linear infinite, glow 2s ease-in-out infinite alternate;
+            box-shadow: 0 0 20px rgba(0, 255, 195, 0.5);
+            margin: 0 auto 15px;
+        }
 
-            .spinner::before {
-                content: "";
-                position: absolute;
-                inset: 5px;
-                background-color: rgba(22, 66, 60, 0.9); /* inner circle matches background */
-                border-radius: 50%;
-            }
-                
-            .loader-logo {
-                width: 60px;
-                height: 60px;
-                border-radius: 50%;
-                object-fit: contain;
-                z-index: 1;
-            }
+        /* Inner circle that covers the center so only the ring shows */
+        .spinner::before {
+            content: "";
+            position: absolute;
+            inset: 8px; /* smaller = thicker ring */
+            background-color: rgba(22, 66, 60, 0.9);
+            border-radius: 50%;
+            z-index: 0;
+        }
 
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
+        .loader-logo {
+            position: relative;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: contain;
+            z-index: 1;
+        }
 
-            @keyframes glow {
-                0% { box-shadow: 0 0 10px rgba(0, 255, 195, 0.3); }
-                100% { box-shadow: 0 0 30px rgba(0, 255, 195, 0.8); }
-            }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-            #loading-screen.fade-out {
-                opacity: 0;
-                pointer-events: none;
-            }
+        @keyframes glow {
+            0% { box-shadow: 0 0 10px rgba(0, 255, 195, 0.3); }
+            100% { box-shadow: 0 0 30px rgba(0, 255, 195, 0.8); }
+        }
+
+        #loading-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
         `;
                 document.head.appendChild(style);
             } else {
