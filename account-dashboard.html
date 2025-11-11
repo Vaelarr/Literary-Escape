@@ -443,7 +443,8 @@
                             </div>
                             <div class="mb-3">
                                 <label for="address" class="form-label">Address</label>
-                                <input type="text" class="form-control" id="address">
+                                <textarea class="form-control" id="address" rows="3"></textarea>
+                            </div>
                             <div class="mb-3">
                                 <label for="birthdate" class="form-label">Birth Date</label>
                                 <input type="date" class="form-control" id="birthdate">
@@ -898,7 +899,7 @@
                 await dbBookDisplay.updateCartCount();
             } catch (error) {
                 console.error('Error initializing account page:', error);
-
+                
                 // If it's a session expiration error, the handleInvalidToken will handle redirect
                 // Otherwise, show an error message
                 if (!error.message.includes('session has expired')) {
@@ -968,7 +969,7 @@
 
             } catch (error) {
                 console.error('Failed to load user profile:', error);
-
+                
                 // Don't show error if it's a session expiration (handleInvalidToken handles it)
                 if (!error.message.includes('session has expired')) {
                     if (typeof showNotification === 'function') {
@@ -977,7 +978,7 @@
                         dbBookDisplay.showMessage('Failed to load profile data', 'error');
                     }
                 }
-
+                
                 // Re-throw to allow caller to handle
                 throw error;
             }
@@ -989,7 +990,7 @@
                 displayOrders();
             } catch (error) {
                 console.error('Failed to load orders:', error);
-
+                
                 // Don't show error if it's a session expiration
                 if (!error.message.includes('session has expired')) {
                     document.getElementById('ordersContainer').innerHTML =
@@ -1124,7 +1125,7 @@
                 displayAddresses();
             } catch (error) {
                 console.error('Failed to load addresses:', error);
-
+                
                 // Don't show error if it's a session expiration
                 if (!error.message.includes('session has expired')) {
                     document.getElementById('addressesContainer').innerHTML =
@@ -1239,6 +1240,7 @@
         async function updateProfile() {
             try {
                 const formData = {
+                    first_name: document.getElementById('firstName').value,
                     last_name: document.getElementById('lastName').value,
                     email: document.getElementById('email').value,
                     phone: document.getElementById('phone').value,
@@ -1359,7 +1361,7 @@
                 });
 
                 dbBookDisplay.showMessage('Order marked as received successfully!', 'success');
-
+                
                 // Reload orders to reflect the change
                 await loadUserOrders();
             } catch (error) {
