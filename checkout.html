@@ -937,7 +937,8 @@
                 loader.id = "loading-screen";
                 loader.innerHTML = `
         <div class="loader-container">
-            <div class="spinner">
+            <div class="spinner-ring">
+                <div class="spinner-rotation"></div>
                 <img src="media/icon.png" alt="Literary Escape Logo" class="loader-logo">
             </div>
             <p>${message}</p>
@@ -968,14 +969,22 @@
             color: white;
         }
 
-        .spinner {
+        .spinner-ring {
             position: relative;
             width: 110px;
             height: 110px;
-            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            margin: 0 auto 15px;
+        }
+
+        /* Glowing rotating ring */
+        .spinner-rotation {
+            position: absolute;
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
             background: conic-gradient(
                 from 0deg,
                 #00d4ff,
@@ -984,23 +993,23 @@
             );
             animation: spin 1.2s linear infinite, glow 2s ease-in-out infinite alternate;
             box-shadow: 0 0 20px rgba(0, 255, 195, 0.5);
-            margin: 0 auto 15px;
-        }
-
-        /* Inner circle that covers the center so only the ring shows */
-        .spinner::before {
-            content: "";
-            position: absolute;
-            inset: 8px; /* smaller = thicker ring */
-            background-color: rgba(22, 66, 60, 0.9);
-            border-radius: 50%;
             z-index: 0;
         }
 
+        /* Inner mask so only ring edge shows */
+        .spinner-rotation::before {
+            content: "";
+            position: absolute;
+            inset: 8px;
+            background-color: rgba(22, 66, 60, 0.9);
+            border-radius: 50%;
+        }
+
+        /* Logo stays static on top */
         .loader-logo {
             position: relative;
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
             object-fit: contain;
             z-index: 1;
