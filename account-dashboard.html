@@ -442,26 +442,8 @@
                                 <input type="tel" class="form-control" id="phone">
                             </div>
                             <div class="mb-3">
-                                <label for="address" class="form-label">Address</label>
-                                <textarea class="form-control" id="address" rows="3"></textarea>
-                            </div>
-                            <div class="mb-3">
                                 <label for="birthdate" class="form-label">Birth Date</label>
                                 <input type="date" class="form-control" id="birthdate">
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="city" class="form-label">City</label>
-                                        <input type="text" class="form-control" id="city">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="zipCode" class="form-label">ZIP Code</label>
-                                        <input type="text" class="form-control" id="zipCode">
-                                    </div>
-                                </div>
                             </div>
                             <button type="submit" class="btn btn-primary"
                                 style="background-color: #16423C; border-color: #16423C;">
@@ -957,10 +939,7 @@
                 document.getElementById('lastName').value = profile.last_name || '';
                 document.getElementById('email').value = profile.email || '';
                 document.getElementById('phone').value = profile.phone || '';
-                document.getElementById('address').value = profile.address || '';
                 document.getElementById('birthdate').value = profile.birthdate || '';
-                document.getElementById('city').value = profile.city || '';
-                document.getElementById('zipCode').value = profile.zip_code || '';
 
                 // Update activity log
                 document.getElementById('accountCreated').textContent = new Date(profile.created_at).toLocaleDateString();
@@ -1244,10 +1223,7 @@
                     last_name: document.getElementById('lastName').value,
                     email: document.getElementById('email').value,
                     phone: document.getElementById('phone').value,
-                    address: document.getElementById('address').value,
                     birthdate: document.getElementById('birthdate').value,
-                    city: document.getElementById('city').value,
-                    zip_code: document.getElementById('zipCode').value
                 };
 
                 await api.updateUserProfile(formData);
