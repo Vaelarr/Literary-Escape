@@ -953,7 +953,7 @@
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background-color: rgba(22, 66, 60, 0.7);
+                background-color: rgba(22, 66, 60, 0.9);
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -968,13 +968,38 @@
             }
 
             .spinner {
-                border: 5px solid #f3f3f3;
-                border-top: 5px solid #007bff;
+                position: relative;
+                width: 110px;
+                height: 110px;
                 border-radius: 50%;
-                width: 50px;
-                height: 50px;
-                animation: spin 1s linear infinite;
-                margin: 0 auto 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: conic-gradient(
+                    from 0deg,
+                    #00d4ff,
+                    #00ffa3,
+                    #00d4ff
+                );
+                animation: spin 1.2s linear infinite, glow 2s ease-in-out infinite alternate;
+                box-shadow: 0 0 20px rgba(0, 255, 195, 0.5);
+                margin: 0 auto 15px;
+            }
+
+            .spinner::before {
+                content: "";
+                position: absolute;
+                inset: 5px;
+                background-color: rgba(22, 66, 60, 0.9); /* inner circle matches background */
+                border-radius: 50%;
+            }
+                
+            .loader-logo {
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                object-fit: contain;
+                z-index: 1;
             }
 
             @keyframes spin {
@@ -982,15 +1007,14 @@
                 100% { transform: rotate(360deg); }
             }
 
+            @keyframes glow {
+                0% { box-shadow: 0 0 10px rgba(0, 255, 195, 0.3); }
+                100% { box-shadow: 0 0 30px rgba(0, 255, 195, 0.8); }
+            }
+
             #loading-screen.fade-out {
                 opacity: 0;
                 pointer-events: none;
-            }
-            
-            .loader-logo {
-                width: 80px;
-                height: 80px;
-                margin-bottom: 15px;
             }
         `;
                 document.head.appendChild(style);
