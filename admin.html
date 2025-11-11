@@ -807,7 +807,7 @@
                             onchange="loadArchivedBooksFromAPI(1, this.value)" title="Archived Books Category Filter">
                             <option value="all">All Categories</option>
                             <option value="Fiction">Fiction</option>
-                            <option value="Non-Fiction">Non-Fiction</option>
+                            <option value="Non - Fiction">Non-Fiction</option>
                         </select>
                     </div>
                     <div class="table-container scrollable-content">
@@ -4007,7 +4007,7 @@
                         <td style="font-weight: bold;">#${order.id}</td>
                         <td title="${escapeHtml(formatCustomerName(order))}">${truncateText(escapeHtml(formatCustomerName(order)), 20)}</td>
                         <td title="${escapeHtml(order.email || 'N/A')}">${truncateText(escapeHtml(order.email || 'N/A'), 25)}</td>
-                        <td style="font-weight: bold; color: #6a9c89;">₱${formatPrice(order.total_amount)}</td>
+                        <td style="font-weight: bold; color: white;">₱${formatPrice(order.total_amount)}</td>
                         <td>
                             <span style="padding: 4px 8px; border-radius: 4px; background: #2d4a3e; color: white; font-size: 12px;">
                                 ${order.status.charAt(0).toUpperCase() + order.status.slice(1)}
