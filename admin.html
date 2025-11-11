@@ -1608,8 +1608,7 @@
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background-color: #16423C;
-                overflow-x: hidden;
+                background-color: rgba(22, 66, 60, 0.9);
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -1689,83 +1688,76 @@
             }
         }
 
+
         async function initAdmin() {
             console.log('🚀 Initializing admin panel...');
             showAdminLoadingScreen("Connecting to database...");
 
-            try {
-                // Start monitoring DB connection early
-                startDbStatusMonitoring();
+            // Start DB monitoring early
+            startDbStatusMonitoring();
 
-                // Setup UI and navigation while loading
-                setupNavigation();
-                setupCategoryFilter();
-                setupOrderFilters();
-                setupCategoryGenreToggle();
-                setupMobileMenu();
-                setupAuditFilters();
+            // Setup UI/navigation while waiting
+            setupNavigation();
+            setupCategoryFilter();
+            setupOrderFilters();
+            setupCategoryGenreToggle();
+            setupMobileMenu();
+            setupAuditFilters();
 
-                // Start background refreshes (audit trail)
-                setInterval(loadAuditTrail, 30000);
+            // Start background refreshes (audit trail)
+            setInterval(loadAuditTrail, 30000);
 
-                // Attempt initial DB connection and load all data
-                const connected = await verifyDatabaseConnection();
-                if (connected) {
-                    console.log('✅ Database connected, loading data...');
-                    await loadInitialData();
-                    hideAdminLoadingScreen();
-                } else {
-                    console.warn('⚠️ Database not connected at startup.');
-                    hideAdminLoadingScreen();
-                    showDatabaseError('Unable to connect to database');
-                }
-            } catch (error) {
-                console.error('❌ Error initializing admin panel:', error);
-                hideAdminLoadingScreen();
-                showDatabaseError('Initialization failed');
-            }
+            // Only attempt to load data if DB is connected
+            await checkDbConnectionAndLoadData();
         }
-
 
         async function checkDbConnectionAndLoadData() {
             try {
                 console.log('🔌 Checking database connection...');
-                console.log('🔧 Auto-running database migrations if needed...');
                 const isConnected = await verifyDatabaseConnection();
 
                 if (isConnected) {
                     console.log('✅ Database connected, loading initial data...');
+                    showAdminLoadingScreen("Loading dashboard data...");
                     await loadInitialData();
+
+                    // ONLY hide the loading screen after everything is loaded
+                    hideAdminLoadingScreen();
                 } else {
                     console.warn('⚠️ Database not connected, retrying...');
-                    showDatabaseError();
+                    showAdminLoadingScreen("Reconnecting to database...");
 
-                    // Retry connection after delay
                     if (dbConnectionRetries < MAX_DB_RETRIES) {
                         dbConnectionRetries++;
                         setTimeout(() => {
                             console.log(`🔄 Retry ${dbConnectionRetries}/${MAX_DB_RETRIES}...`);
                             checkDbConnectionAndLoadData();
-                        }, 2000 * dbConnectionRetries); // Exponential backoff
+                        }, 2000 * dbConnectionRetries);
                     } else {
+                        hideAdminLoadingScreen();
                         showFatalDatabaseError();
                     }
                 }
             } catch (error) {
                 console.error('❌ Database connection check failed:', error);
+                hideAdminLoadingScreen();
                 showDatabaseError(error.message);
             }
         }
 
         async function verifyDatabaseConnection() {
             try {
-                // Check if API client is available first
+                // Show status on the loading screen
+                showAdminLoadingScreen("Verifying API client...");
+
+                // Check if API client exists
                 if (typeof window.api === 'undefined' || !window.api) {
                     throw new Error('API client not initialized');
                 }
 
-                // Test basic API connectivity and database connection
-                // The testConnection endpoint doesn't require authentication
+                showAdminLoadingScreen("Testing database connection...");
+
+                // Test basic API connectivity with timeout
                 const testResult = await Promise.race([
                     api.testConnection(),
                     new Promise((_, reject) =>
@@ -1781,15 +1773,19 @@
                 dbConnectionStatus = true;
                 dbConnectionRetries = 0;
                 updateDbStatusUI(true);
-                return true;
+                showAdminLoadingScreen("Database connected! Loading admin data...");
 
+                return true;
             } catch (error) {
                 console.error('🔌 Database connection verification failed:', error);
                 dbConnectionStatus = false;
                 updateDbStatusUI(false, error.message);
+
+                showAdminLoadingScreen("Database connection failed. Retrying...");
                 return false;
             }
         }
+
 
         function startDbStatusMonitoring() {
             // Clear any existing interval
