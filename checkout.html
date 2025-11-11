@@ -630,9 +630,7 @@
                                         class="text-muted">(Optional)</small></label>
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="voucherCode"
-                                        placeholder="Enter voucher code (optional)" 
-                                        maxlength="50"
-                                        autocomplete="off">
+                                        placeholder="Enter voucher code (optional)" maxlength="50" autocomplete="off">
                                     <button class="btn btn-outline-primary" type="button"
                                         id="applyVoucher">Apply</button>
                                     <button class="btn btn-outline-danger d-none" type="button"
@@ -891,10 +889,14 @@
         });
 
         async function initializeCheckout() {
+            // Show loading screen
+            showLoadingScreen("Loading...");
+
             try {
                 // Test database connection first
                 console.log('🔌 Testing database connection...');
                 const dbConnected = await api.testConnection();
+
                 if (!dbConnected) {
                     console.warn('⚠️ Database connection test failed');
                     showWarning('Database connection issue. Some features may not work properly.');
@@ -922,8 +924,83 @@
             } catch (error) {
                 console.error('Failed to initialize checkout:', error);
                 showError('Failed to load checkout data');
+            } finally {
+                // Hide loading screen once everything is done
+                hideLoadingScreen();
             }
         }
+
+        function showLoadingScreen(message = "Loading...") {
+            let loader = document.getElementById("loading-screen");
+            if (!loader) {
+                loader = document.createElement("div");
+                loader.id = "loading-screen";
+                loader.innerHTML = `
+            <div class="loader-container">
+                <div class="spinner"></div>
+                <p>${message}</p>
+            </div>
+        `;
+                document.body.appendChild(loader);
+
+                // Inline CSS for simplicity
+                const style = document.createElement("style");
+                style.innerHTML = `
+            #loading-screen {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(255, 255, 255, 0.95);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 9999;
+                font-family: 'Segoe UI', sans-serif;
+                transition: opacity 0.3s ease;
+            }
+
+            .loader-container {
+                text-align: center;
+                color: #333;
+            }
+
+            .spinner {
+                border: 5px solid #f3f3f3;
+                border-top: 5px solid #007bff;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                animation: spin 1s linear infinite;
+                margin: 0 auto 10px;
+            }
+
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+
+            #loading-screen.fade-out {
+                opacity: 0;
+                pointer-events: none;
+            }
+        `;
+                document.head.appendChild(style);
+            } else {
+                loader.querySelector("p").textContent = message;
+                loader.style.display = "flex";
+            }
+        }
+
+        function hideLoadingScreen() {
+            const loader = document.getElementById("loading-screen");
+            if (loader) {
+                loader.classList.add("fade-out");
+                setTimeout(() => loader.remove(), 300); // Smooth fade-out
+            }
+        }
+
 
         // Debug helper function
         function debugCheckout() {
@@ -1171,38 +1248,38 @@
         async function validateVoucher(code, orderAmount) {
             try {
                 console.log('🎫 Validating voucher:', { code, orderAmount });
-                
+
                 // Ensure API client is initialized
                 if (!api) {
                     throw new Error('API client not initialized');
                 }
-                
+
                 // Check if user is logged in
                 if (!api.isLoggedIn()) {
                     return { valid: false, message: 'Please login to use voucher codes' };
                 }
-                
+
                 // Call API with order amount for proper validation
                 const response = await api.validateVoucher(code, orderAmount);
                 console.log('✅ Voucher validation response:', response);
-                
+
                 // Validate response structure
                 if (typeof response !== 'object') {
                     console.error('Invalid response format:', response);
                     return { valid: false, message: 'Invalid server response' };
                 }
-                
+
                 return response;
             } catch (error) {
                 console.error('❌ Voucher validation API failed:', error);
-                
+
                 // Provide user-friendly error messages
                 if (error.message.includes('token') || error.message.includes('session')) {
                     return { valid: false, message: 'Please login to use voucher codes' };
                 } else if (error.message.includes('network') || error.message.includes('fetch')) {
                     return { valid: false, message: 'Network error. Please check your connection' };
                 }
-                
+
                 return { valid: false, message: error.message || 'Failed to validate voucher. Please try again.' };
             }
         }
@@ -1585,7 +1662,7 @@
 
                 // Discounts summary (only voucher now)
                 const discounts = {
-                    voucher: appliedVoucher ? { 
+                    voucher: appliedVoucher ? {
                         code: document.getElementById('voucherCode').value.trim().toUpperCase(),
                         amount: voucherDiscount,
                         id: appliedVoucher.voucher?.id || null,
