@@ -955,7 +955,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(22, 66, 60, 0.9);
+            background-color: #16423C;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -979,7 +979,6 @@
             margin: 0 auto 15px;
         }
 
-        /* Glowing rotating ring */
         .spinner-rotation {
             position: absolute;
             width: 110px;
@@ -996,7 +995,6 @@
             z-index: 0;
         }
 
-        /* Inner mask so only ring edge shows */
         .spinner-rotation::before {
             content: "";
             position: absolute;
@@ -1005,11 +1003,10 @@
             border-radius: 50%;
         }
 
-        /* Logo stays static on top */
         .loader-logo {
             position: relative;
-            width: 70px;
-            height: 70px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             object-fit: contain;
             z-index: 1;
